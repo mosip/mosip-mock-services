@@ -57,6 +57,7 @@ RUN echo "#!/bin/bash" > start.sh \
     && echo "cat ref.proxy" >> start.sh \
     && echo "/usr/local/bin/pkcs11-daemon /usr/local/lib/softhsm/libsofthsm2.so" >> start.sh \
     && chmod +x start.sh
+VOLUME /softhsm
 EXPOSE 5666
 ENV PKCS11_DAEMON_SOCKET="tcp://0.0.0.0:5666"
 CMD [ "/start.sh" ]
