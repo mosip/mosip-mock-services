@@ -2,6 +2,7 @@ package io.mosip.mds.entitiy;
 
 import io.mosip.mds.dto.*;
 import io.mosip.mds.dto.TestRun.RunStatus;
+import io.mosip.mds.dto.getresponse.BiometricTypeDto;
 import io.mosip.mds.dto.getresponse.MasterDataResponseDto;
 import io.mosip.mds.dto.getresponse.TestExtnDto;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
@@ -20,6 +21,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import ch.qos.logback.core.joran.conditional.ElseAction;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -78,7 +80,16 @@ public class TestManager {
 	private static MasterDataResponseDto LoadMasterDataFromMemory()
 	{
 		// TODO load master data here
-		return new MasterDataResponseDto();
+
+		MasterDataResponseDto masterData = new MasterDataResponseDto();
+		masterData.process = new ArrayList<String>();
+		masterData.process.add("REGISTRATION");
+		masterData.process.add("AUTHENTICATION");
+		masterData.mdsSpecificationVersion = new ArrayList<String>();
+		masterData.mdsSpecificationVersion.add("0.9.5");
+		masterData.mdsSpecificationVersion.add("0.9.2");
+		masterData.biometricType = new ArrayList<BiometricTypeDto>();
+		return masterData;
 	}
 
 	private static TestExtnDto[] LoadTestsFromMemory()
@@ -86,22 +97,27 @@ public class TestManager {
 		// Add test 1
 		List<TestExtnDto> memTests = new ArrayList<TestExtnDto>();
 		TestExtnDto test1 = new TestExtnDto();
+		test1.testId = "discover";
 		memTests.add(test1);
 
 		// Add test 2
 		TestExtnDto test2 = new TestExtnDto();
+		test2.testId = "deviceinfo";
 		memTests.add(test2);
 
 		// Add test 3
 		TestExtnDto test3 = new TestExtnDto();
+		test3.testId = "capture";
 		memTests.add(test3);
 		
 		// Add test 4
 		TestExtnDto test4 = new TestExtnDto();
+		test4.testId = "stream";
 		memTests.add(test4);
 
 		// Add test 5
 		TestExtnDto test5 = new TestExtnDto();
+		test5.testId = "rcapture";
 		memTests.add(test5);
 
 		return memTests.toArray(new TestExtnDto[0]);
@@ -185,15 +201,38 @@ public class TestManager {
 
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
 	{
-		return null;
+		TestRunnerServiceImpl svc = new TestRunnerServiceImpl();
+		//TestExtnDto test = allTests.get(requestParams.testId);
+
+		if(requestParams.testId.contains("discover"))
+		{
+			return svc.composeDiscover(requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else if(requestParams.testId.contains("deviceinfo"))
+		{
+			return svc.composeDeviceInfo(requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else if(requestParams.testId.contains("capture"))
+		{
+			return svc.composeCapture(requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else if(requestParams.testId.contains("stream"))
+		{
+			return svc.composeStream(requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else if(requestParams.testId.contains("rcapture"))
+		{
+			return svc.composeRegistrationCapture(requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else
+		{
+			return svc.composeDiscover(requestParams.testId, requestParams.deviceInfo.get(0));
+		}
 	}
 
 	public ComposeRequestResponseDto ComposeRequest(ComposeRequestDto composeRequestDto) {
 
-		// TODO create and use actual request composers
-		TestRunnerService svc = new TestRunnerServiceImpl();
-		TestExtnDto test = allTests.get(composeRequestDto.testId);
-		
+		// TODO create and use actual request composers		
 		return BuildRequest(composeRequestDto);
 	}
 }
