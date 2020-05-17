@@ -55,17 +55,14 @@ public class TestManager {
 	private static Boolean isMasterDataLoaded = false;
 	private static Boolean areTestsLoaded = false;
 
-	private static MasterDataResponseDto masterData = null;
-
 	private static HashMap<String, TestRun> testRuns = new HashMap<>();
 
-	private static MasterDataResponseDto LoadMasterData()
-	{
-		// TODO add code here to load from file
-		masterData = LoadMasterDataFromMemory();
-		isMasterDataLoaded = true;
-		return masterData;
-	}
+	private static List<String> processList = new ArrayList<String>();
+
+	private static List<BiometricTypeDto> biometricTypes = new ArrayList<BiometricTypeDto>();
+
+	private static List<String> mdsSpecVersions = new ArrayList<String>();
+
 
 	private static void LoadTests()
 	{
@@ -77,19 +74,26 @@ public class TestManager {
 		areTestsLoaded = true;
 	}
 
-	private static MasterDataResponseDto LoadMasterDataFromMemory()
+	private static void SetupMasterData()
 	{
-		// TODO load master data here
-
-		MasterDataResponseDto masterData = new MasterDataResponseDto();
-		masterData.process = new ArrayList<String>();
-		masterData.process.add("REGISTRATION");
-		masterData.process.add("AUTHENTICATION");
-		masterData.mdsSpecificationVersion = new ArrayList<String>();
-		masterData.mdsSpecificationVersion.add("0.9.5");
-		masterData.mdsSpecificationVersion.add("0.9.2");
-		masterData.biometricType = new ArrayList<BiometricTypeDto>();
-		return masterData;
+		// TODO load master data here from file
+		if(!isMasterDataLoaded)
+		{
+			Collections.addAll(processList, "REGISTRATION", "AUTHENTICATION");
+			Collections.addAll(mdsSpecVersions, "0.9.2","0.9.3", "0.9.4", "0.9.5");
+			BiometricTypeDto finger = new BiometricTypeDto("FINGERPRINT");
+			Collections.addAll(finger.deviceType, "SLAP", "SINGLE", "CAMERA");
+			Collections.addAll(finger.segments, "LEFT SLAP", "RIGHT SLAP", "TWO THUMBS", "LEFT THUMB", "RIGHT THUMB",
+			"LEFT INDEX", "RIGHT INDEX");
+			BiometricTypeDto iris = new BiometricTypeDto("IRIS");
+			Collections.addAll(iris.deviceType, "MONOCULAR", "BINOCULAR", "CAMERA");
+			Collections.addAll(iris.segments, "FULL", "CROPPED");
+			BiometricTypeDto face = new BiometricTypeDto("IRIS");
+			Collections.addAll(face.deviceType, "STILL", "VIDEO");
+			Collections.addAll(face.segments, "BUST", "HEAD");
+			Collections.addAll(biometricTypes, finger, iris, face);
+			isMasterDataLoaded = true;
+		}
 	}
 
 	private static TestExtnDto[] LoadTestsFromMemory()
@@ -157,9 +161,12 @@ public class TestManager {
 
 	public MasterDataResponseDto GetMasterData()
 	{
-		if (isMasterDataLoaded)
-			return masterData;
-		return LoadMasterData();
+		MasterDataResponseDto masterData = new MasterDataResponseDto();
+		SetupMasterData();
+		masterData.biometricType.addAll(biometricTypes);
+		masterData.process.addAll(processList);
+		masterData.mdsSpecificationVersion.addAll(mdsSpecVersions);
+		return masterData;
 	}
 
 	public TestExtnDto[] GetTests(TestManagerGetDto filter)
@@ -197,6 +204,17 @@ public class TestManager {
 		if(!testRuns.keySet().contains(runId))
 			return null;
 		return new TestReport(testRuns.get(runId)); 
+	}
+
+	private TestRun[] FilterRuns(String email)
+	{
+		// TODO add filter code based on email
+		return testRuns.values().toArray(new TestRun[0]);
+	}
+
+	public TestRun[] GetRuns(String email)
+	{
+		return FilterRuns(email);
 	}
 
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
