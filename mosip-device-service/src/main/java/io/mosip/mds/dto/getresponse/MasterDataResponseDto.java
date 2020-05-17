@@ -1,5 +1,6 @@
 package io.mosip.mds.dto.getresponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -9,11 +10,11 @@ import lombok.Data;
 public class MasterDataResponseDto {
 	
 	
-	public List<BiometricTypeDto> biometricType;
+	public List<BiometricTypeDto> biometricType = new ArrayList<>();
 	
 	@ApiModelProperty(value = "mdsSpecificationVersion", required = true, dataType = "java.util.List<java.lang.String>")
-	public List<String> mdsSpecificationVersion;
+	public List<String> mdsSpecificationVersion = new ArrayList<>();
 	
-	public List<String> process;
+	public List<String> process = new ArrayList<>();
 
 }

@@ -1,5 +1,6 @@
 package io.mosip.mds.dto.getresponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -9,12 +10,16 @@ import lombok.Data;
 public class BiometricTypeDto {
 	
 	@ApiModelProperty(value = "type", required = true, dataType = "java.lang.String")
-	private String type;
+	public String type;
 	
 	@ApiModelProperty(value = "deviceType", required = true, dataType = "java.util.List")
-	private List<String> deviceType;
+	public List<String> deviceType = new ArrayList<>();
 	
 	
-	private List<String> segments;
+	public List<String> segments = new ArrayList<>();
+	public BiometricTypeDto(String bioType)
+	{
+		type = bioType;
+	}
 
 }
