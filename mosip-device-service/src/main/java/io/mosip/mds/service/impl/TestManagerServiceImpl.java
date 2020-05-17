@@ -9,16 +9,12 @@ import io.mosip.mds.dto.getresponse.MasterDataResponseDto;
 import io.mosip.mds.dto.getresponse.TestExtnDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
 import io.mosip.mds.entitiy.TestManager;
-import io.mosip.mds.repository.TestManagerRepository;
 import io.mosip.mds.service.TestManagerService;
 
 @Service
 public class TestManagerServiceImpl implements TestManagerService {
 	
 	
-	@Autowired
-	TestManagerRepository testManagerRepository;
-
 	@Override
 	public RunExtnDto createRun(TestManagerDto testManagerDto) {
 		RunExtnDto runExtnDto=new RunExtnDto();
@@ -31,7 +27,7 @@ public class TestManagerServiceImpl implements TestManagerService {
 			testManager.tests = testManagerDto.tests;
 			testManager.process = testManagerDto.process;
 			
-			testManager=testManagerRepository.save(testManager);
+			//testManager=testManagerRepository.save(testManager);
 		}
 		runExtnDto.runId = testManager.runId;
 		return runExtnDto;
