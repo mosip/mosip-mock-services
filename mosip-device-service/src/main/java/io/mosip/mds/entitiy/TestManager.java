@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -50,7 +51,7 @@ public class TestManager {
 
 	//private static List<TestExtnDto> allTests = null;
 
-	private static HashMap<String, TestExtnDto> allTests = null;
+	private static HashMap<String, TestExtnDto> allTests = new HashMap<>();
 
 	private static Boolean isMasterDataLoaded = false;
 	private static Boolean areTestsLoaded = false;
@@ -102,29 +103,38 @@ public class TestManager {
 		List<TestExtnDto> memTests = new ArrayList<TestExtnDto>();
 		TestExtnDto test1 = new TestExtnDto();
 		test1.testId = "discover";
+		test1.processes = Arrays.asList("REGISTRATION", "AUTHENTICATION");
+		test1.biometricTypes = Arrays.asList("FINGERPRINT");
+		test1.deviceTypes = Arrays.asList("SLAP", "FINGER");;
 		memTests.add(test1);
 
 		// Add test 2
 		TestExtnDto test2 = new TestExtnDto();
 		test2.testId = "deviceinfo";
+		test2.processes = Arrays.asList("REGISTRATION");
+		test2.biometricTypes = Arrays.asList("FINGERPRINT");
+		test2.deviceTypes = Arrays.asList("SLAP");
 		memTests.add(test2);
 
 		// Add test 3
 		TestExtnDto test3 = new TestExtnDto();
 		test3.testId = "capture";
+		test3.processes = Arrays.asList("REGISTRATION", "AUTHENTICATION");
+		test3.biometricTypes = Arrays.asList("FINGERPRINT");
+		test3.deviceTypes = Arrays.asList("SLAP", "FINGER");
 		memTests.add(test3);
 		
 		// Add test 4
-		TestExtnDto test4 = new TestExtnDto();
-		test4.testId = "stream";
-		memTests.add(test4);
+//		TestExtnDto test4 = new TestExtnDto();
+//		test4.testId = "stream";
+//		memTests.add(test4);
+//
+//		// Add test 5
+//		TestExtnDto test5 = new TestExtnDto();
+//		test5.testId = "rcapture";
+//		memTests.add(test5);
 
-		// Add test 5
-		TestExtnDto test5 = new TestExtnDto();
-		test5.testId = "rcapture";
-		memTests.add(test5);
-
-		return memTests.toArray(new TestExtnDto[0]);
+		return memTests.toArray(new TestExtnDto[memTests.size()]);
 	}
 
 
@@ -155,6 +165,7 @@ public class TestManager {
 		newTestRun.runId = newRun.runId;
 		newTestRun.createdOn = new Date();
 		newTestRun.runStatus = RunStatus.Created;
+		newTestRun.tests = new ArrayList<>();
 		Collections.addAll(newTestRun.tests, newRun.tests);
 		testRuns.put(newRun.runId, newTestRun);
 	}
@@ -194,7 +205,7 @@ public class TestManager {
 		// Assign a Run Id
 		newRun.runId = "" + System.currentTimeMillis();
 		// Save the run details
-		newRun.tests = runInfo.tests.toArray(new String[0]);
+		newRun.tests = runInfo.tests.toArray(new String[runInfo.tests.size()]);
 		SaveRun(newRun);
 		return newRun;
 	}
