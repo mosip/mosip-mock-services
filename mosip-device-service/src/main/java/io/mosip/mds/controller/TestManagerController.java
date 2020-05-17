@@ -50,7 +50,7 @@ public class TestManagerController {
 			@ApiResponse(code = 404, message = "When No Test found"),
 			@ApiResponse(code = 500, message = "While retrieving Test any error occured") })
 	public TestExtnDto[] getTest(@RequestBody TestManagerGetDto testManagerGetDto) {
-		// TODO Add try catch to handle 404 and 500 cases 
+		// TODO Add try catch to handle 404 and 500 cases.
 		return testManager.GetTests(testManagerGetDto);
 	}
 
