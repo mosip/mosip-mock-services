@@ -2,7 +2,7 @@
   <mat-form-field appearance="fill">
     <mat-label>Biometric type</mat-label>
     <mat-select [(ngModel)]="selectedBiometricType" (selectionChange)='OnBiometricSelect($event)' name="sel2">
-      <mat-option *ngFor="let obj of biometricTypes;" [value]="obj ">{{obj.type}}</mat-option>
+      <mat-option *ngFor="let obj of masterData.biometricType;" [value]="obj ">{{obj.type}}</mat-option>
     </mat-select>
   </mat-form-field>
 
@@ -17,14 +17,14 @@
   <mat-form-field appearance="fill">
     <mat-label>MDS version</mat-label>
     <mat-select [(ngModel)]="selectedMdsVersion">
-      <mat-option class="option" *ngFor="let obj of mdsSpecVersions;" [value]="obj ">{{obj}}</mat-option>
+      <mat-option class="option" *ngFor="let obj of masterData.mdsSpecificationVersion;" [value]="obj ">{{obj}}</mat-option>
     </mat-select>
   </mat-form-field>
   <br/>
   <mat-form-field appearance="fill">
     <mat-label>Process</mat-label>
     <mat-select [(ngModel)]="selectedProcess">
-      <mat-option class="option" *ngFor="let obj of process;" [value]="obj ">{{obj}}</mat-option>
+      <mat-option class="option" *ngFor="let obj of masterData.process;" [value]="obj ">{{obj}}</mat-option>
     </mat-select>
   </mat-form-field><br/>
   <br/>
@@ -34,7 +34,7 @@
   </button>
 
   <mat-selection-list #test_list [(ngModel)]="selectedTests">
-    <mat-list-option *ngFor="let test of tests" [value]="test">
+    <mat-list-option *ngFor="let test of tests" [value]="test.testId">
       {{test.testId}}
     </mat-list-option>
   </mat-selection-list>
