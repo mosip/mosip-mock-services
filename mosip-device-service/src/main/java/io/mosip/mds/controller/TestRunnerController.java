@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.mds.dto.ComposeRequestDto;
 import io.mosip.mds.dto.ValidateResponseRequestDto;
+import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.ValidateResponseDto;
+import io.mosip.mds.entitiy.TestManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -24,7 +26,11 @@ public class TestRunnerController {
 	@ApiResponses({ @ApiResponse(code = 201, message = "When composerequest Details successfully created"),
 			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
 			@ApiResponse(code = 500, message = "While creating composerequest any error occured") })
-	public void composeRequest(@RequestBody ComposeRequestDto composeRequestDto) {
+	public ComposeRequestResponseDto composeRequest(@RequestBody ComposeRequestDto composeRequestDto) {
+
+		TestManager testManager = new TestManager();
+		return testManager.ComposeRequest(composeRequestDto);
+
 		
 	}
 	@PostMapping("/validateresponse")

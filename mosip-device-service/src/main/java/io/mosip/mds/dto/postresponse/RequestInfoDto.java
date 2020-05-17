@@ -7,15 +7,15 @@ import lombok.Data;
 public class RequestInfoDto {
 	
 	@ApiModelProperty(value = "url", required = true, dataType = "java.lang.String")
-	private String url;
+	public String url;
 	
 	@ApiModelProperty(value = "verb", required = true, dataType = "java.lang.String")
-	private String verb;
+	public String verb;
 	
-	private HeaderDto headers;
+	public HeaderDto headers;
 	
 	@ApiModelProperty(value = "body", required = true, dataType = "java.lang.String")
-	private String body;
+	public String body;
 	
 
 }

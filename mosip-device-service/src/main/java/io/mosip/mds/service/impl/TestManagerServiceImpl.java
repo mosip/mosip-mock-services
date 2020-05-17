@@ -25,15 +25,15 @@ public class TestManagerServiceImpl implements TestManagerService {
 		TestManager testManager=new TestManager();
 		if(testManagerDto!=null) {
 			
-			testManager.setBiometricType(testManagerDto.getBiometricType());
-			testManager.setDeviceType(testManagerDto.getDeviceType());
-			testManager.setMdsSpecVersion(testManager.getMdsSpecVersion());
-			testManager.setTests(testManagerDto.getTests());
-			testManager.setProcess(testManagerDto.getProcess());
+			testManager.biometricType = testManagerDto.biometricType;
+			testManager.deviceType = testManagerDto.deviceType;
+			testManager.mdsSpecVersion = testManager.mdsSpecVersion;
+			testManager.tests = testManagerDto.tests;
+			testManager.process = testManagerDto.process;
 			
 			testManager=testManagerRepository.save(testManager);
 		}
-		runExtnDto.setRunId(testManager.getRunId());
+		runExtnDto.runId = testManager.runId;
 		return runExtnDto;
 	}
 

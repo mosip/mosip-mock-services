@@ -7,14 +7,14 @@ import lombok.Data;
 public class TestManagerGetDto {
 
 	@ApiModelProperty(value = "mdsSpecificationVersion", required = true, dataType = "java.lang.String")
-	private String mdsSpecificationVersion;
+	public String mdsSpecificationVersion;
 	
 	@ApiModelProperty(value = "process", required = true, dataType = "java.lang.String")
-	private String process;
+	public String process;
 	
 	@ApiModelProperty(value = "biometricType", required = true, dataType = "java.lang.String")
-	private String biometricType;
+	public String biometricType;
 	
 	@ApiModelProperty(value = "deviceType", required = true, dataType = "java.lang.String")
-	private String deviceType;
+	public String deviceType;
 }

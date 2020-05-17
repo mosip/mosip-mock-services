@@ -33,46 +33,44 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 	private ComposeRequestResponseDto composeDiscover(String testId, DeviceDto deviceDto) {
 		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
-		requestInfoDto.setUrl("http://127.0.0.1:<device_service_port>/device");
-		requestInfoDto.setVerb("MOSIPDISC");
-		requestInfoDto.setBody("{\n" + 
-				"  \"type\": \"type of the device\"\n" + 
-				"}");
-		composeRequestResponseDto.setRequestInfoDto(requestInfoDto);
+		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/device";
+		requestInfoDto.verb = "MOSIPDISC";
+		requestInfoDto.body = "{\n	\"type\": \"type of the device\"\n" + "}";
+		composeRequestResponseDto.requestInfoDto = requestInfoDto;
 		
 		return composeRequestResponseDto;
 	}
 	private ComposeRequestResponseDto composeDeviceInfo(String testId) {
 		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
-		requestInfoDto.setUrl("http://127.0.0.1:<device_service_port>/device");
-		requestInfoDto.setVerb("MOSIPDINFO");
-		requestInfoDto.setBody("{\n" + 
+		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/device";
+		requestInfoDto.verb = "MOSIPDINFO";
+		requestInfoDto.body = "{\n" + 
 				"  \"type\": \"type of the device\"\n" + 
-				"}");
-		composeRequestResponseDto.setRequestInfoDto(requestInfoDto);
+				"}";
+		composeRequestResponseDto.requestInfoDto = requestInfoDto;
 		
 		return composeRequestResponseDto;
 	}
 	private ComposeRequestResponseDto composeStream(String testId) {
 		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
-		requestInfoDto.setUrl("http://127.0.0.1:<device_service_port>/stream");
-		requestInfoDto.setVerb("STREAM");
-		requestInfoDto.setBody("{\n" + 
+		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/stream";
+		requestInfoDto.verb = "STREAM";
+		requestInfoDto.body = "{\n" + 
 				"  \"deviceId\": \"internal Id\",\n" + 
 				"  \"deviceSubId\": \"device sub Id’s\"\n" + 
-				"}");
-		composeRequestResponseDto.setRequestInfoDto(requestInfoDto);
+				"}";
+		composeRequestResponseDto.requestInfoDto = requestInfoDto;
 		
 		return composeRequestResponseDto;
 	}
 	private ComposeRequestResponseDto composeCapture(String testId) {
 		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
-		requestInfoDto.setUrl("http://127.0.0.1:<device_service_port>/capture");
-		requestInfoDto.setVerb("CAPTURE");
-		requestInfoDto.setBody("{\n" + 
+		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/capture";
+		requestInfoDto.verb = "CAPTURE";
+		requestInfoDto.body = "{\n" + 
 				"  \"env\":  \"Target environment\",\n" + 
 				"  \"purpose\": \"Auth  or Registration\",\n" + 
 				"  \"specVersion\": \"Expected version of the MDS spec\",\n" + 
@@ -94,17 +92,17 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 				"  customOpts: {\n" + 
 				"    //max of 50 key value pair. This is so that vendor specific parameters can be sent if necessary. The values cannot be hard coded and have to be configured by the apps server and should be modifiable upon need by the applications. Vendors are free to include additional parameters and fine-tuning parameters. None of these values should go undocumented by the vendor. No sensitive data should be available in the customOpts.\n" + 
 				"  }\n" + 
-				"}");
-		composeRequestResponseDto.setRequestInfoDto(requestInfoDto);
+				"}";
+		composeRequestResponseDto.requestInfoDto = requestInfoDto;
 		
 		return composeRequestResponseDto;
 	}
 	private ComposeRequestResponseDto composeRegistrationCapture(String testId) {
 		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
-		requestInfoDto.setUrl("http://127.0.0.1:<device_service_port>/capture");
-		requestInfoDto.setVerb("RCAPTURE");
-		requestInfoDto.setBody("{\n" + 
+		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/capture";
+		requestInfoDto.verb = "RCAPTURE";
+		requestInfoDto.body = "{\n" + 
 				"  \"env\":  \"target environment\",\n" + 
 				"  \"specVersion\": \"expected MDS spec version\",\n" + 
 				"  \"timeout\": \"timeout for registration capture\",\n" + 
@@ -124,8 +122,8 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 				"  customOpts: {\n" + 
 				"    //max of 50 key value pair. This is so that vendor specific parameters can be sent if necessary. The values cannot be hard coded and have to be configured by the apps server and should be modifiable upon need by the applications. Vendors are free to include additional parameters and fine-tuning parameters. None of these values should go undocumented by the vendor. No sensitive data should be available in the customOpts.\n" + 
 				"  }\n" + 
-				"}");
-		composeRequestResponseDto.setRequestInfoDto(requestInfoDto);
+				"}";
+		composeRequestResponseDto.requestInfoDto = requestInfoDto;
 		
 		return composeRequestResponseDto;
 	}
