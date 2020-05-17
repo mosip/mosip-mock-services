@@ -10,12 +10,12 @@ import lombok.Data;
 public class ComposeRequestDto {
 
 	@ApiModelProperty(value = "runId", required = true, dataType = "java.lang.String")
-	private String runId;
+	public String runId;
 
 	@ApiModelProperty(value = "testId", required = true, dataType = "java.lang.String")
-	private String testId;
+	public String testId;
 
-	private List<UIInput> uiInputs;
+	public List<UIInput> uiInputs;
 	
-	private List<DeviceDto> deviceInfo;
+	public List<DeviceDto> deviceInfo;
 }

@@ -7,12 +7,12 @@ import lombok.Data;
 public class ComposeRequestResponseDto {
 	
 	@ApiModelProperty(value = "runId", required = true, dataType = "java.lang.String")
-	private String runId;
+	public String runId;
 	
 	@ApiModelProperty(value = "testId", required = true, dataType = "java.lang.String")
-	private String testId;
+	public String testId;
 	
 
-	private RequestInfoDto requestInfoDto;
+	public RequestInfoDto requestInfoDto;
 
 }

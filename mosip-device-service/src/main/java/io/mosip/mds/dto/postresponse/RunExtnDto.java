@@ -7,6 +7,13 @@ import lombok.Data;
 public class RunExtnDto {
 	
 	@ApiModelProperty(value = "runId", required = true, dataType = "java.lang.String")
-	private String runId;
+	public String runId;
+
+	@ApiModelProperty(value = "tests", required = true, dataType = "java.lang.List<String>")
+	public String[] tests;
+
+	@ApiModelProperty(value = "runStatus", required = true, dataType = "java.lang.String")
+	public String runStatus;
+
 
 }
