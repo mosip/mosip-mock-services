@@ -1,0 +1,19 @@
+{
+  'biometric-types': [
+    {
+      type : 'FINGERPRINT',
+      'device-types': ['SLAP', 'SINGLE', 'CAMERA'],
+      segments : ['LEFT SLAP', 'RIGHT SLAP', 'TWO THUMBS', 'LEFT THUMB', 'RIGHT THUMB', 'LEFT INDEX', 'RIGHT INDEX']
+    },
+    {
+      type : 'IRIS',
+      'device-types': ['MONOCULAR', 'BINOCULAR', 'CAMERA']
+    },
+    {
+      type : 'FACE',
+      'device-types': ['STILL', 'VIDEO']
+    }
+  ],
+  'mds-spec-versions' : ['0.9.2', '0.9.3', '0.9.4'],
+  process : ['REGISTRATION', 'AUTHENTICATION']
+}
