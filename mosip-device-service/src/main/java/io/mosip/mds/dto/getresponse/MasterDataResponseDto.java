@@ -9,11 +9,11 @@ import lombok.Data;
 public class MasterDataResponseDto {
 	
 	
-	private List<BiometricTypeDto> biometricType;
+	public List<BiometricTypeDto> biometricType;
 	
-	@ApiModelProperty(value = "mdsSpecificationVersion", required = true, dataType = "java.lang.String")
-	private String mdsSpecificationVersion;
+	@ApiModelProperty(value = "mdsSpecificationVersion", required = true, dataType = "java.util.List<java.lang.String>")
+	public List<String> mdsSpecificationVersion;
 	
-	private List<String> process;
+	public List<String> process;
 
 }
