@@ -54,13 +54,13 @@ public class TestManagerController {
 		return testManager.GetTests(testManagerGetDto);
 	}
 
-	@PostMapping("/runs")
+	@GetMapping("/runs/{email}")
 	@ApiOperation(value = "Retrieve Test bassed on testManagerGetDto", notes = "Retrieve Test bassed on testManagerGetDto")
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "When Test retrieved"),
 			@ApiResponse(code = 404, message = "When No Test found"),
 			@ApiResponse(code = 500, message = "While retrieving Test any error occured") })
-	public TestRun[] getRuns(@RequestBody String email) {
+	public TestRun[] getRuns(@PathVariable("email")String email) {
 		// TODO Add try catch to handle 404 and 500 cases 
 		return testManager.GetRuns(email);
 	}
