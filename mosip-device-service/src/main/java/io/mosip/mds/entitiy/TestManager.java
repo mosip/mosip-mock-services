@@ -244,31 +244,34 @@ public class TestManager {
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
 	{
 		TestRunnerServiceImpl svc = new TestRunnerServiceImpl();
-		//TestExtnDto test = allTests.get(requestParams.testId);
+		
+		TestRun run = testRuns.get(requestParams.runId);
+		if(run == null || !run.tests.contains(requestParams.testId))
+			return null;
 
 		if(requestParams.testId.contains("discover"))
 		{
-			return svc.composeDiscover(requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
 		}
 		else if(requestParams.testId.contains("deviceinfo"))
 		{
-			return svc.composeDeviceInfo(requestParams.testId, requestParams.deviceInfo.get(0));
-		}
-		else if(requestParams.testId.contains("capture"))
-		{
-			return svc.composeCapture(requestParams.testId, requestParams.deviceInfo.get(0));
-		}
-		else if(requestParams.testId.contains("stream"))
-		{
-			return svc.composeStream(requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeDeviceInfo(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
 		}
 		else if(requestParams.testId.contains("rcapture"))
 		{
-			return svc.composeRegistrationCapture(requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeRegistrationCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else if(requestParams.testId.contains("capture"))
+		{
+			return svc.composeCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+		}
+		else if(requestParams.testId.contains("stream"))
+		{
+			return svc.composeStream(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
 		}
 		else
 		{
-			return svc.composeDiscover(requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
 		}
 	}
 
