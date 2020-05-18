@@ -13,7 +13,7 @@ public class RunExtnDto {
 	public String[] tests;
 
 	@ApiModelProperty(value = "runStatus", required = true, dataType = "java.lang.String")
-	public String runStatus;
+	public String runStatus = "New";
 
 
 }

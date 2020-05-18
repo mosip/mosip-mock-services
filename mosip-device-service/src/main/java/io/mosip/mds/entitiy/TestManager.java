@@ -64,13 +64,27 @@ public class TestManager {
 
 	private static List<String> mdsSpecVersions = new ArrayList<String>();
 
+	public TestManager()
+	{
+		InitStaticData();
+	}
+
+	private static void InitStaticData()
+	{
+		SetupMasterData();
+		LoadTests();
+	}
+
 
 	private static void LoadTests()
 	{
 		// TODO Load Tests from file or db and comment out the below lines
-		for(TestExtnDto test:LoadTestsFromMemory())
+		if(!areTestsLoaded)
 		{
-			allTests.put(test.testId, test);
+			for(TestExtnDto test:LoadTestsFromMemory())
+			{
+				allTests.put(test.testId, test);
+			}
 		}
 		areTestsLoaded = true;
 	}
@@ -83,7 +97,7 @@ public class TestManager {
 			Collections.addAll(processList, "REGISTRATION", "AUTHENTICATION");
 			Collections.addAll(mdsSpecVersions, "0.9.2","0.9.3", "0.9.4", "0.9.5");
 			BiometricTypeDto finger = new BiometricTypeDto("FINGERPRINT");
-			Collections.addAll(finger.deviceType, "SLAP", "SINGLE", "CAMERA");
+			Collections.addAll(finger.deviceType, "SLAP", "FINGER", "CAMERA");
 			Collections.addAll(finger.segments, "LEFT SLAP", "RIGHT SLAP", "TWO THUMBS", "LEFT THUMB", "RIGHT THUMB",
 			"LEFT INDEX", "RIGHT INDEX");
 			BiometricTypeDto iris = new BiometricTypeDto("IRIS");
@@ -182,8 +196,7 @@ public class TestManager {
 
 	public TestExtnDto[] GetTests(TestManagerGetDto filter)
 	{
-		if (!areTestsLoaded)
-			LoadTests();
+		LoadTests();
 		return FilterTests(filter).toArray(new TestExtnDto[0]);
 	}
 
