@@ -20,7 +20,7 @@ public class TestExtnDto {
 	@ApiModelProperty(value = "validator", required = true, dataType = "java.lang.String")
 	public String validator;
 	
-	private List<UIInput> uiInput;
+	public List<UIInput> uiInput;
 
 	public List<String> processes;
 

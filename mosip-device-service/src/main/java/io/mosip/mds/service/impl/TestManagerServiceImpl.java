@@ -1,6 +1,5 @@
 package io.mosip.mds.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.mosip.mds.dto.TestManagerDto;

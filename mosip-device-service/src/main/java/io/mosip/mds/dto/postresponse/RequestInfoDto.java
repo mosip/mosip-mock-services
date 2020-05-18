@@ -1,5 +1,6 @@
 package io.mosip.mds.dto.postresponse;
 
+import java.util.HashMap;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class RequestInfoDto {
 	@ApiModelProperty(value = "verb", required = true, dataType = "java.lang.String")
 	public String verb;
 	
-	public HeaderDto headers;
+	public HashMap<String, String> headers;
 	
 	@ApiModelProperty(value = "body", required = true, dataType = "java.lang.String")
 	public String body;

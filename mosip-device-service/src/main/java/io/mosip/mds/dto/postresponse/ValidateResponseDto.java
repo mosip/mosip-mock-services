@@ -9,23 +9,23 @@ import lombok.Data;
 public class ValidateResponseDto {
 
 	@ApiModelProperty(value = "runId", required = true, dataType = "java.lang.String")
-	private String runId;
+	public String runId;
 	
 	@ApiModelProperty(value = "testId", required = true, dataType = "java.lang.String")
-	private String testId;
+	public String testId;
 	
 	@ApiModelProperty(value = "status", required = true, dataType = "java.lang.String")
-	private String status;
+	public String status;
 	
 	@ApiModelProperty(value = "summary", required = true, dataType = "java.lang.String")
-	private String summary;
+	public String summary;
 	
 	@ApiModelProperty(value = "request", required = true, dataType = "java.lang.String")
-	private String request;
+	public String request;
 	
 	@ApiModelProperty(value = "response", required = true, dataType = "java.lang.String")
-	private String response;
+	public String response;
 	
 
-	private List<TestDetailsDto> details;
+	public List<TestDetailsDto> details;
 }
