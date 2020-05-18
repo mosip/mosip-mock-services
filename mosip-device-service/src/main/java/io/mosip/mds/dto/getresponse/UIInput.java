@@ -7,9 +7,15 @@ import lombok.Data;
 public class UIInput {
 	
 	@ApiModelProperty(value = "field", required = true, dataType = "java.lang.String")
-	private String field;
+	public String field;
 	
 	@ApiModelProperty(value = "behaviour", required = true, dataType = "java.lang.String")
-	private String behaviour;
+	public String behaviour;
+
+	public UIInput(String field, String behavior)
+	{
+		this.field = field;
+		this.behaviour = behavior;
+	}
 
 }

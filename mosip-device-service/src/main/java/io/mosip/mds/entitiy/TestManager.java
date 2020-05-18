@@ -5,9 +5,10 @@ import io.mosip.mds.dto.TestRun.RunStatus;
 import io.mosip.mds.dto.getresponse.BiometricTypeDto;
 import io.mosip.mds.dto.getresponse.MasterDataResponseDto;
 import io.mosip.mds.dto.getresponse.TestExtnDto;
+import io.mosip.mds.dto.getresponse.UIInput;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
-import io.mosip.mds.service.TestRunnerService;
+import io.mosip.mds.dto.postresponse.ValidateResponseDto;
 import io.mosip.mds.service.impl.TestRunnerServiceImpl;
 
 import java.util.ArrayList;
@@ -22,8 +23,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import ch.qos.logback.core.joran.conditional.ElseAction;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Entity
@@ -119,7 +118,8 @@ public class TestManager {
 		test1.testId = "discover";
 		test1.processes = Arrays.asList("REGISTRATION", "AUTHENTICATION");
 		test1.biometricTypes = Arrays.asList("FINGERPRINT");
-		test1.deviceTypes = Arrays.asList("SLAP", "FINGER");;
+		test1.deviceTypes = Arrays.asList("SLAP", "FINGER");
+		test1.uiInput = Arrays.asList(new UIInput("port","numeric"));
 		memTests.add(test1);
 
 		// Add test 2
@@ -279,5 +279,10 @@ public class TestManager {
 
 		// TODO create and use actual request composers		
 		return BuildRequest(composeRequestDto);
+	}
+
+	public ValidateResponseDto ValidateResponse(ValidateResponseRequestDto validateRequestDto) {
+		ValidateResponseDto responseDTO = new ValidateResponseDto();
+		return responseDTO; 
 	}
 }
