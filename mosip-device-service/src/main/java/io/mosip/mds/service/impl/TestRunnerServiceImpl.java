@@ -30,8 +30,8 @@ public class TestRunnerServiceImpl implements TestRunnerService {
  * 
  * 
  */
-	public ComposeRequestResponseDto composeDiscover(String testId, DeviceDto deviceDto) {
-		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
+	public ComposeRequestResponseDto composeDiscover(String runId, String testId, DeviceDto deviceDto) {
+		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto(runId, testId);
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
 		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/device";
 		requestInfoDto.verb = "MOSIPDISC";
@@ -40,8 +40,8 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 		
 		return composeRequestResponseDto;
 	}
-	public ComposeRequestResponseDto composeDeviceInfo(String testId, DeviceDto deviceDto) {
-		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
+	public ComposeRequestResponseDto composeDeviceInfo(String runId, String testId, DeviceDto deviceDto) {
+		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto(runId, testId);
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
 		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/device";
 		requestInfoDto.verb = "MOSIPDINFO";
@@ -52,8 +52,8 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 		
 		return composeRequestResponseDto;
 	}
-	public ComposeRequestResponseDto composeStream(String testId, DeviceDto deviceDto) {
-		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
+	public ComposeRequestResponseDto composeStream(String runId, String testId, DeviceDto deviceDto) {
+		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto(runId, testId);
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
 		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/stream";
 		requestInfoDto.verb = "STREAM";
@@ -65,8 +65,8 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 		
 		return composeRequestResponseDto;
 	}
-	public ComposeRequestResponseDto composeCapture(String testId, DeviceDto deviceDto) {
-		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
+	public ComposeRequestResponseDto composeCapture(String runId, String testId, DeviceDto deviceDto) {
+		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto(runId, testId);
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
 		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/capture";
 		requestInfoDto.verb = "CAPTURE";
@@ -97,8 +97,8 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 		
 		return composeRequestResponseDto;
 	}
-	public ComposeRequestResponseDto composeRegistrationCapture(String testId, DeviceDto deviceDto) {
-		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto();
+	public ComposeRequestResponseDto composeRegistrationCapture(String runId, String testId, DeviceDto deviceDto) {
+		ComposeRequestResponseDto composeRequestResponseDto=new ComposeRequestResponseDto(runId, testId);
 		RequestInfoDto requestInfoDto=new RequestInfoDto();
 		requestInfoDto.url = "http://127.0.0.1:<device_service_port>/capture";
 		requestInfoDto.verb = "RCAPTURE";

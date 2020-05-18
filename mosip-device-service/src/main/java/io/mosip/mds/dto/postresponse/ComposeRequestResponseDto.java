@@ -15,4 +15,10 @@ public class ComposeRequestResponseDto {
 
 	public RequestInfoDto requestInfoDto;
 
+	public ComposeRequestResponseDto(String run, String test)
+	{
+		runId = run;
+		testId = test;
+	}
+
 }
