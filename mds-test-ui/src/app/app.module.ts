@@ -22,6 +22,7 @@ import { NewTestComponent } from './components/new-test/new-test.component';
     MaterialModule,
     NoopAnimationsModule,
     FormsModule,
+    HttpClientModule
 
 
   ],
