@@ -2,6 +2,7 @@ package io.mosip.mds.dto.getresponse;
 
 import java.util.List;
 
+import io.mosip.mds.entitiy.Validator;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -16,10 +17,7 @@ public class TestExtnDto {
 	
 	@ApiModelProperty(value = "requestGenerator", required = true, dataType = "java.lang.String")
 	public String requestGenerator;
-	
-	@ApiModelProperty(value = "validator", required = true, dataType = "java.lang.String")
-	public String validator;
-	
+		
 	public List<UIInput> uiInput;
 
 	public List<String> processes;
@@ -29,6 +27,8 @@ public class TestExtnDto {
 	public List<String> deviceTypes;
 
 	public List<String> mdsSpecVersions;
+
+	public List<Validator> validators;
 
 
 

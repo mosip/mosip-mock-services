@@ -17,5 +17,5 @@ public class ComposeRequestDto {
 
 	public List<UIInput> uiInputs;
 	
-	public List<DeviceDto> deviceInfo;
+	public DeviceDto deviceInfo;
 }
