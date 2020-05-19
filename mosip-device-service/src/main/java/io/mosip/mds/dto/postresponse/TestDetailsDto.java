@@ -1,5 +1,8 @@
 package io.mosip.mds.dto.postresponse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -7,11 +10,14 @@ import lombok.Data;
 public class TestDetailsDto {
 
 	@ApiModelProperty(value = "validationName", required = true, dataType = "java.lang.String")
-	private String validationName;
+	public String validationName;
+
+	@ApiModelProperty(value = "validationDescription", required = true, dataType = "java.lang.String")
+	public String validationDescription;
 	
 	@ApiModelProperty(value = "status", required = true, dataType = "java.lang.String")
-	private String status;
+	public String status;
 	
-	@ApiModelProperty(value = "summary", required = true, dataType = "java.lang.String")
-	private String summary;
+	@ApiModelProperty(value = "errors", required = true, dataType = "java.lang.String")
+	public List<String> errors = new ArrayList<String>();
 }

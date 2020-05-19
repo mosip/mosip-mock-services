@@ -35,7 +35,9 @@ public class TestRunnerController {
 			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
 			@ApiResponse(code = 500, message = "While creating validateResponse any error occured") })
 	public ValidateResponseDto validateResponse(@RequestBody ValidateResponseRequestDto validateRequestDto) {
-		return null;
+		// TODO handle null return for invalid runId and testId
+		TestManager testManager = new TestManager();
+		return testManager.ValidateResponse(validateRequestDto);
 		
 		
 	}

@@ -8,6 +8,7 @@ import io.mosip.mds.dto.getresponse.TestExtnDto;
 import io.mosip.mds.dto.getresponse.UIInput;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
+import io.mosip.mds.dto.postresponse.TestDetailsDto;
 import io.mosip.mds.dto.postresponse.ValidateResponseDto;
 import io.mosip.mds.service.impl.TestRunnerServiceImpl;
 
@@ -120,6 +121,7 @@ public class TestManager {
 		test1.biometricTypes = Arrays.asList("FINGERPRINT");
 		test1.deviceTypes = Arrays.asList("SLAP", "FINGER");
 		test1.uiInput = Arrays.asList(new UIInput("port","numeric"));
+		test1.validators = Arrays.asList(new CoinTossValidator());
 		memTests.add(test1);
 
 		// Add test 2
@@ -128,6 +130,7 @@ public class TestManager {
 		test2.processes = Arrays.asList("REGISTRATION");
 		test2.biometricTypes = Arrays.asList("FINGERPRINT");
 		test2.deviceTypes = Arrays.asList("SLAP");
+		test2.validators = Arrays.asList(new CoinTossValidator());
 		memTests.add(test2);
 
 		// Add test 3
@@ -136,6 +139,7 @@ public class TestManager {
 		test3.processes = Arrays.asList("REGISTRATION", "AUTHENTICATION");
 		test3.biometricTypes = Arrays.asList("FINGERPRINT");
 		test3.deviceTypes = Arrays.asList("SLAP", "FINGER");
+		test3.validators = Arrays.asList(new CoinTossValidator());
 		memTests.add(test3);
 		
 		// Add test 4
@@ -251,27 +255,27 @@ public class TestManager {
 
 		if(requestParams.testId.contains("discover"))
 		{
-			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
 		}
 		else if(requestParams.testId.contains("deviceinfo"))
 		{
-			return svc.composeDeviceInfo(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeDeviceInfo(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
 		}
 		else if(requestParams.testId.contains("rcapture"))
 		{
-			return svc.composeRegistrationCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeRegistrationCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
 		}
 		else if(requestParams.testId.contains("capture"))
 		{
-			return svc.composeCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
 		}
 		else if(requestParams.testId.contains("stream"))
 		{
-			return svc.composeStream(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeStream(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
 		}
 		else
 		{
-			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
 		}
 	}
 
@@ -282,7 +286,38 @@ public class TestManager {
 	}
 
 	public ValidateResponseDto ValidateResponse(ValidateResponseRequestDto validateRequestDto) {
+		if(!testRuns.keySet().contains(validateRequestDto.runId) || !allTests.keySet().contains(validateRequestDto.testId))
+			return null;
+		Boolean hasFailed = false;
 		ValidateResponseDto responseDTO = new ValidateResponseDto();
+		responseDTO.runId = validateRequestDto.runId;
+		responseDTO.testId = validateRequestDto.testId;
+		responseDTO.response = validateRequestDto.mdsResponse;
+		responseDTO.request = validateRequestDto.mdsRequest;
+		responseDTO.details = new ArrayList<>();
+
+		for(Validator v:allTests.get(validateRequestDto.testId).validators)
+		{
+			v.Validate(validateRequestDto);
+			TestDetailsDto result = new TestDetailsDto();
+			result.status = v.Status.toString();
+			switch(v.Status)
+			{
+				case Failed:
+				case InternalException:
+					hasFailed = true;
+					break;
+				default:
+			}
+			result.validationName = v.Name;
+			result.validationDescription = v.Description;
+			result.errors.addAll(v.Errors);
+			responseDTO.details.add(result);
+		}
+		if(hasFailed)
+			responseDTO.status = "Failed";
+		else
+			responseDTO.status = "Passed";
 		return responseDTO; 
 	}
 }
