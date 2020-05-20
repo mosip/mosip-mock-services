@@ -10,9 +10,13 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatOption, MatOptionModule} from '@angular/material/core';
-import {MatSelect, MatSelectModule} from '@angular/material/select';
+import {MatOptionModule} from '@angular/material/core';
+import {MatSelectModule} from '@angular/material/select';
 import {MatListModule} from '@angular/material/list';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatTableModule} from '@angular/material/table';
+import { MatPaginatorModule} from '@angular/material/paginator';
+import {MatSortModule} from '@angular/material/sort';
 
 
 
@@ -32,7 +36,11 @@ import {MatListModule} from '@angular/material/list';
     MatSlideToggleModule,
     MatOptionModule,
     MatSelectModule,
-    MatListModule
+    MatListModule,
+    MatSidenavModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule
   ],
   exports: [
     MatToolbarModule,
@@ -47,7 +55,11 @@ import {MatListModule} from '@angular/material/list';
     MatSlideToggleModule,
     MatOptionModule,
     MatSelectModule,
-    MatListModule
+    MatListModule,
+    MatSidenavModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule
   ]
 })
 export class MaterialModule { }

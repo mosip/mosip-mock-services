@@ -27,7 +27,7 @@ export class DataService {
   }
 
   createRun(requestBody) {
-    return this.httpClient.post(environment.base_url + 'testmanager/createRun', requestBody)
+    return this.httpClient.post(environment.base_url + 'testmanager/createrun', requestBody)
       .pipe(
         catchError(this.handleError)
       );
