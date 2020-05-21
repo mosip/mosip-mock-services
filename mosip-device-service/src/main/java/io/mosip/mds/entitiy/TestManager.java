@@ -10,7 +10,8 @@ import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
 import io.mosip.mds.dto.postresponse.TestDetailsDto;
 import io.mosip.mds.dto.postresponse.ValidateResponseDto;
-import io.mosip.mds.service.impl.TestRunnerServiceImpl;
+import io.mosip.mds.service.TestRequestBuilder;
+import io.mosip.mds.service.TestRequestBuilder.Intent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -247,36 +248,34 @@ public class TestManager {
 
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
 	{
-		TestRunnerServiceImpl svc = new TestRunnerServiceImpl();
+		TestRequestBuilder builder = new TestRequestBuilder();
 		
 		TestRun run = testRuns.get(requestParams.runId);
 		if(run == null || !run.tests.contains(requestParams.testId))
 			return null;
 
-		if(requestParams.testId.contains("discover"))
+		TestExtnDto test = allTests.get(requestParams.testId);
+		Intent intent = Intent.Discover;
+
+		if(requestParams.testId.contains("deviceinfo"))
 		{
-			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
-		}
-		else if(requestParams.testId.contains("deviceinfo"))
-		{
-			return svc.composeDeviceInfo(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
+			intent = Intent.DeviceInfo;
 		}
 		else if(requestParams.testId.contains("rcapture"))
 		{
-			return svc.composeRegistrationCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
+			intent = Intent.RegistrationCapture;
 		}
 		else if(requestParams.testId.contains("capture"))
 		{
-			return svc.composeCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
+			intent = Intent.Capture;
 		}
 		else if(requestParams.testId.contains("stream"))
 		{
-			return svc.composeStream(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
+			intent = Intent.Stream;
 		}
-		else
-		{
-			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo);
-		}
+
+		return builder.BuildRequest(run, test, requestParams.deviceInfo, intent);
+		
 	}
 
 	public ComposeRequestResponseDto ComposeRequest(ComposeRequestDto composeRequestDto) {
