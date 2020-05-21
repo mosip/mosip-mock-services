@@ -7,9 +7,9 @@ import lombok.Data;
 public class DeviceDto {
 	
 	@ApiModelProperty(value = "port", required = true, dataType = "java.lang.String")
-	private String port;
+	public String port;
 	
 	@ApiModelProperty(value = "discoverInfo", required = true, dataType = "java.lang.String")
-	private String discoverInfo;
+	public String discoverInfo;
 
 }
