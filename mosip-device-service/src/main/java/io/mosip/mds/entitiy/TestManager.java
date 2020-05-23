@@ -54,6 +54,7 @@ public class TestManager {
 
 	private static Boolean isMasterDataLoaded = false;
 	private static Boolean areTestsLoaded = false;
+	private static Boolean areRunsLoaded = false;
 
 	private static HashMap<String, TestRun> testRuns = new HashMap<>();
 
@@ -72,6 +73,24 @@ public class TestManager {
 	{
 		SetupMasterData();
 		LoadTests();
+		LoadRuns();
+	}
+
+	private static void LoadRuns()
+	{
+		if(areRunsLoaded)
+			return;
+		List<String> users = Store.GetUsers();
+		for(String user:users)
+		{
+			List<String> runIds = Store.GetRunIds(user);
+			for(String runId:runIds)
+			{
+				TestRun run = Store.GetRun(user, runId);
+				testRuns.put(runId, run);
+			}
+		}
+		areRunsLoaded = true;
 	}
 
 
@@ -183,8 +202,15 @@ public class TestManager {
 		newTestRun.createdOn = new Date();
 		newTestRun.runStatus = RunStatus.Created;
 		newTestRun.tests = new ArrayList<>();
+		newTestRun.user = newRun.email;
 		Collections.addAll(newTestRun.tests, newRun.tests);
-		testRuns.put(newRun.runId, newTestRun);
+		TestRun savedRun = PersistRun(newTestRun);
+		testRuns.put(savedRun.runId, savedRun);
+	}
+
+	private TestRun PersistRun(TestRun run)
+	{
+		return Store.SaveTestRun(run.user, run);
 	}
 
 	public MasterDataResponseDto GetMasterData()
@@ -222,6 +248,10 @@ public class TestManager {
 		newRun.runId = "" + System.currentTimeMillis();
 		// Save the run details
 		newRun.tests = runInfo.tests.toArray(new String[runInfo.tests.size()]);
+		if(!runInfo.email.isEmpty())
+			newRun.email = runInfo.email;
+		else
+		newRun.email = "misc";
 		SaveRun(newRun);
 		return newRun;
 	}
@@ -297,8 +327,9 @@ public class TestManager {
 		for(Validator v:test.validators)
 		{
 			testResult.validationResults.add(v.Validate(validateRequestDto));
-		}		
+		}
 		run.testReport.put(test.testId, testResult);
+		PersistRun(run);
 		return testResult; 
 	}
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 public class RunExtnDto {
 	
+	public String email;
+
 	@ApiModelProperty(value = "runId", required = true, dataType = "java.lang.String")
 	public String runId;
 
