@@ -1,40 +1,28 @@
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { catchError } from 'rxjs/operators';
-
+import {of, throwError} from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {environment} from '../../../environments/environment';
+import {catchError} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DataService {
+export class MdsService {
+  private mdsUrl: string;
 
   constructor(private httpClient: HttpClient) { }
 
-  getMasterData() {
-    return this.httpClient.get(environment.base_url + 'testmanager/masterdata')
+  discover(port: string) {
+    this.mdsUrl = environment.mds_url + port + '/device';
+    return this.httpClient.request('MOSIPDISC', this.mdsUrl)
       .pipe(
         catchError(this.handleError)
       );
   }
 
-  getTests(requestBody) {
-    return this.httpClient.post(environment.base_url + 'testmanager/test', requestBody)
-      .pipe(
-        catchError(this.handleError)
-      );
-  }
-
-  createRun(requestBody) {
-    return this.httpClient.post(environment.base_url + 'testmanager/createrun', requestBody)
-      .pipe(
-        catchError(this.handleError)
-      );
-  }
-
-  getRuns(email) {
-    return this.httpClient.get(environment.base_url + 'testmanager/runs/' + email)
+  getInfo(port: string) {
+    this.mdsUrl = environment.mds_url + port + '/info';
+    return this.httpClient.request('MOSIPDINFO', this.mdsUrl)
       .pipe(
         catchError(this.handleError)
       );

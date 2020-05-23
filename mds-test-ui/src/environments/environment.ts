@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  base_url: 'http://localhost:8080/'
+  base_url: 'http://localhost:8080/',
+  mds_url: 'http://127.0.0.1:'
 };
 
 /*

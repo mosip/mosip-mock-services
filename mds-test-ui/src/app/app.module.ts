@@ -11,6 +11,8 @@ import { NewTestComponent } from './components/new-test/new-test.component';
 import { MainNavComponent } from './components/main-nav/main-nav.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { TestRunsComponent } from './components/test-runs/test-runs.component';
+import { DiscoverDevicesComponent } from './components/discover-devices/discover-devices.component';
+import { RunComponent } from './components/run/run.component';
 
 
 @NgModule({
@@ -18,7 +20,9 @@ import { TestRunsComponent } from './components/test-runs/test-runs.component';
     AppComponent,
     NewTestComponent,
     MainNavComponent,
-    TestRunsComponent
+    TestRunsComponent,
+    DiscoverDevicesComponent,
+    RunComponent
   ],
   imports: [
     BrowserModule,
