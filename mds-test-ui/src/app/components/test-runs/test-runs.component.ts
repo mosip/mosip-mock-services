@@ -2,6 +2,8 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatSort} from '@angular/material/sort';
 import {MatPaginator} from '@angular/material/paginator';
+import {DataService} from '../../services/data/data.service';
+import {MdsService} from '../../services/mds/mds.service';
 export interface Run {
   runId: string;
   runStatus: string;
@@ -30,17 +32,18 @@ export class TestRunsComponent implements OnInit {
 
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
-  runs = [
-    {
-      runId: "1589998953988",
-      runStatus: "Created",
-      createdOn: "2020-05-20T18:22:33.988+0000",
-      tests: [
-        "discover"
-      ],
-      testReport: null
-    }
-    ];
+  runs = [];
+  // runs = [
+  //   {
+  //     runId: '1589998953988',
+  //     runStatus: 'Created',
+  //     createdOn: '2020-05-20T18:22:33.988+0000',
+  //     tests: [
+  //       'discover'
+  //     ],
+  //     testReport: null
+  //   }
+  //   ];
   // runs = [
   //   {
   //     : 1,
@@ -53,12 +56,14 @@ export class TestRunsComponent implements OnInit {
   //     createdOn: 3,
   //   }
   // ];
-  constructor() {
+
+  constructor(private dataService: DataService) {
     // Create 100 users
     // const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
 
     // Assign the data to the data source for the table to render
     // this.dataSource = new MatTableDataSource(this.runs);
+
     this.dataSource = this.runs;
   }
 
@@ -74,6 +79,16 @@ export class TestRunsComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  getRuns(email: string) {
+    this.dataService.getRuns(email).subscribe(
+      response => {
+        this.dataSource = response;
+        localStorage.setItem('runs', JSON.stringify(response));
+      },
+      error => window.alert(error)
+    );
   }
 }
 

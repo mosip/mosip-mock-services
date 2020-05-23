@@ -1,0 +1,9 @@
+<mat-form-field class="example-full-width">
+  <mat-label>Port Number</mat-label>
+  <input #port matInput placeholder="4200" type="number">
+</mat-form-field>
+<button mat-stroked-button color="primary" (click)="discover(port.value)">Discover</button>
+<button mat-stroked-button color="primary" (click)="getInfo(port.value)">Get Info</button>
+
+{{discoveryResponse | json}}
+{{infoResponse | json}}

@@ -1,10 +1,10 @@
 <form class="example-form">
   <mat-form-field class="example-full-width">
     <mat-label>E-mail</mat-label>
-    <input matInput placeholder="abc@example.com">
+    <input #email matInput placeholder="abc@example.com">
   </mat-form-field>
 
-  <button mat-raised-button>Get Runs</button>
+  <button mat-raised-button (click)="getRuns(email.value)">Get Runs</button>
 </form>
 
 <!--Table Starts-->
@@ -20,7 +20,7 @@
       <!-- ID Column -->
       <ng-container matColumnDef="runId">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Run ID </th>
-        <td mat-cell *matCellDef="let row"> {{row.runId}} </td>
+        <td mat-cell *matCellDef="let row"> <a [routerLink]="['/run']" [state]="{data: row}">{{row.runId}}</a> </td>
       </ng-container>
 
       <!-- Progress Column -->
