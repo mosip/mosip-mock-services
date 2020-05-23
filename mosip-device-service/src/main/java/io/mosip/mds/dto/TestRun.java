@@ -13,6 +13,8 @@ public class TestRun {
         Done
     };
 
+    public String user;
+
     public String runId;
 
     public RunStatus runStatus;
