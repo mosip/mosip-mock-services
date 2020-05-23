@@ -1,0 +1,1883 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Neurotec.Biometrics.Gui</name>
+    </assembly>
+    <members>
+        <member name="T:Neurotec.Biometrics.Gui.NFaceView">
+            <summary>
+            Provides functionality for managing face pictures.
+            </summary>                                        
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFaceView.#ctor">
+            <summary>
+            Initializes a new instance of the NLView class.
+            </summary>                                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.AutomaticRotateFlipImage">
+            <summary>
+            Checks or sets whether view automatically detect image rotation and flip when drawing image
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.FaceIds">
+            <summary>
+            Gets or sets the face IDs.
+            </summary>
+            <value>
+            An array of strings containing face IDs.
+            </value>                                
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.FaceRectangleColor">
+            <summary>
+            Gets or sets the color of the face-bounding rectangle.
+            </summary>
+            <value>
+            The color of the face-bounding rectangle.
+            </value>                                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.FaceRectangleWidth">
+            <summary>
+            Gets or sets the width of the face-bounding rectangle.
+            </summary>
+            <value>
+            The width of the face-bounding rectangle.
+            </value>                                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowFaceRectangle">
+            <summary>
+            Gets or sets show rectangle for the face.
+            </summary>
+            <value>
+            <b>true</b> if show rectangle for the face; else <b>false</b>. 
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowFaceConfidence">
+            <summary>
+            Gets or sets show confidence for the face.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the face; else<b> false</b>.
+            </value>                                                                
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowFaceQuality">
+            <summary>
+            Gets or sets show quality of the face.
+            </summary>
+            <value>
+            <b>true</b> if there is show quality for the face; else<b> false</b>.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowEyesConfidence">
+            <summary>
+            Gets or sets show confidence for the eyes.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the eyes; else<b> false</b>.
+            </value>                                                                
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowEyes">
+            <summary>
+            Checks or sets whether the eyes are shown.
+            </summary>
+            <value>
+            <b>true</b> if the eyes are shown; else <b>false</b>. 
+            </value>                                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowNose">
+            <summary>
+            Checks or sets whether the nose is shown.
+            </summary>
+            <value>
+            <b>true</b> if the nose is shown; else <b>false</b>. 
+            </value>                                             
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowNoseConfidence">
+            <summary>
+            Gets or sets show confidence for the nose.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the nose; else<b> false</b>.
+            </value>                                                                
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowMouth">
+            <summary>
+            Checks or sets whether the mouth is shown.
+            </summary>
+            <value>
+            <b>true</b> if the mouth is shown; else <b>false</b>. 
+            </value>                                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowMouthConfidence">
+            <summary>
+            Gets or sets show confidence for the mouth.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the mouth; else<b> false</b>.
+            </value>                                                                 
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowGender">
+            <summary>
+            Checks or sets whether the gender is shown.
+            </summary>
+            <value>
+            <b>true</b> if the gender is shown; else <b>false</b>. 
+            </value>                                               
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowGenderConfidence">
+            <summary>
+            Gets or sets show confidence for the gender.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the gender; else<b> false</b>.
+            </value>                                                                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowAge">
+            <summary>
+            Checks or sets whether the age is shown.
+            </summary>
+            <value>
+            <b>true</b> if the age is shown; else <b>false</b>. 
+            </value>                                               
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowExpression">
+            <summary>
+            Checks or sets whether the expression is shown.
+            </summary>
+            <value>
+            <b>true</b> if the expression is shown; else <b>false</b>. 
+            </value>                                               
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowExpressionConfidence">
+            <summary>
+            Gets or sets show confidence for the expression.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the expression; else<b> false</b>.
+            </value>                                                                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowProperties">
+            <summary>
+            Checks or sets whether the properties (Glasses, Blink, etc) is shown.
+            </summary>
+            <value>
+            <b>true</b> if the properties is shown; else <b>false</b>. 
+            </value>                                               
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowPropertiesConfidence">
+            <summary>
+            Gets or sets show confidence for the properties.
+            </summary>
+            <value>
+            <b>true</b> if there is show confidence for the properties; else<b> false</b>.
+            </value>                                                                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.ShowBaseFeaturePoints">
+            <summary>
+            Checks or sets whether base feature points are shown.
+            </summary>
+            <value>
+            <b>true</b> if base feature points are shown; else <b>false</b>.
+            </value>                                                        
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.MirrorHorizontally">
+            <summary>
+            Checks or sets whether mirrored version of image is shown.
+            </summary>
+            <value>
+            <b>true</b> if mirrored image is shown; else <b>false</b>.
+            </value>                                                        
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.FeaturePointSize">
+            <summary>
+            Gets or sets the size of the feature points.
+            </summary>
+            <value>
+            The size of the feature points.
+            </value>                                    
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.BaseFeaturePointSize">
+            <summary>
+            Gets or sets the size of the feature points.
+            </summary>
+            <value>
+            The size of the feature points.
+            </value>                                    
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFaceView.LivenessItemsColor">
+            <summary>
+            Gets or sets the color of the liveness items.
+            </summary>
+            <value>
+            The color of the liveness items.
+            </value>                                              
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerView">
+            <summary>
+            Provides functionality for managing fingerprint scans and templates.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerView.PointerTool">
+            <summary>
+            Provides tools for pointer management.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerView.PointerTool.OnMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when the mouse button is pressed down.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+            <returns>NTrue, if the mouse button is down; else NFalse.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerView.PointerTool.OnMouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when the mouse cursor has been moved.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerView.SegmentManipulationTool">
+            <summary>
+             Provides tools for segment manipulation
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerView.HoveredDoubleCoreIndexChanged">
+            <summary>
+            Handler for event which occurs when index of the hovered double core has been changed.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerView.OnHoveredDoubleCoreIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the hovered double core has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerView.SelectedDoubleCoreIndexChanged">
+            <summary>
+            Handler for event which occurs when index of the selected double core has been changed.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerView.OnSelectedDoubleCoreIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the selected double core has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerView.ResultImageColorChanged">
+            <summary>
+            Handler for event which occurs when result image color has been changed.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerView.OnResultImageColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when result image color has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.Finger">
+            <summary>
+            Gets or sets the displayed finger.
+            </summary>
+            <value>
+            The displayed finger.
+            </value>                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.ShownImage">
+            <summary>
+            Gets or sets the shown image property.
+            </summary>
+            <value>
+            The shown image property.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.ResultImageColor">
+            <summary>
+            Gets or sets the result image color.
+            </summary>
+            <value>
+            Color of result image.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.BoundingRectColor">
+            <summary>
+            Gets or sets the finger bounding rectangle color
+            </summary>
+            <value>
+            Color of result image.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.ShowPatternClassConfidence">
+            <summary>
+            Gets or sets whether to show pattern class confidence
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.ShowWrongHandWarning">
+            <summary>
+            Gets or sets whether to show warning about finger from possibly wrong hand
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.QualityVisualStyle">
+            <summary>
+            Gets or sets how NfiqQuality is shown
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.SelectedMinutiaIndex">
+            <summary>
+            Gets or sets the index of the selected minutia.
+            </summary>
+            <value>
+            The index of the selected minutia.
+            </value>                                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.SelectedCoreIndex">
+            <summary>
+            Gets or sets the index of the selected core.
+            </summary>
+            <value>
+            The index of the selected core.
+            </value>                                    
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.SelectedDeltaIndex">
+            <summary>
+            Gets or sets the index of the selected delta.
+            </summary>
+            <value>
+            The index of the selected delta.
+            </value>                                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerView.SelectedDoubleCoreIndex">
+            <summary>
+            Gets or sets the index of the selected double core.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerView.GetDoubleCoreAtScreenPoint(System.Int32,System.Int32)">
+            <summary>
+            Gets the double core index at the specified point.
+            </summary>
+            <param name="x">X-coordinate of the point.</param>
+            <param name="y">Y-coordinate of the point.</param>
+            <returns>Index of the double core.</returns>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.QualityVisualStyle">
+            <summary>
+            Provides option enumeration for the shown NfiqQuality.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.QualityVisualStyle.None">
+            <summary>
+            Quality is not shown
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.QualityVisualStyle.Text">
+            <summary>
+            Quality is represented by text
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.QualityVisualStyle.Stars">
+            <summary>
+            Quality is represented by stars
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase">
+            <summary>
+            Provides functionality for managing fingerprint details.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Core.X">
+            <summary>
+            Gets or sets the X-coordinate of the core.
+            </summary>
+            <value>
+            The X-coordinate of the core.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Core.Y">
+            <summary>
+            Gets or sets the Y-coordinate of the core.
+            </summary>
+            <value>
+            The Y-coordinate of the core.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Core.Angle">
+            <summary>
+            Gets or sets the angle of the core.
+            </summary>
+            <value>
+            The angle of the core.
+            </value>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Core.RawAngle">
+            <summary>
+            Gets or sets the raw angle of the core.
+            </summary>
+            <value>
+            The raw angle of the core.
+            </value>                               
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Core.#ctor(System.UInt16,System.UInt16,System.Double,System.Int32)">
+            <summary>
+            Initializes a new instance of the Core class.
+            </summary>
+            <param name="x">The X\-coordinate of the core.</param>
+            <param name="y">The Y\-coordinate of the core.</param>
+            <param name="angle">The angle of the core.</param>
+            <param name="rawAngle">The raw angle of the core.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.RawAngle1">
+            <summary>
+            Gets or sets the first raw angle of the of the delta.
+            </summary>
+            <value>
+            The first raw angle of the delta.
+            </value>                                             
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.RawAngle2">
+            <summary>
+            Gets or sets the second raw angle of the delta.
+            </summary>
+            <value>
+            The second raw angle of the delta.
+            </value>                                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.RawAngle3">
+            <summary>
+            Gets or sets the third raw angle of the delta.
+            </summary>
+            <value>
+            The third raw angle of the delta.
+            </value>                                      
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.X">
+            <summary>
+            Gets or sets the X-coordinate of the delta.
+            </summary>
+            <value>
+            The X-coordinate of the delta.
+            </value>                                   
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.Y">
+            <summary>
+            Gets or sets the Y-coordinate of the delta.
+            </summary>
+            <value>
+            The Y-coordinate of the delta.
+            </value>                                   
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.Angle1">
+            <summary>
+            Gets or sets the first angle of the delta.
+            </summary>
+            <value>
+            The first angle of the delta.
+            </value>                                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.Angle2">
+            <summary>
+            Gets or sets the second angle of the delta.
+            </summary>
+            <value>
+            The second angle of the delta.
+            </value>                                   
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.Angle3">
+            <summary>
+            Gets or sets the third angle of the delta.
+            </summary>
+            <value>
+            The third angle of the delta.
+            </value>                                  
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Delta.#ctor(System.UInt16,System.UInt16,System.Double,System.Double,System.Double,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the Delta class.
+            </summary>
+            <param name="x">The X\-coordinate of the delta.</param>
+            <param name="y">The Y\-coordinate of the delta.</param>
+            <param name="angle1">The first angle of the delta.</param>
+            <param name="angle2">The second angle of the delta.</param>
+            <param name="angle3">The third angle of the delta.</param>
+            <param name="rawAngle1">The first raw angle of the delta.</param>
+            <param name="rawAngle2">The second raw angle of the delta.</param>
+            <param name="rawAngle3">The third raw angle of the delta.</param> 
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.RawAngle">
+            <summary>
+            Gets or sets the raw angle of the minutia.
+            </summary>
+            <value>
+            The raw angle of the minutia. 
+            </value>                                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.Angle">
+            <summary>
+            Gets or sets the angle of the minutia.
+            </summary>
+            <value>
+            The angle of the minutia.
+            </value>                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.X">
+            <summary>
+            Gets or sets the X-coordinate of the minutia.
+            </summary>
+            <value>
+            The X-coordinate of the minutia.
+            </value>                                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.Y">
+            <summary>
+            Gets or sets the Y-coordinate of the minutia.
+            </summary>
+            <value>
+            The Y-coordinate of the minutia.
+            </value>                                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.Bifurcation">
+            <summary>
+            Checks or sets the bifurcation of the minutia.
+            </summary>
+            <value>
+            <b>true</b>, if there is bifurcation; else <b>false</b>. 
+            </value>                                                 
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.#ctor">
+            <summary>
+            Initializes a new instance of the Minutia class.
+            </summary>                                      
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Minutia.#ctor(System.UInt16,System.UInt16,System.Double,System.Byte,System.Boolean)">
+            <summary>
+            Initializes a new instance of the Minutia class.
+            </summary>
+            <param name="x">The X\-coordinate of the minutia.</param>
+            <param name="y">The Y\-coordinate of the minutia.</param>
+            <param name="angle">The angle of the minutia.</param>
+            <param name="rawAngle">The raw angle of the minutia.</param>
+            <param name="typeBifurcation">The bifurcation of the minutia.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.MinutiaNeighbor.Index">
+            <summary>
+            Gets or sets the index of the minutia neighbor.
+            </summary>
+            <value>
+            The index of the minutia neighbor.
+            </value>                                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.MinutiaNeighbor.RidgeCount">
+            <summary>
+            Gets or sets the ridge count between the minutia and the minutia neighbor.
+            </summary>
+            <value>
+            The ridge count between the minutia and the minutia neighbor.
+            </value>                                                                  
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.MinutiaNeighbor.#ctor(System.Int32,System.Byte)">
+            <summary>
+            Initializes a new instance of the MinutiaNeighbor class.
+            </summary>
+            <param name="index">The index of the minutia neighbor.</param>
+            <param name="ridgeCount">The ridge count between the minutia and the minutia neighbor.</param>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection">
+            <summary>
+            Provides functionality for managing rectangle selections.
+            </summary>                                               
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.RectangleInner">
+            <summary>
+            Gets or sets the inner rectangle.
+            </summary>
+            <value>
+            The inner rectangle.
+            </value>                         
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.Selected">
+            <summary>
+            Gets or sets whether the rectangle is selected.
+            </summary>
+            <value>
+            <b>true</b> if selected; else <b>false</b>.
+            </value>                                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.Color">
+            <summary>
+            Gets or sets the color of the rectangle.
+            </summary>
+            <value>
+            The color of the rectangle.
+            </value>                                
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.PenWidth">
+            <summary>
+            Gets or sets the width of the pen.
+            </summary>
+            <value>
+            The width of the pen.
+            </value>                          
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.HandleCount">
+            <summary>
+            Gets or sets the number of handles.
+            </summary>
+            <value>
+            The number of handles.
+            </value>                           
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.#ctor">
+            <summary>
+            Initializes a new instance of the RectangleSelection class.
+            </summary>                                                 
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the RectangleSelection class.
+            </summary>
+            <param name="x">The X\-coordinate of the selection.</param>
+            <param name="y">The Y\-coordinate of the selection.</param>
+            <param name="width">The width of the selection.</param>
+            <param name="height">The height of the selection.</param>  
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.#ctor(System.Drawing.Rectangle)">
+            <summary>
+            Initializes a new instance of the RectangleSelection class.
+            </summary>
+            <param name="rectangle">The rectangle selection.</param>   
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.Draw(System.Drawing.Graphics,Neurotec.Biometrics.Gui.NFingerViewBase)">
+            <summary>
+            Draws the cursor on the specified surface, within the specified bounds.
+            </summary>
+            <param name="g">The graphics surface on which to draw the cursor. </param>
+            <param name="fview">The rectangle that represents the bounds of the cursor.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.GetHandle(System.Int32)">
+            <summary>
+            Retrieves a specific handle.
+            </summary>
+            <param name="handleNumber">The number of the handle.</param>
+            <returns>
+            The specified handle.
+            </returns>                                                  
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.HitTest(System.Drawing.Point)">
+            <summary>
+            Checks whether a rectangle contains a specified point.
+            </summary>
+            <param name="point">The point to be checked.</param>
+            <returns>
+            The numbers of handles of the rectangles which contain the specified point.
+            
+            If no rectangle contains the point, returns 0. If there is no selection, returns -1.
+            </returns>                                                                          
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.GetHandleCursor(System.Int32)">
+            <summary>
+            Gets the cursor to the specified handle.
+            </summary>
+            <param name="handleNumber">Number of the handle.</param>
+            <returns>
+            The cursor to the handle.
+            </returns>                                              
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.DrawTrackers(System.Drawing.Graphics,Neurotec.Biometrics.Gui.NFingerViewBase)">
+            <summary>
+            Draws the trackers on the specified surface, within the specified bounds.
+            </summary>
+            <param name="g">The graphics surface on which to draw the trackers. </param>
+            <param name="fview">The rectangle that represents the bounds of the trackers. </param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.GetHandleRectangle(System.Int32)">
+            <summary>
+            Gets a rectangle specified by handle number.
+            </summary>
+            <param name="handleNumber">Number of the handle.</param>
+            <returns>
+            The specified rectangle.
+            </returns>                                              
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.MoveHandleTo(System.Drawing.Point,System.Int32)">
+            <summary>
+            Moves a handle to the specified point.
+            </summary>
+            <param name="point">The target point.</param>
+            <param name="handleNumber">The number of the handle.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.IntersectsWith(System.Drawing.Rectangle)">
+            <summary>
+            Checks whether the current rectangle selection intersects with the specified rectangle.
+            </summary>
+            <param name="rectangle">The specified rectangle.</param>
+            <returns>
+            <b>true</b> if rectangles intersect; else <b>false</b>.
+            </returns>                                                                             
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.Move(System.Int32,System.Int32)">
+            <summary>
+            Moves the rectangle a set distance.
+            </summary>
+            <param name="deltaX">Horizontal distance to move.</param>
+            <param name="deltaY">Vertical distance to move.</param>  
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.Normalize">
+            <summary>
+            Normalizes the current rectangle selection.
+            </summary>                                 
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.GetNormalizedRectangle(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets the normalized version of the specified rectangle.
+            </summary>
+            <param name="x1">First X\-coordinate.</param>
+            <param name="y1">First Y\-coordinate.</param>
+            <param name="x2">Second X\-coordinate.</param>
+            <param name="y2">Second Y\-coordinate.</param>
+            <returns>
+            The normalized rectangle.
+            </returns>                                             
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.GetNormalizedRectangle(System.Drawing.Point,System.Drawing.Point)">
+            <summary>
+            Gets the normalized version of the specified rectangle.
+            </summary>
+            <param name="p1">The first point.</param>
+            <param name="p2">The second point.</param>
+            <returns>
+            The normalized rectangle. 
+            </returns>                                             
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelection.GetNormalizedRectangle(System.Drawing.Rectangle)">
+            <summary>
+            Gets the normalized version of the specified rectangle.
+            </summary>
+            <param name="r">The specified rectangle.</param>
+            <returns>
+            The normalized rectangle. 
+            </returns>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase.Tool">
+            <summary>
+            The generic tool.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Tool.Cursor">
+            <summary>
+            Manages cursor-related events.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Tool.OnMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button has been pressed down.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+            <returns>NTrue, if the mouse button is down; else false.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Tool.OnMouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse cursor has been moved.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Tool.OnMouseUp(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button has been released.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Tool.OnPaint(System.Object,System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Occurs when mouse cursor has been painted.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool">
+            <summary>
+            The tool that manages pointers.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool.#ctor">
+            <summary>
+            Initializes a new instance of the PointerTool class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool.AllowTurn">
+            <summary>
+            Defines whether the pointer tool is allowed to turn.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool.AllowMovement">
+            <summary>
+            Defines whether the pointer tool is allowed to move.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool.OnMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button has been pressed down.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool.OnMouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse cursor has been moved.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.PointerTool.OnMouseUp(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button has been released.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelectionTool">
+            <summary>
+            The tool that manages rectangle selections.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelectionTool.#ctor">
+            <summary>
+            Initializes a new instance of the RectangleSelectionTool class.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelectionTool.OnMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button has been pressed down.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+            <returns>An object that contains no event data.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelectionTool.OnMouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse cursor has been moved.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.RectangleSelectionTool.OnMouseUp(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button has been released.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool">
+            <summary>
+            The tool managing feature addition.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.FeatureAddCompletedEventArgs">
+            <summary>
+            Provides functionality for 
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.FeatureAddCompletedEventArgs.Start">
+            <summary>
+            The final point.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.FeatureAddCompletedEventArgs.End">
+            <summary>
+            The ending point.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.FeatureAddCompletedEventArgs.#ctor(System.Drawing.Point,System.Drawing.Point)">
+            <summary>
+            Initializes a new instance of the FeatureAddCompletedEventArgs class.
+            </summary>
+            <param name="start">The starting point.</param>
+            <param name="end">The ending point.</param>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.FeatureAddCompleted">
+            <summary>
+            Occurs when feature addition process is successfully completed.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.#ctor">
+            <summary>
+            Initializes a new instance of the AddFeaturesTool class.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the AddFeaturesTool class.
+            </summary>
+            <param name="supportsRotate">Defines whether rotation is supported</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.OnMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mount button has been pressed down.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+            <returns>NTrue, if the mouse button is down; else NFalse.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.OnMouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when the mouse cursor has been moved.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.OnMouseUp(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when the mouse button has been released.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.AddFeaturesTool.OnPaint(System.Object,System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Occurs when mouse cursor has been painted.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.NFingerViewBase.TreeVertex.Index">
+            <summary>
+            Tree vertex index.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.NFingerViewBase.TreeVertex.Color">
+            <summary>
+            Tree vertex color.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.TreeVertex.#ctor(System.Int32,System.Drawing.Color)">
+            <summary>
+            Initializes a new instance of the TreeVertex class.
+            </summary>
+            <param name="index">Tree vertex index.</param>
+            <param name="color">Tree vertex color.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.TreeVertex.CompareTo(System.Object)">
+            <summary>
+            Compares the TreeVertex object with the specified object.
+            </summary>
+            <param name="obj">An object to compare.</param>
+            <returns>A value that indicates the relative order of the objects being compared.</returns>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.NFingerViewBase.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Finger">
+            <summary>
+            Gets or sets the displayed finger.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.AllowSelection">
+            <summary>
+            Checks or sets whether selection is allowed.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.AllowHover">
+            <summary>
+            Checks or sets whether hovering is allowed.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.AutomaticRotateFlipImage">
+            <summary>
+            Checks or sets whether view automatically detect image rotation and flip when drawing image
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.ShownImage">
+            <summary>
+            Gets or sets the shown image.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.ShowMinutiae">
+            <summary>
+            Defines whether minutiae should be shown.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.ShowSingularPoints">
+            <summary>
+            Defines whether the singular points should be shown.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.MinutiaColor">
+            <summary>
+            Gets or sets the minutia color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedMinutiaColor">
+            <summary>
+            Gets or sets the color of the selected minutia.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SingularPointColor">
+            <summary>
+            Gets or sets the color of the singular points.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedSingularPointColor">
+            <summary>
+            Gets or sets the color of the selected singular points.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.NeighborMinutiaColor">
+            <summary>
+            Gets or sets the color of the neighbor minutia.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.MatedMinutiae">
+            <summary>
+            The mated minutia.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.MatedMinutiaIndex">
+            <summary>
+            Index of the mated minutia array column.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.AllowTreeMinutiaPulse">
+            <summary>
+            Defines whether selected minutia in tree should pulse.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberBlockColor">
+            <summary>
+            Tree minutia number block color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberLineColor">
+            <summary>
+            Tree minutia number line color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberColor">
+            <summary>
+            Tree minutia number color in block.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberDiplayFormat">
+            <summary>
+            Defines the display format for the minutia number.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberFont">
+            <summary>
+            Tree minutia number font.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeColor">
+            <summary>
+            The color of the tree.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeWidth">
+            <summary>
+            Width of the tree line.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.ShowTree">
+            <summary>
+            Defines whether the control should show the tree.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.ShowTreeMinutiaColor">
+            <summary>
+            Defines whether the control should color the tree minutia.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Tree">
+            <summary>
+            The tree.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaColor">
+            <summary>
+            Tree minutia colors.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedMinutiaIndex">
+            <summary>
+            Gets or sets the index of the selected minutia.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedCoreIndex">
+            <summary>
+            Gets or sets the index of the selected core.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedDeltaIndex">
+            <summary>
+            Gets or sets the index of the selected delta.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.HoveredMinutiaIndex">
+            <summary>
+            Gets or sets the index of the hovered minutia.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.HoveredCoreIndex">
+            <summary>
+            Gets or sets the index of the hovered core.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.HoveredDeltaIndex">
+            <summary>
+            Gets or sets the index of the hovered delta.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.Selection">
+            <summary>
+            Gets or sets the selection.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.IsPartOfImageSelected">
+            <summary>
+            Defines whether a part of the image is selected.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.HasSelection">
+            <summary>
+            Defines whether the control has selection.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedImageArea">
+            <summary>
+            Gets the selected image area.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NFingerViewBase.ActiveTool">
+            <summary>
+            The currently active tool.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.CheckMinutiaAngleSelected(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Checks whether the minutia angle for this index is selected.
+            </summary>
+            <param name="index"></param>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.CheckCoreAngleSelected(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Checks whether the core angle for this index is selected.
+            </summary>
+            <param name="index"></param>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.PrepareTree">
+            <summary>
+            Prepares the tree to draw a matching tree.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.ScreenPointToTemplatePosition(System.Int32,System.Int32)">
+            <summary>
+            Transform screen point to position on the template.
+            </summary>
+            <param name="x">X-coordinate of the point.</param>
+            <param name="y">Y-coordinate of the point.</param>
+            <returns>The point on the template.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.GetMinutiaAtScreenPoint(System.Int32,System.Int32)">
+            <summary>
+            Gets minutia at the specified coordinates.
+            </summary>
+            <param name="x">X-coordinate of the minutia.</param>
+            <param name="y">Y-coordinate of the minutia.</param>
+            <returns>Index of the minutia at the coordinate.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.GetCoreAtScreenPoint(System.Int32,System.Int32)">
+            <summary>
+            Gets core at the specified coordinates.
+            </summary>
+            <param name="x">X-coordinate of the core.</param>
+            <param name="y">Y-coordinate of the core.</param>
+            <returns>Index of the core.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.GetDeltaAtScreenPoint(System.Int32,System.Int32)">
+            <summary>
+            Gets delta at the specified coordinates.
+            </summary>
+            <param name="x">X-coordinate of the delta.</param>
+            <param name="y">Y-coordinate of the delta.</param>
+            <returns>Index of the delta.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.ClearSelectedArea">
+            <summary>
+            Clears the selected area.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnFingerChanged(System.EventArgs)">
+            <summary>
+            Occurs when the template has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnShownImageChanged(System.EventArgs)">
+            <summary>
+            Occurs when the shown image has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnShowMinutiaeChanged(System.EventArgs)">
+            <summary>
+            Occurs when the shown minutiae have been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnShowSingularPointsChanged(System.EventArgs)">
+            <summary>
+            Occurs when the shown singular points have been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnMinutiaColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when color of the minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSelectedMinutiaColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when color of the selected minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSingularPointColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when color of the singular point has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSelectedSingularPointColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when color of the selected singular point has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnNeighborMinutiaColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when color of the neighbor minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnHoveredMinutiaIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the hovered minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnHoveredCoreIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the hovered core has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnHoveredDeltaIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the hovered delta has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSelectedTreeMinutiaIndexChanged(Neurotec.Biometrics.Gui.TreeMinutiaEventArgs)">
+            <summary>
+            Occurs when index of the selected tree minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnMatedMinutiaChanged(System.EventArgs)">
+            <summary>
+            Occurs when mated minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnMatedMinutiaIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the mated minutian has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the tree has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnAllowTreeMinutiaPulseChanged(System.EventArgs)">
+            <summary>
+            Occurs when allowance for tree minutia pulse has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeMinutiaNumberBlockColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when number block color of the tree minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeMinutiaNumberLineColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when number line color of the tree minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeMinutiaNumberColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when number color of the tree minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeMinutiaNumberDiplayFormatChanged(System.EventArgs)">
+            <summary>
+            Occurs when display format of the tree minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeMinutiaNumberFontChanged(System.EventArgs)">
+            <summary>
+            Occurs when number font of the tree minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when color of the tree has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnTreeWidthChanged(System.EventArgs)">
+            <summary>
+            Occurs when width of the tree has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnShowTreeChanged(System.EventArgs)">
+            <summary>
+            Occurs when the shown tree has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnShowTreeMinutiaColorChanged(System.EventArgs)">
+            <summary>
+            Occurs when minutia color of the shown tree has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSelectedMinutiaIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the selected minutia has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSelectedCoreIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the selected core has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NFingerViewBase.OnSelectedDeltaIndexChanged(System.EventArgs)">
+            <summary>
+            Occurs when index of the selected delta has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.FingerChanged">
+            <summary>
+            Occurs when the finger has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.ShownImageChanged">
+            <summary>
+            Occurs when the shown image has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.ShowMinutiaeChanged">
+            <summary>
+            Occurs when the shown minutia has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.ShowSingularPointsChanged">
+            <summary>
+            Occurs when the shown singular points have been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.MinutiaColorChanged">
+            <summary>
+            Occurs when minutia color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedMinutiaColorChanged">
+            <summary>
+            Occurs when selected minutia color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SingularPointColorChanged">
+            <summary>
+            Occurs when singular point color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedSingularPointColorChanged">
+            <summary>
+            Occurs when selected singular point color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.NeighborMinutiaColorChanged">
+            <summary>
+            Occurs when neighbor minutia color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedMinutiaIndexChanged">
+            <summary>
+            Occurs when selected minutia index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedCoreIndexChanged">
+            <summary>
+            Occurs when selected core index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedDeltaIndexChanged">
+            <summary>
+            Occurs when selected delta index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.HoveredMinutiaIndexChanged">
+            <summary>
+            Occurs when hovered minutia index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.HoveredCoreIndexChanged">
+            <summary>
+            Occurs when hovered core index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.HoveredDeltaIndexChanged">
+            <summary>
+            Occurs when hovered delta index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.SelectedTreeMinutiaIndexChanged">
+            <summary>
+            Occurs when selected tree minutia index has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeChanged">
+            <summary>
+            Occurs when tree has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.MatedMinutiaChanged">
+            <summary>
+            Occurs when mated minutia has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.AllowTreeMinutiaPulseChanged">
+            <summary>
+            Occurs when tree minutia pulse allowance has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberBlockColorChanged">
+            <summary>
+            Occurs when tree minutia number block color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberLineColorChanged">
+            <summary>
+            Occurs when tree minutia number line color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberColorChanged">
+            <summary>
+            Occurs when tree minutia number color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberDiplayFormatChanged">
+            <summary>
+            Occurs when tree minutia number display format has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeMinutiaNumberFontChanged">
+            <summary>
+            Occurs when tree minutia number font has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeColorChanged">
+            <summary>
+            Occurs when tree color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.TreeWidthChanged">
+            <summary>
+            Occurs when tree width has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.ShowTreeChanged">
+            <summary>
+            Occurs when shown tree has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.ShowTreeMinutiaColorChanged">
+            <summary>
+            Occurs when shown tree minutia color has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Gui.NFingerViewBase.MatedMinutiaIndexChanged">
+            <summary>
+            Occurs when mated minutia index has been changed.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.TreeMinutiaEventArgs">
+            <summary>
+            Provides functionality for managing tree minutia events.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.TreeMinutiaEventArgs.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the TreeMinutiaEventArgs class.
+            </summary>
+            <param name="index">Tree minutia index.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.TreeMinutiaEventArgs.Index">
+            <summary>
+            The tree minutia index.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.ShownImage">
+            <summary>
+            Provides option enumeration for the shown image.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.ShownImage.None">
+            <summary>
+            No image is shown.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.ShownImage.Original">
+            <summary>
+            The original image is shown.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.ShownImage.Result">
+            <summary>
+            The result image is shown.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat">
+            <summary>
+            Provides option enumeration for minutia display formats.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat.DontDisplay">
+            <summary>
+            Do not display minutia numbers.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat.CloseToMinutia">
+            <summary>
+            Display minutia numbers close to minutia.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat.CloseToFingerprint">
+            <summary>
+            Display minutia numbers close to fingerprint.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat.Both">
+            <summary>
+            Display minutia numbers close to both minutia and fingerprint.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Gui.NIrisView">
+            <summary>
+            Provides functionality for managing iris scans.
+            </summary>                                     
+        </member>
+        <member name="M:Neurotec.Biometrics.Gui.NIrisView.#ctor">
+            <summary>
+            Initializes a new instance of NEView class.
+            </summary>                                 
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NIrisView.Iris">
+            <summary>
+            Gets or sets the current iris.
+            </summary>
+            <value>
+            The current iris.
+            </value>                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NIrisView.AutomaticRotateFlipImage">
+            <summary>
+            Checks or sets whether view automatically detect image rotation and flip when drawing image
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NIrisView.OuterBoundaryColor">
+            <summary>
+            Gets or sets the outer boundary color.
+            </summary>
+            <value>
+            The outer boundary color.
+            </value>                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NIrisView.OuterBoundaryWidth">
+            <summary>
+            Gets or sets the outer boundary width.
+            </summary>
+            <value>
+            The outer boundary width.
+            </value>                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NIrisView.InnerBoundaryColor">
+            <summary>
+            Gets or sets the inner boundary color.
+            </summary>
+            <value>
+            The inner boundary color.
+            </value>                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Gui.NIrisView.InnerBoundaryWidth">
+            <summary>
+            Gets or sets the inner boundary width.
+            </summary>
+            <value>
+            The inner boundary width.
+            </value>                              
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.ANView.#ctor">
+            <summary>
+            Initializes a new instance of ANView class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.ANView.Record">
+            <summary>
+            Gets or sets the record.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Standards.Gui.ANView.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.ANView.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.ANView.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FCView.#ctor">
+            <summary>
+            Initializes a new instance of FCView class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FCView.FeatureColor">
+            <summary>
+            Gets or sets the feature color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FCView.Record">
+            <summary>
+            Gets or sets the face image record.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Standards.Gui.FCView.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FCView.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FCView.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FIView.#ctor">
+            <summary>
+            Initialies a new instance of FIView class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FIView.FeatureColor">
+            <summary>
+            Gets or sets the feature color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FIView.Record">
+            <summary>
+            Gets or sets the finger view record.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Standards.Gui.FIView.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FIView.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FIView.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FMView.#ctor">
+            <summary>
+            Initializes a new instance of FMView class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.Image">
+            <summary>
+            Gets or sets the bitmap image.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.ResultImage">
+            <summary>
+            Gets or sets the resulting bitmap image.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.Template">
+            <summary>
+            Gets or sets a new fingerprint template.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.FeatureAreaColor">
+            <summary>
+            Gets or sets the feature area color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.DrawFeatureArea">
+            <summary>
+            Gets or sets the draw feature area.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.ViewWidth">
+            <summary>
+            Gets the view width.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.FMView.ViewHeight">
+            <summary>
+            Gets the view height.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FMView.OnImageChanged(System.EventArgs)">
+            <summary>
+            Occurs when image has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FMView.OnResultImageChanged(System.EventArgs)">
+            <summary>
+            Occurs when the result image has been changed.
+            </summary>
+            <param name="e">An object that contains no event data.</param>
+        </member>
+        <member name="E:Neurotec.Biometrics.Standards.Gui.FMView.ImageChanged">
+            <summary>
+            Occurs when the image has been changed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Standards.Gui.FMView.ResultImageChanged">
+            <summary>
+            Occurs when the resulting image has been changed.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Standards.Gui.FMView.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FMView.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.FMView.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.IIView.#ctor">
+            <summary>
+            Initializes a new instance of IIView class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.IIView.FeatureColor">
+            <summary>
+            Gets or sets the feature color.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Standards.Gui.IIView.Record">
+            <summary>
+            Gets or sets the iris image record.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Standards.Gui.IIView.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.IIView.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Standards.Gui.IIView.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+    </members>
+</doc>

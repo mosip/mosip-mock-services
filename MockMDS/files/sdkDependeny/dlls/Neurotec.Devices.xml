@@ -1,0 +1,828 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Neurotec.Devices</name>
+    </assembly>
+    <members>
+        <member name="T:Neurotec.Devices.ComponentModel.NDeviceEventDescriptor">
+            <summary>
+            Provides functionality for creating device event descriptors.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.ComponentModel.NDeviceEventDescriptor.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.ComponentModel.NDeviceMethodDescriptor">
+            <summary>
+            Provides functionality for creating device method descriptors.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.ComponentModel.NDeviceMethodDescriptor.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.ComponentModel.NDevicePropertyDescriptor">
+            <summary>
+            Provides functionality for creating device property descriptors.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.ComponentModel.NDevicePropertyDescriptor.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NBiometricDevice">
+            <summary>
+            Provides methods to retrieve information about biometric
+            device.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NBiometricDevice.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NBiometricDevice.Cancel">
+            <summary>
+            Stops capturing and cancels NBiometricDevice (NFScanner or
+            NIrisScanner)
+            </summary>
+            <remarks>
+            Also EndSequence method can be called which cancels device
+            and stops sequence.
+            </remarks>                                                
+        </member>
+        <member name="M:Neurotec.Devices.NBiometricDevice.StartSequence">
+            <summary>
+            Starts sequence which prepares device for multiple capture
+            operations.
+            </summary>
+            <remarks>
+            <paraattr align="justify">
+            Some devices do not support multiple capturing (sequences).
+            When called for such devices, this method does nothing.
+            </paraattr>
+            StartSequence method does not start capturing. Capturing
+            should be started using Capture methods. This method should
+            be called for each fingerprint/palmprint or iris image.
+            
+            If capturing sequence was started, after capturing it should
+            be ended by calling EndSequence method.
+            </remarks>                                                  
+        </member>
+        <member name="M:Neurotec.Devices.NBiometricDevice.EndSequence">
+            <summary>
+            Ends multiple images capturing sequence.
+            </summary>                              
+        </member>
+        <member name="P:Neurotec.Devices.NBiometricDevice.BiometricType">
+            <summary>
+            Gets the type of biometric device.
+            </summary>
+            <value>
+            Device biometric type.
+            </value>                          
+        </member>
+        <member name="P:Neurotec.Devices.NBiometricDevice.VendorId">
+            <summary>
+            Gets device vendor Id.
+            </summary>
+            <value>
+            Device vendor Id.
+            </value>              
+        </member>
+        <member name="P:Neurotec.Devices.NBiometricDevice.ProductId">
+            <summary>
+            Gets product device Id.
+            </summary>
+            <value>
+            Product Id. 
+            </value>               
+        </member>
+        <member name="P:Neurotec.Devices.NBiometricDevice.IsSpoofDetectionSupported">
+            <summary>
+            Checks if the device is capable to detect spoof objects.
+            </summary>
+            <value>
+            true if device is capable to detect spoof objects; otherwise
+            false.
+            </value>                                                    
+        </member>
+        <member name="P:Neurotec.Devices.NBiometricDevice.SpoofDetection">
+            <summary>
+            Gets or sets spoof detection value for biometric device.
+            </summary>
+            <value>
+            true if device is used to detect spoof objects; otherwise
+            false.
+            </value>                                                 
+        </member>
+        <member name="T:Neurotec.Devices.NCameraStatus">
+            <summary>
+            Enumerates camera status values.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.Ok">
+            Reserved for future use.
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.AutoFocusFailure">
+            Indicates that camera is ready to use.
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.LensClosed">
+            Indicates that camera failed to auto focus an object.
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.MirrorUp">
+            Indicates that camera lens are closed.
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.SensorCleaning">
+            Indicates that camera mirror is up (when DSLR is used).
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.SilentOperation">
+            Indicates that camera is performing sensor cleaning.
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.StroboCharge">
+            Indicates that camera is operating in silent mode.
+        </member>
+        <member name="F:Neurotec.Devices.NCameraStatus.NoLens">
+            Indicates that camera strobe is charging.
+        </member>
+        <member name="T:Neurotec.Devices.NCameraStillCapturedEventArgs">
+            <summary>
+            Contains NCamera still image capture event arguments.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NCameraStillCapturedEventArgs.#ctor(Neurotec.IO.NStream,System.Object,Neurotec.NPropertyBag)">
+            <summary>
+            Creates a new instance of NCameraStillCapturedEventArgs class.
+            </summary>
+            <param name="stream">Data stream.</param>
+            <param name="id">Camera ID.</param>
+            <param name="properties">Event properties.</param>
+        </member>
+        <member name="P:Neurotec.Devices.NCameraStillCapturedEventArgs.Stream">
+            <summary>
+            Retrieves the data stream.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NCameraStillCapturedEventArgs.Id">
+            <summary>
+            Retrieves the camera ID.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NCameraStillCapturedEventArgs.Properties">
+            <summary>
+            Retrieves the event properties.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NCamera">
+            <summary>
+            Provides methods for working with cameras.
+            </summary>                                
+        </member>
+        <member name="P:Neurotec.Devices.NCamera.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NCamera.NCameraStatusNativeType">
+            <summary>
+            Defines the native type of the camera status.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.GetFrame">
+            <summary>
+            Gets current frame from the capture device.
+            </summary>
+            <returns>
+            Frame image.
+            </returns>                                 
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.GetFrame(System.TimeSpan@,System.TimeSpan@)">
+            <summary>
+            Gets current frame from the capture device.
+            </summary>
+            <returns>
+            Frame image.
+            </returns>
+            <param name="timeStamp">Time stamp (from the beginning).
+                                    100ns units. </param>
+            <param name="duration">Video sample duration (100ns units).</param>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.ResetFocus">
+            <summary>
+            Resets camera focus.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.Focus">
+            <summary>
+            Adjusts camera focus.
+            </summary>
+            <returns>NCameraStatus object.</returns>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.GetStillFormats">
+            <summary>
+            Gets still image formats supported by specified camera.
+            </summary>
+            <returns>The allocated array of NVideoFormat structures describing all supported formats for the current capture device (camera).</returns>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.GetCurrentStillFormat">
+            <summary>
+            Gets the current still image format.
+            </summary>
+            <returns>One of NVideoFormat values.</returns>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.SetCurrentStillFormat(Neurotec.Media.NVideoFormat)">
+            <summary>
+            Sets the current still image format.
+            </summary>
+            <param name="format">One of NVideoFormat values.</param>
+        </member>
+        <member name="M:Neurotec.Devices.NCamera.CaptureStill">
+            <summary>
+            Gets a still image from capture device (camera).
+            </summary>
+            <returns>NCameraStatus object.</returns>
+            <remarks>Captured still image (NImage) is retrieved by calling NCameraAddStillCapturedCallback (user defined function).</remarks>
+        </member>
+        <member name="P:Neurotec.Devices.NCamera.IsFocusSupported">
+            <summary>
+            Checks whether the focus is supported.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NCamera.IsFocusRegionSupported">
+            <summary>
+            Checks whether the focus region is supported.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NCamera.FocusRegion">
+            <summary>
+            Gets or sets the focus region.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NCamera.IsStillCaptureSupported">
+            <summary>
+            Checks whether still capture is supported.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NCaptureDevice">
+            <summary>
+            Provides methods for working with capture devices.
+            </summary>                                        
+        </member>
+        <member name="P:Neurotec.Devices.NCaptureDevice.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NCaptureDevice.StartCapturing">
+            <summary>
+            Starts capturing.
+            </summary>       
+        </member>
+        <member name="M:Neurotec.Devices.NCaptureDevice.StopCapturing">
+            <summary>
+            Stops capturing.
+            </summary>      
+        </member>
+        <member name="M:Neurotec.Devices.NCaptureDevice.GetFormats">
+            <summary>
+            Gets all supported formats by the capture device.
+            </summary>
+            <returns>
+            Array of supported media formats for the current capture
+            device.
+            </returns>                                              
+        </member>
+        <member name="M:Neurotec.Devices.NCaptureDevice.GetCurrentFormat">
+            <summary>
+            Gets current media format of the capture device.
+            </summary>
+            <returns>
+            Current media format of capture device. 
+            </returns>                                      
+        </member>
+        <member name="M:Neurotec.Devices.NCaptureDevice.SetCurrentFormat(Neurotec.Media.NMediaFormat)">
+            <summary>
+            Sets current media format for the capture device.
+            </summary>
+            <param name="format">Current media format to set.</param>
+        </member>
+        <member name="P:Neurotec.Devices.NCaptureDevice.IsCapturing">
+            <summary>
+            Checks if the device is capturing.
+            </summary>
+            <value>
+            bool type value indicating if the device is capturing.
+            </value>                                              
+        </member>
+        <member name="P:Neurotec.Devices.NCaptureDevice.MediaType">
+            <summary>
+            Gets the media type.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Devices.NCaptureDevice.IsCapturingChanged">
+            <summary>
+            Gets or sets
+            </summary>
+            <value>
+            Value
+            </value>    
+        </member>
+        <member name="T:Neurotec.Devices.NDeviceType">
+            <summary>
+            Enumerates device type values.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.None">
+            <summary>
+            This value is used for primitive devices (e.g. for parent devices). NDeviceManager has such devices only
+            if NDeviceManager was created using <i>Any</i> value for NDeviceType.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.Camera">
+            <summary>
+            Indicates that device type is camera.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.BiometricDevice">
+            <summary>
+            Indicates FingerScanner and IrisScanner values of this enumeration.
+            For instance, if this value is returned by DeviceTypes property, it means that NDeviceManager type is one of the following: FingerScanner or IrisScanner.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.FScanner">
+            <summary>
+            Indicates that device is a scanner which can be used for friction ridges (fingers or palms) scanning.
+            If FScanner value is passed to on of NDeviceManager constructors, it means that device which supports
+            all friction ridge scanning devices will be created.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.FingerScanner">
+            <summary>
+            Indicates that device type is fingerprints scanner (FScanner scanner which can also scan fingerprints).
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.PalmScanner">
+            <summary>
+            Indicates that device type is palmprints scanner (FScanner scanner which can also scan palmprints).
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.IrisScanner">
+            <summary>
+            Indicates that device type is iris scanner.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.CaptureDevice">
+            <summary>
+            Indicates that device type is capture device.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.Microphone">
+            <summary>
+            Indicates that device type is microphone.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Devices.NDeviceType.Any">
+            <summary>
+            This value indicates that NDeviceManager supports all available device types. For instance, when Any value is
+            passed to one of NDeviceManager constructors, new NDeviceManager which supports all device modules (cameras,
+            fingerprint, iris, palmprint scanners, etc.) is created.
+            
+            Also this value is returned when NDeviceManager does not recognize device's type (e.g. device's module version is newer
+            than NDeviceManager).
+            NDeviceManager type can be retrieved using DeviceTypes property.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NDevice">
+            <summary>
+            Provides functionality for retrieving device information.
+            </summary>                                               
+        </member>
+        <member name="T:Neurotec.Devices.NDevice.ChildCollection">
+            <summary>
+            Children collection of specified multimodal device.
+            </summary>                                         
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.NDeviceTypeNativeType">
+            <summary>
+            Defines the native type of the device type.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Owner">
+            <summary>
+            Gets the owner of the device manager.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Plugin">
+            <summary>
+            Gets device plugin.
+            </summary>
+            <value>
+            Device plugin.
+            </value>           
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.DeviceType">
+            <summary>
+            Gets the type of multimodal device.
+            </summary>
+            <value>
+            Device type value.
+            </value>                           
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.IsAvailable">
+            <summary>
+            Checks if the device is available.
+            </summary>
+            <value>
+            Boolean value indicating if the device is available.
+            </value>                                            
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.IsPrivate">
+            <summary>
+            Checks if the device is private.
+            </summary>
+            <value>
+            Boolean value indicating if the device is private.
+            </value>                                          
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.IsDisconnectable">
+            <summary>
+            Checks whether the device is disconnectable.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Parent">
+            <summary>
+            Gets the parent of specified multimodal device module.
+            </summary>
+            <value>
+            Parent of multimodal device.
+            </value>                                              
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Id">
+            <summary>
+            Gets device Id.
+            </summary>
+            <value>
+            String containing device Id.
+            </value>                    
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.DisplayName">
+            <summary>
+            Gets device name
+            </summary>
+            <value>
+            String containing device display name.
+            </value>                              
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Make">
+            <summary>
+            Gets device manufacturer.
+            </summary>
+            <value>
+            String containing device manufacturer.
+            </value>                              
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Model">
+            <summary>
+            Gets model of current biometric device.
+            </summary>
+            <value>
+            String containing device model name.
+            </value>                               
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.SerialNumber">
+            <summary>
+            Gets serial number of current biometric device.
+            </summary>
+            <value>
+            String containing device serial number.
+            </value>                                       
+        </member>
+        <member name="P:Neurotec.Devices.NDevice.Children">
+            <summary>
+            Gets children collections of specified multimodal device.
+            </summary>
+            <value>
+            Device children collection.
+            </value>                                                 
+        </member>
+        <member name="T:Neurotec.Devices.NDeviceManagerDeviceEventArgs">
+            <summary>
+            Contains device manager device event arguments.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManagerDeviceEventArgs.#ctor(Neurotec.Devices.NDevice)">
+            <summary>
+            Initializes a new instance of NDeviceManagerDeviceEventArgs class.
+            </summary>
+            <param name="device">The device.</param>
+        </member>
+        <member name="P:Neurotec.Devices.NDeviceManagerDeviceEventArgs.Device">
+            <summary>
+            Gets the device.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NDeviceManager">
+            <summary>
+            Provides functionality for managing devices.
+            </summary>                                  
+        </member>
+        <member name="T:Neurotec.Devices.NDeviceManager.DeviceCollection">
+            <summary>
+            Holds all devices data of the current NDeviceManager object. 
+            </summary>                                                   
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.DeviceCollection.IndexOf(System.String)">
+            <summary>
+            Retrieves device's index in a collection by specified device
+            Id.
+            </summary>
+            <param name="id">Device identifier. </param>
+            <returns>
+            Device index in the collection. 
+            </returns>                                                  
+        </member>
+        <member name="P:Neurotec.Devices.NDeviceManager.DeviceCollection.Item(System.String)">
+            <summary>
+            Gets NDevice object specified by Id.
+            </summary>
+            <param name="id">Device Id. </param>
+            <returns>
+            NDevice object. 
+            </returns>                          
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.IsConnectToDeviceSupported(Neurotec.Plugins.NPlugin)">
+            <summary>
+            Checks whether the specified plugin supports connection to device.
+            </summary>
+            <param name="plugin">The device plugin.</param>
+            <returns>true if connection is supported; else false.</returns>
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.GetConnectToDeviceParameters(Neurotec.Plugins.NPlugin)">
+            <summary>
+            Gets connection parameters for a device from a specified plugin.
+            </summary>
+            <param name="plugin">The device plugin.</param>
+            <returns>An array of connection parameters supported by specified plugin.</returns>
+        </member>
+        <member name="P:Neurotec.Devices.NDeviceManager.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NDeviceManager.PluginManager">
+            <summary>
+            Gets the plugin manager of the current object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.#ctor">
+            <summary>
+            Initializes a new instance of the NDeviceManager class.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.ConnectToDevice(Neurotec.Plugins.NPlugin,Neurotec.NPropertyBag)">
+            <summary>
+            Connects to specified device using NPlugin and NPropertyBag parameters.
+            </summary>
+            <param name="plugin">Device plugin used to establish a connection.</param>
+            <param name="parameters">Properties used for connection.</param>
+            <returns>NDevice to which a connection was established.</returns>
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.ConnectToDevice(System.String,System.String)">
+            <summary>
+            Connects to a device using specified plugin and connection parameters.
+            </summary>
+            <param name="plugin">String containing plugin name (e.g. "Media").</param>
+            <param name="parameters">String containing camera parameters (e.g. "FileName=C:\video.avi;MediaType=nmtVideo").</param>
+            <returns>NDevice to which a connection was established.</returns>
+        </member>
+        <member name="M:Neurotec.Devices.NDeviceManager.DisconnectFromDevice(Neurotec.Devices.NDevice)">
+            <summary>
+            Disconnects from specified device.
+            </summary>
+            <param name="device">The device to disconnect.</param>
+        </member>
+        <member name="P:Neurotec.Devices.NDeviceManager.DeviceTypes">
+            <summary>
+            Gets supported device types by NDeviceManager.
+            </summary>
+            <value>
+            Supported device types.
+            </value>                                      
+        </member>
+        <member name="P:Neurotec.Devices.NDeviceManager.Devices">
+            <summary>
+            Gets devices collection of the current NDeviceManager object.
+            </summary>
+            <value>
+            Device collection containing all devices of the current
+            NDeviceManager. 
+            </value>                                                     
+        </member>
+        <member name="T:Neurotec.Devices.NDevices">
+            <summary>
+            Provides functionality for retrieving information about
+            NDevices library. 
+            </summary>                                             
+        </member>
+        <member name="F:Neurotec.Devices.NDevices.DllName">
+            <summary>
+            NDevices library's Dll name.
+            </summary>                   
+        </member>
+        <member name="P:Neurotec.Devices.NDevices.NativeModule">
+            <summary>
+            Defines the native module of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NFingerScanner">
+            <summary>
+            Represents fingerprints scanner.
+            </summary>                      
+        </member>
+        <member name="P:Neurotec.Devices.NFingerScanner.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NFScannerPreviewEventArgs">
+            <summary>
+            Contains image preview event arguments.
+            </summary>                             
+        </member>
+        <member name="M:Neurotec.Devices.NFScannerPreviewEventArgs.#ctor(Neurotec.Images.NImage,Neurotec.Biometrics.NBiometricStatus,System.Collections.Generic.IList{Neurotec.Biometrics.NFAttributes})">
+            <summary>
+            Initializes a new instance of NFScannerPreviewEventArgs class.
+            </summary>
+            <param name="image">The preview image.</param>
+            <param name="status">The biometric status.</param>
+            <param name="objects">List of attributes.</param>
+        </member>
+        <member name="M:Neurotec.Devices.NFScannerPreviewEventArgs.#ctor(Neurotec.Images.NImage,Neurotec.Biometrics.NBiometricStatus,Neurotec.Biometrics.NFAttributes[])">
+            <summary>
+            Initializes a new instance of NFScannerPreviewEventArgs class. 
+            </summary>
+            <param name="image">The preview image.</param>
+            <param name="status">The biometric status.</param>
+            <param name="objects">Array of attributes.</param>
+        </member>
+        <member name="P:Neurotec.Devices.NFScannerPreviewEventArgs.Image">
+            <summary>
+            Gets NImage which was scanned by a device.
+            </summary>
+            <value>
+            NImage type image.
+            </value>                                  
+        </member>
+        <member name="P:Neurotec.Devices.NFScannerPreviewEventArgs.Status">
+            <summary>
+            Gets device biometric status.
+            </summary>
+            <value>
+            Device biometric status.
+            </value>                     
+        </member>
+        <member name="P:Neurotec.Devices.NFScannerPreviewEventArgs.Objects">
+            <summary>
+            Gets a list of NFAttributes objects.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NFScanner">
+            <summary>
+            Represents fingerprints and palmprints scanning device.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Devices.NFScanner.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NFScanner.GetSupportedImpressionTypes">
+            <summary>
+            Gets impression types supported by the specified device.
+            </summary>
+            <returns>
+            Array of impression types supported by the current device.
+            </returns>                                                
+        </member>
+        <member name="M:Neurotec.Devices.NFScanner.GetSupportedPositions">
+            <summary>
+            Gets fingerprint positions supported by the specified device.
+            </summary>
+            <returns>
+            Array of fingerprint positions supported by the current
+            device.
+            </returns>                                                   
+        </member>
+        <member name="T:Neurotec.Devices.NIrisScannerPreviewEventArgs">
+            <summary>
+            Contains image preview event arguments. 
+            </summary>                              
+        </member>
+        <member name="M:Neurotec.Devices.NIrisScannerPreviewEventArgs.#ctor(Neurotec.Images.NImage,Neurotec.Biometrics.NBiometricStatus,System.Collections.Generic.IList{Neurotec.Biometrics.NEAttributes})">
+            <summary>
+            Initializes a new instance of NIrisScannerPreviewEventArgs class.
+            </summary>
+            <param name="image">The preview image.</param>
+            <param name="status">The biometric status.</param>
+            <param name="objects">Attribute list.</param>
+        </member>
+        <member name="M:Neurotec.Devices.NIrisScannerPreviewEventArgs.#ctor(Neurotec.Images.NImage,Neurotec.Biometrics.NBiometricStatus,Neurotec.Biometrics.NEAttributes[])">
+            <summary>
+            Initializes a new instance of NIrisScannerPreviewEventArgs class.
+            </summary>
+            <param name="image">The preview image.</param>
+            <param name="status">The biometric status.</param>
+            <param name="objects">Attribute array.</param>
+        </member>
+        <member name="P:Neurotec.Devices.NIrisScannerPreviewEventArgs.Image">
+            <summary>
+            Gets NImage which was scanned by a device.
+            </summary>
+            <value>
+            NImage type image. 
+            </value>                                  
+        </member>
+        <member name="P:Neurotec.Devices.NIrisScannerPreviewEventArgs.Status">
+            <summary>
+            Gets device biometric status.
+            </summary>
+            <value>
+            Device biometric status. 
+            </value>                     
+        </member>
+        <member name="P:Neurotec.Devices.NIrisScannerPreviewEventArgs.Objects">
+            <summary>
+            Gets the list of attributes.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Devices.NIrisScanner">
+            <summary>
+            Represents irises scanning device. 
+            </summary>                         
+        </member>
+        <member name="P:Neurotec.Devices.NIrisScanner.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NIrisScanner.GetSupportedPositions">
+            <summary>
+            Gets iris positions supported by the specified device.
+            </summary>
+            <returns>
+            Array of iris positions supported by the current device. 
+            </returns>                                               
+        </member>
+        <member name="T:Neurotec.Devices.NMicrophone">
+            <summary>
+            Provides methods for working with sound recording devices
+            (microphones).
+            </summary>                                               
+        </member>
+        <member name="P:Neurotec.Devices.NMicrophone.NativeType">
+            <summary>
+            Defines the native type.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Devices.NMicrophone.GetSoundSample">
+            <summary>
+            Gets sound sample from the recording device.
+            </summary>
+            <returns>
+            Sound buffer object which receives sound sample from
+            recording device. 
+            </returns>                                          
+        </member>
+        <member name="M:Neurotec.Devices.NMicrophone.GetSoundSample(System.TimeSpan@,System.TimeSpan@)">
+            <summary>
+            Gets sound sample from the recording device.
+            </summary>
+            <returns>
+            Sound buffer object which receives sound sample from
+            recording device. 
+            </returns>
+            <param name="timeStamp">Time stamp (from the beginning).
+                                    100ns units. </param>
+            <param name="duration">Audio sample duration (100ns units).</param>
+        </member>
+        <member name="T:Neurotec.Devices.NPalmScanner">
+            <summary>
+            Represents palmprints scanner.
+            </summary>                    
+        </member>
+        <member name="P:Neurotec.Devices.NPalmScanner.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+    </members>
+</doc>
