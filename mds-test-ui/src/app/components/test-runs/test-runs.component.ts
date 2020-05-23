@@ -33,29 +33,6 @@ export class TestRunsComponent implements OnInit {
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   runs = [];
-  // runs = [
-  //   {
-  //     runId: '1589998953988',
-  //     runStatus: 'Created',
-  //     createdOn: '2020-05-20T18:22:33.988+0000',
-  //     tests: [
-  //       'discover'
-  //     ],
-  //     testReport: null
-  //   }
-  //   ];
-  // runs = [
-  //   {
-  //     : 1,
-  // runStatus: 2,
-  // createdOn: 3,
-  //   },
-  //   {
-  //     runId: 1,
-  //     runStatus: 5,
-  //     createdOn: 3,
-  //   }
-  // ];
 
   constructor(private dataService: DataService) {
     // Create 100 users
