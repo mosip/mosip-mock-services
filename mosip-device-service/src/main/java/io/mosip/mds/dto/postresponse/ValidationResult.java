@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public class TestDetailsDto {
+public class ValidationResult {
 
 	@ApiModelProperty(value = "validationName", required = true, dataType = "java.lang.String")
 	public String validationName;

@@ -8,8 +8,6 @@ import io.mosip.mds.dto.getresponse.TestExtnDto;
 import io.mosip.mds.dto.getresponse.UIInput;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
-import io.mosip.mds.dto.postresponse.TestDetailsDto;
-import io.mosip.mds.dto.postresponse.ValidateResponseDto;
 import io.mosip.mds.service.TestRequestBuilder;
 import io.mosip.mds.service.TestRequestBuilder.Intent;
 
@@ -284,39 +282,23 @@ public class TestManager {
 		return BuildRequest(composeRequestDto);
 	}
 
-	public ValidateResponseDto ValidateResponse(ValidateResponseRequestDto validateRequestDto) {
+	public TestResult ValidateResponse(ValidateResponseRequestDto validateRequestDto) {
 		if(!testRuns.keySet().contains(validateRequestDto.runId) || !allTests.keySet().contains(validateRequestDto.testId))
 			return null;
-		Boolean hasFailed = false;
-		ValidateResponseDto responseDTO = new ValidateResponseDto();
-		responseDTO.runId = validateRequestDto.runId;
-		responseDTO.testId = validateRequestDto.testId;
-		responseDTO.response = validateRequestDto.mdsResponse;
-		responseDTO.request = validateRequestDto.mdsRequest;
-		responseDTO.details = new ArrayList<>();
+		TestRun run = testRuns.get(validateRequestDto.runId);
+		TestExtnDto test = allTests.get(validateRequestDto.testId);
+		TestResult testResult = new TestResult();
+		testResult.executedOn = new Date();
+		testResult.requestData = validateRequestDto.mdsRequest;
+		testResult.responseData = validateRequestDto.mdsResponse;
+		testResult.runId = run.runId;
+		testResult.testId = test.testId;
 
-		for(Validator v:allTests.get(validateRequestDto.testId).validators)
+		for(Validator v:test.validators)
 		{
-			v.Validate(validateRequestDto);
-			TestDetailsDto result = new TestDetailsDto();
-			result.status = v.Status.toString();
-			switch(v.Status)
-			{
-				case Failed:
-				case InternalException:
-					hasFailed = true;
-					break;
-				default:
-			}
-			result.validationName = v.Name;
-			result.validationDescription = v.Description;
-			result.errors.addAll(v.Errors);
-			responseDTO.details.add(result);
-		}
-		if(hasFailed)
-			responseDTO.status = "Failed";
-		else
-			responseDTO.status = "Passed";
-		return responseDTO; 
+			testResult.validationResults.add(v.Validate(validateRequestDto));
+		}		
+		run.testReport.put(test.testId, testResult);
+		return testResult; 
 	}
 }

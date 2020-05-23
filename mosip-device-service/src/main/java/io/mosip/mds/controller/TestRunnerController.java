@@ -3,9 +3,9 @@ package io.mosip.mds.controller;
 import org.springframework.web.bind.annotation.*;
 
 import io.mosip.mds.dto.ComposeRequestDto;
+import io.mosip.mds.dto.TestResult;
 import io.mosip.mds.dto.ValidateResponseRequestDto;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
-import io.mosip.mds.dto.postresponse.ValidateResponseDto;
 import io.mosip.mds.entitiy.TestManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,7 +34,7 @@ public class TestRunnerController {
 	@ApiResponses({ @ApiResponse(code = 201, message = "When validateResponse Details successfully created"),
 			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
 			@ApiResponse(code = 500, message = "While creating validateResponse any error occured") })
-	public ValidateResponseDto validateResponse(@RequestBody ValidateResponseRequestDto validateRequestDto) {
+	public TestResult validateResponse(@RequestBody ValidateResponseRequestDto validateRequestDto) {
 		// TODO handle null return for invalid runId and testId
 		TestManager testManager = new TestManager();
 		return testManager.ValidateResponse(validateRequestDto);

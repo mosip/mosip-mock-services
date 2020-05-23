@@ -21,6 +21,6 @@ public class TestRun {
 
     public List<String> tests;
 
-    public HashMap<String, TestResult> testReport;
+    public HashMap<String, TestResult> testReport = new HashMap<>();
     
 }
