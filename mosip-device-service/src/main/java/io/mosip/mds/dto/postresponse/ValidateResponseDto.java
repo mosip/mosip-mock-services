@@ -27,5 +27,5 @@ public class ValidateResponseDto {
 	public String response;
 	
 
-	public List<TestDetailsDto> details;
+	public List<ValidationResult> details;
 }

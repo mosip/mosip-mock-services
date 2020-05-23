@@ -1,9 +1,9 @@
 package io.mosip.mds.entitiy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.mosip.mds.dto.ValidateResponseRequestDto;
+import io.mosip.mds.dto.postresponse.ValidationResult;
 
 public abstract class Validator {
 
@@ -25,22 +25,27 @@ public abstract class Validator {
 
     public String Description;
 
-    public List<String> Errors = new ArrayList<>(); 
-
-    public ValidationStatus Status = ValidationStatus.Pending;
-
-    public void Validate(ValidateResponseRequestDto response)
+    public ValidationResult Validate(ValidateResponseRequestDto response)
     {
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.validationName = Name;
+        validationResult.validationDescription = Description;
+        ValidationStatus status = ValidationStatus.Pending;
         try{
-            Status = DoValidate(response)?ValidationStatus.Passed:ValidationStatus.Failed;
+            List<String> errors = DoValidate(response);
+            status = (errors == null || errors.size() == 0)?ValidationStatus.Passed:ValidationStatus.Failed;
+            if(status != ValidationStatus.Passed)
+                validationResult.errors.addAll(errors);
         }
         catch(Exception ex)
         {
-            Status = ValidationStatus.InternalException;
-            Errors.add(ex.toString());
+            status = ValidationStatus.InternalException;
+            validationResult.errors.add(ex.toString());
         }
+        validationResult.status = status.name();
+        return validationResult;
     }
 
-    protected abstract Boolean DoValidate(ValidateResponseRequestDto response);
+    protected abstract List<String> DoValidate(ValidateResponseRequestDto response);
 
 }
