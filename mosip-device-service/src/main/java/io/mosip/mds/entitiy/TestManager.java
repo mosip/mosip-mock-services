@@ -362,6 +362,11 @@ public class TestManager {
 			String result = new String(
 					Base64.getUrlDecoder().decode(new String(Base64.getUrlDecoder().decode(afterMatch)).getBytes()));
 			response = (DeviceInfoResponse) (mapper.readValue(result.getBytes(), DeviceInfoResponse.class));
+
+			response.digitalIdDecoded = (DigitalId) (mapper.readValue(
+							new String(Base64.getDecoder().decode(response.digitalId)).getBytes(),
+							DigitalId.class));
+
 		} catch (Exception exception) {
 
 			response.deviceStatus = exception.getMessage();
