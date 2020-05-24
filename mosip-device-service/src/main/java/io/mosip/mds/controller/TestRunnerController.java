@@ -3,6 +3,8 @@ package io.mosip.mds.controller;
 import org.springframework.web.bind.annotation.*;
 
 import io.mosip.mds.dto.ComposeRequestDto;
+import io.mosip.mds.dto.DeviceInfoResponse;
+import io.mosip.mds.dto.DiscoverResponse;
 import io.mosip.mds.dto.TestResult;
 import io.mosip.mds.dto.ValidateResponseRequestDto;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
@@ -29,6 +31,7 @@ public class TestRunnerController {
 
 		
 	}
+
 	@PostMapping("/validateresponse")
 	@ApiOperation(value = "Service to save validateResponse", notes = "Saves validateResponse and return run id")
 	@ApiResponses({ @ApiResponse(code = 201, message = "When validateResponse Details successfully created"),
@@ -37,8 +40,30 @@ public class TestRunnerController {
 	public TestResult validateResponse(@RequestBody ValidateResponseRequestDto validateRequestDto) {
 		// TODO handle null return for invalid runId and testId
 		TestManager testManager = new TestManager();
-		return testManager.ValidateResponse(validateRequestDto);
-		
-		
+		return testManager.ValidateResponse(validateRequestDto);	
 	}
+
+	@PostMapping("/decodediscover")
+	@ApiOperation(value = "Service to extract discover info from ", notes = "Saves validateResponse and return run id")
+	@ApiResponses({ @ApiResponse(code = 201, message = "When decode is successful"),
+			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
+			@ApiResponse(code = 500, message = "While processing discover data any error occured") })
+	public DiscoverResponse decodeDiscover(@RequestBody String discoverInfo) {
+		// TODO handle null return for invalid runId and testId
+		TestManager testManager = new TestManager();
+		return testManager.DecodeDiscoverInfo(discoverInfo);	
+	}
+
+	@PostMapping("/decodedeviceinfo")
+	@ApiOperation(value = "Service to extract discover info from ", notes = "Saves validateResponse and return run id")
+	@ApiResponses({ @ApiResponse(code = 201, message = "When decode is successful"),
+			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
+			@ApiResponse(code = 500, message = "While processing device info data any error occured") })
+	public DeviceInfoResponse decodeDeviceInfo(@RequestBody String deviceInfo) {
+		// TODO handle null return for invalid runId and testId
+		TestManager testManager = new TestManager();
+		return testManager.DecodeDeviceInfo(deviceInfo);	
+	}
+
+
 }
