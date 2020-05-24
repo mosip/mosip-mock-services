@@ -332,4 +332,19 @@ public class TestManager {
 		PersistRun(run);
 		return testResult; 
 	}
+
+	public DiscoverResponse DecodeDiscoverInfo(String discoverInfo) {
+		DiscoverResponse response = new DiscoverResponse();
+
+		// TODO add the decode code here
+
+		return response;
+	}
+
+	public DeviceInfoResponse DecodeDeviceInfo(String deviceInfo) {
+		DeviceInfoResponse response = new DeviceInfoResponse();
+		// TODO add the decode code here
+
+		return response;
+	}
 }
