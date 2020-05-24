@@ -16,12 +16,18 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
@@ -344,7 +350,24 @@ public class TestManager {
 	public DeviceInfoResponse DecodeDeviceInfo(String deviceInfo) {
 		DeviceInfoResponse response = new DeviceInfoResponse();
 		// TODO add the decode code here
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		Pattern pattern = Pattern.compile("(?<=\\.)(.*)(?=\\.)");
+		Matcher matcher = pattern.matcher(deviceInfo);
+		String afterMatch = null;
+		if (matcher.find()) {
+			afterMatch = matcher.group(1);
+		}
+		try {
+			String result = new String(
+					Base64.getUrlDecoder().decode(new String(Base64.getUrlDecoder().decode(afterMatch)).getBytes()));
+			response = (DeviceInfoResponse) (mapper.readValue(result.getBytes(), DeviceInfoResponse.class));
+		} catch (Exception exception) {
 
+			response.deviceStatus = exception.getMessage();
+
+			// TODO Log the issue
+		}	
 		return response;
 	}
 }
