@@ -35,7 +35,7 @@ public class StreamRequest extends HttpServlet {
 
 		List<byte[]> imageByteList = null;
 		response.setContentType("multipart/x-mixed-replace; boundary=--BoundaryString");
-		response.setHeader("Access-Control-Allow-Origin","*");
+		response = CORSManager.setCors(response);
 		BufferedReader bR = request.getReader();
 		String s="";
 		String sT = "";

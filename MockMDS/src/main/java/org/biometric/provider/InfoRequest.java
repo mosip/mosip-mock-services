@@ -24,6 +24,8 @@ public class InfoRequest extends HttpServlet {
 		if(req.getMethod().contentEquals("MOSIPDINFO"))
             doPost(req, res);
         if(req.getMethod().contentEquals("OPTIONS"))
+            CORSManager.doOptions(req, res);
+            if(req.getMethod().contentEquals("GET"))
 			CORSManager.doOptions(req, res);
     }
 	
@@ -32,8 +34,8 @@ public class InfoRequest extends HttpServlet {
       HttpServletRequest request, 
       HttpServletResponse response) throws ServletException, IOException {
 		String info = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\files\\MockMDS\\" + "deviceInfo" + ".txt")));
-        response.setContentType("text/html");
-        response.setHeader("Access-Control-Allow-Origin","*");
+        response.setContentType("application/json");
+        response = CORSManager.setCors(response);
         PrintWriter out = response.getWriter();
         out.println(info);
     }

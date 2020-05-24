@@ -62,8 +62,8 @@ public class CaptureRequest extends HttpServlet {
 		}else if(bio.getType().equalsIgnoreCase("Face")) {
 			result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"\\files\\MockMDS\\faceCapture.txt")));
 		}
-		response.setContentType("text/html");
-		response.setHeader("Access-Control-Allow-Origin","*");
+		response.setContentType("application/json");
+		response = CORSManager.setCors(response);
         PrintWriter out = response.getWriter();
         out.println(result);
 	}
