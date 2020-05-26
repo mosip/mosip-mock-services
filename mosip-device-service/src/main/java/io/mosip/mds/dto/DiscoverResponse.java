@@ -14,13 +14,17 @@ public class DiscoverResponse {
 
     public String deviceCode;
 
-    public String specVersion;
+    public String[] specVersion;
 
     public String purpose;
 
     public MDSError error;
 
-    public DigitalId digitalId;
+    public String digitalId;
+
+    public DigitalId digitalIdDecoded;
+
+    public String analysisError;
     
     /*
     [

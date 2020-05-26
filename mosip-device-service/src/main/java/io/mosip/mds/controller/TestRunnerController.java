@@ -48,7 +48,7 @@ public class TestRunnerController {
 	@ApiResponses({ @ApiResponse(code = 201, message = "When decode is successful"),
 			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
 			@ApiResponse(code = 500, message = "While processing discover data any error occured") })
-	public DiscoverResponse decodeDiscover(@RequestBody String discoverInfo) {
+	public DiscoverResponse[] decodeDiscover(@RequestBody String discoverInfo) {
 		// TODO handle null return for invalid runId and testId
 		TestManager testManager = new TestManager();
 		return testManager.DecodeDiscoverInfo(discoverInfo);	
@@ -59,7 +59,7 @@ public class TestRunnerController {
 	@ApiResponses({ @ApiResponse(code = 201, message = "When decode is successful"),
 			@ApiResponse(code = 400, message = "When Request body passed  is null or invalid"),
 			@ApiResponse(code = 500, message = "While processing device info data any error occured") })
-	public DeviceInfoResponse decodeDeviceInfo(@RequestBody String deviceInfo) {
+	public DeviceInfoResponse[] decodeDeviceInfo(@RequestBody String deviceInfo) {
 		// TODO handle null return for invalid runId and testId
 		TestManager testManager = new TestManager();
 		return testManager.DecodeDeviceInfo(deviceInfo);	
