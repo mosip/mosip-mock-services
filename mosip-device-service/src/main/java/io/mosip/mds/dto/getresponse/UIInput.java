@@ -18,4 +18,9 @@ public class UIInput {
 		this.behaviour = behavior;
 	}
 
+	protected UIInput()
+	{
+
+	}
+
 }

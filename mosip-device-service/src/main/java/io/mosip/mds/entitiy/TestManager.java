@@ -105,7 +105,12 @@ public class TestManager {
 		// TODO Load Tests from file or db and comment out the below lines
 		if(!areTestsLoaded)
 		{
-			for(TestExtnDto test:LoadTestsFromMemory())
+			TestExtnDto[] tests = Store.GetTestDefinitions();
+			if(tests == null)
+			{
+				tests = LoadTestsFromMemory();
+			}
+			for(TestExtnDto test:tests)
 			{
 				allTests.put(test.testId, test);
 			}
@@ -118,19 +123,29 @@ public class TestManager {
 		// TODO load master data here from file
 		if(!isMasterDataLoaded)
 		{
-			Collections.addAll(processList, "REGISTRATION", "AUTHENTICATION");
-			Collections.addAll(mdsSpecVersions, "0.9.2","0.9.3", "0.9.4", "0.9.5");
-			BiometricTypeDto finger = new BiometricTypeDto("FINGERPRINT");
-			Collections.addAll(finger.deviceType, "SLAP", "FINGER", "CAMERA");
-			Collections.addAll(finger.segments, "LEFT SLAP", "RIGHT SLAP", "TWO THUMBS", "LEFT THUMB", "RIGHT THUMB",
-			"LEFT INDEX", "RIGHT INDEX");
-			BiometricTypeDto iris = new BiometricTypeDto("IRIS");
-			Collections.addAll(iris.deviceType, "MONOCULAR", "BINOCULAR", "CAMERA");
-			Collections.addAll(iris.segments, "FULL", "CROPPED");
-			BiometricTypeDto face = new BiometricTypeDto("IRIS");
-			Collections.addAll(face.deviceType, "STILL", "VIDEO");
-			Collections.addAll(face.segments, "BUST", "HEAD");
-			Collections.addAll(biometricTypes, finger, iris, face);
+			MasterDataResponseDto masterData = Store.GetMasterData();
+			if(masterData != null)
+			{
+				processList = masterData.process;
+				mdsSpecVersions = masterData.mdsSpecificationVersion;
+				biometricTypes = masterData.biometricType;
+			}
+			else
+			{
+				Collections.addAll(processList, "REGISTRATION", "AUTHENTICATION");
+				Collections.addAll(mdsSpecVersions, "0.9.2","0.9.3", "0.9.4", "0.9.5");
+				BiometricTypeDto finger = new BiometricTypeDto("FINGERPRINT");
+				Collections.addAll(finger.deviceType, "SLAP", "FINGER", "CAMERA");
+				Collections.addAll(finger.segments, "LEFT SLAP", "RIGHT SLAP", "TWO THUMBS", "LEFT THUMB", "RIGHT THUMB",
+				"LEFT INDEX", "RIGHT INDEX");
+				BiometricTypeDto iris = new BiometricTypeDto("IRIS");
+				Collections.addAll(iris.deviceType, "MONOCULAR", "BINOCULAR", "CAMERA");
+				Collections.addAll(iris.segments, "FULL", "CROPPED");
+				BiometricTypeDto face = new BiometricTypeDto("IRIS");
+				Collections.addAll(face.deviceType, "STILL", "VIDEO");
+				Collections.addAll(face.segments, "BUST", "HEAD");
+				Collections.addAll(biometricTypes, finger, iris, face);
+			}
 			isMasterDataLoaded = true;
 		}
 	}

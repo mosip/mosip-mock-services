@@ -22,4 +22,9 @@ public class BiometricTypeDto {
 		type = bioType;
 	}
 
+	protected BiometricTypeDto()
+	{
+
+	}
+
 }

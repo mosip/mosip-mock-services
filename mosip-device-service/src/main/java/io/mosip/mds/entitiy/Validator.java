@@ -5,7 +5,7 @@ import java.util.List;
 import io.mosip.mds.dto.ValidateResponseRequestDto;
 import io.mosip.mds.dto.postresponse.ValidationResult;
 
-public abstract class Validator {
+public class Validator {
 
     public enum ValidationStatus
     {
@@ -21,11 +21,16 @@ public abstract class Validator {
         this.Description = Description;
     }
 
+    protected Validator()
+    {
+
+    }
+
     public String Name;
 
     public String Description;
 
-    public ValidationResult Validate(ValidateResponseRequestDto response)
+    public final ValidationResult Validate(ValidateResponseRequestDto response)
     {
         ValidationResult validationResult = new ValidationResult();
         validationResult.validationName = Name;
@@ -46,6 +51,9 @@ public abstract class Validator {
         return validationResult;
     }
 
-    protected abstract List<String> DoValidate(ValidateResponseRequestDto response);
+    protected List<String> DoValidate(ValidateResponseRequestDto response)
+    {
+        return null;
+    }
 
 }
