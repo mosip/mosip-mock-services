@@ -5,9 +5,13 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.stream.FileImageInputStream;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.mds.dto.TestRun;
+import io.mosip.mds.dto.getresponse.MasterDataResponseDto;
+import io.mosip.mds.dto.getresponse.TestExtnDto;
 
 public class Store {
 
@@ -109,5 +113,38 @@ public class Store {
             return f;
         return null;
     }
+
+    public static MasterDataResponseDto GetMasterData()
+    {
+        File masterDataFile = new File(GetStorePath() + "config/masterdata.json");
+        if(!masterDataFile.exists())
+            return null;
+        try
+        {
+        ObjectMapper mapper = new ObjectMapper();
+        return (MasterDataResponseDto)mapper.readValue(new FileImageInputStream(masterDataFile), MasterDataResponseDto.class); 
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
+    }
+
+    public static TestExtnDto[] GetTestDefinitions()
+    {
+        File testDeinitionsFile = new File(GetStorePath() + "config/test-definitions.json");
+        if(!testDeinitionsFile.exists())
+            return null;
+        try
+        {
+        ObjectMapper mapper = new ObjectMapper();
+        return (TestExtnDto[])mapper.readValue(new FileImageInputStream(testDeinitionsFile), TestExtnDto[].class); 
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
+    }
+
 
 }

@@ -1,0 +1,54 @@
+{
+    "biometricType": [
+        {
+            "type": "FINGERPRINT",
+            "deviceType": [
+                "SLAP",
+                "FINGER",
+                "CAMERA"
+            ],
+            "segments": [
+                "LEFT SLAP",
+                "RIGHT SLAP",
+                "TWO THUMBS",
+                "LEFT THUMB",
+                "RIGHT THUMB",
+                "LEFT INDEX",
+                "RIGHT INDEX"
+            ]
+        },
+        {
+            "type": "IRIS",
+            "deviceType": [
+                "MONOCULAR",
+                "BINOCULAR",
+                "CAMERA"
+            ],
+            "segments": [
+                "FULL",
+                "CROPPED"
+            ]
+        },
+        {
+            "type": "IRIS",
+            "deviceType": [
+                "STILL",
+                "VIDEO"
+            ],
+            "segments": [
+                "BUST",
+                "HEAD"
+            ]
+        }
+    ],
+    "mdsSpecificationVersion": [
+        "0.9.2",
+        "0.9.3",
+        "0.9.4",
+        "0.9.5"
+    ],
+    "process": [
+        "REGISTRATION",
+        "AUTHENTICATION"
+    ]
+}
