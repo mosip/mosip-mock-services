@@ -5,7 +5,7 @@ public class DeviceInfoResponse {
     public String callbackId;
     public String certification;
     public String deviceCode;
-    public String deviceId;
+    public Integer deviceId;
     public String deviceStatus;
     public String digitalId;
     public DigitalId digitalIdDecoded;
@@ -16,6 +16,7 @@ public class DeviceInfoResponse {
     public String purpose;
     public String serviceVersion;
     public String[] specVersion;
+    public String analysisError;
 
     /*
 	private String DeviceServiceId;

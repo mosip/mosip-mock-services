@@ -339,40 +339,83 @@ public class TestManager {
 		return testResult; 
 	}
 
-	public DiscoverResponse DecodeDiscoverInfo(String discoverInfo) {
-		DiscoverResponse response = new DiscoverResponse();
+	public DiscoverResponse[] DecodeDiscoverInfo(String discoverInfo) {
+		DiscoverResponse[] response = new DiscoverResponse[1];
 
-		// TODO add the decode code here
-
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		try {
+			response = (DiscoverResponse[]) (mapper.readValue(discoverInfo.getBytes(), DiscoverResponse[].class));
+			for(DiscoverResponse resp:response)
+			{
+				try {
+					if(resp.deviceStatus.equalsIgnoreCase("Not Registered"))
+						resp.digitalIdDecoded = (DigitalId) (mapper.readValue(resp.digitalId.getBytes(), DigitalId.class));
+					else
+					resp.digitalIdDecoded = (DigitalId) (mapper.readValue(
+						new String(Base64.getDecoder().decode(resp.digitalId)).getBytes(),
+						DigitalId.class));
+				}
+				catch(Exception dex)
+				{
+					resp.analysisError = "Error interpreting digital id: " + dex.getMessage();		
+				}
+			}
+		}
+		catch(Exception ex)
+		{
+			response[0] = new DiscoverResponse();
+			response[0].analysisError = "Error parsing discover info: " + ex.getMessage();
+		}
 		return response;
 	}
 
-	public DeviceInfoResponse DecodeDeviceInfo(String deviceInfo) {
-		DeviceInfoResponse response = new DeviceInfoResponse();
-		// TODO add the decode code here
+	public DeviceInfoResponse[] DecodeDeviceInfo(String deviceInfo) {
+		DeviceInfoMinimal[] input = null;
+		List<DeviceInfoResponse> response = new ArrayList<DeviceInfoResponse>();
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		Pattern pattern = Pattern.compile("(?<=\\.)(.*)(?=\\.)");
-		Matcher matcher = pattern.matcher(deviceInfo);
-		String afterMatch = null;
-		if (matcher.find()) {
-			afterMatch = matcher.group(1);
-		}
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		try {
-			String result = new String(
-					Base64.getUrlDecoder().decode(new String(Base64.getUrlDecoder().decode(afterMatch)).getBytes()));
-			response = (DeviceInfoResponse) (mapper.readValue(result.getBytes(), DeviceInfoResponse.class));
-
-			response.digitalIdDecoded = (DigitalId) (mapper.readValue(
-							new String(Base64.getDecoder().decode(response.digitalId)).getBytes(),
+			input = (DeviceInfoMinimal[])(mapper.readValue(deviceInfo.getBytes(), DeviceInfoMinimal[].class));
+			for(DeviceInfoMinimal respMin:input)
+			{
+				DeviceInfoResponse resp = new DeviceInfoResponse();
+				try
+				{
+					Matcher matcher = pattern.matcher(respMin.deviceInfo);
+					String afterMatch = null;
+					if (matcher.find()) {
+						afterMatch = matcher.group(1);
+					}			
+					String result = new String(
+						Base64.getUrlDecoder().decode(new String(Base64.getUrlDecoder().decode(afterMatch)).getBytes()));
+					resp = (DeviceInfoResponse) (mapper.readValue(result.getBytes(), DeviceInfoResponse.class));
+				
+					try {
+						if(resp.deviceStatus.equalsIgnoreCase("Not Registered"))
+							resp.digitalIdDecoded = (DigitalId) (mapper.readValue(resp.digitalId.getBytes(), DigitalId.class));
+						else
+						resp.digitalIdDecoded = (DigitalId) (mapper.readValue(
+							new String(Base64.getDecoder().decode(resp.digitalId)).getBytes(),
 							DigitalId.class));
-
+					}
+					catch(Exception dex)
+					{
+						resp.analysisError = "Error interpreting digital id: " + dex.getMessage();
+					}
+				}
+				catch(Exception rex)
+				{
+					resp.analysisError = "Error interpreting device info id: " + rex.getMessage();
+				}
+				response.add(resp);
+			}
 		} catch (Exception exception) {
-
-			response.deviceStatus = exception.getMessage();
-
-			// TODO Log the issue
-		}	
-		return response;
+			DeviceInfoResponse errorResp = new DeviceInfoResponse();
+			errorResp.analysisError = "Error parsing request input" + exception.getMessage();
+			response.add(errorResp);
+		}
+		return response.toArray(new DeviceInfoResponse[response.size()]);
 	}
 }
