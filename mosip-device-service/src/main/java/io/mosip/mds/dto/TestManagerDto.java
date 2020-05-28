@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class TestManagerDto {
 
+	public String email;
+
 	@ApiModelProperty(value = "mdsSpecVersion", required = true, dataType = "java.lang.String")
 	public String mdsSpecVersion;
 

@@ -8,20 +8,26 @@ import io.mosip.mds.dto.getresponse.TestExtnDto;
 import io.mosip.mds.dto.getresponse.UIInput;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
-import io.mosip.mds.dto.postresponse.ValidateResponseDto;
-import io.mosip.mds.service.impl.TestRunnerServiceImpl;
+import io.mosip.mds.service.TestRequestBuilder;
+import io.mosip.mds.service.TestRequestBuilder.Intent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
@@ -54,6 +60,7 @@ public class TestManager {
 
 	private static Boolean isMasterDataLoaded = false;
 	private static Boolean areTestsLoaded = false;
+	private static Boolean areRunsLoaded = false;
 
 	private static HashMap<String, TestRun> testRuns = new HashMap<>();
 
@@ -72,6 +79,24 @@ public class TestManager {
 	{
 		SetupMasterData();
 		LoadTests();
+		LoadRuns();
+	}
+
+	private static void LoadRuns()
+	{
+		if(areRunsLoaded)
+			return;
+		List<String> users = Store.GetUsers();
+		for(String user:users)
+		{
+			List<String> runIds = Store.GetRunIds(user);
+			for(String runId:runIds)
+			{
+				TestRun run = Store.GetRun(user, runId);
+				testRuns.put(runId, run);
+			}
+		}
+		areRunsLoaded = true;
 	}
 
 
@@ -80,7 +105,12 @@ public class TestManager {
 		// TODO Load Tests from file or db and comment out the below lines
 		if(!areTestsLoaded)
 		{
-			for(TestExtnDto test:LoadTestsFromMemory())
+			TestExtnDto[] tests = Store.GetTestDefinitions();
+			if(tests == null)
+			{
+				tests = LoadTestsFromMemory();
+			}
+			for(TestExtnDto test:tests)
 			{
 				allTests.put(test.testId, test);
 			}
@@ -93,19 +123,29 @@ public class TestManager {
 		// TODO load master data here from file
 		if(!isMasterDataLoaded)
 		{
-			Collections.addAll(processList, "REGISTRATION", "AUTHENTICATION");
-			Collections.addAll(mdsSpecVersions, "0.9.2","0.9.3", "0.9.4", "0.9.5");
-			BiometricTypeDto finger = new BiometricTypeDto("FINGERPRINT");
-			Collections.addAll(finger.deviceType, "SLAP", "FINGER", "CAMERA");
-			Collections.addAll(finger.segments, "LEFT SLAP", "RIGHT SLAP", "TWO THUMBS", "LEFT THUMB", "RIGHT THUMB",
-			"LEFT INDEX", "RIGHT INDEX");
-			BiometricTypeDto iris = new BiometricTypeDto("IRIS");
-			Collections.addAll(iris.deviceType, "MONOCULAR", "BINOCULAR", "CAMERA");
-			Collections.addAll(iris.segments, "FULL", "CROPPED");
-			BiometricTypeDto face = new BiometricTypeDto("IRIS");
-			Collections.addAll(face.deviceType, "STILL", "VIDEO");
-			Collections.addAll(face.segments, "BUST", "HEAD");
-			Collections.addAll(biometricTypes, finger, iris, face);
+			MasterDataResponseDto masterData = Store.GetMasterData();
+			if(masterData != null)
+			{
+				processList = masterData.process;
+				mdsSpecVersions = masterData.mdsSpecificationVersion;
+				biometricTypes = masterData.biometricType;
+			}
+			else
+			{
+				Collections.addAll(processList, "REGISTRATION", "AUTHENTICATION");
+				Collections.addAll(mdsSpecVersions, "0.9.2","0.9.3", "0.9.4", "0.9.5");
+				BiometricTypeDto finger = new BiometricTypeDto("FINGERPRINT");
+				Collections.addAll(finger.deviceType, "SLAP", "FINGER", "CAMERA");
+				Collections.addAll(finger.segments, "LEFT SLAP", "RIGHT SLAP", "TWO THUMBS", "LEFT THUMB", "RIGHT THUMB",
+				"LEFT INDEX", "RIGHT INDEX");
+				BiometricTypeDto iris = new BiometricTypeDto("IRIS");
+				Collections.addAll(iris.deviceType, "MONOCULAR", "BINOCULAR", "CAMERA");
+				Collections.addAll(iris.segments, "FULL", "CROPPED");
+				BiometricTypeDto face = new BiometricTypeDto("IRIS");
+				Collections.addAll(face.deviceType, "STILL", "VIDEO");
+				Collections.addAll(face.segments, "BUST", "HEAD");
+				Collections.addAll(biometricTypes, finger, iris, face);
+			}
 			isMasterDataLoaded = true;
 		}
 	}
@@ -120,6 +160,7 @@ public class TestManager {
 		test1.biometricTypes = Arrays.asList("FINGERPRINT");
 		test1.deviceTypes = Arrays.asList("SLAP", "FINGER");
 		test1.uiInput = Arrays.asList(new UIInput("port","numeric"));
+		test1.validators = Arrays.asList(new CoinTossValidator());
 		memTests.add(test1);
 
 		// Add test 2
@@ -128,6 +169,7 @@ public class TestManager {
 		test2.processes = Arrays.asList("REGISTRATION");
 		test2.biometricTypes = Arrays.asList("FINGERPRINT");
 		test2.deviceTypes = Arrays.asList("SLAP");
+		test2.validators = Arrays.asList(new CoinTossValidator());
 		memTests.add(test2);
 
 		// Add test 3
@@ -136,6 +178,7 @@ public class TestManager {
 		test3.processes = Arrays.asList("REGISTRATION", "AUTHENTICATION");
 		test3.biometricTypes = Arrays.asList("FINGERPRINT");
 		test3.deviceTypes = Arrays.asList("SLAP", "FINGER");
+		test3.validators = Arrays.asList(new CoinTossValidator());
 		memTests.add(test3);
 		
 		// Add test 4
@@ -180,8 +223,15 @@ public class TestManager {
 		newTestRun.createdOn = new Date();
 		newTestRun.runStatus = RunStatus.Created;
 		newTestRun.tests = new ArrayList<>();
+		newTestRun.user = newRun.email;
 		Collections.addAll(newTestRun.tests, newRun.tests);
-		testRuns.put(newRun.runId, newTestRun);
+		TestRun savedRun = PersistRun(newTestRun);
+		testRuns.put(savedRun.runId, savedRun);
+	}
+
+	private TestRun PersistRun(TestRun run)
+	{
+		return Store.SaveTestRun(run.user, run);
 	}
 
 	public MasterDataResponseDto GetMasterData()
@@ -219,6 +269,10 @@ public class TestManager {
 		newRun.runId = "" + System.currentTimeMillis();
 		// Save the run details
 		newRun.tests = runInfo.tests.toArray(new String[runInfo.tests.size()]);
+		if(!runInfo.email.isEmpty())
+			newRun.email = runInfo.email;
+		else
+		newRun.email = "misc";
 		SaveRun(newRun);
 		return newRun;
 	}
@@ -243,36 +297,34 @@ public class TestManager {
 
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
 	{
-		TestRunnerServiceImpl svc = new TestRunnerServiceImpl();
+		TestRequestBuilder builder = new TestRequestBuilder();
 		
 		TestRun run = testRuns.get(requestParams.runId);
 		if(run == null || !run.tests.contains(requestParams.testId))
 			return null;
 
-		if(requestParams.testId.contains("discover"))
+		TestExtnDto test = allTests.get(requestParams.testId);
+		Intent intent = Intent.Discover;
+
+		if(requestParams.testId.contains("deviceinfo"))
 		{
-			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
-		}
-		else if(requestParams.testId.contains("deviceinfo"))
-		{
-			return svc.composeDeviceInfo(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			intent = Intent.DeviceInfo;
 		}
 		else if(requestParams.testId.contains("rcapture"))
 		{
-			return svc.composeRegistrationCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			intent = Intent.RegistrationCapture;
 		}
 		else if(requestParams.testId.contains("capture"))
 		{
-			return svc.composeCapture(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			intent = Intent.Capture;
 		}
 		else if(requestParams.testId.contains("stream"))
 		{
-			return svc.composeStream(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
+			intent = Intent.Stream;
 		}
-		else
-		{
-			return svc.composeDiscover(requestParams.runId, requestParams.testId, requestParams.deviceInfo.get(0));
-		}
+
+		return builder.BuildRequest(run, test, requestParams.deviceInfo, intent);
+		
 	}
 
 	public ComposeRequestResponseDto ComposeRequest(ComposeRequestDto composeRequestDto) {
@@ -281,8 +333,104 @@ public class TestManager {
 		return BuildRequest(composeRequestDto);
 	}
 
-	public ValidateResponseDto ValidateResponse(ValidateResponseRequestDto validateRequestDto) {
-		ValidateResponseDto responseDTO = new ValidateResponseDto();
-		return responseDTO; 
+	public TestResult ValidateResponse(ValidateResponseRequestDto validateRequestDto) {
+		if(!testRuns.keySet().contains(validateRequestDto.runId) || !allTests.keySet().contains(validateRequestDto.testId))
+			return null;
+		TestRun run = testRuns.get(validateRequestDto.runId);
+		TestExtnDto test = allTests.get(validateRequestDto.testId);
+		TestResult testResult = new TestResult();
+		testResult.executedOn = new Date();
+		testResult.requestData = validateRequestDto.mdsRequest;
+		testResult.responseData = validateRequestDto.mdsResponse;
+		testResult.runId = run.runId;
+		testResult.testId = test.testId;
+
+		for(Validator v:test.validators)
+		{
+			testResult.validationResults.add(v.Validate(validateRequestDto));
+		}
+		run.testReport.put(test.testId, testResult);
+		PersistRun(run);
+		return testResult; 
+	}
+
+	public DiscoverResponse[] DecodeDiscoverInfo(String discoverInfo) {
+		DiscoverResponse[] response = new DiscoverResponse[1];
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		try {
+			response = (DiscoverResponse[]) (mapper.readValue(discoverInfo.getBytes(), DiscoverResponse[].class));
+			for(DiscoverResponse resp:response)
+			{
+				try {
+					if(resp.deviceStatus.equalsIgnoreCase("Not Registered"))
+						resp.digitalIdDecoded = (DigitalId) (mapper.readValue(resp.digitalId.getBytes(), DigitalId.class));
+					else
+					resp.digitalIdDecoded = (DigitalId) (mapper.readValue(
+						new String(Base64.getDecoder().decode(resp.digitalId)).getBytes(),
+						DigitalId.class));
+				}
+				catch(Exception dex)
+				{
+					resp.analysisError = "Error interpreting digital id: " + dex.getMessage();		
+				}
+			}
+		}
+		catch(Exception ex)
+		{
+			response[0] = new DiscoverResponse();
+			response[0].analysisError = "Error parsing discover info: " + ex.getMessage();
+		}
+		return response;
+	}
+
+	public DeviceInfoResponse[] DecodeDeviceInfo(String deviceInfo) {
+		DeviceInfoMinimal[] input = null;
+		List<DeviceInfoResponse> response = new ArrayList<DeviceInfoResponse>();
+		ObjectMapper mapper = new ObjectMapper();
+		Pattern pattern = Pattern.compile("(?<=\\.)(.*)(?=\\.)");
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		try {
+			input = (DeviceInfoMinimal[])(mapper.readValue(deviceInfo.getBytes(), DeviceInfoMinimal[].class));
+			for(DeviceInfoMinimal respMin:input)
+			{
+				DeviceInfoResponse resp = new DeviceInfoResponse();
+				try
+				{
+					Matcher matcher = pattern.matcher(respMin.deviceInfo);
+					String afterMatch = null;
+					if (matcher.find()) {
+						afterMatch = matcher.group(1);
+					}			
+					String result = new String(
+						Base64.getUrlDecoder().decode(new String(Base64.getUrlDecoder().decode(afterMatch)).getBytes()));
+					resp = (DeviceInfoResponse) (mapper.readValue(result.getBytes(), DeviceInfoResponse.class));
+				
+					try {
+						if(resp.deviceStatus.equalsIgnoreCase("Not Registered"))
+							resp.digitalIdDecoded = (DigitalId) (mapper.readValue(resp.digitalId.getBytes(), DigitalId.class));
+						else
+						resp.digitalIdDecoded = (DigitalId) (mapper.readValue(
+							new String(Base64.getDecoder().decode(resp.digitalId)).getBytes(),
+							DigitalId.class));
+					}
+					catch(Exception dex)
+					{
+						resp.analysisError = "Error interpreting digital id: " + dex.getMessage();
+					}
+				}
+				catch(Exception rex)
+				{
+					resp.analysisError = "Error interpreting device info id: " + rex.getMessage();
+				}
+				response.add(resp);
+			}
+		} catch (Exception exception) {
+			DeviceInfoResponse errorResp = new DeviceInfoResponse();
+			errorResp.analysisError = "Error parsing request input" + exception.getMessage();
+			response.add(errorResp);
+		}
+		return response.toArray(new DeviceInfoResponse[response.size()]);
 	}
 }
