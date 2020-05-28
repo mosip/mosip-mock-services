@@ -8,8 +8,10 @@ import io.mosip.mds.dto.getresponse.TestExtnDto;
 import io.mosip.mds.dto.getresponse.UIInput;
 import io.mosip.mds.dto.postresponse.ComposeRequestResponseDto;
 import io.mosip.mds.dto.postresponse.RunExtnDto;
-import io.mosip.mds.service.TestRequestBuilder;
-import io.mosip.mds.service.TestRequestBuilder.Intent;
+import io.mosip.mds.service.IMDSRequestBuilder;
+import io.mosip.mds.service.MDS_0_9_2_RequestBuilder;
+import io.mosip.mds.service.MDS_0_9_5_RequestBuilder;
+import io.mosip.mds.service.IMDSRequestBuilder.Intent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -295,9 +297,20 @@ public class TestManager {
 		return FilterRuns(email);
 	}
 
+	private IMDSRequestBuilder GetRequestBuilder(String version)
+	{
+		if(version.equals("0.9.2"))
+			return new MDS_0_9_2_RequestBuilder();
+		if(version.equals("0.9.5"))
+			return new MDS_0_9_5_RequestBuilder();
+		return new MDS_0_9_5_RequestBuilder();
+	}
+
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
 	{
-		TestRequestBuilder builder = new TestRequestBuilder();
+		// TODO handle spec version more elegantly
+		String specVersion = DecodeDiscoverInfo(requestParams.deviceInfo.discoverInfo)[0].specVersion[0];
+		IMDSRequestBuilder builder = GetRequestBuilder(specVersion);
 		
 		TestRun run = testRuns.get(requestParams.runId);
 		if(run == null || !run.tests.contains(requestParams.testId))
