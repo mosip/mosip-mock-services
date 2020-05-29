@@ -16,15 +16,11 @@ import java.util.Date;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestRequestBuilder {
+public class MDS_0_9_5_RequestBuilder implements IMDSRequestBuilder {
 
-    public enum Intent
-	{
-		Discover,
-		DeviceInfo,
-		Capture,
-		RegistrationCapture,
-		Stream
+    public String GetSpecVersion()
+    {
+        return "0.9.5";
     }
 
     String defaultPort = "4501";
