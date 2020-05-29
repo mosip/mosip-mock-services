@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Decision;
 import io.mosip.kernel.biometrics.entities.BIR;
@@ -16,6 +17,7 @@ import io.mosip.kernel.biometrics.model.QualityScore;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.kernel.biometrics.model.SDKInfo;
 import io.mosip.kernel.biometrics.spi.IBioApi;
+import io.mosip.mock.sdk.constant.ResponseStatus;
 
 
 /**
@@ -27,21 +29,43 @@ import io.mosip.kernel.biometrics.spi.IBioApi;
  */
 @Component
 public class SampleSDK implements IBioApi {
+	
+	private static final String API_VERSION = "0.9";
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
-		// TODO Auto-generated method stub
-		return new SDKInfo();
+		//TODO validate for mandatory initParams
+		SDKInfo sdkInfo = new SDKInfo();
+		sdkInfo.setApiVersion(API_VERSION);
+		sdkInfo.setSdkVersion("sample");
+		List<BiometricType> supportedModalities = new ArrayList<>();
+		supportedModalities.add(BiometricType.FINGER);
+		supportedModalities.add(BiometricType.FACE);
+		supportedModalities.add(BiometricType.IRIS);
+		sdkInfo.setSupportedModalities(supportedModalities);		
+		Map<BiometricFunction, List<BiometricType>> supportedMethods = new HashMap<>();
+		supportedMethods.put(BiometricFunction.MATCH, supportedModalities);
+		supportedMethods.put(BiometricFunction.QUALITY_CHECK, supportedModalities);
+		sdkInfo.setSupportedMethods(supportedMethods);		
+		return sdkInfo;
 	}
 
 	@Override
 	public Response<QualityScore> checkQuality(BiometricRecord sample, Map<String, String> flags) {
+		Response<QualityScore> response = new Response<>();
+		if(sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
+			response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
+			response.setStatusMessage(String.format(ResponseStatus.MISSING_INPUT.getStatusMessage(), "sample"));
+			response.setResponse(null);
+			return response;
+		}
+		
 		QualityScore qualityScore = new QualityScore();
 		//int major = Optional.ofNullable(sample.getBdbInfo()).map(BDBInfo::getQuality).map(QualityType::getScore)
 		//		.orElse(0L).intValue();
 		qualityScore.setScore(0);
-		Response<QualityScore> response = new Response<>();
-		response.setStatusCode(200);
+		response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
+		response.setStatusMessage(ResponseStatus.SUCCESS.getStatusMessage());
 		response.setResponse(qualityScore);
 		return response;
 	}
