@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {MaterialModule} from './material/material.module';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import { NewTestComponent } from './components/new-test/new-test.component';
@@ -13,6 +13,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { TestRunsComponent } from './components/test-runs/test-runs.component';
 import { DiscoverDevicesComponent } from './components/discover-devices/discover-devices.component';
 import { RunComponent } from './components/run/run.component';
+
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { RunComponent } from './components/run/run.component';
     FormsModule,
     HttpClientModule,
     LayoutModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BrowserAnimationsModule
 
 
   ],

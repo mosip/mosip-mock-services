@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import {of, throwError} from 'rxjs';
+import {Observable, of, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
 import {catchError} from 'rxjs/operators';
+import {DataService} from '../data/data.service';
+import {LocalStorageService} from '../local-storage/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +12,11 @@ import {catchError} from 'rxjs/operators';
 export class MdsService {
   private mdsUrl: string;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(
+    private httpClient: HttpClient,
+    private dataService: DataService,
+    private localStorageService: LocalStorageService
+  ) { }
 
   discover(port: string) {
     this.mdsUrl = environment.mds_url + port + '/device';
@@ -45,6 +51,22 @@ export class MdsService {
   }
 
   scan() {
-
+    // const ports = [];
+    return new Observable(
+      subscriber => {
+        for (let i = 4501; i <= 4600; i++) {
+          this.getInfo(i.toString()).subscribe(
+            value => {
+              this.dataService.decodeDeviceInfo(value).subscribe(
+                decodedDeviceInfo => this.localStorageService.addDeviceInfos(i.toString(), decodedDeviceInfo),
+                error => window.alert(error)
+              );
+            }
+          );
+        }
+        subscriber.complete();
+        return {unsubscribe() {}};
+      }
+    );
   }
 }
