@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../../services/data/data.service';
 import { map } from 'rxjs/operators';
+import {Router} from '@angular/router';
 
 
 @Component({
@@ -18,8 +19,9 @@ export class NewTestComponent implements OnInit {
   selectedDeviceType: any;
   selectedMdsVersion: any;
   selectedProcess: any;
+  email = '';
 
-  constructor(private dataService: DataService) {
+  constructor(private dataService: DataService, private router: Router) {
   }
 
 
@@ -57,7 +59,8 @@ export class NewTestComponent implements OnInit {
       deviceType: this.selectedDeviceType,
       mdsSpecificationVersion: this.selectedMdsVersion,
       process: this.selectedProcess,
-      tests: this.selectedTests
+      tests: this.selectedTests,
+      email: this.email
     };
     console.log(this.selectedTests);
     this.dataService.createRun(requestBody)
@@ -67,7 +70,10 @@ export class NewTestComponent implements OnInit {
         })
       )
       .subscribe(
-          runId => window.alert('created. Run ID: ' + runId),
+          runId => {
+            window.alert('created. Run ID: ' + runId);
+            this.router.navigate(['/']);
+          },
           error => window.alert(error)
       );
   }
