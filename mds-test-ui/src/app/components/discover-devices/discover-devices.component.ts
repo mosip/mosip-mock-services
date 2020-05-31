@@ -3,6 +3,7 @@ import {MdsService} from '../../services/mds/mds.service';
 import {DataService} from '../../services/data/data.service';
 import {LocalStorageService} from '../../services/local-storage/local-storage.service';
 import {MatSelectChange} from '@angular/material/select';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-discover-devices',
@@ -14,13 +15,16 @@ export class DiscoverDevicesComponent implements OnInit {
   infoResponse: any;
   availablePorts: string[];
   devices = [];
+  scanning: boolean;
   constructor(
     private mdsService: MdsService,
     private dataService: DataService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
+    this.scanning = false;
     this.availablePorts = this.localStorageService.getAvailablePorts();
   }
 
@@ -49,6 +53,21 @@ export class DiscoverDevicesComponent implements OnInit {
   }
 
   scan() {
-    // this.mdsService.scan();
+    this.scanning = true;
+    this.mdsService.scan().subscribe(
+      value => {},
+      error => {},
+      () => {
+        this.scanning = false;
+        this.availablePorts = this.localStorageService.getAvailablePorts();
+        this.openSnackBar('Scan Complete', 'Close');
+      }
+    );
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
   }
 }

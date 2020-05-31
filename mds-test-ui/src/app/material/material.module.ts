@@ -17,6 +17,8 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatTableModule} from '@angular/material/table';
 import { MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 
 
@@ -40,7 +42,9 @@ import {MatSortModule} from '@angular/material/sort';
     MatSidenavModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   exports: [
     MatToolbarModule,
@@ -59,7 +63,9 @@ import {MatSortModule} from '@angular/material/sort';
     MatSidenavModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ]
 })
 export class MaterialModule { }

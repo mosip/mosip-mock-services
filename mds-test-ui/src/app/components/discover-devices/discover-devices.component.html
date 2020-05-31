@@ -1,10 +1,15 @@
-<mat-form-field class="example-full-width">
-  <mat-label>Port Number</mat-label>
-  <input #port matInput placeholder="4200" type="number">
-</mat-form-field>
-<button mat-stroked-button color="primary" (click)="discover(port.value)">Discover</button>
-<button mat-stroked-button color="primary" (click)="getInfo(port.value)">Get Info</button>
-<button mat-stroked-button color="primary" (click)="scan()">Scan</button>
+<!--<mat-form-field class="example-full-width">-->
+<!--  <mat-label>Port Number</mat-label>-->
+<!--  <input #port matInput placeholder="4200" type="number">-->
+<!--</mat-form-field>-->
+<!--<button mat-stroked-button color="primary" (click)="discover(port.value)">Discover</button>-->
+<!--<button mat-stroked-button color="primary" (click)="getInfo(port.value)">Get Info</button>-->
+<button mat-stroked-button color="primary" (click)="scan()">Scan
+  <mat-icon *ngIf="scanning"><mat-spinner color="accent" diameter="20">
+  </mat-spinner></mat-icon></button>
+
+
+
 
 <!--<pre>{{discoveryResponse | json}}</pre>-->
 <!--<pre>{{infoResponse | json}}</pre>-->
@@ -18,4 +23,6 @@
   </mat-select>
 </mat-form-field>
 <br/>
-<pre>{{devices | json}}</pre>
+<div *ngIf="devices.length">
+  <pre>{{devices | json}}</pre>
+</div>
