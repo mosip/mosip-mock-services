@@ -43,4 +43,8 @@ export class MdsService {
     return throwError(
       'Something bad happened; please try again later.');
   }
+
+  scan() {
+
+  }
 }

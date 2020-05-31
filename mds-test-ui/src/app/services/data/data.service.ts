@@ -40,6 +40,13 @@ export class DataService {
       );
   }
 
+  decodeDeviceInfo(deviceInfoResponse: any) {
+    return this.httpClient.post(environment.base_url + 'testrunner/decodedeviceinfo', deviceInfoResponse)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
       // A client-side or network error occurred. Handle it accordingly.
