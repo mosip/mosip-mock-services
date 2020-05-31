@@ -41,8 +41,8 @@
   <br/>
 
   <mat-form-field class="example-full-width" *ngIf="selectedTests.length">
-    <mat-label>Test Run Name</mat-label>
-    <input matInput placeholder="Test Run">
+    <mat-label>Email</mat-label>
+    <input [(ngModel)]="email" matInput placeholder="abc@gmail.com">
   </mat-form-field>
   <br/>
   <button mat-raised-button (click)="OnCreateRunClicked()" *ngIf="selectedTests.length">

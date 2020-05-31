@@ -27,7 +27,21 @@ export class DataService {
   }
 
   createRun(requestBody) {
-    return this.httpClient.post(environment.base_url + 'testmanager/createRun', requestBody)
+    return this.httpClient.post(environment.base_url + 'testmanager/createrun', requestBody)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  getRuns(email) {
+    return this.httpClient.get(environment.base_url + 'testmanager/runs/' + email)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  decodeDeviceInfo(deviceInfoResponse: any) {
+    return this.httpClient.post(environment.base_url + 'testrunner/decodedeviceinfo', deviceInfoResponse)
       .pipe(
         catchError(this.handleError)
       );
