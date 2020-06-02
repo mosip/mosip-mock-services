@@ -33,7 +33,7 @@ public class StreamRequest extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         //if(req.getMethod().contentEquals("STREAM"))
-        if(req.getMethod().contentEquals("STREAM") || req.getMethod().contentEquals("GET"))
+        if(req.getMethod().contentEquals("STREAM") || req.getMethod().contentEquals("POST") || req.getMethod().contentEquals("GET"))
             doPost(req, res);
         if(req.getMethod().contentEquals("OPTIONS"))
             CORSManager.doOptions(req, res);
@@ -59,6 +59,21 @@ public class StreamRequest extends HttpServlet {
 			sT = sT+s;
 		}
 
+		if(sT.isEmpty())
+		{
+			String devId = null;
+			String devSubId = null;
+			if(request.getMethod().equals("GET"))
+			{
+				devId = request.getParameter("deviceId");
+				devSubId = request.getParameter("deviceSubId");
+			}
+			sT = "{\"deviceId\": \"" 
+			+ (devId != null?devId:"")
+			+ "\", \"deviceSubId\": \""
+			+ (devSubId != null?devSubId:"")
+			+ "\"}";
+		}
 		StreamingRequestDetail streamRequest = (StreamingRequestDetail)(oB.readValue(sT.getBytes(), StreamingRequestDetail.class));
 		imageByteList = new ArrayList<byte[]>();
 		OutputStream outputStream = response.getOutputStream();
@@ -88,7 +103,7 @@ public class StreamRequest extends HttpServlet {
 	
 	private void getImage(StreamingRequestDetail requestBody, List<byte[]> imageByteList) throws IOException {
 
-		File image = new File(System.getProperty("user.dir") + "/files/images/" + requestBody.deviceId
+		File image = new File(System.getProperty("user.dir") + "/files/images/stream" + requestBody.deviceId
 				+ requestBody.deviceSubId + ".jpg");
 		BufferedImage originalImage = ImageIO.read(image);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
