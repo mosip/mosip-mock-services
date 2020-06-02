@@ -72,7 +72,7 @@ public class StreamRequest extends HttpServlet {
 	
 	private void getImage(StreamingRequestDetail requestBody, List<byte[]> imageByteList) throws IOException {
 
-		File image = new File(System.getProperty("user.dir") + "\\files\\images\\" + requestBody.deviceId
+		File image = new File(System.getProperty("user.dir") + "/files/images/" + requestBody.deviceId
 				+ requestBody.deviceSubId + ".jpg");
 		BufferedImage originalImage = ImageIO.read(image);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -83,7 +83,7 @@ public class StreamRequest extends HttpServlet {
 
 	private void getImage(List<byte[]> imageByteList) throws IOException {
 
-		File image = new File(System.getProperty("user.dir") + "\\files\\images\\" + "empty" + ".jpg");
+		File image = new File(System.getProperty("user.dir") + "/files/images/" + "empty" + ".jpg");
 		BufferedImage originalImage = ImageIO.read(image);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(originalImage, "jpg", baos);
