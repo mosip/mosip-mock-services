@@ -27,6 +27,15 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	    return bean;
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Bean
+	public ServletRegistrationBean discoverBean() {
+	    @SuppressWarnings("unchecked")
+		ServletRegistrationBean bean = new ServletRegistrationBean(
+	      new DiscoverRequest(), "/device");
+	    bean.setLoadOnStartup(1);
+	    return bean;
+	}
     
 	
 	@SuppressWarnings("rawtypes")

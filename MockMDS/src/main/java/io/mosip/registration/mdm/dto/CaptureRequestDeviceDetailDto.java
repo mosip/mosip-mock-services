@@ -7,12 +7,12 @@ import lombok.Setter;
 @Setter
 public class CaptureRequestDeviceDetailDto {
 
-	private String type;
-	private int count;
-	private String[] exception;
-	private int requestedScore;
-	private String deviceId;
-	private String deviceSubId;
-	private String previousHash;
+	public String type;
+	public int count;
+	public String[] exception;
+	public int requestedScore;
+	public String deviceId;
+	public String deviceSubId;
+	public String previousHash;
 
 }

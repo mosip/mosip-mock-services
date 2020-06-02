@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class InfoRequest extends HttpServlet {  
+public class DiscoverRequest extends HttpServlet {  
   
     /**
 	 * 
@@ -21,11 +21,11 @@ public class InfoRequest extends HttpServlet {
 	@Override
     protected void service(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-		if(req.getMethod().contentEquals("MOSIPDINFO") || req.getMethod().contentEquals("GET"))
+		if(req.getMethod().contentEquals("MOSIPDISC") || req.getMethod().contentEquals("GET"))
             doPost(req, res);
         if(req.getMethod().contentEquals("OPTIONS"))
             CORSManager.doOptions(req, res);
-            if(req.getMethod().contentEquals("GET"))
+            if(req.getMethod().contentEquals("POST"))
 			CORSManager.doOptions(req, res);
     }
 	
@@ -33,7 +33,7 @@ public class InfoRequest extends HttpServlet {
     protected void doPost(
       HttpServletRequest request, 
       HttpServletResponse response) throws ServletException, IOException {
-		String info = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/" + "deviceInfo" + ".txt")));
+		String info = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/" + "discoverInfo" + ".txt")));
         response.setContentType("application/json");
         response = CORSManager.setCors(response);
         PrintWriter out = response.getWriter();

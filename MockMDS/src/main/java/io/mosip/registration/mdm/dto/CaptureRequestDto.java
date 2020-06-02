@@ -13,17 +13,17 @@ import lombok.Setter;
 @Setter
 public class CaptureRequestDto{
 
-	private String env;
-	private String purpose;
-	private String specVersion;
-	private int timeout;
+	public String env;
+	public String purpose;
+	public String specVersion;
+	public int timeout;
 	@JsonIgnore
-	private String captureTime;
+	public String captureTime;
 	@JsonIgnore
-	private String registrationID;
+	public String registrationID;
 
 	@JsonProperty("bio")
-	private List<CaptureRequestDeviceDetailDto> mosipBioRequest;
+	public List<CaptureRequestDeviceDetailDto> mosipBioRequest;
 
-	private List<Map<String, String>> customOpts;
+	public List<Map<String, String>> customOpts;
 }

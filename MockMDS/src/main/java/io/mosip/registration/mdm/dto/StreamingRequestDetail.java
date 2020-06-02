@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class StreamingRequestDetail{
 
-	private String deviceId;
-	private String deviceSubId;
+	public String deviceId;
+	public String deviceSubId;
 	
 }

@@ -72,8 +72,8 @@ public class StreamRequest extends HttpServlet {
 	
 	private void getImage(StreamingRequestDetail requestBody, List<byte[]> imageByteList) throws IOException {
 
-		File image = new File(System.getProperty("user.dir") + "\\files\\images\\" + requestBody.getDeviceId()
-				+ requestBody.getDeviceSubId() + ".jpg");
+		File image = new File(System.getProperty("user.dir") + "\\files\\images\\" + requestBody.deviceId
+				+ requestBody.deviceSubId + ".jpg");
 		BufferedImage originalImage = ImageIO.read(image);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(originalImage, "jpg", baos);
