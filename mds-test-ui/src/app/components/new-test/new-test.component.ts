@@ -20,6 +20,7 @@ export class NewTestComponent implements OnInit {
   selectedMdsVersion: any;
   selectedProcess: any;
   email = '';
+  runName = '';
 
   constructor(private dataService: DataService, private router: Router) {
   }
@@ -57,12 +58,13 @@ export class NewTestComponent implements OnInit {
     const requestBody = {
       biometricType: this.selectedBiometricType.type,
       deviceType: this.selectedDeviceType,
-      mdsSpecificationVersion: this.selectedMdsVersion,
+      mdsSpecVersion: this.selectedMdsVersion,
       process: this.selectedProcess,
       tests: this.selectedTests,
-      email: this.email
+      email: this.email,
+      runName: this.runName
     };
-    console.log(this.selectedTests);
+    console.log(requestBody);
     this.dataService.createRun(requestBody)
       .pipe(
         map((body: any) => {
