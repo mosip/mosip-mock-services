@@ -21,6 +21,12 @@ public class TestRun {
 
     public Date createdOn;
 
+    public String runName;
+
+    public DeviceInfoResponse deviceInfo;
+
+    public TestManagerDto targetProfile;
+
     public List<String> tests;
 
     public HashMap<String, TestResult> testReport = new HashMap<>();

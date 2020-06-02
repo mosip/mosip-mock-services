@@ -215,13 +215,15 @@ public class TestManager {
 		return results;	
 	}
 
-	private void SaveRun(RunExtnDto newRun)
+	private void SaveRun(RunExtnDto newRun, TestManagerDto targetProfile)
 	{
 		// TODO save the Run to file as well as memory
 		if(testRuns.keySet().contains(newRun.runId))
 			return;
 		TestRun newTestRun = new TestRun();
+		newTestRun.targetProfile = targetProfile;
 		newTestRun.runId = newRun.runId;
+		newTestRun.runName = newRun.runName;
 		newTestRun.createdOn = new Date();
 		newTestRun.runStatus = RunStatus.Created;
 		newTestRun.tests = new ArrayList<>();
@@ -269,13 +271,14 @@ public class TestManager {
 			return null;
 		// Assign a Run Id
 		newRun.runId = "" + System.currentTimeMillis();
+		newRun.runName = runInfo.runName;
 		// Save the run details
 		newRun.tests = runInfo.tests.toArray(new String[runInfo.tests.size()]);
 		if(!runInfo.email.isEmpty())
 			newRun.email = runInfo.email;
 		else
 		newRun.email = "misc";
-		SaveRun(newRun);
+		SaveRun(newRun, runInfo);
 		return newRun;
 	}
 
@@ -315,6 +318,12 @@ public class TestManager {
 		TestRun run = testRuns.get(requestParams.runId);
 		if(run == null || !run.tests.contains(requestParams.testId))
 			return null;
+
+		run.deviceInfo = DecodeDeviceInfo(requestParams.deviceInfo.deviceInfo)[0];
+		// TODO handle selection from array. Right now picking first device
+		// Overwrites the device info for every call
+
+		PersistRun(run);
 
 		TestExtnDto test = allTests.get(requestParams.testId);
 		Intent intent = Intent.Discover;
@@ -364,6 +373,8 @@ public class TestManager {
 		}
 		
 		testResult.renderContent = ProcessResponse(testResult);
+		run.runStatus = RunStatus.InProgress;
+		// TODO when should this status be Done
 		run.testReport.put(test.testId, testResult);
 		PersistRun(run);
 		return testResult; 
