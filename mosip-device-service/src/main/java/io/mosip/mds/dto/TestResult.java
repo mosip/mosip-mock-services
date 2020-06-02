@@ -22,4 +22,6 @@ public class TestResult {
 
     public List<ValidationResult> validationResults = new ArrayList<>();
 
+    public String renderContent;
+
 }
