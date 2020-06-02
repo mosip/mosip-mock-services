@@ -17,5 +17,8 @@ public class RunExtnDto {
 	@ApiModelProperty(value = "runStatus", required = true, dataType = "java.lang.String")
 	public String runStatus = "New";
 
+	@ApiModelProperty(value = "runName", required = true, dataType = "java.lang.String")
+	public String runName;
+
 
 }

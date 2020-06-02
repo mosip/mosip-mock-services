@@ -22,6 +22,8 @@ public class TestManagerDto {
 	@ApiModelProperty(value = "deviceType", required = true, dataType = "java.lang.String")
 	public String deviceType;
 
+	@ApiModelProperty(value = "runName", required = true, dataType = "java.lang.String")
+	public String runName;
 
 	public List<String> tests;
 	
