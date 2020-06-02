@@ -362,9 +362,17 @@ public class TestManager {
 		{
 			testResult.validationResults.add(v.Validate(validateRequestDto));
 		}
+		
+		testResult.renderContent = ProcessResponse(testResult);
 		run.testReport.put(test.testId, testResult);
 		PersistRun(run);
 		return testResult; 
+	}
+
+	private String ProcessResponse(TestResult testResult)
+	{
+		String renderContent = "";
+		return renderContent;
 	}
 
 	public DiscoverResponse[] DecodeDiscoverInfo(String discoverInfo) {
