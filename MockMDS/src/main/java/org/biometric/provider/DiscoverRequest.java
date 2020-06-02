@@ -21,7 +21,8 @@ public class DiscoverRequest extends HttpServlet {
 	@Override
     protected void service(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-		if(req.getMethod().contentEquals("MOSIPDISC") || req.getMethod().contentEquals("GET"))
+        //if(req.getMethod().contentEquals("MOSIPDISC"))
+        if(req.getMethod().contentEquals("MOSIPDISC") || req.getMethod().contentEquals("GET") || req.getMethod().contentEquals("POST"))
             doPost(req, res);
         if(req.getMethod().contentEquals("OPTIONS"))
             CORSManager.doOptions(req, res);

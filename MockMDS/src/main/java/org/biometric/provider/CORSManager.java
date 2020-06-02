@@ -11,7 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class CORSManager  {
 
-    @Value("${cors.headers.allowed.methods: OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM}")
+    //@Value("${cors.headers.allowed.methods: OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM}")
+    @Value("${cors.headers.allowed.methods: OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM, GET, POST}")
     public static String allowedMethods;
 
     @Value("${cors.headers.allowed.origin: *}")
@@ -22,7 +23,8 @@ public class CORSManager  {
         //TODO: This has a security flaw. Keep a list of whitelisted domains and set headers to a whitelisted domain if the request is from a whitelisted domain.
         //response.setHeader("Access-Control-Allow-Origin", "https://foo.example");
         response.setHeader("Access-Control-Allow-Origin","*");
-        response.setHeader("Access-Control-Allow-Methods","OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM, GET");
+        //response.setHeader("Access-Control-Allow-Methods","OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM);
+        response.setHeader("Access-Control-Allow-Methods","OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM, GET, POST");
         System.out.println("Set the CORS headers");
         PrintWriter out = response.getWriter();
         out.println("");
@@ -30,7 +32,8 @@ public class CORSManager  {
 
     public static HttpServletResponse setCors(HttpServletResponse response) throws ServletException, IOException {
         response.setHeader("Access-Control-Allow-Origin","*");
-        response.setHeader("Access-Control-Allow-Methods","OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM, GET");
+        //response.setHeader("Access-Control-Allow-Methods","OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM");
+        response.setHeader("Access-Control-Allow-Methods","OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM, GET, POST");
         return response;
     }
 }

@@ -27,7 +27,23 @@ public class StreamRequest extends HttpServlet {
 	 */
 	private static final long serialVersionUID = -1914160572219233317L;
 	ObjectMapper oB = null;
-	
+
+
+	@Override
+    protected void service(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
+        //if(req.getMethod().contentEquals("STREAM"))
+        if(req.getMethod().contentEquals("STREAM") || req.getMethod().contentEquals("GET"))
+            doPost(req, res);
+        if(req.getMethod().contentEquals("OPTIONS"))
+            CORSManager.doOptions(req, res);
+            if(req.getMethod().contentEquals("GET"))
+			CORSManager.doOptions(req, res);
+    }
+
+
+
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if(oB==null)

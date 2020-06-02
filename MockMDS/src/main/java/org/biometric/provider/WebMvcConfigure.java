@@ -50,16 +50,6 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	
 	@SuppressWarnings("rawtypes")
 	@Bean
-	public ServletRegistrationBean secureCaptureBean() {
-	    @SuppressWarnings("unchecked")
-		ServletRegistrationBean bean = new ServletRegistrationBean(
-	      new SecureCaptureRequest(), "/capture");
-	    bean.setLoadOnStartup(1);
-	    return bean;
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Bean
 	public ServletRegistrationBean streamBean() {
 	    @SuppressWarnings("unchecked")
 		ServletRegistrationBean bean = new ServletRegistrationBean(

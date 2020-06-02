@@ -30,14 +30,27 @@ public class CaptureRequest extends HttpServlet {
 	@Override
     protected void service(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-		if(req.getMethod().contentEquals("RCAPTURE"))
+		//if(req.getMethod().contentEquals("RCAPTURE") || req.getMethod().contentEquals("CAPTURE"))
+		if(req.getMethod().contentEquals("RCAPTURE") || req.getMethod().contentEquals("CAPTURE") || req.getMethod().contentEquals("POST"))
 			doPost(req, res);
 		if(req.getMethod().contentEquals("OPTIONS"))
 			CORSManager.doOptions(req, res);
     }
 	
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(
+      HttpServletRequest request, 
+      HttpServletResponse response) throws ServletException, IOException {  
+        if(request.getMethod().contentEquals("RCAPTURE"))
+            doRegistrationCapture(request, response);
+        else if(request.getMethod().contentEquals("CAPTURE"))
+            doAuthCapture(request, response);
+        else // Handles the POST
+            doRegistrationCapture(request, response);
+    }
+
+
+	protected void doRegistrationCapture(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if(oB==null)
 			oB = new ObjectMapper();
@@ -61,6 +74,37 @@ public class CaptureRequest extends HttpServlet {
 			result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/irisCapture.txt")));
 		}else if(bio.type.equalsIgnoreCase("Face")) {
 			result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/faceCapture.txt")));
+		}
+		response.setContentType("application/json");
+		response = CORSManager.setCors(response);
+        PrintWriter out = response.getWriter();
+        out.println(result);
+	}
+
+	protected void doAuthCapture(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		if(oB==null)
+			oB = new ObjectMapper();
+		BufferedReader bR = request.getReader();
+		String s="";
+		String sT = "";
+		while((s = bR.readLine())!=null) {
+			sT = sT+s;
+		}
+		CaptureRequestDto captureRequestDto = (CaptureRequestDto)(oB.readValue(sT.getBytes(), CaptureRequestDto.class));
+		CaptureRequestDeviceDetailDto bio = captureRequestDto.mosipBioRequest.get(0);
+		String result="";
+		if(bio.type.equalsIgnoreCase("FIR")) {
+			if(bio.deviceId.equals("1") && bio.deviceSubId.equals("1"))
+				result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/leftFingerPrintSecureCapture.txt")));
+			else if(bio.deviceId.equals("1") && bio.deviceSubId.equals("2"))
+				result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/rightFingerPrintSecureCapture.txt")));
+			else if(bio.deviceId.equals("1") && bio.deviceSubId.equals("3"))
+				result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/thumbsFingerPrintSecureCapture.txt")));
+		}else if(bio.type.equalsIgnoreCase("IIR")) {
+			result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/irisSecureCapture.txt")));
+		}else if(bio.type.equalsIgnoreCase("Face")) {
+			result  = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") +"/files/MockMDS/faceSecureCapture.txt")));
 		}
 		response.setContentType("application/json");
 		response = CORSManager.setCors(response);
