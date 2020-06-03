@@ -22,6 +22,11 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Run ID </th>
         <td mat-cell *matCellDef="let row"> <a [routerLink]="['/run']" [state]="{data: row}">{{row.runId}}</a> </td>
       </ng-container>
+      <!-- Progress Column -->
+      <ng-container matColumnDef="runName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Run Name </th>
+        <td mat-cell *matCellDef="let row"> {{row.runName}} </td>
+      </ng-container>
 
       <!-- Progress Column -->
       <ng-container matColumnDef="runStatus">

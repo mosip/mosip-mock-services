@@ -26,7 +26,7 @@ const NAMES: string[] = [
   styleUrls: ['./test-runs.component.css']
 })
 export class TestRunsComponent implements OnInit {
-  displayedColumns: string[] = ['runId', 'runStatus', 'createdOn'];
+  displayedColumns: string[] = ['runId', 'runName', 'runStatus', 'createdOn'];
   // dataSource: MatTableDataSource<Run>;
   dataSource: any;
 
@@ -47,6 +47,7 @@ export class TestRunsComponent implements OnInit {
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.getRuns('abc'); // for testing
   }
 
   applyFilter(event: Event) {
