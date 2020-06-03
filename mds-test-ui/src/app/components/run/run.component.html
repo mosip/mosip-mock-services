@@ -65,3 +65,8 @@
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
   </div>
 </div>
+
+
+<mat-tab-group>
+  <mat-tab *ngFor="let key of objectKeys(run.testReport)" label="{{key}}"> <pre>{{run.testReport[key] | json}}</pre> </mat-tab>
+</mat-tab-group>

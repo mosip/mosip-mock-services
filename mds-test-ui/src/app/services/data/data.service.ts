@@ -65,10 +65,24 @@ export class DataService {
 
   composeRequest(runId: string, test: string, deviceDto: { port: any; discoverInfo: any }) {
     return this.httpClient.post(environment.base_url + 'testrunner/composerequest', {
-      runId: runId,
+      runId,
       testId: test,
       uiInputs: [],
       deviceInfo: deviceDto
+
+    })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  validateResponse(runId: any, testId: string, request: any, response: any) {
+    return this.httpClient.post(environment.base_url + 'testrunner/validateresponse', {
+      runId,
+      testId,
+      mdsResponse: JSON.stringify(response),
+      mdsRequest: JSON.stringify(request),
+      resultVerbosity: ''
 
     })
       .pipe(
