@@ -45,6 +45,11 @@
     <input [(ngModel)]="email" matInput placeholder="abc@gmail.com">
   </mat-form-field>
   <br/>
+  <mat-form-field class="example-full-width" *ngIf="selectedTests.length">
+    <mat-label>Run Name/Description</mat-label>
+    <input [(ngModel)]="runName" matInput placeholder="For fingerprint device">
+  </mat-form-field>
+  <br/>
   <button mat-raised-button (click)="OnCreateRunClicked()" *ngIf="selectedTests.length">
     Create Run
   </button>

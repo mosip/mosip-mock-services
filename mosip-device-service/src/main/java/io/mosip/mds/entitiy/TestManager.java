@@ -312,7 +312,18 @@ public class TestManager {
 	private ComposeRequestResponseDto BuildRequest(ComposeRequestDto requestParams)
 	{
 		// TODO handle spec version more elegantly
-		String specVersion = DecodeDiscoverInfo(requestParams.deviceInfo.discoverInfo)[0].specVersion[0];
+		DiscoverResponse response = new DiscoverResponse();
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		try {
+			response = (mapper.readValue(requestParams.deviceInfo.discoverInfo.getBytes(), DiscoverResponse.class));
+		}catch(Exception ex)
+		{
+			response = new DiscoverResponse();
+			response.analysisError = "Error parsing discover info: " + ex.getMessage();
+		}
+		String specVersion = response.specVersion[0];
 		IMDSRequestBuilder builder = GetRequestBuilder(specVersion);
 		
 		TestRun run = testRuns.get(requestParams.runId);

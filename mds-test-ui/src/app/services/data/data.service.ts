@@ -62,4 +62,17 @@ export class DataService {
     return throwError(
       'Something bad happened; please try again later.');
   }
+
+  composeRequest(runId: string, test: string, deviceDto: { port: any; discoverInfo: any }) {
+    return this.httpClient.post(environment.base_url + 'testrunner/composerequest', {
+      runId: runId,
+      testId: test,
+      uiInputs: [],
+      deviceInfo: deviceDto
+
+    })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
 }

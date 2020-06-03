@@ -20,10 +20,23 @@ export class MdsService {
 
   discover(port: string) {
     this.mdsUrl = environment.mds_url + port + '/device';
+    // TODO: Add body for real mds
+    // {
+    //   type: 'Biometric Device';
+    // }
     return this.httpClient.request('MOSIPDISC', this.mdsUrl)
       .pipe(
         catchError(this.handleError)
       );
+    // const httpRequest = new HttpRequest('MOSIPDISC', this.mdsUrl, {
+    //
+    //     type: 'Biometric Device'
+    //
+    // });
+    // return this.httpClient.request(httpRequest)
+    //   .pipe(
+    //     catchError(this.handleError)
+    //   );
   }
 
   getInfo(port: string) {
@@ -41,16 +54,16 @@ export class MdsService {
     } else {
       // The backend returned an unsuccessful response code.
       // The response body may contain clues as to what went wrong,
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`);
+      // console.error(
+      //   `Backend returned code ${error.status}, ` +
+      //   `body was: ${error.error}`);
     }
     // return an observable with a user-facing error message
     return throwError(
       'Something bad happened; please try again later.');
   }
 
-  scan() {
+  scanWithInfo() {
     // const ports = [];
     return new Observable(
       subscriber => {
@@ -68,5 +81,29 @@ export class MdsService {
         return {unsubscribe() {}};
       }
     );
+  }
+
+  scan() {
+    // const ports = [];
+    return new Observable(
+      subscriber => {
+        for (let i = 4501; i <= 4600; i++) {
+          // if (i == 4600) {
+            this.discover(i.toString()).subscribe(
+              value => {
+                console.log(value);
+                this.localStorageService.addDeviceDiscover(i.toString(), value);
+              }
+            );
+          // }
+        }
+        subscriber.complete();
+        return {unsubscribe() {}};
+      }
+    );
+  }
+
+  request(requestInfoDto: any) {
+    return this.httpClient.request(requestInfoDto.verb, requestInfoDto.url, {body: requestInfoDto.body});
   }
 }
