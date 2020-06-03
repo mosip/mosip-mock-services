@@ -4,6 +4,7 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {LocalStorageService} from '../../services/local-storage/local-storage.service';
 import {ComposeRequest} from '../../dto/compose-request';
+import {DataService} from '../../services/data/data.service';
 
 @Component({
   selector: 'app-run',
@@ -22,8 +23,9 @@ export class RunComponent implements OnInit {
   selectedDevice: any;
   devices = [];
   availablePorts: any;
+  currentPort: any;
 
-  constructor(private localStorageService: LocalStorageService) {
+  constructor(private localStorageService: LocalStorageService, private dataService: DataService) {
     // Create 100 users
     // const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
 
@@ -63,14 +65,22 @@ export class RunComponent implements OnInit {
 
   onRunClicked() {
       const composeRequest = new ComposeRequest();
+      const deviceDto = {
+        port: this.currentPort,
+        discoverInfo: JSON.stringify(this.selectedDevice)
+      };
       this.run.tests.forEach(
         test => {
-
+            this.dataService.composeRequest(this.run.runId, test, deviceDto).subscribe(
+              body => console.log(body),
+              error => window.alert(error)
+            );
         }
       );
   }
 
   OnPortSelect(value: any) {
+    this.currentPort = value;
     this.devices = this.localStorageService.getDevicesByPortNumber(value);
   }
 }
