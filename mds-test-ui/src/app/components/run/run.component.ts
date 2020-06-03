@@ -2,6 +2,8 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
+import {LocalStorageService} from '../../services/local-storage/local-storage.service';
+import {ComposeRequest} from '../../dto/compose-request';
 
 @Component({
   selector: 'app-run',
@@ -17,8 +19,11 @@ export class RunComponent implements OnInit {
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   tests = [];
+  selectedDevice: any;
+  devices = [];
+  availablePorts: any;
 
-  constructor() {
+  constructor(private localStorageService: LocalStorageService) {
     // Create 100 users
     // const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
 
@@ -31,6 +36,7 @@ export class RunComponent implements OnInit {
   ngOnInit(): void {
     console.log(history.state.data);
     this.run = history.state.data;
+    this.availablePorts = this.localStorageService.getAvailablePorts();
     this.dataSource = this.run.tests;
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -53,5 +59,18 @@ export class RunComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  onRunClicked() {
+      const composeRequest = new ComposeRequest();
+      this.run.tests.forEach(
+        test => {
+
+        }
+      );
+  }
+
+  OnPortSelect(value: any) {
+    this.devices = this.localStorageService.getDevicesByPortNumber(value);
   }
 }
