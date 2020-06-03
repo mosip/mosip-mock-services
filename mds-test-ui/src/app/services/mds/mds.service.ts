@@ -102,4 +102,8 @@ export class MdsService {
       }
     );
   }
+
+  request(requestInfoDto: any) {
+    return this.httpClient.request(requestInfoDto.verb, requestInfoDto.url, {body: requestInfoDto.body});
+  }
 }
