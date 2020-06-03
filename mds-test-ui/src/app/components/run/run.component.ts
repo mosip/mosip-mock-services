@@ -5,6 +5,7 @@ import {MatSort} from '@angular/material/sort';
 import {LocalStorageService} from '../../services/local-storage/local-storage.service';
 import {ComposeRequest} from '../../dto/compose-request';
 import {DataService} from '../../services/data/data.service';
+import {MdsService} from '../../services/mds/mds.service';
 
 @Component({
   selector: 'app-run',
@@ -24,8 +25,13 @@ export class RunComponent implements OnInit {
   devices = [];
   availablePorts: any;
   currentPort: any;
+  requests = [];
 
-  constructor(private localStorageService: LocalStorageService, private dataService: DataService) {
+  constructor(
+    private localStorageService: LocalStorageService,
+    private dataService: DataService,
+    private mdsService: MdsService
+  ) {
     // Create 100 users
     // const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
 
@@ -72,11 +78,22 @@ export class RunComponent implements OnInit {
       this.run.tests.forEach(
         test => {
             this.dataService.composeRequest(this.run.runId, test, deviceDto).subscribe(
-              body => console.log(body),
+              body => {
+                console.log(body);
+                this.requests.push(body);
+                this.requestMds(body);
+              },
               error => window.alert(error)
             );
         }
       );
+  }
+
+  requestMds(request) {
+    this.mdsService.request(request.requestInfoDto).subscribe(
+        response => console.log(response),
+      error => window.alert(error)
+    );
   }
 
   OnPortSelect(value: any) {
