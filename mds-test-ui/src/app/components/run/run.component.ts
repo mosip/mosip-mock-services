@@ -27,6 +27,7 @@ export class RunComponent implements OnInit {
   currentPort: any;
   requests = [];
   objectKeys = Object.keys;
+  panelOpenState: boolean;
 
   constructor(
     private localStorageService: LocalStorageService,
@@ -49,6 +50,7 @@ export class RunComponent implements OnInit {
     this.dataSource = this.run.tests;
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.panelOpenState = false;
 
   }
 
