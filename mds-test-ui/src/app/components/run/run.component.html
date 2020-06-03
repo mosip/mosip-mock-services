@@ -1,5 +1,23 @@
-<p>run works!</p>
-{{run | json}}
+<mat-form-field appearance="fill">
+  <mat-label>Available Ports</mat-label>
+  <mat-select (selectionChange)='OnPortSelect($event.value)'>
+    <mat-option *ngFor="let port of availablePorts" [value]="port">
+      {{port}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field appearance="fill">
+  <mat-label>Device</mat-label>
+  <mat-select [(ngModel)]="selectedDevice">
+    <mat-option *ngFor="let obj of devices;" [value]="obj">{{obj.purpose + obj.deviceId}}</mat-option>
+  </mat-select>
+</mat-form-field>
+<button mat-raised-button
+        (click)="onRunClicked()">
+  RUN
+</button>
+<br/>
+<pre>{{run | json}}</pre>
 
 
 <!--Table Starts-->
