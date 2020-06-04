@@ -20,7 +20,6 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabsModule} from '@angular/material/tabs';
-import {MatExpansionModule} from '@angular/material/expansion';
 
 
 
@@ -47,8 +46,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatSortModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatTabsModule,
-    MatExpansionModule
+    MatTabsModule
   ],
   exports: [
     MatToolbarModule,
@@ -70,8 +68,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatSortModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatTabsModule,
-    MatExpansionModule
+    MatTabsModule
   ]
 })
 export class MaterialModule { }
