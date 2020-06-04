@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Test Report</h1>
+<pre style="white-space: pre-line">$testReport</pre>
+<br/>
+<br/>
+This file is generated on : $genDateTime
+</body>
+</html>

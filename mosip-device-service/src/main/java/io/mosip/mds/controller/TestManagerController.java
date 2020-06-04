@@ -2,6 +2,8 @@ package io.mosip.mds.controller;
 
 import io.mosip.mds.entitiy.*;
 
+import org.apache.velocity.app.VelocityEngine;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.mosip.mds.dto.TestManagerDto;
@@ -15,6 +17,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.io.IOException;
+
 @CrossOrigin("*")
 @RestController
 @Api(tags = { "TestManager" })
@@ -79,4 +84,16 @@ public class TestManagerController {
 		// TODO Add try catch as well as return handler for 404 and 500 cases
 		return testManager.GetReport(runId);
 	}
+
+	@GetMapping("/pdfreport/{runId}")
+	@ApiOperation(value = "Retrieve Test Report bassed on runId and format", notes = "Retrieve Test Report bassed on runId and format")
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "When Test Report retrieved"),
+			@ApiResponse(code = 404, message = "When Test Report found"),
+			@ApiResponse(code = 500, message = "While retrieving Test Report any error occured") })
+	public HttpEntity<byte[]> getpdfTestReport(@PathVariable("runId")String runId) throws Exception {
+			return testManager.GetPdfReport(runId,"report.pdf");
+
+	}
+
 }
