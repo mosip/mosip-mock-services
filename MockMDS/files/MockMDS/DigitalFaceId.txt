@@ -1,0 +1,10 @@
+{
+	"serialNo": "273125570",
+	"make": "Realtek",
+	"model": "6bdd1fc6-810f-11d0-bec7-08002be2092f",
+	"type": "Face",
+	"subType": "Full face",
+	"deviceProvider": "SYNCBYTE",
+	"deviceProviderId": "SYNCBYTE.LTC165",
+	"dateTime": "2020-03-19T18:21:34.729+05:30"
+}
