@@ -20,23 +20,13 @@ export class MdsService {
 
   discover(port: string) {
     this.mdsUrl = environment.mds_url + port + '/device';
-    // TODO: Add body for real mds
-    // {
-    //   type: 'Biometric Device';
-    // }
-    return this.httpClient.request('MOSIPDISC', this.mdsUrl)
-      .pipe(
+    return this.httpClient.request('MOSIPDISC', this.mdsUrl, {
+      body: {
+        type: 'Biometric Device'
+      }
+    }).pipe(
         catchError(this.handleError)
       );
-    // const httpRequest = new HttpRequest('MOSIPDISC', this.mdsUrl, {
-    //
-    //     type: 'Biometric Device'
-    //
-    // });
-    // return this.httpClient.request(httpRequest)
-    //   .pipe(
-    //     catchError(this.handleError)
-    //   );
   }
 
   getInfo(port: string) {
@@ -88,10 +78,10 @@ export class MdsService {
     return new Observable(
       subscriber => {
         for (let i = 4501; i <= 4600; i++) {
-          // if (i == 4600) {
+          // if (i == 4501) {
             this.discover(i.toString()).subscribe(
               value => {
-                console.log(value);
+                console.log('run' + value);
                 this.localStorageService.addDeviceDiscover(i.toString(), value);
               }
             );
