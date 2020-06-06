@@ -109,7 +109,8 @@ public class MDS_0_9_2_RequestBuilder implements IMDSRequestBuilder {
         requestBody.transactionId = "" + System.currentTimeMillis();
         CaptureRequest.CaptureBioRequest bio = requestBody.new CaptureBioRequest();
         bio.count = 1;
-        bio.deviceId = device.discoverInfo;
+//        bio.deviceId = device.discoverInfo;
+        bio.deviceId = 1;
         bio.deviceSubId = 1;
         bio.previousHash = "";
         bio.requestedScore = 80;
