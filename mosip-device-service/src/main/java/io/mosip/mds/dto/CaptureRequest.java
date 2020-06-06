@@ -10,7 +10,7 @@ public class CaptureRequest {
         public Integer count; //fingerprint/Iris count, in case of face max is set to 1
         public String[] bioSubType; //finger or iris to be excluded
         public Integer requestedScore; //expected quality score that should match to complete a successful capture
-        public String deviceId; //internal Id
+        public int deviceId; //internal Id
         public Integer deviceSubId; //specific device Id
         public String previousHash; //hash of the previous block
     };
