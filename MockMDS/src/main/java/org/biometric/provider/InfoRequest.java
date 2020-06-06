@@ -2,6 +2,7 @@ package org.biometric.provider;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,7 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jose4j.json.internal.json_simple.JSONArray;
+import org.json.JSONArray;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -143,12 +144,15 @@ public class InfoRequest extends HttpServlet {
 	public String getJwsPart(byte[] data) {
 		String jwt = null;
 		try {
-
+			
 			FileInputStream pkeyfis = new FileInputStream(
-					"C:\\Users\\m1048290\\git\\mosip-mock-services\\MockMDS\\files\\keys\\PrivateKey.pem");
+					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
+
 			String pKey = getFileContent(pkeyfis, "UTF-8");
 			FileInputStream certfis = new FileInputStream(
-					"C:\\Users\\m1048290\\git\\mosip-mock-services\\MockMDS\\files\\keys\\MosipTestCert.pem");
+
+					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
+					
 			String cert = getFileContent(certfis, "UTF-8");
 			pKey = trimBeginEnd(pKey);
 			cert = trimBeginEnd(cert);

@@ -2,6 +2,7 @@ package org.biometric.provider;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -921,10 +922,13 @@ public class CaptureRequest extends HttpServlet {
 		try {
 
 			FileInputStream pkeyfis = new FileInputStream(
-					"C:\\Users\\m1048290\\git\\mosip-mock-services\\MockMDS\\files\\keys\\PrivateKey.pem");
+					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
+
 			String pKey = getFileContent(pkeyfis, "UTF-8");
 			FileInputStream certfis = new FileInputStream(
-					"C:\\Users\\m1048290\\git\\mosip-mock-services\\MockMDS\\files\\keys\\MosipTestCert.pem");
+
+					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
+
 			String cert = getFileContent(certfis, "UTF-8");
 			pKey = trimBeginEnd(pKey);
 			cert = trimBeginEnd(cert);
