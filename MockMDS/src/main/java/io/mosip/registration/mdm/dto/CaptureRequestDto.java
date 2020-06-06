@@ -18,6 +18,10 @@ public class CaptureRequestDto{
 	public String specVersion;
 	public int timeout;
 	@JsonIgnore
+	public String domainUri;
+	@JsonIgnore
+	public String transactionId;
+	@JsonIgnore
 	public String captureTime;
 	@JsonIgnore
 	public String registrationId;
