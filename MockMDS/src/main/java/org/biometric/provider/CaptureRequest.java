@@ -1012,17 +1012,22 @@ public class CaptureRequest extends HttpServlet {
 	
 	private String getDigitalModality(Map<String, String> digitalIdMap) {
 
-		DigitalId digitalId = new DigitalId();
-		digitalId.setDateTime(getTimeStamp());
-		digitalId.setDeviceProvider(digitalIdMap.get("deviceProvider"));
-		digitalId.setDeviceProviderId(digitalIdMap.get("deviceProviderId"));
-		digitalId.setMake(digitalIdMap.get("make"));
-		digitalId.setSerialNo(digitalIdMap.get("serialNo"));
-		digitalId.setModel(digitalIdMap.get("model"));
-		digitalId.setSubType(digitalIdMap.get("subType"));
-		digitalId.setType(digitalIdMap.get("type"));
-
-		return Base64.getEncoder().encodeToString(digitalId.toString().getBytes());
+		String result = null;
+		Map<String, String> digitalMap = new LinkedHashMap<String, String>();
+		digitalMap.put("dateTime", getTimeStamp());
+		digitalMap.put("deviceProvider", digitalIdMap.get("deviceProvider"));
+		digitalMap.put("deviceProviderId", digitalIdMap.get("deviceProviderId"));
+		digitalMap.put("make", digitalIdMap.get("make"));
+		digitalMap.put("serialNo", digitalIdMap.get("serialNo"));
+		digitalMap.put("model", digitalIdMap.get("model"));
+		digitalMap.put("subType", digitalIdMap.get("subType"));
+		digitalMap.put("type", digitalIdMap.get("type"));
+		try {
+			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return result;
 
 	}
 }

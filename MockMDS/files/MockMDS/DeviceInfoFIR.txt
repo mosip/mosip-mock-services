@@ -1,5 +1,5 @@
 {
-	"specVersion": ["0.9.2"],
+	"specVersion": ["0.9.5"],
 	"digitalId": "eyJzZXJpYWxObyI6IkM4UjFDUDE1MzE1IiwibWFrZSI6IkdyZWVuYml0IiwibW9kZWwiOiJEYWN0eVNjYW44NGMiLCJ0eXBlIjoiRmluZ2VycHJpbnQiLCJzdWJUeXBlIjoiU2xhYiIsImRldmljZVByb3ZpZGVyIjoiU1lOQ0JZVEUiLCJkZXZpY2VQcm92aWRlcklkIjoiU1lOQ0JZVEUuVENJMzIyIiwiZGF0ZVRpbWUiOiIyMDIwLTAzLTE5VDE4OjIxOjMxLjk2NiswNTozMCJ9",
 	"deviceId": 1,
 	"deviceCode": "4b29a76c-6801-4a46-bbc1-6b8c63b8c604",
