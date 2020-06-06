@@ -26,6 +26,7 @@ export class RunComponent implements OnInit {
   availablePorts: any;
   currentPort: any;
   requests = [];
+  objectKeys = Object.keys;
 
   constructor(
     private localStorageService: LocalStorageService,
@@ -81,7 +82,7 @@ export class RunComponent implements OnInit {
               body => {
                 console.log(body);
                 this.requests.push(body);
-                this.requestMds(body);
+                this.requestMds(body, this.run.runId, test);
               },
               error => window.alert(error)
             );
@@ -89,9 +90,15 @@ export class RunComponent implements OnInit {
       );
   }
 
-  requestMds(request) {
+  requestMds(request, runId, testId) {
     this.mdsService.request(request.requestInfoDto).subscribe(
-        response => console.log(response),
+        response => {
+          console.log(response);
+          this.dataService.validateResponse(runId, testId, request, response).subscribe(
+            result => console.log('result:' + result),
+            error => window.alert(error)
+          );
+        },
       error => window.alert(error)
     );
   }
