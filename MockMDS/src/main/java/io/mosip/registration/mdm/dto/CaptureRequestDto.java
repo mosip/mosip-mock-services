@@ -20,7 +20,7 @@ public class CaptureRequestDto{
 	@JsonIgnore
 	public String captureTime;
 	@JsonIgnore
-	public String registrationId;
+	public String transactionId;
 
 	@JsonProperty("bio")
 	public List<CaptureRequestDeviceDetailDto> mosipBioRequest;

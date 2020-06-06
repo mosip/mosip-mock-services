@@ -100,11 +100,11 @@ public class CaptureRequest extends HttpServlet {
 		List<String> bioList = new ArrayList<>();
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
-		if (bio.type.equalsIgnoreCase("FIR")) {
+		if (bio.type.equalsIgnoreCase("Finger")) {
 			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
 
 				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("LF_INDEX", "LF_MIDDLE", "LF_RING", "LF_LITTLE"));
+				noExceptionFingers.addAll(Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"));
 
 				if (bio.getException().length == 0) {
 
@@ -147,7 +147,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -165,7 +165,7 @@ public class CaptureRequest extends HttpServlet {
 							data.put("hash", finalHash);
 							listOfBiometric.add(data);
 							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
+						} catch (Exception e) {
 							e.printStackTrace();
 						}
 
@@ -212,7 +212,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -241,7 +241,7 @@ public class CaptureRequest extends HttpServlet {
 			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
 
 				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("RF_INDEX", "RF_MIDDLE", "RF_RING", "RF_LITTLE"));
+				noExceptionFingers.addAll(Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger"));
 
 				if (bio.getException().length == 0) {
 
@@ -285,7 +285,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -351,7 +351,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -377,10 +377,10 @@ public class CaptureRequest extends HttpServlet {
 					responseMap.put("biometrics", listOfBiometric);
 				}
 
-			} else if (bio.deviceSubId.equals("3")) {
+			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3")) {
 
 				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("RF_THUMB", "LF_MIDDLE"));
+				noExceptionFingers.addAll(Arrays.asList("Right Thumb", "Left Thumb"));
 
 				if (bio.getException().length == 0) {
 
@@ -417,7 +417,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -483,7 +483,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -510,8 +510,8 @@ public class CaptureRequest extends HttpServlet {
 				}
 
 			}
-		} else if (bio.type.equalsIgnoreCase("IIR")) {
-			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
+		} else if (bio.type.equalsIgnoreCase("Iris")) {
+			if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
 
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
@@ -538,7 +538,7 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
 
 				try {
-					data.put("specVersion", "0.9.2");
+					data.put("specVersion", captureRequestDto.getSpecVersion());
 
 					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.getRequestedScore())
 						Thread.sleep(captureRequestDto.getTimeout());
@@ -560,7 +560,7 @@ public class CaptureRequest extends HttpServlet {
 
 				responseMap.put("biometrics", listOfBiometric);
 
-			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
+			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
 
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
@@ -587,7 +587,7 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
 
 				try {
-					data.put("specVersion", "0.9.2");
+					data.put("specVersion", captureRequestDto.getSpecVersion());
 
 					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.getRequestedScore())
 						Thread.sleep(captureRequestDto.getTimeout());
@@ -609,10 +609,10 @@ public class CaptureRequest extends HttpServlet {
 
 				responseMap.put("biometrics", listOfBiometric);
 
-			} else if (bio.deviceSubId.equals("3")) {
+			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("3")) {
 
 				List<String> noExceptionIris = new ArrayList<>();
-				noExceptionIris.addAll(Arrays.asList("R_IRIS", "L_IRIS"));
+				noExceptionIris.addAll(Arrays.asList("Left", "Right"));
 
 				if (bio.getException().length == 0) {
 
@@ -649,7 +649,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -715,7 +715,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", "0.9.2");
+							data.put("specVersion", captureRequestDto.getSpecVersion());
 
 							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
 								Thread.sleep(captureRequestDto.getTimeout());
@@ -769,7 +769,7 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
 
 			try {
-				data.put("specVersion", "0.9.2");
+				data.put("specVersion", captureRequestDto.getSpecVersion());
 
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.getRequestedScore())
 					Thread.sleep(captureRequestDto.getTimeout());
@@ -850,53 +850,53 @@ public class CaptureRequest extends HttpServlet {
 	public static String getNonExceptionBio(String name) throws IOException {
 
 		switch (name) {
-		case "LF_INDEX":
+		case "Left IndexFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Index.txt")));
 			break;
-		case "LF_MIDDLE":
+		case "Left MiddleFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Middle.txt")));
 			break;
-		case "LF_RING":
+		case "Left RingFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Ring.txt")));
 			break;
 
-		case "LF_LITTLE":
+		case "Left LittleFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Little.txt")));
 			break;
-		case "LF_THUMB":
+		case "Left Thumb":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Thumb.txt")));
 			break;
-		case "RF_INDEX":
+		case "Right IndexFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Index.txt")));
 			break;
-		case "RF_MIDDLE":
+		case "Right MiddleFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Middle.txt")));
 			break;
 
-		case "RF_RING":
+		case "Right RingFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Ring.txt")));
 			break;
-		case "RF_LITTLE":
+		case "Right LittleFinger":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Little.txt")));
 			break;
-		case "RF_THUMB":
+		case "Right Thumb":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Thumb.txt")));
 			break;
-		case "L_IRIS":
+		case "Left":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Iris.txt")));
 			break;
-		case "R_IRIS":
+		case "Right":
 			name = new String(
 					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Iris.txt")));
 			break;
