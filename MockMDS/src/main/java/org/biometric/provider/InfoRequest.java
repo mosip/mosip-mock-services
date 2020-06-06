@@ -2,6 +2,7 @@ package org.biometric.provider;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -30,7 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jose4j.json.internal.json_simple.JSONArray;
+import org.json.JSONArray;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -143,12 +145,15 @@ public class InfoRequest extends HttpServlet {
 	public String getJwsPart(byte[] data) {
 		String jwt = null;
 		try {
-
+			
 			FileInputStream pkeyfis = new FileInputStream(
-					"C:\\Users\\m1048290\\git\\mosip-mock-services\\MockMDS\\files\\keys\\PrivateKey.pem");
+					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
+
 			String pKey = getFileContent(pkeyfis, "UTF-8");
 			FileInputStream certfis = new FileInputStream(
-					"C:\\Users\\m1048290\\git\\mosip-mock-services\\MockMDS\\files\\keys\\MosipTestCert.pem");
+
+					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
+					
 			String cert = getFileContent(certfis, "UTF-8");
 			pKey = trimBeginEnd(pKey);
 			cert = trimBeginEnd(cert);
@@ -248,18 +253,22 @@ public class InfoRequest extends HttpServlet {
 
 	private String getDigitalModality(Map<String, String> digitalIdMap) {
 
-		DigitalId digitalId = new DigitalId();
-		digitalId.setDateTime(getTimeStamp());
-		digitalId.setDeviceProvider(digitalIdMap.get("deviceProvider"));
-		digitalId.setDeviceProviderId(digitalIdMap.get("deviceProviderId"));
-		digitalId.setMake(digitalIdMap.get("make"));
-		digitalId.setSerialNo(digitalIdMap.get("serialNo"));
-		digitalId.setModel(digitalIdMap.get("model"));
-		digitalId.setSubType(digitalIdMap.get("subType"));
-		digitalId.setType(digitalIdMap.get("type"));
-
-		return Base64.getEncoder().encodeToString(digitalId.toString().getBytes());
-
+		String result = null;
+		Map<String, String> digitalMap = new LinkedHashMap<String, String>();
+		digitalMap.put("dateTime", getTimeStamp());
+		digitalMap.put("deviceProvider", digitalIdMap.get("deviceProvider"));
+		digitalMap.put("deviceProviderId", digitalIdMap.get("deviceProviderId"));
+		digitalMap.put("make", digitalIdMap.get("make"));
+		digitalMap.put("serialNo", digitalIdMap.get("serialNo"));
+		digitalMap.put("model", digitalIdMap.get("model"));
+		digitalMap.put("subType", digitalIdMap.get("subType"));
+		digitalMap.put("type", digitalIdMap.get("type"));
+		try {
+			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 }
