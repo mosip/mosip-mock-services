@@ -1,5 +1,9 @@
 package io.mosip.mds.entitiy;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
 import io.mosip.mds.dto.*;
 import io.mosip.mds.dto.TestRun.RunStatus;
 import io.mosip.mds.dto.getresponse.BiometricTypeDto;
@@ -13,6 +17,10 @@ import io.mosip.mds.service.MDS_0_9_2_RequestBuilder;
 import io.mosip.mds.service.MDS_0_9_5_RequestBuilder;
 import io.mosip.mds.service.IMDSRequestBuilder.Intent;
 
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -32,6 +40,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @Entity
 @Data
@@ -286,7 +302,79 @@ public class TestManager {
 	{
 		if(!testRuns.keySet().contains(runId))
 			return null;
-		return new TestReport(testRuns.get(runId)); 
+		return new TestReport(testRuns.get(runId));
+	}
+
+
+	//GENERATING REPORT IN PDF FORMAT
+	public HttpEntity<byte[]> GetPdfReport(String runId,String fileName) throws Exception {
+
+//		return ;
+		VelocityEngine ve = new VelocityEngine();
+		ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+		ve.setProperty("classpath.resource.loader.class",
+				ClasspathResourceLoader.class.getName());
+
+		ve.init();
+
+		Template t = ve.getTemplate("templates/testReport.vm");
+
+		VelocityContext context = new VelocityContext();
+		if(!testRuns.keySet().contains(runId))
+			context.put("testReport", "");
+		else{
+			context.put("testReport", (new TestReport(testRuns.get(runId))).toString());
+		}
+		context.put("genDateTime", LocalDateTime.now().toString());
+		StringWriter writer = new StringWriter();
+		t.merge(context, writer);
+		System.out.println(writer.toString());
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		baos = generatePdf(writer.toString());
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.APPLICATION_PDF);
+
+		header.set(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=" + fileName.replace(" ", "_"));
+		header.setContentLength(baos.toByteArray().length);
+
+		return new HttpEntity<byte[]>(baos.toByteArray(), header);
+	}
+	public ByteArrayOutputStream generatePdf(String html) {
+		String pdfFilePath = "";
+		PdfWriter pdfWriter = null;
+		Document document = new Document();
+		try {
+
+			document = new Document();
+			// document header attributes
+			document.addAuthor("Shubam");
+			document.addAuthor("Shubam Gupta");
+			document.addCreationDate();
+			document.addProducer();
+			document.addCreator("github.com/shubamgupta2509/");
+			document.addTitle("TEST_REPORT ");
+			document.setPageSize(PageSize.LETTER);
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PdfWriter.getInstance(document, baos);
+
+			// open document
+			document.open();
+
+			XMLWorkerHelper xmlWorkerHelper = XMLWorkerHelper.getInstance();
+			xmlWorkerHelper.getDefaultCssResolver(true);
+			xmlWorkerHelper.parseXHtml(pdfWriter, document, new StringReader(
+					html));
+			// close the document
+			document.close();
+			System.out.println("PDF generated successfully");
+
+			return baos;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private TestRun[] FilterRuns(String email)
