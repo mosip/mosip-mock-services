@@ -19,7 +19,7 @@ export class DataService {
       );
   }
   getTestReport(runId) {
-    return this.httpClient.get(environment.base_url + 'testmanager/report/'+runId)
+    return this.httpClient.get(environment.base_url + 'testmanager/report/' +runId+ '/json')
       .pipe(
         catchError(this.handleError)
       );
