@@ -67,9 +67,9 @@
 </div>
 
 
-<mat-tab-group>
-  <mat-tab *ngFor="let key of objectKeys(testReport)" label="{{key}}">
-    Executed On: {{testReport[key].executedOn | date: 'full'}}
+<mat-tab-group *ngIf="testReportObject">
+  <mat-tab *ngFor="let key of objectKeys(testReportObject.testReport)" label="{{key}}">
+    Executed On: {{testReportObject.testReport[key].executedOn | date: 'full'}}
     <mat-accordion>
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -77,11 +77,11 @@
             Validation results
           </mat-panel-title>
           <mat-panel-description>
-            {{testReport[key].validationResults[0].status}}
+            {{testReportObject.testReport[key].validationResults[0].status}}
           </mat-panel-description>
         </mat-expansion-panel-header>
 
-        <pre>{{testReport[key].validationResults | json}}</pre>
+        <pre>{{testReportObject.testReport[key].validationResults | json}}</pre>
       </mat-expansion-panel>
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -93,7 +93,7 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
 
-        <pre>{{testReport[key].requestData | json}}</pre>
+        <pre>{{testReportObject.testReport[key].requestData | json}}</pre>
       </mat-expansion-panel>
       <mat-expansion-panel (opened)="panelOpenState = true"
                            (closed)="panelOpenState = false">
@@ -105,7 +105,7 @@
             Currently I am {{panelOpenState ? 'open' : 'closed'}}
           </mat-panel-description>
         </mat-expansion-panel-header>
-        <pre>{{testReport[key].responseData | json}}</pre>
+        <pre>{{testReportObject.testReport[key].responseData | json}}</pre>
       </mat-expansion-panel>
     </mat-accordion>
   </mat-tab>

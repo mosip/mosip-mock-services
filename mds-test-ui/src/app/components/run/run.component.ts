@@ -27,7 +27,7 @@ export class RunComponent implements OnInit {
   currentPort: any;
   requests = [];
   objectKeys = Object.keys;
-  testReport: any;
+  testReportObject: any;
   panelOpenState: boolean;
   constructor(
     private localStorageService: LocalStorageService,
@@ -57,7 +57,7 @@ export class RunComponent implements OnInit {
   fetchReport() {
    this.dataService.getTestReport(this.run.runId).subscribe(
       body => {
-        console.log(body);
+        this.testReportObject = body;
       },
       error => window.alert(error)
     );
