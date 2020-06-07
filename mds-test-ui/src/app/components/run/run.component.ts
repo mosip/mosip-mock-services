@@ -27,7 +27,8 @@ export class RunComponent implements OnInit {
   currentPort: any;
   requests = [];
   objectKeys = Object.keys;
-  testReport : any;
+  testReport: any;
+  panelOpenState: boolean;
   constructor(
     private localStorageService: LocalStorageService,
     private dataService: DataService,
@@ -50,9 +51,10 @@ export class RunComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.fetchReport();
+    this.panelOpenState = false;
   }
-  
-  fetchReport(){
+
+  fetchReport() {
    this.dataService.getTestReport(this.run.runId).subscribe(
       body => {
         console.log(body);
@@ -104,7 +106,9 @@ export class RunComponent implements OnInit {
         response => {
           console.log(response);
           this.dataService.validateResponse(runId, testId, request, response).subscribe(
-            result => console.log('result:' + result),
+            result => {console.log('result:' + result);
+                       this.fetchReport();
+            },
             error => window.alert(error)
           );
         },
