@@ -8,6 +8,7 @@ import lombok.Setter;
 public class CaptureRequestDeviceDetailDto {
 
 	public String type;
+	public String[] bioSubType;
 	public int count;
 	public String[] exception;
 	public String[] bioSubType;
