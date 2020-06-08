@@ -19,7 +19,6 @@ public class CaptureRequestDto{
 	public int timeout;
 	@JsonIgnore
 	public String captureTime;
-	@JsonIgnore
 	public String transactionId;
 
 	@JsonProperty("bio")
