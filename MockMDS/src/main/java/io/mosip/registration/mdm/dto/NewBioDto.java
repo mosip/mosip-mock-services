@@ -9,7 +9,6 @@ public class NewBioDto {
 	private String purpose;
 	private String env;
 	private String bioValue;
-	private String registrationId;
 	private String transactionId;
 	private String timestamp;
 	private int requestedScore;
@@ -97,18 +96,6 @@ public class NewBioDto {
 	 */
 	public void setBioValue(String bioValue) {
 		this.bioValue = bioValue;
-	}
-	/**
-	 * @return the registrationId
-	 */
-	public String getRegistrationId() {
-		return registrationId;
-	}
-	/**
-	 * @param registrationId the registrationId to set
-	 */
-	public void setRegistrationId(String registrationId) {
-		this.registrationId = registrationId;
 	}
 	/**
 	 * @return the transactionId

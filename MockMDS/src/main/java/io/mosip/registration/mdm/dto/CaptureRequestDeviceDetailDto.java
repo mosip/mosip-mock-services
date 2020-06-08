@@ -11,6 +11,7 @@ public class CaptureRequestDeviceDetailDto {
 	public String[] bioSubType;
 	public int count;
 	public String[] exception;
+	public String[] bioSubType;
 	public int requestedScore;
 	public String deviceId;
 	public String deviceSubId;
