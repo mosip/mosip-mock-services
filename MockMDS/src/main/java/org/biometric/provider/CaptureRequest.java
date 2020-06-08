@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +42,6 @@ import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDeviceDetailDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDto;
-import io.mosip.registration.mdm.dto.DigitalId;
 import io.mosip.registration.mdm.dto.NewBioDto;
 
 public class CaptureRequest extends HttpServlet {
@@ -104,7 +102,8 @@ public class CaptureRequest extends HttpServlet {
 			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
 
 				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"));
+				noExceptionFingers.addAll(
+						Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"));
 
 				if (bio.exception.length == 0) {
 
@@ -143,8 +142,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -208,8 +206,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -241,7 +238,8 @@ public class CaptureRequest extends HttpServlet {
 			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
 
 				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger"));
+				noExceptionFingers.addAll(Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger",
+						"Right LittleFinger"));
 
 				if (bio.exception.length == 0) {
 
@@ -281,8 +279,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -347,8 +344,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -413,8 +409,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -479,8 +474,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -529,13 +523,12 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
 				bioResponse.setEnv(bioMetricsData.getEnv());
-				bioResponse.setDigitalId(bioMetricsData.getDigitalId());
+				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 				bioResponse.setPurpose(bioMetricsData.getPurpose());
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(bioMetricsData.getTransactionId());
-				bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
+				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 				try {
 					data.put("specVersion", captureRequestDto.specVersion);
@@ -578,13 +571,12 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
 				bioResponse.setEnv(bioMetricsData.getEnv());
-				bioResponse.setDigitalId(bioMetricsData.getDigitalId());
+				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 				bioResponse.setPurpose(bioMetricsData.getPurpose());
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(bioMetricsData.getTransactionId());
-				bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
+				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 				try {
 					data.put("specVersion", captureRequestDto.specVersion);
@@ -640,13 +632,12 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setDeviceCode(bioVal.getDeviceCode());
 						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
 						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(bioVal.getDigitalId());
+						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -706,13 +697,12 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setDeviceCode(bioVal.getDeviceCode());
 						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
 						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(bioVal.getDigitalId());
+						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(bioVal.getTransactionId());
-						bioResponse.setRegistrationId(bioVal.getRegistrationId());
+						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -760,13 +750,12 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
 			bioResponse.setEnv(bioMetricsData.getEnv());
-			bioResponse.setDigitalId(bioMetricsData.getDigitalId());
+			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 			bioResponse.setPurpose(bioMetricsData.getPurpose());
 			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
-			bioResponse.setTransactionId(bioMetricsData.getTransactionId());
-			bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
+			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 			try {
 				data.put("specVersion", captureRequestDto.specVersion);
@@ -798,7 +787,6 @@ public class CaptureRequest extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		out.println(new JSONObject(responseMap));
 	}
-	
 
 	protected void doAuthCapture(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -813,28 +801,476 @@ public class CaptureRequest extends HttpServlet {
 		CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB.readValue(sT.getBytes(),
 				CaptureRequestDto.class));
 		CaptureRequestDeviceDetailDto bio = captureRequestDto.mosipBioRequest.get(0);
-		String result = "";
-		if (bio.type.equalsIgnoreCase("FIR")) {
-			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1"))
-				result = new String(Files.readAllBytes(
-						Paths.get(System.getProperty("user.dir") + "/files/MockMDS/leftFingerPrintSecureCapture.txt")));
-			else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2"))
-				result = new String(Files.readAllBytes(Paths
-						.get(System.getProperty("user.dir") + "/files/MockMDS/rightFingerPrintSecureCapture.txt")));
-			else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3"))
-				result = new String(Files.readAllBytes(Paths
-						.get(System.getProperty("user.dir") + "/files/MockMDS/thumbsFingerPrintSecureCapture.txt")));
-		} else if (bio.type.equalsIgnoreCase("IIR")) {
-			result = new String(Files
-					.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/irisSecureCapture.txt")));
+
+		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
+		Map<String, Object> responseMap = new LinkedHashMap<>();
+		if (bio.type.equalsIgnoreCase("Finger")) {
+			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
+
+				List<String> subTypeLeftSlabArray = Arrays.asList(bio.bioSubType);
+
+				subTypeLeftSlabArray.forEach(bioData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(Base64.getDecoder().decode(getAuthFingers(bioData)),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new HashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put("specVersion", captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put("data", dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put("hash", finalHash);
+						data.put("sessionKey", "");
+						data.put("thumbprint", "");
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put("biometrics", listOfBiometric);
+
+			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
+
+				List<String> subTypeRightSlabArray = Arrays.asList(bio.bioSubType);
+
+				subTypeRightSlabArray.forEach(bioData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(Base64.getDecoder().decode(getAuthFingers(bioData)),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new HashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put("specVersion", captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put("data", dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put("hash", finalHash);
+						data.put("sessionKey", "");
+						data.put("thumbprint", "");
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (JsonProcessingException | InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put("biometrics", listOfBiometric);
+
+			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3")) {
+
+				List<String> subTypeThumbsArray = Arrays.asList(bio.bioSubType);
+
+				subTypeThumbsArray.forEach(bioData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(Base64.getDecoder().decode(getAuthFingers(bioData)),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new HashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put("specVersion", captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put("data", dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put("hash", finalHash);
+						data.put("sessionKey", "");
+						data.put("thumbprint", "");
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (JsonProcessingException | InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put("biometrics", listOfBiometric);
+
+			}
+		} else if (bio.type.equalsIgnoreCase("Iris")) {
+			if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+				BioMetricsDataDto bioMetricsData = oB
+						.readValue(
+								Base64.getDecoder()
+										.decode(new String(Files.readAllBytes(Paths.get(
+												System.getProperty("user.dir") + "/files/MockMDS/auth/L_Iris.txt")))),
+								BioMetricsDataDto.class);
+				Map<String, Object> data = new HashMap<>();
+				NewBioDto bioResponse = new NewBioDto();
+				bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+				bioResponse.setBioValue(bioMetricsData.getBioExtract());
+				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+				bioResponse.setEnv(bioMetricsData.getEnv());
+				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+				bioResponse.setPurpose(bioMetricsData.getPurpose());
+				bioResponse.setRequestedScore(bio.requestedScore);
+				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+				bioResponse.setTimestamp(getTimeStamp());
+				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+				try {
+					data.put("specVersion", captureRequestDto.specVersion);
+
+					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+						Thread.sleep(captureRequestDto.timeout);
+
+					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+					data.put("data", dataBlock);
+
+					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+					String concatenatedHash = previousHashArray[0] + presentHash;
+					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+					data.put("hash", finalHash);
+					data.put("sessionKey", "");
+					data.put("thumbprint", "");
+					listOfBiometric.add(data);
+					previousHashArray[0] = finalHash;
+				} catch (JsonProcessingException | InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				responseMap.put("biometrics", listOfBiometric);
+
+			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+				BioMetricsDataDto bioMetricsData = oB
+						.readValue(
+								Base64.getDecoder()
+										.decode(new String(Files.readAllBytes(Paths.get(
+												System.getProperty("user.dir") + "/files/MockMDS/auth/R_Iris.txt")))),
+								BioMetricsDataDto.class);
+				Map<String, Object> data = new HashMap<>();
+				NewBioDto bioResponse = new NewBioDto();
+				bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+				bioResponse.setBioValue(bioMetricsData.getBioExtract());
+				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+				bioResponse.setEnv(bioMetricsData.getEnv());
+				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+				bioResponse.setPurpose(bioMetricsData.getPurpose());
+				bioResponse.setRequestedScore(bio.requestedScore);
+				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+				bioResponse.setTimestamp(getTimeStamp());
+				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+				try {
+					data.put("specVersion", captureRequestDto.specVersion);
+
+					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+						Thread.sleep(captureRequestDto.timeout);
+
+					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+					data.put("data", dataBlock);
+
+					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+					String concatenatedHash = previousHashArray[0] + presentHash;
+					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+					data.put("hash", finalHash);
+					data.put("sessionKey", "");
+					data.put("thumbprint", "");
+					listOfBiometric.add(data);
+					previousHashArray[0] = finalHash;
+				} catch (JsonProcessingException | InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				responseMap.put("biometrics", listOfBiometric);
+
+			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("3")) {
+
+				List<String> subTypeBothEyesArray = Arrays.asList(bio.bioSubType);
+
+				subTypeBothEyesArray.forEach(bioData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(Base64.getDecoder().decode(getAuthFingers(bioData)),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new HashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put("specVersion", captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put("data", dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put("hash", finalHash);
+						data.put("sessionKey", "");
+						data.put("thumbprint", "");
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (JsonProcessingException | InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put("biometrics", listOfBiometric);
+
+			}
 		} else if (bio.type.equalsIgnoreCase("Face")) {
-			result = new String(Files
-					.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/faceSecureCapture.txt")));
+
+			BioMetricsDataDto bioMetricsData = oB
+					.readValue(
+							Base64.getDecoder()
+									.decode(new String(Files.readAllBytes(Paths
+											.get(System.getProperty("user.dir") + "/files/MockMDS/auth/Face.txt")))),
+							BioMetricsDataDto.class);
+
+			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+			Map<String, Object> data = new HashMap<>();
+			NewBioDto bioResponse = new NewBioDto();
+			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			bioResponse.setEnv(bioMetricsData.getEnv());
+			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+			bioResponse.setPurpose(bioMetricsData.getPurpose());
+			bioResponse.setRequestedScore(bio.requestedScore);
+			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+			bioResponse.setTimestamp(getTimeStamp());
+			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+			try {
+				data.put("specVersion", captureRequestDto.specVersion);
+
+				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+					Thread.sleep(captureRequestDto.timeout);
+
+				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				data.put("data", dataBlock);
+
+				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+				String concatenatedHash = previousHashArray[0] + presentHash;
+				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+				data.put("hash", finalHash);
+				data.put("sessionKey", "");
+				data.put("thumbprint", "");
+				listOfBiometric.add(data);
+				previousHashArray[0] = finalHash;
+			} catch (JsonProcessingException | InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			responseMap.put("biometrics", listOfBiometric);
+
 		}
+
 		response.setContentType("application/json");
 		response = CORSManager.setCors(response);
 		PrintWriter out = response.getWriter();
-		out.println(result);
+		out.println(new JSONObject(responseMap));
+
+	}
+
+	private String getAuthFingers(String name) throws IOException {
+
+		switch (name) {
+		case "Left IndexFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Index.txt")));
+			break;
+		case "Left MiddleFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Middle.txt")));
+			break;
+		case "Left RingFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Ring.txt")));
+			break;
+
+		case "Left LittleFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Little.txt")));
+			break;
+		case "Left Thumb":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Thumb.txt")));
+			break;
+		case "Right IndexFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Index.txt")));
+			break;
+		case "Right MiddleFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Middle.txt")));
+			break;
+
+		case "Right RingFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Ring.txt")));
+			break;
+		case "Right LittleFinger":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Little.txt")));
+			break;
+		case "Right Thumb":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Thumb.txt")));
+			break;
+		case "Left":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Iris.txt")));
+			break;
+		case "Right":
+			name = new String(
+					Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Iris.txt")));
+			break;
+
+		}
+		return name;
+
 	}
 
 	private String getTimeStamp() {
@@ -972,7 +1408,7 @@ public class CaptureRequest extends HttpServlet {
 		pKey = pKey.replaceAll("\\s", "");
 		return pKey;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public String getDigitalFingerId(String moralityType) {
 
@@ -981,21 +1417,21 @@ public class CaptureRequest extends HttpServlet {
 		try {
 			switch (moralityType) {
 
-			case "FIR":
+			case "Finger":
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalFingerId.txt"))),
 						Map.class));
 
 				break;
-			case "IIR":
+			case "Iris":
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalIrisId.txt"))),
 						Map.class));
 
 				break;
-			case "FACE":
+			case "Face":
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalFaceId.txt"))),
@@ -1009,7 +1445,7 @@ public class CaptureRequest extends HttpServlet {
 
 		return digitalId;
 	}
-	
+
 	private String getDigitalModality(Map<String, String> digitalIdMap) {
 
 		String result = null;
