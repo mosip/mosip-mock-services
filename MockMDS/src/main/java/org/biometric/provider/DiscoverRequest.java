@@ -154,17 +154,17 @@ public class DiscoverRequest extends HttpServlet {
 	private DiscoverResponse buildDto(DiscoverDto fingerDiscovery, String modality) {
 
 		DiscoverResponse discoverResponse = new DiscoverResponse();
-		discoverResponse.setCallbackId(fingerDiscovery.getCallbackId());
-		discoverResponse.setCertification(fingerDiscovery.getCertification());
-		discoverResponse.setDeviceCode(fingerDiscovery.getDeviceCode());
-		discoverResponse.setDeviceId(fingerDiscovery.getDeviceId());
-		discoverResponse.setDeviceStatus(fingerDiscovery.getDeviceStatus());
-		discoverResponse.setDeviceSubId(fingerDiscovery.getDeviceSubId());
-		discoverResponse.setDigitalId(getDigitalFingerId(modality));
-		discoverResponse.setPurpose(fingerDiscovery.getPurpose());
-		discoverResponse.setServiceVersion(fingerDiscovery.getServiceVersion());
-		discoverResponse.setSpecVersion(fingerDiscovery.getSpecVersion());
-		discoverResponse.setError(fingerDiscovery.getError());
+		discoverResponse.callbackId = fingerDiscovery.callbackId;
+		discoverResponse.certification = fingerDiscovery.certification;
+		discoverResponse.deviceCode = fingerDiscovery.deviceCode;
+		discoverResponse.deviceId = fingerDiscovery.deviceId;
+		discoverResponse.deviceStatus = fingerDiscovery.deviceStatus;
+		discoverResponse.deviceSubId = fingerDiscovery.deviceSubId;
+		discoverResponse.digitalId = getDigitalFingerId(modality);
+		discoverResponse.purpose = fingerDiscovery.purpose;
+		discoverResponse.serviceVersion = fingerDiscovery.serviceVersion;
+		discoverResponse.specVersion = fingerDiscovery.specVersion;
+		discoverResponse.error = fingerDiscovery.error;
 		return discoverResponse;
 	}
 

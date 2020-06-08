@@ -106,7 +106,7 @@ public class CaptureRequest extends HttpServlet {
 				List<String> noExceptionFingers = new ArrayList<>();
 				noExceptionFingers.addAll(Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"));
 
-				if (bio.getException().length == 0) {
+				if (bio.exception.length == 0) {
 
 					bioList.add(new String(Files
 							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Little.txt"))));
@@ -140,17 +140,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -173,7 +173,7 @@ public class CaptureRequest extends HttpServlet {
 					responseMap.put("biometrics", listOfBiometric);
 				} else {
 
-					List<String> exceptionFingers = Arrays.asList(bio.getException());
+					List<String> exceptionFingers = Arrays.asList(bio.exception);
 
 					getFingers(noExceptionFingers, exceptionFingers).forEach(obj -> {
 
@@ -205,17 +205,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -243,7 +243,7 @@ public class CaptureRequest extends HttpServlet {
 				List<String> noExceptionFingers = new ArrayList<>();
 				noExceptionFingers.addAll(Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger"));
 
-				if (bio.getException().length == 0) {
+				if (bio.exception.length == 0) {
 
 					bioList.add(new String(Files
 							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Little.txt"))));
@@ -278,17 +278,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -312,7 +312,7 @@ public class CaptureRequest extends HttpServlet {
 
 				} else {
 
-					List<String> exceptionFingers = Arrays.asList(bio.getException());
+					List<String> exceptionFingers = Arrays.asList(bio.exception);
 
 					getFingers(noExceptionFingers, exceptionFingers).forEach(obj -> {
 
@@ -344,17 +344,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -382,7 +382,7 @@ public class CaptureRequest extends HttpServlet {
 				List<String> noExceptionFingers = new ArrayList<>();
 				noExceptionFingers.addAll(Arrays.asList("Right Thumb", "Left Thumb"));
 
-				if (bio.getException().length == 0) {
+				if (bio.exception.length == 0) {
 
 					bioList.add(new String(Files
 							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Thumb.txt"))));
@@ -410,17 +410,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -444,7 +444,7 @@ public class CaptureRequest extends HttpServlet {
 
 				} else {
 
-					List<String> exceptionFingers = Arrays.asList(bio.getException());
+					List<String> exceptionFingers = Arrays.asList(bio.exception);
 
 					getFingers(noExceptionFingers, exceptionFingers).forEach(obj -> {
 
@@ -476,17 +476,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -531,17 +531,17 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setEnv(bioMetricsData.getEnv());
 				bioResponse.setDigitalId(bioMetricsData.getDigitalId());
 				bioResponse.setPurpose(bioMetricsData.getPurpose());
-				bioResponse.setRequestedScore(bio.getRequestedScore());
+				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
 				bioResponse.setTransactionId(bioMetricsData.getTransactionId());
 				bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
 
 				try {
-					data.put("specVersion", captureRequestDto.getSpecVersion());
+					data.put("specVersion", captureRequestDto.specVersion);
 
-					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.getRequestedScore())
-						Thread.sleep(captureRequestDto.getTimeout());
+					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+						Thread.sleep(captureRequestDto.timeout);
 
 					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 					data.put("data", dataBlock);
@@ -580,17 +580,17 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setEnv(bioMetricsData.getEnv());
 				bioResponse.setDigitalId(bioMetricsData.getDigitalId());
 				bioResponse.setPurpose(bioMetricsData.getPurpose());
-				bioResponse.setRequestedScore(bio.getRequestedScore());
+				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
 				bioResponse.setTransactionId(bioMetricsData.getTransactionId());
 				bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
 
 				try {
-					data.put("specVersion", captureRequestDto.getSpecVersion());
+					data.put("specVersion", captureRequestDto.specVersion);
 
-					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.getRequestedScore())
-						Thread.sleep(captureRequestDto.getTimeout());
+					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+						Thread.sleep(captureRequestDto.timeout);
 
 					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 					data.put("data", dataBlock);
@@ -614,7 +614,7 @@ public class CaptureRequest extends HttpServlet {
 				List<String> noExceptionIris = new ArrayList<>();
 				noExceptionIris.addAll(Arrays.asList("Left", "Right"));
 
-				if (bio.getException().length == 0) {
+				if (bio.exception.length == 0) {
 
 					bioList.add(new String(Files
 							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Iris.txt"))));
@@ -642,17 +642,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(bioVal.getDigitalId());
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -676,7 +676,7 @@ public class CaptureRequest extends HttpServlet {
 
 				} else {
 
-					List<String> exceptionIris = Arrays.asList(bio.getException());
+					List<String> exceptionIris = Arrays.asList(bio.exception);
 
 					getFingers(noExceptionIris, exceptionIris).forEach(obj -> {
 
@@ -708,17 +708,17 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setEnv(bioVal.getEnv());
 						bioResponse.setDigitalId(bioVal.getDigitalId());
 						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.getRequestedScore());
+						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
 						bioResponse.setTransactionId(bioVal.getTransactionId());
 						bioResponse.setRegistrationId(bioVal.getRegistrationId());
 
 						try {
-							data.put("specVersion", captureRequestDto.getSpecVersion());
+							data.put("specVersion", captureRequestDto.specVersion);
 
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.getRequestedScore())
-								Thread.sleep(captureRequestDto.getTimeout());
+							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+								Thread.sleep(captureRequestDto.timeout);
 
 							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 							data.put("data", dataBlock);
@@ -762,17 +762,17 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setEnv(bioMetricsData.getEnv());
 			bioResponse.setDigitalId(bioMetricsData.getDigitalId());
 			bioResponse.setPurpose(bioMetricsData.getPurpose());
-			bioResponse.setRequestedScore(bio.getRequestedScore());
+			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
 			bioResponse.setTransactionId(bioMetricsData.getTransactionId());
 			bioResponse.setRegistrationId(bioMetricsData.getRegistrationId());
 
 			try {
-				data.put("specVersion", captureRequestDto.getSpecVersion());
+				data.put("specVersion", captureRequestDto.specVersion);
 
-				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.getRequestedScore())
-					Thread.sleep(captureRequestDto.getTimeout());
+				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+					Thread.sleep(captureRequestDto.timeout);
 
 				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
 				data.put("data", dataBlock);

@@ -10,16 +10,16 @@ import lombok.Setter;
 @Setter
 public class DiscoverDto {
 
-	private String deviceId;
-	private String deviceStatus;
-	private String certification;
-	private String serviceVersion;
-	private String callbackId;
-	private String digitalId;
-	private String deviceCode;
-	private String purpose;
-	private Map<String, String> error;
-	private String [] specVersion;
-	private String [] deviceSubId;
+	public String deviceId;
+	public String deviceStatus;
+	public String certification;
+	public String serviceVersion;
+	public String callbackId;
+	public String digitalId;
+	public String deviceCode;
+	public String purpose;
+	public Map<String, String> error;
+	public String [] specVersion;
+	public String [] deviceSubId;
 
 }
