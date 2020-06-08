@@ -142,7 +142,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -206,7 +206,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -279,7 +279,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -344,7 +344,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -409,7 +409,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -474,7 +474,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -528,7 +528,7 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+				bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 				try {
 					data.put("specVersion", captureRequestDto.specVersion);
@@ -576,7 +576,7 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+				bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 				try {
 					data.put("specVersion", captureRequestDto.specVersion);
@@ -637,7 +637,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -702,7 +702,7 @@ public class CaptureRequest extends HttpServlet {
 						bioResponse.setRequestedScore(bio.requestedScore);
 						bioResponse.setQualityScore(bioVal.getQualityScore());
 						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+						bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 						try {
 							data.put("specVersion", captureRequestDto.specVersion);
@@ -755,7 +755,7 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
-			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+			bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 			try {
 				data.put("specVersion", captureRequestDto.specVersion);
@@ -838,7 +838,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
 						data.put("specVersion", captureRequestDto.specVersion);
@@ -900,7 +900,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
 						data.put("specVersion", captureRequestDto.specVersion);
@@ -961,7 +961,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
 						data.put("specVersion", captureRequestDto.specVersion);
@@ -1015,7 +1015,7 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+				bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 				try {
 					data.put("specVersion", captureRequestDto.specVersion);
@@ -1065,7 +1065,7 @@ public class CaptureRequest extends HttpServlet {
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+				bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 				try {
 					data.put("specVersion", captureRequestDto.specVersion);
@@ -1124,7 +1124,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
 						data.put("specVersion", captureRequestDto.specVersion);
@@ -1178,7 +1178,7 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
-			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+			bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 			try {
 				data.put("specVersion", captureRequestDto.specVersion);
