@@ -262,7 +262,7 @@ public class CaptureRequest extends HttpServlet {
 
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
+    
 			BioMetricsDataDto bioMetricsData = oB.readValue(
 					Base64.getDecoder()
 							.decode(new String(Files.readAllBytes(
@@ -283,6 +283,7 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 			try {
+        
 				data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
@@ -343,6 +344,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
 					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
 
 					try {
 						data.put(SPEC_VERSION, captureRequestDto.specVersion);
@@ -514,10 +516,8 @@ public class CaptureRequest extends HttpServlet {
 					} catch (JsonProcessingException | InterruptedException e) {
 						e.printStackTrace();
 					}
-
 				});
 				responseMap.put(BIOMETRICS, listOfBiometric);
-
 			}
 		} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3")) {
 
@@ -534,11 +534,11 @@ public class CaptureRequest extends HttpServlet {
 										.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
 												+ "/files/MockMDS/registration/" + thumbData + "txt")))),
 								BioMetricsDataDto.class);
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 					bioMetricsDataDtoList.add(bioMetricsData);
-
 				});
 
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
@@ -582,9 +582,7 @@ public class CaptureRequest extends HttpServlet {
 
 				});
 				responseMap.put(BIOMETRICS, listOfBiometric);
-
 			}
-
 		}
 		return responseMap;
 	}
@@ -701,6 +699,7 @@ public class CaptureRequest extends HttpServlet {
 		return responseMap;
 	}
 
+
 	/**
 	 * Gets the auth iris modality.
 	 *
@@ -715,7 +714,6 @@ public class CaptureRequest extends HttpServlet {
 			CaptureRequestDto captureRequestDto) throws JsonParseException, JsonMappingException, IOException {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
-
 		if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
 
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
@@ -789,7 +787,7 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
-			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+			bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 			try {
 				data.put(SPEC_VERSION, captureRequestDto.specVersion);
@@ -926,7 +924,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
 						data.put(SPEC_VERSION, captureRequestDto.specVersion);
@@ -988,7 +986,7 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
 						data.put(SPEC_VERSION, captureRequestDto.specVersion);
@@ -1049,10 +1047,11 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
-						data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);	
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
@@ -1077,7 +1076,6 @@ public class CaptureRequest extends HttpServlet {
 
 				});
 				responseMap.put(BIOMETRICS, listOfBiometric);
-
 			}
 		}
 		return responseMap;

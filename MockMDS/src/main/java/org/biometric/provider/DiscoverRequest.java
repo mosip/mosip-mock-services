@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,9 +29,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
-import io.mosip.registration.mdm.dto.DigitalId;
 import io.mosip.registration.mdm.dto.DiscoverDto;
 import io.mosip.registration.mdm.dto.DiscoverResponse;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class DiscoverRequest extends HttpServlet {
 
@@ -70,12 +70,17 @@ public class DiscoverRequest extends HttpServlet {
 			sT = sT + s;
 		}
 
+		if(StringUtils.isBlank(sT))
+		{
+			sT = "{\"type\":\"Biometric Device\"}";
+		}
+
 		String[] splitString = sT.replace("{", "").replace("}", "").split(":");
 		List<String> myList = Arrays.asList(splitString[1].split(","));
 		List<DiscoverResponse> responseList = new ArrayList<DiscoverResponse>();
 		myList.forEach(req -> {
 
-			if (req.contains("Fingerprint")) {
+			if (StringUtils.containsIgnoreCase(req, "Fingerprint")) {
 
 				try {
 					@SuppressWarnings("unchecked")
@@ -90,7 +95,7 @@ public class DiscoverRequest extends HttpServlet {
 					e.printStackTrace();
 				}
 
-			} else if (req.contains("Face")) {
+			} else if (StringUtils.containsIgnoreCase(req, "Face")) {
 
 				try {
 					@SuppressWarnings("unchecked")
@@ -105,7 +110,7 @@ public class DiscoverRequest extends HttpServlet {
 					e.printStackTrace();
 				}
 
-			} else if (req.contains("Iris")) {
+			} else if (StringUtils.containsIgnoreCase(req, "Iris")) {
 
 				try {
 					@SuppressWarnings("unchecked")
@@ -119,7 +124,7 @@ public class DiscoverRequest extends HttpServlet {
 					e.printStackTrace();
 				}
 
-			} else if (req.contains("Biometric Device")) {
+			} else if (StringUtils.containsIgnoreCase(req, "Biometric Device")) {
 
 				List<String> allModalityList = Arrays.asList("FIR", "IIR", "FACE");
 				allModalityList.forEach(obj -> {
