@@ -34,7 +34,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.kernel.core.util.HMACUtils;
@@ -54,8 +56,15 @@ public class CaptureRequest extends HttpServlet {
 
 	private static final long serialVersionUID = -7250199164515356577L;
 
-	private static final String startheader = "---BEGIN PRIVATE KEY---";
-	private static final String endheader = "---END PRIVATE KEY---";
+	private static final String FACE = "Face";
+	private static final String IRIS = "Iris";
+	private static final String FINGER = "Finger";
+	private static final String SPEC_VERSION = "specVersion";
+	private static final String DATA = "data";
+	private static final String HASH = "hash";
+	private static final String SESSION_KEY = "sessionKey";
+	private static final String THUMB_PRINT = "thumbprint";
+	private static final String BIOMETRICS ="biometrics";
 
 	ObjectMapper oB = null;
 
@@ -81,6 +90,14 @@ public class CaptureRequest extends HttpServlet {
 			doRegistrationCapture(request, response);
 	}
 
+	/**
+	 * Do registration capture.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	protected void doRegistrationCapture(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if (oB == null)
@@ -94,655 +111,622 @@ public class CaptureRequest extends HttpServlet {
 		CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB.readValue(sT.getBytes(),
 				CaptureRequestDto.class));
 		CaptureRequestDeviceDetailDto bio = captureRequestDto.mosipBioRequest.get(0);
-		String result = "";
-		List<String> bioList = new ArrayList<>();
+		Map<String, Object> responseMap = new HashMap<>();
+
+		try {
+			if (bio.getType().equalsIgnoreCase(FINGER))
+				responseMap = getFingersModality(bio, captureRequestDto);
+			if (bio.getType().equalsIgnoreCase(IRIS))
+				responseMap = getIrisModality(bio, captureRequestDto);
+			if (bio.getType().equalsIgnoreCase(FACE))
+				responseMap = getFaceModality(bio, captureRequestDto);
+		} catch (Exception exception) {
+
+			exception.printStackTrace();
+
+			Map<String, Object> errorMap = new LinkedHashMap<>();
+			errorMap.put("errorcode", "101");
+			errorMap.put("errorinfo", "Invalid JSON Value");
+			responseMap.put("error", errorMap);
+
+		}
+
+		response.setContentType("application/json");
+		response = CORSManager.setCors(response);
+		PrintWriter out = response.getWriter();
+		out.println(new JSONObject(responseMap));
+	}
+
+	/**
+	 * Gets the face modality.
+	 *
+	 * @param bio the bio
+	 * @param captureRequestDto the capture request dto
+	 * @return the face modality
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private Map<String, Object> getFaceModality(CaptureRequestDeviceDetailDto bio, CaptureRequestDto captureRequestDto)
+			throws IOException {
+		Map<String, Object> responseMap = new LinkedHashMap<>();
+		BioMetricsDataDto bioMetricsData = oB
+				.readValue(
+						Base64.getDecoder()
+								.decode(new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/files/MockMDS/Face.txt")))),
+						BioMetricsDataDto.class);
+
+		List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+		String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+		Map<String, Object> data = new LinkedHashMap<>();
+		NewBioDto bioResponse = new NewBioDto();
+		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+		bioResponse.setBioValue(bioMetricsData.getBioExtract());
+		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+		bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+		bioResponse.setEnv(bioMetricsData.getEnv());
+		bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+		bioResponse.setPurpose(bioMetricsData.getPurpose());
+		bioResponse.setRequestedScore(bio.requestedScore);
+		bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+		bioResponse.setTimestamp(getTimeStamp());
+		bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+		try {
+			data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+			if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+				Thread.sleep(captureRequestDto.timeout);
+
+			String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+			data.put(DATA, dataBlock);
+
+			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+			String concatenatedHash = previousHashArray[0] + presentHash;
+			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+			data.put(HASH, finalHash);
+			listOfBiometric.add(data);
+			previousHashArray[0] = finalHash;
+		} catch (JsonProcessingException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		responseMap.put(BIOMETRICS, listOfBiometric);
+		return responseMap;
+	}
+
+	/**
+	 * Gets the iris modality.
+	 *
+	 * @param bio the bio
+	 * @param captureRequestDto the capture request dto
+	 * @return the iris modality
+	 * @throws JsonParseException the json parse exception
+	 * @throws JsonMappingException the json mapping exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private Map<String, Object> getIrisModality(CaptureRequestDeviceDetailDto bio, CaptureRequestDto captureRequestDto)
+			throws JsonParseException, JsonMappingException, IOException {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
-		if (bio.type.equalsIgnoreCase("Finger")) {
-			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
-
-				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(
-						Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"));
-
-				if (bio.exception.length == 0) {
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Little.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Ring.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Middle.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Index.txt"))));
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-					bioMetricsDataDtoList.forEach(bioVal -> {
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-				} else {
-
-					List<String> exceptionFingers = Arrays.asList(bio.exception);
-
-					getFingers(noExceptionFingers, exceptionFingers).forEach(obj -> {
-
-						try {
-							bioList.add(getNonExceptionBio(obj));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-					bioMetricsDataDtoList.forEach(bioVal -> {
-
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-				}
-
-			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
-
-				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger",
-						"Right LittleFinger"));
-
-				if (bio.exception.length == 0) {
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Little.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Ring.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Middle.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Index.txt"))));
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-					bioMetricsDataDtoList.forEach(bioVal -> {
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-
-				} else {
-
-					List<String> exceptionFingers = Arrays.asList(bio.exception);
-
-					getFingers(noExceptionFingers, exceptionFingers).forEach(obj -> {
-
-						try {
-							bioList.add(getNonExceptionBio(obj));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-					bioMetricsDataDtoList.forEach(bioVal -> {
-
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-				}
-
-			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3")) {
-
-				List<String> noExceptionFingers = new ArrayList<>();
-				noExceptionFingers.addAll(Arrays.asList("Right Thumb", "Left Thumb"));
-
-				if (bio.exception.length == 0) {
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Thumb.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Thumb.txt"))));
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-					bioMetricsDataDtoList.forEach(bioVal -> {
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-
-				} else {
-
-					List<String> exceptionFingers = Arrays.asList(bio.exception);
-
-					getFingers(noExceptionFingers, exceptionFingers).forEach(obj -> {
-
-						try {
-							bioList.add(getNonExceptionBio(obj));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-					bioMetricsDataDtoList.forEach(bioVal -> {
-
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-				}
-
-			}
-		} else if (bio.type.equalsIgnoreCase("Iris")) {
-			if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
-
-				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-				BioMetricsDataDto bioMetricsData = oB
-						.readValue(
-								Base64.getDecoder()
-										.decode(new String(Files.readAllBytes(Paths
-												.get(System.getProperty("user.dir") + "/files/MockMDS/L_Iris.txt")))),
-								BioMetricsDataDto.class);
-				Map<String, Object> data = new HashMap<>();
-				NewBioDto bioResponse = new NewBioDto();
-				bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-				bioResponse.setBioValue(bioMetricsData.getBioExtract());
-				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
-				bioResponse.setEnv(bioMetricsData.getEnv());
-				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-				bioResponse.setPurpose(bioMetricsData.getPurpose());
-				bioResponse.setRequestedScore(bio.requestedScore);
-				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
-				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-				try {
-					data.put("specVersion", captureRequestDto.specVersion);
-
-					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
-						Thread.sleep(captureRequestDto.timeout);
-
-					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-					data.put("data", dataBlock);
-
-					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-					String concatenatedHash = previousHashArray[0] + presentHash;
-					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-					data.put("hash", finalHash);
-					listOfBiometric.add(data);
-					previousHashArray[0] = finalHash;
-				} catch (JsonProcessingException | InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				responseMap.put("biometrics", listOfBiometric);
-
-			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
-
-				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-				BioMetricsDataDto bioMetricsData = oB
-						.readValue(
-								Base64.getDecoder()
-										.decode(new String(Files.readAllBytes(Paths
-												.get(System.getProperty("user.dir") + "/files/MockMDS/R_Iris.txt")))),
-								BioMetricsDataDto.class);
-				Map<String, Object> data = new HashMap<>();
-				NewBioDto bioResponse = new NewBioDto();
-				bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-				bioResponse.setBioValue(bioMetricsData.getBioExtract());
-				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
-				bioResponse.setEnv(bioMetricsData.getEnv());
-				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-				bioResponse.setPurpose(bioMetricsData.getPurpose());
-				bioResponse.setRequestedScore(bio.requestedScore);
-				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
-				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-				try {
-					data.put("specVersion", captureRequestDto.specVersion);
-
-					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
-						Thread.sleep(captureRequestDto.timeout);
-
-					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-					data.put("data", dataBlock);
-
-					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-					String concatenatedHash = previousHashArray[0] + presentHash;
-					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-					data.put("hash", finalHash);
-					listOfBiometric.add(data);
-					previousHashArray[0] = finalHash;
-				} catch (JsonProcessingException | InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				responseMap.put("biometrics", listOfBiometric);
-
-			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("3")) {
-
-				List<String> noExceptionIris = new ArrayList<>();
-				noExceptionIris.addAll(Arrays.asList("Left", "Right"));
-
-				if (bio.exception.length == 0) {
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Iris.txt"))));
-
-					bioList.add(new String(Files
-							.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Iris.txt"))));
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-					bioMetricsDataDtoList.forEach(bioVal -> {
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-
-				} else {
-
-					List<String> exceptionIris = Arrays.asList(bio.exception);
-
-					getFingers(noExceptionIris, exceptionIris).forEach(obj -> {
-
-						try {
-							bioList.add(getNonExceptionBio(obj));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-
-					for (String bioData : bioList) {
-
-						BioMetricsDataDto bioMetricsData = oB.readValue(Base64.getDecoder().decode(bioData),
-								BioMetricsDataDto.class);
-						bioMetricsDataDtoList.add(bioMetricsData);
-
-					}
-
-					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-					String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-					bioMetricsDataDtoList.forEach(bioVal -> {
-
-						Map<String, Object> data = new HashMap<>();
-						NewBioDto bioResponse = new NewBioDto();
-						bioResponse.setBioSubType(bioVal.getBioSubType());
-						bioResponse.setBioValue(bioVal.getBioExtract());
-						bioResponse.setDeviceCode(bioVal.getDeviceCode());
-						bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-						bioResponse.setEnv(bioVal.getEnv());
-						bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-						bioResponse.setPurpose(bioVal.getPurpose());
-						bioResponse.setRequestedScore(bio.requestedScore);
-						bioResponse.setQualityScore(bioVal.getQualityScore());
-						bioResponse.setTimestamp(getTimeStamp());
-						bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-						try {
-							data.put("specVersion", captureRequestDto.specVersion);
-
-							if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-								Thread.sleep(captureRequestDto.timeout);
-
-							String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-							data.put("data", dataBlock);
-
-							String presentHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-							String concatenatedHash = previousHashArray[0] + presentHash;
-							String finalHash = HMACUtils
-									.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-							data.put("hash", finalHash);
-							listOfBiometric.add(data);
-							previousHashArray[0] = finalHash;
-						} catch (JsonProcessingException | InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					});
-					responseMap.put("biometrics", listOfBiometric);
-				}
-
-			}
-		} else if (bio.type.equalsIgnoreCase("Face")) {
-
-			BioMetricsDataDto bioMetricsData = oB.readValue(
-					Base64.getDecoder()
-							.decode(new String(Files.readAllBytes(
-									Paths.get(System.getProperty("user.dir") + "/files/MockMDS/Face.txt")))),
-					BioMetricsDataDto.class);
+		if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
 
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
+			BioMetricsDataDto bioMetricsData = oB.readValue(
+					Base64.getDecoder()
+							.decode(new String(Files.readAllBytes(
+									Paths.get(System.getProperty("user.dir") + "/files/MockMDS/L_Iris.txt")))),
+					BioMetricsDataDto.class);
+			Map<String, Object> data = new LinkedHashMap<>();
+			NewBioDto bioResponse = new NewBioDto();
+			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			bioResponse.setEnv(bioMetricsData.getEnv());
+			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+			bioResponse.setPurpose(bioMetricsData.getPurpose());
+			bioResponse.setRequestedScore(bio.requestedScore);
+			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+			bioResponse.setTimestamp(getTimeStamp());
+			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+			try {
+				data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+					Thread.sleep(captureRequestDto.timeout);
+
+				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				data.put(DATA, dataBlock);
+
+				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+				String concatenatedHash = previousHashArray[0] + presentHash;
+				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+				data.put(HASH, finalHash);
+				listOfBiometric.add(data);
+				previousHashArray[0] = finalHash;
+			} catch (JsonProcessingException | InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			responseMap.put(BIOMETRICS, listOfBiometric);
+
+		} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
+
+			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+			BioMetricsDataDto bioMetricsData = oB.readValue(
+					Base64.getDecoder()
+							.decode(new String(Files.readAllBytes(
+									Paths.get(System.getProperty("user.dir") + "/files/MockMDS/R_Iris.txt")))),
+					BioMetricsDataDto.class);
+			Map<String, Object> data = new LinkedHashMap<>();
+			NewBioDto bioResponse = new NewBioDto();
+			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			bioResponse.setEnv(bioMetricsData.getEnv());
+			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+			bioResponse.setPurpose(bioMetricsData.getPurpose());
+			bioResponse.setRequestedScore(bio.requestedScore);
+			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+			bioResponse.setTimestamp(getTimeStamp());
+			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+			try {
+				data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+					Thread.sleep(captureRequestDto.timeout);
+
+				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				data.put(DATA, dataBlock);
+
+				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+				String concatenatedHash = previousHashArray[0] + presentHash;
+				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+				data.put(HASH, finalHash);
+				listOfBiometric.add(data);
+				previousHashArray[0] = finalHash;
+			} catch (JsonProcessingException | InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			responseMap.put(BIOMETRICS, listOfBiometric);
+
+		} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("3")) {
+
+			if (bio.bioSubType.length > 0) {
+
+				List<String> dualIris = Arrays.asList(bio.bioSubType);
+
+				dualIris.forEach(irisData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(
+								Base64.getDecoder()
+										.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+												+ "/files/MockMDS/registration/" + irisData + ".txt")))),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new LinkedHashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put(DATA, dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put(HASH, finalHash);
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (JsonProcessingException | InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put(BIOMETRICS, listOfBiometric);
+
+			}
+
+		}
+
+		return responseMap;
+	}
+
+	/**
+	 * Gets the fingers modality.
+	 *
+	 * @param bio the bio
+	 * @param captureRequestDto the capture request dto
+	 * @return the fingers modality
+	 */
+	private Map<String, Object> getFingersModality(CaptureRequestDeviceDetailDto bio,
+			CaptureRequestDto captureRequestDto) {
+		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
+		Map<String, Object> responseMap = new LinkedHashMap<>();
+		if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
+
+			if (bio.bioSubType.length > 0) {
+
+				List<String> leftSlapFingers = Arrays.asList(bio.bioSubType);
+
+				leftSlapFingers.forEach(leftData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(
+								Base64.getDecoder()
+										.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+												+ "/files/MockMDS/registration/" + leftData + ".txt")))),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new LinkedHashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put(DATA, dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put(HASH, finalHash);
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put(BIOMETRICS, listOfBiometric);
+			}
+
+		} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
+
+			if (bio.bioSubType.length > 0) {
+
+				List<String> rightSlapFingers = Arrays.asList(bio.bioSubType);
+
+				rightSlapFingers.forEach(rightData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(
+								Base64.getDecoder()
+										.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+												+ "/files/MockMDS/registration/" + rightData + "txt")))),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new LinkedHashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put(DATA, dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put(HASH, finalHash);
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (JsonProcessingException | InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put(BIOMETRICS, listOfBiometric);
+
+			}
+		} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3")) {
+
+			if (bio.bioSubType.length > 0) {
+
+				List<String> thumbFingers = Arrays.asList(bio.bioSubType);
+
+				thumbFingers.forEach(thumbData -> {
+
+					BioMetricsDataDto bioMetricsData = null;
+					try {
+						bioMetricsData = oB.readValue(
+								Base64.getDecoder()
+										.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+												+ "/files/MockMDS/registration/" + thumbData + "txt")))),
+								BioMetricsDataDto.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					bioMetricsDataDtoList.add(bioMetricsData);
+
+				});
+
+				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+				bioMetricsDataDtoList.forEach(bioVal -> {
+					Map<String, Object> data = new LinkedHashMap<>();
+					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioValue(bioVal.getBioExtract());
+					bioResponse.setDeviceCode(bioVal.getDeviceCode());
+					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					bioResponse.setEnv(bioVal.getEnv());
+					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+					bioResponse.setPurpose(bioVal.getPurpose());
+					bioResponse.setRequestedScore(bio.requestedScore);
+					bioResponse.setQualityScore(bioVal.getQualityScore());
+					bioResponse.setTimestamp(getTimeStamp());
+					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+					try {
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+							Thread.sleep(captureRequestDto.timeout);
+
+						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						data.put(DATA, dataBlock);
+
+						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+						String concatenatedHash = previousHashArray[0] + presentHash;
+						String finalHash = HMACUtils
+								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+						data.put(HASH, finalHash);
+						listOfBiometric.add(data);
+						previousHashArray[0] = finalHash;
+					} catch (JsonProcessingException | InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				});
+				responseMap.put(BIOMETRICS, listOfBiometric);
+
+			}
+
+		}
+		return responseMap;
+	}
+
+	/**
+	 * Do auth capture.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	protected void doAuthCapture(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		if (oB == null)
+			oB = new ObjectMapper();
+		BufferedReader bR = request.getReader();
+		String s = "";
+		String sT = "";
+		while ((s = bR.readLine()) != null) {
+			sT = sT + s;
+		}
+		CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB.readValue(sT.getBytes(),
+				CaptureRequestDto.class));
+		CaptureRequestDeviceDetailDto bio = captureRequestDto.mosipBioRequest.get(0);
+
+		Map<String, Object> responseMap = new HashMap<>();
+		try {
+			if (bio.getType().equalsIgnoreCase(FINGER))
+				responseMap = getAuthFingersModality(bio, captureRequestDto);
+			if (bio.getType().equalsIgnoreCase(IRIS))
+				responseMap = getAuthIrisModality(bio, captureRequestDto);
+			if (bio.getType().equalsIgnoreCase(FACE))
+				responseMap = getAuthFaceModality(bio, captureRequestDto);
+		} catch (Exception exception) {
+
+			exception.printStackTrace();
+
+			Map<String, Object> errorMap = new LinkedHashMap<>();
+			errorMap.put("errorcode", "101");
+			errorMap.put("errorinfo", "Invalid JSON Value");
+			responseMap.put("error", errorMap);
+
+		}
+		response.setContentType("application/json");
+		response = CORSManager.setCors(response);
+		PrintWriter out = response.getWriter();
+		out.println(new JSONObject(responseMap));
+
+	}
+
+	/**
+	 * Gets the auth face modality.
+	 *
+	 * @param bio the bio
+	 * @param captureRequestDto the capture request dto
+	 * @return the auth face modality
+	 * @throws JsonParseException the json parse exception
+	 * @throws JsonMappingException the json mapping exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private Map<String, Object> getAuthFaceModality(CaptureRequestDeviceDetailDto bio,
+			CaptureRequestDto captureRequestDto) throws JsonParseException, JsonMappingException, IOException {
+
+		Map<String, Object> responseMap = new LinkedHashMap<>();
+		BioMetricsDataDto bioMetricsData = oB.readValue(
+				Base64.getDecoder()
+						.decode(new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/Face.txt")))),
+				BioMetricsDataDto.class);
+
+		List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+		String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+		Map<String, Object> data = new HashMap<>();
+		NewBioDto bioResponse = new NewBioDto();
+		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+		bioResponse.setBioValue(bioMetricsData.getBioExtract());
+		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+		bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+		bioResponse.setEnv(bioMetricsData.getEnv());
+		bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+		bioResponse.setPurpose(bioMetricsData.getPurpose());
+		bioResponse.setRequestedScore(bio.requestedScore);
+		bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+		bioResponse.setTimestamp(getTimeStamp());
+		bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+		try {
+			data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+			if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+				Thread.sleep(captureRequestDto.timeout);
+
+			String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+			data.put(DATA, dataBlock);
+
+			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+			String concatenatedHash = previousHashArray[0] + presentHash;
+			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+			data.put(HASH, finalHash);
+			data.put(SESSION_KEY, "");
+			data.put(THUMB_PRINT, "");
+			listOfBiometric.add(data);
+			previousHashArray[0] = finalHash;
+		} catch (JsonProcessingException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		responseMap.put(BIOMETRICS, listOfBiometric);
+
+		return responseMap;
+	}
+
+	/**
+	 * Gets the auth iris modality.
+	 *
+	 * @param bio the bio
+	 * @param captureRequestDto the capture request dto
+	 * @return the auth iris modality
+	 * @throws JsonParseException the json parse exception
+	 * @throws JsonMappingException the json mapping exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private Map<String, Object> getAuthIrisModality(CaptureRequestDeviceDetailDto bio,
+			CaptureRequestDto captureRequestDto) throws JsonParseException, JsonMappingException, IOException {
+		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
+		Map<String, Object> responseMap = new LinkedHashMap<>();
+
+		if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
+
+			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+			BioMetricsDataDto bioMetricsData = oB
+					.readValue(
+							Base64.getDecoder()
+									.decode(new String(Files.readAllBytes(Paths
+											.get(System.getProperty("user.dir") + "/files/MockMDS/auth/L_Iris.txt")))),
+							BioMetricsDataDto.class);
 			Map<String, Object> data = new HashMap<>();
 			NewBioDto bioResponse = new NewBioDto();
 			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
@@ -758,53 +742,157 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 			try {
-				data.put("specVersion", captureRequestDto.specVersion);
+				data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 					Thread.sleep(captureRequestDto.timeout);
 
 				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-				data.put("data", dataBlock);
+				data.put(DATA, dataBlock);
 
 				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
 
 				String concatenatedHash = previousHashArray[0] + presentHash;
 				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
-				data.put("hash", finalHash);
+				data.put(HASH, finalHash);
+				data.put(SESSION_KEY, "");
+				data.put(THUMB_PRINT, "");
 				listOfBiometric.add(data);
 				previousHashArray[0] = finalHash;
 			} catch (JsonProcessingException | InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			responseMap.put("biometrics", listOfBiometric);
+			responseMap.put(BIOMETRICS, listOfBiometric);
+
+		} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
+
+			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+
+			BioMetricsDataDto bioMetricsData = oB
+					.readValue(
+							Base64.getDecoder()
+									.decode(new String(Files.readAllBytes(Paths
+											.get(System.getProperty("user.dir") + "/files/MockMDS/auth/R_Iris.txt")))),
+							BioMetricsDataDto.class);
+			Map<String, Object> data = new HashMap<>();
+			NewBioDto bioResponse = new NewBioDto();
+			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			bioResponse.setEnv(bioMetricsData.getEnv());
+			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+			bioResponse.setPurpose(bioMetricsData.getPurpose());
+			bioResponse.setRequestedScore(bio.requestedScore);
+			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+			bioResponse.setTimestamp(getTimeStamp());
+			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+			try {
+				data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
+					Thread.sleep(captureRequestDto.timeout);
+
+				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				data.put(DATA, dataBlock);
+
+				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+				String concatenatedHash = previousHashArray[0] + presentHash;
+				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+				data.put(HASH, finalHash);
+				data.put(SESSION_KEY, "");
+				data.put(THUMB_PRINT, "");
+				listOfBiometric.add(data);
+				previousHashArray[0] = finalHash;
+			} catch (JsonProcessingException | InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			responseMap.put(BIOMETRICS, listOfBiometric);
+
+		} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("3")) {
+
+			List<String> subTypeBothEyesArray = Arrays.asList(bio.bioSubType);
+
+			subTypeBothEyesArray.forEach(bioData -> {
+
+				BioMetricsDataDto bioMetricsData = null;
+				try {
+					bioMetricsData = oB.readValue(Base64.getDecoder().decode(getAuthFingers(bioData)),
+							BioMetricsDataDto.class);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				bioMetricsDataDtoList.add(bioMetricsData);
+
+			});
+
+			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
+			bioMetricsDataDtoList.forEach(bioVal -> {
+				Map<String, Object> data = new HashMap<>();
+				NewBioDto bioResponse = new NewBioDto();
+				bioResponse.setBioSubType(bioVal.getBioSubType());
+				bioResponse.setBioValue(bioVal.getBioExtract());
+				bioResponse.setDeviceCode(bioVal.getDeviceCode());
+				bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+				bioResponse.setEnv(bioVal.getEnv());
+				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+				bioResponse.setPurpose(bioVal.getPurpose());
+				bioResponse.setRequestedScore(bio.requestedScore);
+				bioResponse.setQualityScore(bioVal.getQualityScore());
+				bioResponse.setTimestamp(getTimeStamp());
+				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
+
+				try {
+					data.put(SPEC_VERSION, captureRequestDto.specVersion);
+
+					if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
+						Thread.sleep(captureRequestDto.timeout);
+
+					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+					data.put(DATA, dataBlock);
+
+					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+
+					String concatenatedHash = previousHashArray[0] + presentHash;
+					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+
+					data.put(HASH, finalHash);
+					data.put(SESSION_KEY, "");
+					data.put(THUMB_PRINT, "");
+					listOfBiometric.add(data);
+					previousHashArray[0] = finalHash;
+				} catch (JsonProcessingException | InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			});
+			responseMap.put(BIOMETRICS, listOfBiometric);
 
 		}
 
-		response.setContentType("application/json");
-		response = CORSManager.setCors(response);
-		PrintWriter out = response.getWriter();
-		out.println(new JSONObject(responseMap));
+		return responseMap;
 	}
 
-	protected void doAuthCapture(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		if (oB == null)
-			oB = new ObjectMapper();
-		BufferedReader bR = request.getReader();
-		String s = "";
-		String sT = "";
-		while ((s = bR.readLine()) != null) {
-			sT = sT + s;
-		}
-		CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB.readValue(sT.getBytes(),
-				CaptureRequestDto.class));
-		CaptureRequestDeviceDetailDto bio = captureRequestDto.mosipBioRequest.get(0);
-
+	/**
+	 * Gets the auth fingers modality.
+	 *
+	 * @param bio the bio
+	 * @param captureRequestDto the capture request dto
+	 * @return the auth fingers modality
+	 */
+	private Map<String, Object> getAuthFingersModality(CaptureRequestDeviceDetailDto bio,
+			CaptureRequestDto captureRequestDto) {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
-		if (bio.type.equalsIgnoreCase("Finger")) {
+		if (bio.type.equalsIgnoreCase(FINGER)) {
 			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
 
 				List<String> subTypeLeftSlabArray = Arrays.asList(bio.bioSubType);
@@ -841,13 +929,13 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 					try {
-						data.put("specVersion", captureRequestDto.specVersion);
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
 						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-						data.put("data", dataBlock);
+						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
 
@@ -855,9 +943,9 @@ public class CaptureRequest extends HttpServlet {
 						String finalHash = HMACUtils
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
-						data.put("hash", finalHash);
-						data.put("sessionKey", "");
-						data.put("thumbprint", "");
+						data.put(HASH, finalHash);
+						data.put(SESSION_KEY, "");
+						data.put(THUMB_PRINT, "");
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
 					} catch (Exception e) {
@@ -865,7 +953,7 @@ public class CaptureRequest extends HttpServlet {
 					}
 
 				});
-				responseMap.put("biometrics", listOfBiometric);
+				responseMap.put(BIOMETRICS, listOfBiometric);
 
 			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("2")) {
 
@@ -903,13 +991,13 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 					try {
-						data.put("specVersion", captureRequestDto.specVersion);
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
 						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-						data.put("data", dataBlock);
+						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
 
@@ -917,9 +1005,9 @@ public class CaptureRequest extends HttpServlet {
 						String finalHash = HMACUtils
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
-						data.put("hash", finalHash);
-						data.put("sessionKey", "");
-						data.put("thumbprint", "");
+						data.put(HASH, finalHash);
+						data.put(SESSION_KEY, "");
+						data.put(THUMB_PRINT, "");
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
 					} catch (JsonProcessingException | InterruptedException e) {
@@ -927,7 +1015,7 @@ public class CaptureRequest extends HttpServlet {
 					}
 
 				});
-				responseMap.put("biometrics", listOfBiometric);
+				responseMap.put(BIOMETRICS, listOfBiometric);
 
 			} else if (bio.deviceId.equals("1") && bio.deviceSubId.equals("3")) {
 
@@ -964,13 +1052,13 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 					try {
-						data.put("specVersion", captureRequestDto.specVersion);
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
 						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-						data.put("data", dataBlock);
+						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
 
@@ -978,9 +1066,9 @@ public class CaptureRequest extends HttpServlet {
 						String finalHash = HMACUtils
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
-						data.put("hash", finalHash);
-						data.put("sessionKey", "");
-						data.put("thumbprint", "");
+						data.put(HASH, finalHash);
+						data.put(SESSION_KEY, "");
+						data.put(THUMB_PRINT, "");
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
 					} catch (JsonProcessingException | InterruptedException e) {
@@ -988,232 +1076,20 @@ public class CaptureRequest extends HttpServlet {
 					}
 
 				});
-				responseMap.put("biometrics", listOfBiometric);
+				responseMap.put(BIOMETRICS, listOfBiometric);
 
 			}
-		} else if (bio.type.equalsIgnoreCase("Iris")) {
-			if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
-
-				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-				BioMetricsDataDto bioMetricsData = oB
-						.readValue(
-								Base64.getDecoder()
-										.decode(new String(Files.readAllBytes(Paths.get(
-												System.getProperty("user.dir") + "/files/MockMDS/auth/L_Iris.txt")))),
-								BioMetricsDataDto.class);
-				Map<String, Object> data = new HashMap<>();
-				NewBioDto bioResponse = new NewBioDto();
-				bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-				bioResponse.setBioValue(bioMetricsData.getBioExtract());
-				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
-				bioResponse.setEnv(bioMetricsData.getEnv());
-				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-				bioResponse.setPurpose(bioMetricsData.getPurpose());
-				bioResponse.setRequestedScore(bio.requestedScore);
-				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
-				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-				try {
-					data.put("specVersion", captureRequestDto.specVersion);
-
-					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
-						Thread.sleep(captureRequestDto.timeout);
-
-					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-					data.put("data", dataBlock);
-
-					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-					String concatenatedHash = previousHashArray[0] + presentHash;
-					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-					data.put("hash", finalHash);
-					data.put("sessionKey", "");
-					data.put("thumbprint", "");
-					listOfBiometric.add(data);
-					previousHashArray[0] = finalHash;
-				} catch (JsonProcessingException | InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				responseMap.put("biometrics", listOfBiometric);
-
-			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
-
-				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-				BioMetricsDataDto bioMetricsData = oB
-						.readValue(
-								Base64.getDecoder()
-										.decode(new String(Files.readAllBytes(Paths.get(
-												System.getProperty("user.dir") + "/files/MockMDS/auth/R_Iris.txt")))),
-								BioMetricsDataDto.class);
-				Map<String, Object> data = new HashMap<>();
-				NewBioDto bioResponse = new NewBioDto();
-				bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-				bioResponse.setBioValue(bioMetricsData.getBioExtract());
-				bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-				bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
-				bioResponse.setEnv(bioMetricsData.getEnv());
-				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-				bioResponse.setPurpose(bioMetricsData.getPurpose());
-				bioResponse.setRequestedScore(bio.requestedScore);
-				bioResponse.setQualityScore(bioMetricsData.getQualityScore());
-				bioResponse.setTimestamp(getTimeStamp());
-				bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-				try {
-					data.put("specVersion", captureRequestDto.specVersion);
-
-					if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
-						Thread.sleep(captureRequestDto.timeout);
-
-					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-					data.put("data", dataBlock);
-
-					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-					String concatenatedHash = previousHashArray[0] + presentHash;
-					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-					data.put("hash", finalHash);
-					data.put("sessionKey", "");
-					data.put("thumbprint", "");
-					listOfBiometric.add(data);
-					previousHashArray[0] = finalHash;
-				} catch (JsonProcessingException | InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				responseMap.put("biometrics", listOfBiometric);
-
-			} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("3")) {
-
-				List<String> subTypeBothEyesArray = Arrays.asList(bio.bioSubType);
-
-				subTypeBothEyesArray.forEach(bioData -> {
-
-					BioMetricsDataDto bioMetricsData = null;
-					try {
-						bioMetricsData = oB.readValue(Base64.getDecoder().decode(getAuthFingers(bioData)),
-								BioMetricsDataDto.class);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					bioMetricsDataDtoList.add(bioMetricsData);
-
-				});
-
-				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-				bioMetricsDataDtoList.forEach(bioVal -> {
-					Map<String, Object> data = new HashMap<>();
-					NewBioDto bioResponse = new NewBioDto();
-					bioResponse.setBioSubType(bioVal.getBioSubType());
-					bioResponse.setBioValue(bioVal.getBioExtract());
-					bioResponse.setDeviceCode(bioVal.getDeviceCode());
-					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
-					bioResponse.setEnv(bioVal.getEnv());
-					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-					bioResponse.setPurpose(bioVal.getPurpose());
-					bioResponse.setRequestedScore(bio.requestedScore);
-					bioResponse.setQualityScore(bioVal.getQualityScore());
-					bioResponse.setTimestamp(getTimeStamp());
-					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-					try {
-						data.put("specVersion", captureRequestDto.specVersion);
-
-						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
-							Thread.sleep(captureRequestDto.timeout);
-
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-						data.put("data", dataBlock);
-
-						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-						String concatenatedHash = previousHashArray[0] + presentHash;
-						String finalHash = HMACUtils
-								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-						data.put("hash", finalHash);
-						data.put("sessionKey", "");
-						data.put("thumbprint", "");
-						listOfBiometric.add(data);
-						previousHashArray[0] = finalHash;
-					} catch (JsonProcessingException | InterruptedException e) {
-						e.printStackTrace();
-					}
-
-				});
-				responseMap.put("biometrics", listOfBiometric);
-
-			}
-		} else if (bio.type.equalsIgnoreCase("Face")) {
-
-			BioMetricsDataDto bioMetricsData = oB
-					.readValue(
-							Base64.getDecoder()
-									.decode(new String(Files.readAllBytes(Paths
-											.get(System.getProperty("user.dir") + "/files/MockMDS/auth/Face.txt")))),
-							BioMetricsDataDto.class);
-
-			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-
-			Map<String, Object> data = new HashMap<>();
-			NewBioDto bioResponse = new NewBioDto();
-			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-			bioResponse.setBioValue(bioMetricsData.getBioExtract());
-			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
-			bioResponse.setEnv(bioMetricsData.getEnv());
-			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
-			bioResponse.setPurpose(bioMetricsData.getPurpose());
-			bioResponse.setRequestedScore(bio.requestedScore);
-			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
-			bioResponse.setTimestamp(getTimeStamp());
-			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
-
-			try {
-				data.put("specVersion", captureRequestDto.specVersion);
-
-				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
-					Thread.sleep(captureRequestDto.timeout);
-
-				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
-				data.put("data", dataBlock);
-
-				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
-
-				String concatenatedHash = previousHashArray[0] + presentHash;
-				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
-
-				data.put("hash", finalHash);
-				data.put("sessionKey", "");
-				data.put("thumbprint", "");
-				listOfBiometric.add(data);
-				previousHashArray[0] = finalHash;
-			} catch (JsonProcessingException | InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			responseMap.put("biometrics", listOfBiometric);
-
 		}
-
-		response.setContentType("application/json");
-		response = CORSManager.setCors(response);
-		PrintWriter out = response.getWriter();
-		out.println(new JSONObject(responseMap));
-
+		return responseMap;
 	}
 
+	/**
+	 * Gets the auth fingers.
+	 *
+	 * @param name the name
+	 * @return the auth fingers
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	private String getAuthFingers(String name) throws IOException {
 
 		switch (name) {
@@ -1273,6 +1149,11 @@ public class CaptureRequest extends HttpServlet {
 
 	}
 
+	/**
+	 * Gets the time stamp.
+	 *
+	 * @return the time stamp
+	 */
 	private String getTimeStamp() {
 		Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 
@@ -1283,6 +1164,13 @@ public class CaptureRequest extends HttpServlet {
 
 	}
 
+	/**
+	 * Gets the non exception bio.
+	 *
+	 * @param name the name
+	 * @return the non exception bio
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public static String getNonExceptionBio(String name) throws IOException {
 
 		switch (name) {
@@ -1342,17 +1230,12 @@ public class CaptureRequest extends HttpServlet {
 
 	}
 
-	List<String> getFingers(List<String> noExceptionList, List<String> exceptionList) {
-
-		for (String restult : exceptionList) {
-
-			noExceptionList.remove(restult);
-		}
-
-		return noExceptionList;
-
-	}
-
+	/**
+	 * Gets the jws part.
+	 *
+	 * @param data the data
+	 * @return the jws part
+	 */
 	public String getJwsPart(byte[] data) {
 		String jwt = null;
 		try {
@@ -1402,6 +1285,12 @@ public class CaptureRequest extends HttpServlet {
 		}
 	}
 
+	/**
+	 * Trim begin end.
+	 *
+	 * @param pKey the key
+	 * @return the string
+	 */
 	private String trimBeginEnd(String pKey) {
 		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
 		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
@@ -1409,6 +1298,12 @@ public class CaptureRequest extends HttpServlet {
 		return pKey;
 	}
 
+	/**
+	 * Gets the digital finger id.
+	 *
+	 * @param moralityType the morality type
+	 * @return the digital finger id
+	 */
 	@SuppressWarnings("unchecked")
 	public String getDigitalFingerId(String moralityType) {
 
@@ -1417,21 +1312,21 @@ public class CaptureRequest extends HttpServlet {
 		try {
 			switch (moralityType) {
 
-			case "Finger":
+			case FINGER:
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalFingerId.txt"))),
 						Map.class));
 
 				break;
-			case "Iris":
+			case IRIS:
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalIrisId.txt"))),
 						Map.class));
 
 				break;
-			case "Face":
+			case FACE:
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalFaceId.txt"))),
@@ -1446,10 +1341,16 @@ public class CaptureRequest extends HttpServlet {
 		return digitalId;
 	}
 
+	/**
+	 * Gets the digital modality.
+	 *
+	 * @param digitalIdMap the digital id map
+	 * @return the digital modality
+	 */
 	private String getDigitalModality(Map<String, String> digitalIdMap) {
 
 		String result = null;
-		Map<String, String> digitalMap = new LinkedHashMap<String, String>();
+		Map<String, String> digitalMap = new LinkedHashMap<>();
 		digitalMap.put("dateTime", getTimeStamp());
 		digitalMap.put("deviceProvider", digitalIdMap.get("deviceProvider"));
 		digitalMap.put("deviceProviderId", digitalIdMap.get("deviceProviderId"));
