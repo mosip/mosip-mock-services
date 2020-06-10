@@ -36,9 +36,7 @@ public class SampleSDK implements IBioApi {
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
 		// TODO validate for mandatory initParams
-		SDKInfo sdkInfo = new SDKInfo();
-		sdkInfo.setApiVersion(API_VERSION);
-		sdkInfo.setSdkVersion("sample");
+		SDKInfo sdkInfo = new SDKInfo(API_VERSION, "sample", "sample", "sample");
 		List<BiometricType> supportedModalities = new ArrayList<>();
 		supportedModalities.add(BiometricType.FINGER);
 		supportedModalities.add(BiometricType.FACE);
@@ -144,7 +142,7 @@ public class SampleSDK implements IBioApi {
 		int count = 0;
 		for (BiometricRecord recordedValue : gallery) {
 			Map<BiometricType, Decision> decision = new HashMap<>();
-			matchingScore[count] = new MatchDecision();
+			matchingScore[count] = new MatchDecision(count);
 			matchingScore[count].setGalleryIndex(count);
 
 			/*
@@ -182,12 +180,12 @@ public class SampleSDK implements IBioApi {
 				try {
 					MatchDecision modalityDecision = compareModality(modality, sampleBioSegmentMap.get(modality),
 							recordBioSegmentMap.get(modality));
+					modalityDecision.setGalleryIndex(index);
 					matchingScore[index] = modalityDecision;
 				} catch (Exception ex) {
-					MatchDecision matchDecision = new MatchDecision();
+					MatchDecision matchDecision = new MatchDecision(index);
 					Decision decision = new Decision();
 					decision.setMatch(Match.ERROR);
-					matchDecision.setAnalyticsInfo(new HashMap<>());
 					matchDecision.getAnalyticsInfo().put("errors",
 							"Modality " + modality.name() + " threw an exception.");
 					matchDecision.getAnalyticsInfo().put("exception", ex.getMessage());
@@ -208,7 +206,7 @@ public class SampleSDK implements IBioApi {
 	}
 
 	private MatchDecision compareModality(BiometricType modality, List<BIR> sampleSegments, List<BIR> gallerySegments) {
-		MatchDecision matchDecision = new MatchDecision();
+		MatchDecision matchDecision = new MatchDecision(0);
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
 		// Call modality Specific matcher here
@@ -233,7 +231,7 @@ public class SampleSDK implements IBioApi {
 
 	private MatchDecision compareFingerprints(List<BIR> sampleSegments, List<BIR> gallerySegments) {
 		List<String> errors = new ArrayList<>();
-		MatchDecision matchDecision = new MatchDecision();
+		MatchDecision matchDecision = new MatchDecision(0);
 		matchDecision.setAnalyticsInfo(new HashMap<>());
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
@@ -257,7 +255,7 @@ public class SampleSDK implements IBioApi {
 
 	private MatchDecision compareIrises(List<BIR> sampleSegments, List<BIR> gallerySegments) {
 		List<String> errors = new ArrayList<>();
-		MatchDecision matchDecision = new MatchDecision();
+		MatchDecision matchDecision = new MatchDecision(0);
 		matchDecision.setAnalyticsInfo(new HashMap<>());
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
@@ -285,7 +283,7 @@ public class SampleSDK implements IBioApi {
 
 	private MatchDecision compareFaces(List<BIR> sampleSegments, List<BIR> gallerySegments) {
 		List<String> errors = new ArrayList<>();
-		MatchDecision matchDecision = new MatchDecision();
+		MatchDecision matchDecision = new MatchDecision(0);
 		matchDecision.setAnalyticsInfo(new HashMap<>());
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
