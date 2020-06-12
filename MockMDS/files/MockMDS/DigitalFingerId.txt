@@ -3,7 +3,7 @@
 	"make": "Greenbit",
 	"model": "DactyScan84c",
 	"type": "Fingerprint",
-	"subType": "Slab",
+	"deviceSubType": "Slab",
 	"deviceProvider": "SYNCBYTE",
 	"deviceProviderId": "SYNCBYTE.TCI322",
 	"dateTime": "2020-06-03T15:06:44.535+05:30"
