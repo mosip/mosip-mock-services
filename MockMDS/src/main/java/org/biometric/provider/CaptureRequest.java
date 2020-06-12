@@ -1355,7 +1355,7 @@ public class CaptureRequest extends HttpServlet {
 		digitalMap.put("make", digitalIdMap.get("make"));
 		digitalMap.put("serialNo", digitalIdMap.get("serialNo"));
 		digitalMap.put("model", digitalIdMap.get("model"));
-		digitalMap.put("subType", digitalIdMap.get("subType"));
+		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
 		try {
 			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));

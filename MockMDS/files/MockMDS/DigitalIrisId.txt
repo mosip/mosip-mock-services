@@ -3,7 +3,7 @@
 	"make": "EYECOOL",
 	"model": "TCI322",
 	"type": "Iris",
-	"subType": "Double",
+	"deviceSubType": "Double",
 	"deviceProvider": "SYNCBYTE",
 	"deviceProviderId": "SYNCBYTE.TCI322",
 	"dateTime": "2020-03-19T18:21:28.410+05:30"
