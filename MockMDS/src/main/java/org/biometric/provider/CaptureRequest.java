@@ -125,8 +125,8 @@ public class CaptureRequest extends HttpServlet {
 			exception.printStackTrace();
 
 			Map<String, Object> errorMap = new LinkedHashMap<>();
-			errorMap.put("errorcode", "101");
-			errorMap.put("errorinfo", "Invalid JSON Value");
+			errorMap.put("errorCode", "101");
+			errorMap.put("errorInfo", "Invalid JSON Value");
 			responseMap.put("error", errorMap);
 
 		}
@@ -622,8 +622,8 @@ public class CaptureRequest extends HttpServlet {
 			exception.printStackTrace();
 
 			Map<String, Object> errorMap = new LinkedHashMap<>();
-			errorMap.put("errorcode", "101");
-			errorMap.put("errorinfo", "Invalid JSON Value");
+			errorMap.put("errorCode", "101");
+			errorMap.put("errorInfo", "Invalid JSON Value");
 			responseMap.put("error", errorMap);
 
 		}
@@ -1355,7 +1355,7 @@ public class CaptureRequest extends HttpServlet {
 		digitalMap.put("make", digitalIdMap.get("make"));
 		digitalMap.put("serialNo", digitalIdMap.get("serialNo"));
 		digitalMap.put("model", digitalIdMap.get("model"));
-		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
+		digitalMap.put("subType", digitalIdMap.get("subType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
 		try {
 			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
@@ -1365,4 +1365,5 @@ public class CaptureRequest extends HttpServlet {
 		return result;
 
 	}
+
 }
