@@ -343,7 +343,7 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, Map<String, String> flags) {
+	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, List<BiometricType> modalitiesToExtract, Map<String, String> flags) {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
 		response.setResponse(sample);
@@ -351,7 +351,7 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> segment(BIR sample, Map<String, String> flags) {
+	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
 		BiometricRecord record = new BiometricRecord();
 		record.setSegments(null);
 		Response<BiometricRecord> response = new Response<>();
@@ -362,7 +362,7 @@ public class SampleSDK implements IBioApi {
 
 	@Override
 	public BiometricRecord convertFormat(BiometricRecord sample, String sourceFormat, String targetFormat,
-			Map<String, String> sourceParams, Map<String, String> targetParams) {
+			Map<String, String> sourceParams, Map<String, String> targetParams, List<BiometricType> modalitiesToConvert) {
 		// TODO Auto-generated method stub
 		return sample;
 	}
