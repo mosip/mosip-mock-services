@@ -1,18 +1,20 @@
 package io.mosip.mock.sdk.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
 import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
-import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.constant.Match;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
+import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.model.MatchDecision;
 import io.mosip.kernel.biometrics.model.QualityCheck;
 import io.mosip.kernel.biometrics.model.QualityScore;
@@ -238,7 +240,7 @@ public class SampleSDK implements IBioApi {
 
 		// Actual Matching logic goes here
 		// TODO Handle cased and variants here
-		if (true) {
+		if (allSampleBirMatches(sampleSegments, gallerySegments)) {
 			decision.setMatch(Match.MATCHED);
 		} else {
 			decision.setMatch(Match.ERROR);
@@ -253,6 +255,16 @@ public class SampleSDK implements IBioApi {
 		return matchDecision;
 	}
 
+	private boolean allSampleBirMatches(List<BIR> sampleSegments, List<BIR> gallerySegments) {
+		return sampleSegments.stream().allMatch(sample -> 
+					gallerySegments.stream().anyMatch(recordedValue -> compareBir(sample, recordedValue)));
+	}
+	
+	private boolean compareBir(BIR sample, BIR recordedValue) {
+		return Objects.nonNull(recordedValue) && Objects.nonNull(recordedValue.getBdb())
+				&& recordedValue.getBdb().length != 0 && Arrays.equals(recordedValue.getBdb(), sample.getBdb());
+	}
+
 	private MatchDecision compareIrises(List<BIR> sampleSegments, List<BIR> gallerySegments) {
 		List<String> errors = new ArrayList<>();
 		MatchDecision matchDecision = new MatchDecision(0);
@@ -262,7 +274,7 @@ public class SampleSDK implements IBioApi {
 
 		// Actual Matching logic goes here
 		// TODO Handle cased and variants here
-		if (true) {
+		if (allSampleBirMatches(sampleSegments, gallerySegments)) {
 			decision.setMatch(Match.MATCHED);
 		} else {
 			decision.setMatch(Match.ERROR);
@@ -290,7 +302,7 @@ public class SampleSDK implements IBioApi {
 
 		// Actual Matching logic goes here
 		// TODO Handle cased and variants here
-		if (true) {
+		if (allSampleBirMatches(sampleSegments, gallerySegments)) {
 			decision.setMatch(Match.MATCHED);
 		} else {
 			decision.setMatch(Match.ERROR);
@@ -331,7 +343,7 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, Map<String, String> flags) {
+	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, List<BiometricType> modalitiesToExtract, Map<String, String> flags) {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
 		response.setResponse(sample);
@@ -339,7 +351,7 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> segment(BIR sample, Map<String, String> flags) {
+	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
 		BiometricRecord record = new BiometricRecord();
 		record.setSegments(null);
 		Response<BiometricRecord> response = new Response<>();
@@ -350,7 +362,7 @@ public class SampleSDK implements IBioApi {
 
 	@Override
 	public BiometricRecord convertFormat(BiometricRecord sample, String sourceFormat, String targetFormat,
-			Map<String, String> sourceParams, Map<String, String> targetParams) {
+			Map<String, String> sourceParams, Map<String, String> targetParams, List<BiometricType> modalitiesToConvert) {
 		// TODO Auto-generated method stub
 		return sample;
 	}

@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Base64.Encoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -45,9 +46,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
+import io.mosip.registration.mdm.dto.DataHeader;
 import io.mosip.registration.mdm.dto.DeviceInfo;
 import io.mosip.registration.mdm.dto.DeviceRequest;
-import io.mosip.registration.mdm.dto.DigitalId;
 
 public class InfoRequest extends HttpServlet {
 
@@ -88,8 +89,73 @@ public class InfoRequest extends HttpServlet {
 		errorMap.put("errorCode", "0");
 		errorMap.put("errorInfo", "No Action Necessary.");
 
+		X509Certificate certificate = getCertificate();
+		byte[] headerData = getHeader(certificate);
+
 		listOfModalities.forEach(value -> {
 			Map<String, Object> data = new HashMap<>();
+			
+			byte[] deviceInfoData = getDeviceInfo(value);
+			byte[] signature = getSignature(deviceInfoData, certificate);
+
+			String encodedDeviceInfo = getEncodedDeviceInfo(headerData, deviceInfoData, signature);
+
+			data.put("deviceInfo", encodedDeviceInfo);
+			data.put("error", errorMap);
+			infoList.add(data);
+		});
+
+		response.setContentType("application/json");
+		response = CORSManager.setCors(response);
+		PrintWriter out = response.getWriter();
+		out.println(new JSONArray(infoList));
+	}
+
+	private String getEncodedDeviceInfo(byte[] header, byte[] data, byte[] signature)
+	{
+		Encoder encoder = Base64.getUrlEncoder();
+		return "" + new String(encoder.encode(header)) + "." + new String(encoder.encode(data)) + "." + new String(encoder.encode(signature));
+	}
+
+	private byte[] getHeader(X509Certificate certificate)
+	{
+		byte[] headerData = null;
+		DataHeader header = new DataHeader();
+		try
+		{
+			header.x5c.add(new String(certificate.getEncoded()));
+			headerData =  oB.writeValueAsString(header).getBytes();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return headerData;
+	}
+
+	private byte[] getSignature(byte[] data, X509Certificate certificate)
+	{
+		String jwt = null;
+		try {
+			
+			FileInputStream pkeyfis = new FileInputStream(
+					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
+
+			String pKey = getFileContent(pkeyfis, "UTF-8");
+			pKey = trimBeginEnd(pKey);
+			KeyFactory kf = KeyFactory.getInstance("RSA");
+			PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pKey)));
+
+			jwt = jwsValidation.sign(data, privateKey, certificate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jwt.getBytes();
+	}
+
+	private byte[] getDeviceInfo(String value)
+	{
+		Map<String, Object> data = new HashMap<>();
 			DeviceRequest deviceInfo = null;
 			try {
 				deviceInfo = oB.readValue(
@@ -130,22 +196,65 @@ public class InfoRequest extends HttpServlet {
 			info.HostId = deviceInfo.HostId;
 			info.firmware = deviceInfo.firmware;
 
-			try {
-				data.put("deviceInfo", JwtUtility.getJwt(oB.writeValueAsString(info).getBytes(),
-						JwtUtility.getPrivateKey(), JwtUtility.getCertificate()));
-			} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
-				e.printStackTrace();
+			byte[] deviceInfoData = null;
+			try
+			{
+				deviceInfoData =  oB.writeValueAsString(info).getBytes();
 			}
-			data.put("error", errorMap);
-			infoList.add(data);
-		});
-
-		response.setContentType("application/json");
-		response = CORSManager.setCors(response);
-		PrintWriter out = response.getWriter();
-		out.println(new JSONArray(infoList));
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			return deviceInfoData;
 	}
 
+
+	private X509Certificate getCertificate()
+	{
+		String cert = null;
+		X509Certificate certificate = null;
+		try{
+			FileInputStream certfis = new FileInputStream( new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
+				
+			cert = getFileContent(certfis, "UTF-8");
+			cert = trimBeginEnd(cert);
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			certificate = (X509Certificate) cf
+				.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(cert)));
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return certificate;
+	}
+
+	/**
+	 * Gets the file content.
+	 *
+	 * @param fis      the fis
+	 * @param encoding the encoding
+	 * @return the file content
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static String getFileContent(FileInputStream fis, String encoding) throws IOException {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, encoding))) {
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+				sb.append('\n');
+			}
+			return sb.toString();
+		}
+	}
+
+	private String trimBeginEnd(String pKey) {
+		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
+		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
+		pKey = pKey.replaceAll("\\s", "");
+		return pKey;
+	}
 
 	
 	private String getDigitalId(String type) {

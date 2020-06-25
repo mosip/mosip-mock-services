@@ -1,5 +1,6 @@
 package org.biometric.provider;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,9 @@ import io.mosip.kernel.crypto.jce.core.CryptoCore;
 @Configuration
 //@PropertySource(value = { "application.properties" })
 public class WebMvcConfigure implements WebMvcConfigurer {
+
+	@Autowired
+	private CryptoCore cryptoCore;
  
  
     @Override
@@ -29,7 +33,7 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	public ServletRegistrationBean infoBean() {
 	    @SuppressWarnings("unchecked")
 		ServletRegistrationBean bean = new ServletRegistrationBean(
-	      new InfoRequest(new CryptoCore()), "/info");
+	      new InfoRequest(cryptoCore), "/info");
 	    bean.setLoadOnStartup(1);
 	    return bean;
 	}
@@ -50,7 +54,7 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	public ServletRegistrationBean captureBean() {
 	    @SuppressWarnings("unchecked")
 		ServletRegistrationBean bean = new ServletRegistrationBean(
-	      new CaptureRequest(new CryptoCore()), "/capture");
+	      new CaptureRequest(cryptoCore), "/capture");
 	    bean.setLoadOnStartup(1);
 	    return bean;
 	}
@@ -65,11 +69,6 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	    PropertySourcesPlaceholderConfigurer props = new PropertySourcesPlaceholderConfigurer();
 		props.setLocations(new Resource[] { new ClassPathResource("classpath:application.properties") });
 	    return bean;
-	}
-	
-	@Bean 
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-	return new PropertySourcesPlaceholderConfigurer();
 	}
 	
 }
