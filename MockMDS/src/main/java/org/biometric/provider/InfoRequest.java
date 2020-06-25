@@ -4,15 +4,19 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -127,9 +131,9 @@ public class InfoRequest extends HttpServlet {
 			info.firmware = deviceInfo.firmware;
 
 			try {
-				data.put("deviceInfo", getJwsPart(oB.writeValueAsString(info).getBytes()));
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
+				data.put("deviceInfo", JwtUtility.getJwt(oB.writeValueAsString(info).getBytes(),
+						JwtUtility.getPrivateKey(), JwtUtility.getCertificate()));
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
 				e.printStackTrace();
 			}
 			data.put("error", errorMap);
@@ -142,62 +146,8 @@ public class InfoRequest extends HttpServlet {
 		out.println(new JSONArray(infoList));
 	}
 
-	public String getJwsPart(byte[] data) {
-		String jwt = null;
-		try {
-			
-			FileInputStream pkeyfis = new FileInputStream(
-					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
 
-			String pKey = getFileContent(pkeyfis, "UTF-8");
-			FileInputStream certfis = new FileInputStream(
-
-					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
-					
-			String cert = getFileContent(certfis, "UTF-8");
-			pKey = trimBeginEnd(pKey);
-			cert = trimBeginEnd(cert);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			X509Certificate certificate = (X509Certificate) cf
-					.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(cert)));
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pKey)));
-
-			jwt = jwsValidation.sign(data, privateKey, certificate);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return jwt;
-
-	}
-
-	/**
-	 * Gets the file content.
-	 *
-	 * @param fis      the fis
-	 * @param encoding the encoding
-	 * @return the file content
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public static String getFileContent(FileInputStream fis, String encoding) throws IOException {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, encoding))) {
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-				sb.append('\n');
-			}
-			return sb.toString();
-		}
-	}
-
-	private String trimBeginEnd(String pKey) {
-		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
-		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
-		pKey = pKey.replaceAll("\\s", "");
-		return pKey;
-	}
-
+	
 	private String getDigitalId(String type) {
 
 		return getDigitalFingerId(type);
@@ -264,11 +214,16 @@ public class InfoRequest extends HttpServlet {
 		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
 		try {
-			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
-		} catch (JsonProcessingException e) {
+			result = JwtUtility.getJwt(oB.writeValueAsBytes(digitalMap), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
+	
+	
+	
+	
 }

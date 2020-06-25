@@ -1,19 +1,15 @@
 package org.biometric.provider;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -64,7 +62,7 @@ public class CaptureRequest extends HttpServlet {
 	private static final String HASH = "hash";
 	private static final String SESSION_KEY = "sessionKey";
 	private static final String THUMB_PRINT = "thumbprint";
-	private static final String BIOMETRICS ="biometrics";
+	private static final String BIOMETRICS = "biometrics";
 
 	ObjectMapper oB = null;
 
@@ -93,10 +91,10 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Do registration capture.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	protected void doRegistrationCapture(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -140,7 +138,7 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Gets the face modality.
 	 *
-	 * @param bio the bio
+	 * @param bio               the bio
 	 * @param captureRequestDto the capture request dto
 	 * @return the face modality
 	 * @throws IOException Signals that an I/O exception has occurred.
@@ -155,15 +153,21 @@ public class CaptureRequest extends HttpServlet {
 										Paths.get(System.getProperty("user.dir") + "/files/MockMDS/Face.txt")))),
 						BioMetricsDataDto.class);
 
+		Map<String, Object> errorMap = new LinkedHashMap<>();
+		errorMap.put("errorCode", "0");
+		errorMap.put("errorInfo", "Success");
+
 		List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 		String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
 		Map<String, Object> data = new LinkedHashMap<>();
 		NewBioDto bioResponse = new NewBioDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+		bioResponse.setBioType(bio.type);
 		bioResponse.setBioValue(bioMetricsData.getBioExtract());
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-		bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+		//TODO Device service version should be read from file
+		bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
 		bioResponse.setEnv(bioMetricsData.getEnv());
 		bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 		bioResponse.setPurpose(bioMetricsData.getPurpose());
@@ -178,7 +182,8 @@ public class CaptureRequest extends HttpServlet {
 			if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 				Thread.sleep(captureRequestDto.timeout);
 
-			String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+			String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
 			data.put(DATA, dataBlock);
 
 			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -187,9 +192,11 @@ public class CaptureRequest extends HttpServlet {
 			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 			data.put(HASH, finalHash);
+			data.put("error", errorMap);
 			listOfBiometric.add(data);
 			previousHashArray[0] = finalHash;
-		} catch (JsonProcessingException | InterruptedException e) {
+		} catch (JsonProcessingException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+				| CertificateException e) {
 			e.printStackTrace();
 		}
 
@@ -200,17 +207,20 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Gets the iris modality.
 	 *
-	 * @param bio the bio
+	 * @param bio               the bio
 	 * @param captureRequestDto the capture request dto
 	 * @return the iris modality
-	 * @throws JsonParseException the json parse exception
+	 * @throws JsonParseException   the json parse exception
 	 * @throws JsonMappingException the json mapping exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException          Signals that an I/O exception has occurred.
 	 */
 	private Map<String, Object> getIrisModality(CaptureRequestDeviceDetailDto bio, CaptureRequestDto captureRequestDto)
 			throws JsonParseException, JsonMappingException, IOException {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
+		Map<String, Object> errorMap = new LinkedHashMap<>();
+		errorMap.put("errorCode", "0");
+		errorMap.put("errorInfo", "Success");
 		if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
 
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
@@ -224,9 +234,11 @@ public class CaptureRequest extends HttpServlet {
 			Map<String, Object> data = new LinkedHashMap<>();
 			NewBioDto bioResponse = new NewBioDto();
 			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+			bioResponse.setBioType(bio.type);
 			bioResponse.setBioValue(bioMetricsData.getBioExtract());
 			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			//TODO Device service version should be read from file
+			bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
 			bioResponse.setEnv(bioMetricsData.getEnv());
 			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 			bioResponse.setPurpose(bioMetricsData.getPurpose());
@@ -241,7 +253,8 @@ public class CaptureRequest extends HttpServlet {
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 					Thread.sleep(captureRequestDto.timeout);
 
-				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+						JwtUtility.getCertificate());
 				data.put(DATA, dataBlock);
 
 				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -250,9 +263,11 @@ public class CaptureRequest extends HttpServlet {
 				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 				data.put(HASH, finalHash);
+				data.put("error", errorMap);
 				listOfBiometric.add(data);
 				previousHashArray[0] = finalHash;
-			} catch (JsonProcessingException | InterruptedException e) {
+			} catch (JsonProcessingException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+					| CertificateException e) {
 				e.printStackTrace();
 			}
 
@@ -262,7 +277,7 @@ public class CaptureRequest extends HttpServlet {
 
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
-    
+
 			BioMetricsDataDto bioMetricsData = oB.readValue(
 					Base64.getDecoder()
 							.decode(new String(Files.readAllBytes(
@@ -271,9 +286,11 @@ public class CaptureRequest extends HttpServlet {
 			Map<String, Object> data = new LinkedHashMap<>();
 			NewBioDto bioResponse = new NewBioDto();
 			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+			bioResponse.setBioType(bio.type);
 			bioResponse.setBioValue(bioMetricsData.getBioExtract());
 			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			//TODO Device service version should be read from file
+			bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
 			bioResponse.setEnv(bioMetricsData.getEnv());
 			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 			bioResponse.setPurpose(bioMetricsData.getPurpose());
@@ -283,13 +300,14 @@ public class CaptureRequest extends HttpServlet {
 			bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
 			try {
-        
+
 				data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 					Thread.sleep(captureRequestDto.timeout);
 
-				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+						JwtUtility.getCertificate());
 				data.put(DATA, dataBlock);
 
 				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -298,9 +316,11 @@ public class CaptureRequest extends HttpServlet {
 				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 				data.put(HASH, finalHash);
+				data.put("error", errorMap);
 				listOfBiometric.add(data);
 				previousHashArray[0] = finalHash;
-			} catch (JsonProcessingException | InterruptedException e) {
+			} catch (JsonProcessingException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+					| CertificateException e) {
 				e.printStackTrace();
 			}
 
@@ -334,6 +354,7 @@ public class CaptureRequest extends HttpServlet {
 					Map<String, Object> data = new LinkedHashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
 					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioType(bio.type);
 					bioResponse.setBioValue(bioVal.getBioExtract());
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
 					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
@@ -345,14 +366,14 @@ public class CaptureRequest extends HttpServlet {
 					bioResponse.setTimestamp(getTimeStamp());
 					bioResponse.setTransactionId(captureRequestDto.getTransactionId());
 
-
 					try {
 						data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -362,9 +383,11 @@ public class CaptureRequest extends HttpServlet {
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 						data.put(HASH, finalHash);
+						data.put("error", errorMap);
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
-					} catch (JsonProcessingException | InterruptedException e) {
+					} catch (InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+							| CertificateException | IOException e) {
 						e.printStackTrace();
 					}
 
@@ -381,7 +404,7 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Gets the fingers modality.
 	 *
-	 * @param bio the bio
+	 * @param bio               the bio
 	 * @param captureRequestDto the capture request dto
 	 * @return the fingers modality
 	 */
@@ -389,6 +412,9 @@ public class CaptureRequest extends HttpServlet {
 			CaptureRequestDto captureRequestDto) {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
+		Map<String, Object> errorMap = new LinkedHashMap<>();
+		errorMap.put("errorCode", "0");
+		errorMap.put("errorInfo", "Success");
 		if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
 
 			if (bio.bioSubType.length > 0) {
@@ -417,6 +443,7 @@ public class CaptureRequest extends HttpServlet {
 				bioMetricsDataDtoList.forEach(bioVal -> {
 					Map<String, Object> data = new LinkedHashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
+					bioResponse.setBioType(bio.type);
 					bioResponse.setBioSubType(bioVal.getBioSubType());
 					bioResponse.setBioValue(bioVal.getBioExtract());
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
@@ -435,7 +462,8 @@ public class CaptureRequest extends HttpServlet {
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -445,6 +473,7 @@ public class CaptureRequest extends HttpServlet {
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 						data.put(HASH, finalHash);
+						data.put("error", errorMap);
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
 					} catch (Exception e) {
@@ -484,6 +513,7 @@ public class CaptureRequest extends HttpServlet {
 					Map<String, Object> data = new LinkedHashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
 					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioType(bio.type);
 					bioResponse.setBioValue(bioVal.getBioExtract());
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
 					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
@@ -501,7 +531,8 @@ public class CaptureRequest extends HttpServlet {
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -511,9 +542,11 @@ public class CaptureRequest extends HttpServlet {
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 						data.put(HASH, finalHash);
+						data.put("error", errorMap);
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
-					} catch (JsonProcessingException | InterruptedException e) {
+					} catch (InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+							| CertificateException | IOException e) {
 						e.printStackTrace();
 					}
 				});
@@ -547,6 +580,7 @@ public class CaptureRequest extends HttpServlet {
 					Map<String, Object> data = new LinkedHashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
 					bioResponse.setBioSubType(bioVal.getBioSubType());
+					bioResponse.setBioType(bio.type);
 					bioResponse.setBioValue(bioVal.getBioExtract());
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
 					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
@@ -564,7 +598,8 @@ public class CaptureRequest extends HttpServlet {
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -575,8 +610,10 @@ public class CaptureRequest extends HttpServlet {
 
 						data.put(HASH, finalHash);
 						listOfBiometric.add(data);
+						data.put("error", errorMap);
 						previousHashArray[0] = finalHash;
-					} catch (JsonProcessingException | InterruptedException e) {
+					} catch (InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+							| CertificateException | IOException e) {
 						e.printStackTrace();
 					}
 
@@ -590,10 +627,10 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Do auth capture.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	protected void doAuthCapture(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -637,35 +674,49 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Gets the auth face modality.
 	 *
-	 * @param bio the bio
+	 * @param bio               the bio
 	 * @param captureRequestDto the capture request dto
 	 * @return the auth face modality
-	 * @throws JsonParseException the json parse exception
+	 * @throws JsonParseException   the json parse exception
 	 * @throws JsonMappingException the json mapping exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException          Signals that an I/O exception has occurred.
 	 */
 	private Map<String, Object> getAuthFaceModality(CaptureRequestDeviceDetailDto bio,
 			CaptureRequestDto captureRequestDto) throws JsonParseException, JsonMappingException, IOException {
 
 		Map<String, Object> responseMap = new LinkedHashMap<>();
+		Map<String, Object> errorMap = new LinkedHashMap<>();
+		errorMap.put("errorCode", "0");
+		errorMap.put("errorInfo", "Success");
 		BioMetricsDataDto bioMetricsData = oB.readValue(
 				Base64.getDecoder()
 						.decode(new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/auth/Face.txt")))),
 				BioMetricsDataDto.class);
-
+		SecretKey sessionKey = MdsUtility.getSymmetricKey();
 		List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 		String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
 		Map<String, Object> data = new HashMap<>();
 		NewBioDto bioResponse = new NewBioDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-		bioResponse.setBioValue(bioMetricsData.getBioExtract());
+		try {
+			bioResponse
+					.setBioValue(MdsUtility.encryptedData(bioMetricsData.getBioExtract(), getTimeStamp(), sessionKey));
+		} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+				| NoSuchPaddingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-		bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+		//TODO Device service version should be read from file
+		bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+		bioResponse.setBioType(bio.type);
 		bioResponse.setEnv(bioMetricsData.getEnv());
 		bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 		bioResponse.setPurpose(bioMetricsData.getPurpose());
+		//TODO Domain URL need to be set
+		bioResponse.setDomainUri("");
 		bioResponse.setRequestedScore(bio.requestedScore);
 		bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 		bioResponse.setTimestamp(getTimeStamp());
@@ -677,7 +728,8 @@ public class CaptureRequest extends HttpServlet {
 			if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 				Thread.sleep(captureRequestDto.timeout);
 
-			String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+			String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
 			data.put(DATA, dataBlock);
 
 			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -686,11 +738,15 @@ public class CaptureRequest extends HttpServlet {
 			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 			data.put(HASH, finalHash);
-			data.put(SESSION_KEY, "");
+			data.put(SESSION_KEY, Base64.getUrlEncoder()
+					.encodeToString(MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 			data.put(THUMB_PRINT, "");
+			data.put("error", errorMap);
 			listOfBiometric.add(data);
 			previousHashArray[0] = finalHash;
-		} catch (JsonProcessingException | InterruptedException e) {
+		} catch (JsonProcessingException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+				| CertificateException | InvalidKeyException | NoSuchPaddingException
+				| InvalidAlgorithmParameterException e) {
 			e.printStackTrace();
 		}
 
@@ -699,23 +755,25 @@ public class CaptureRequest extends HttpServlet {
 		return responseMap;
 	}
 
-
 	/**
 	 * Gets the auth iris modality.
 	 *
-	 * @param bio the bio
+	 * @param bio               the bio
 	 * @param captureRequestDto the capture request dto
 	 * @return the auth iris modality
-	 * @throws JsonParseException the json parse exception
+	 * @throws JsonParseException   the json parse exception
 	 * @throws JsonMappingException the json mapping exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException          Signals that an I/O exception has occurred.
 	 */
 	private Map<String, Object> getAuthIrisModality(CaptureRequestDeviceDetailDto bio,
 			CaptureRequestDto captureRequestDto) throws JsonParseException, JsonMappingException, IOException {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
+		Map<String, Object> errorMap = new LinkedHashMap<>();
+		errorMap.put("errorCode", "0");
+		errorMap.put("errorInfo", "Success");
 		if (bio.deviceId.equals("2") && bio.deviceSubId.equals("1")) {
-
+			SecretKey sessionKey = MdsUtility.getSymmetricKey();
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
@@ -728,12 +786,23 @@ public class CaptureRequest extends HttpServlet {
 			Map<String, Object> data = new HashMap<>();
 			NewBioDto bioResponse = new NewBioDto();
 			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+			try {
+				bioResponse.setBioValue(
+						MdsUtility.encryptedData(bioMetricsData.getBioExtract(), getTimeStamp(), sessionKey));
+			} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+					| NoSuchPaddingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			//TODO Device service version should be read from file
+			bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+			bioResponse.setBioType(bio.type);
 			bioResponse.setEnv(bioMetricsData.getEnv());
 			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
+			//TODO Domain URL need to be set
 			bioResponse.setPurpose(bioMetricsData.getPurpose());
+			bioResponse.setDomainUri("");
 			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
@@ -745,7 +814,8 @@ public class CaptureRequest extends HttpServlet {
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 					Thread.sleep(captureRequestDto.timeout);
 
-				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+						JwtUtility.getCertificate());
 				data.put(DATA, dataBlock);
 
 				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -754,18 +824,22 @@ public class CaptureRequest extends HttpServlet {
 				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 				data.put(HASH, finalHash);
-				data.put(SESSION_KEY, "");
+				data.put(SESSION_KEY, Base64.getUrlEncoder().encodeToString(
+						MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 				data.put(THUMB_PRINT, "");
+				data.put("error", errorMap);
 				listOfBiometric.add(data);
 				previousHashArray[0] = finalHash;
-			} catch (JsonProcessingException | InterruptedException e) {
+			} catch (JsonProcessingException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+					| CertificateException | InvalidKeyException | NoSuchPaddingException
+					| InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			}
 
 			responseMap.put(BIOMETRICS, listOfBiometric);
 
 		} else if (bio.deviceId.equals("2") && bio.deviceSubId.equals("2")) {
-
+			SecretKey sessionKey = MdsUtility.getSymmetricKey();
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
@@ -778,12 +852,23 @@ public class CaptureRequest extends HttpServlet {
 			Map<String, Object> data = new HashMap<>();
 			NewBioDto bioResponse = new NewBioDto();
 			bioResponse.setBioSubType(bioMetricsData.getBioSubType());
-			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+			try {
+				bioResponse.setBioValue(
+						MdsUtility.encryptedData(bioMetricsData.getBioExtract(), getTimeStamp(), sessionKey));
+			} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+					| NoSuchPaddingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
-			bioResponse.setDeviceServiceVersion(bioMetricsData.getDeviceServiceVersion());
+			//TODO Device service version should be read from file
+			bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+			bioResponse.setBioType(bio.type);
 			bioResponse.setEnv(bioMetricsData.getEnv());
 			bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 			bioResponse.setPurpose(bioMetricsData.getPurpose());
+			//TODO Domain URL need to be set
+			bioResponse.setDomainUri("");
 			bioResponse.setRequestedScore(bio.requestedScore);
 			bioResponse.setQualityScore(bioMetricsData.getQualityScore());
 			bioResponse.setTimestamp(getTimeStamp());
@@ -795,7 +880,8 @@ public class CaptureRequest extends HttpServlet {
 				if (Integer.valueOf(bioMetricsData.getQualityScore()) < bio.requestedScore)
 					Thread.sleep(captureRequestDto.timeout);
 
-				String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+				String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+						JwtUtility.getCertificate());
 				data.put(DATA, dataBlock);
 
 				String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -804,11 +890,15 @@ public class CaptureRequest extends HttpServlet {
 				String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 				data.put(HASH, finalHash);
-				data.put(SESSION_KEY, "");
+				data.put(SESSION_KEY, Base64.getUrlEncoder().encodeToString(
+						MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 				data.put(THUMB_PRINT, "");
+				data.put("error", errorMap);
 				listOfBiometric.add(data);
 				previousHashArray[0] = finalHash;
-			} catch (JsonProcessingException | InterruptedException e) {
+			} catch (JsonProcessingException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+					| CertificateException | InvalidKeyException | NoSuchPaddingException
+					| InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			}
 
@@ -834,15 +924,27 @@ public class CaptureRequest extends HttpServlet {
 			List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 			String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 			bioMetricsDataDtoList.forEach(bioVal -> {
+				SecretKey sessionKey = MdsUtility.getSymmetricKey();
 				Map<String, Object> data = new HashMap<>();
 				NewBioDto bioResponse = new NewBioDto();
 				bioResponse.setBioSubType(bioVal.getBioSubType());
-				bioResponse.setBioValue(bioVal.getBioExtract());
+				try {
+					bioResponse
+							.setBioValue(MdsUtility.encryptedData(bioVal.getBioExtract(), getTimeStamp(), sessionKey));
+				} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+						| NoSuchPaddingException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				bioResponse.setDeviceCode(bioVal.getDeviceCode());
-				bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+				//TODO Device service version should be read from file
+				bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+				bioResponse.setBioType(bio.type);
 				bioResponse.setEnv(bioVal.getEnv());
 				bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 				bioResponse.setPurpose(bioVal.getPurpose());
+				//TODO Domain URL need to be set
+				bioResponse.setDomainUri("");
 				bioResponse.setRequestedScore(bio.requestedScore);
 				bioResponse.setQualityScore(bioVal.getQualityScore());
 				bioResponse.setTimestamp(getTimeStamp());
@@ -854,7 +956,8 @@ public class CaptureRequest extends HttpServlet {
 					if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 						Thread.sleep(captureRequestDto.timeout);
 
-					String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+					String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse), JwtUtility.getPrivateKey(),
+							JwtUtility.getCertificate());
 					data.put(DATA, dataBlock);
 
 					String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -863,11 +966,15 @@ public class CaptureRequest extends HttpServlet {
 					String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 					data.put(HASH, finalHash);
-					data.put(SESSION_KEY, "");
+					data.put(SESSION_KEY, Base64.getUrlEncoder().encodeToString(
+							MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 					data.put(THUMB_PRINT, "");
+					data.put("error", errorMap);
 					listOfBiometric.add(data);
 					previousHashArray[0] = finalHash;
-				} catch (JsonProcessingException | InterruptedException e) {
+				} catch (InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+						| CertificateException | IOException | InvalidKeyException | NoSuchPaddingException
+						| InvalidAlgorithmParameterException e) {
 					e.printStackTrace();
 				}
 
@@ -882,7 +989,7 @@ public class CaptureRequest extends HttpServlet {
 	/**
 	 * Gets the auth fingers modality.
 	 *
-	 * @param bio the bio
+	 * @param bio               the bio
 	 * @param captureRequestDto the capture request dto
 	 * @return the auth fingers modality
 	 */
@@ -890,6 +997,9 @@ public class CaptureRequest extends HttpServlet {
 			CaptureRequestDto captureRequestDto) {
 		List<BioMetricsDataDto> bioMetricsDataDtoList = new ArrayList<>();
 		Map<String, Object> responseMap = new LinkedHashMap<>();
+		Map<String, Object> errorMap = new LinkedHashMap<>();
+		errorMap.put("errorCode", "0");
+		errorMap.put("errorInfo", "Success");
 		if (bio.type.equalsIgnoreCase(FINGER)) {
 			if (bio.deviceId.equals("1") && bio.deviceSubId.equals("1")) {
 
@@ -912,27 +1022,41 @@ public class CaptureRequest extends HttpServlet {
 				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
 				bioMetricsDataDtoList.forEach(bioVal -> {
+					SecretKey sessionKey = MdsUtility.getSymmetricKey();
 					Map<String, Object> data = new HashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
 					bioResponse.setBioSubType(bioVal.getBioSubType());
-					bioResponse.setBioValue(bioVal.getBioExtract());
+					try {
+						bioResponse.setBioValue(
+								MdsUtility.encryptedData(bioVal.getBioExtract(), getTimeStamp(), sessionKey));
+					} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+							| NoSuchPaddingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
-					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					//TODO Device service version should be read from file
+					bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+					bioResponse.setBioType(bio.type);
 					bioResponse.setEnv(bioVal.getEnv());
 					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 					bioResponse.setPurpose(bioVal.getPurpose());
+					//TODO Domain URL need to be set
+					bioResponse.setDomainUri("");
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
 					bioResponse.setTransactionId(captureRequestDto.transactionId);
 
 					try {
+
 						data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -942,12 +1066,17 @@ public class CaptureRequest extends HttpServlet {
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 						data.put(HASH, finalHash);
-						data.put(SESSION_KEY, "");
+						data.put(SESSION_KEY, Base64.getUrlEncoder().encodeToString(
+								MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 						data.put(THUMB_PRINT, "");
+						data.put("error", errorMap);
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
 					} catch (Exception e) {
 						e.printStackTrace();
+						/*
+						 * data.put("error", errorMap); listOfBiometric.add(e)
+						 */
 					}
 
 				});
@@ -974,15 +1103,27 @@ public class CaptureRequest extends HttpServlet {
 				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 
 				bioMetricsDataDtoList.forEach(bioVal -> {
+					SecretKey sessionKey = MdsUtility.getSymmetricKey();
 					Map<String, Object> data = new HashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
 					bioResponse.setBioSubType(bioVal.getBioSubType());
-					bioResponse.setBioValue(bioVal.getBioExtract());
+					try {
+						bioResponse.setBioValue(
+								MdsUtility.encryptedData(bioVal.getBioExtract(), getTimeStamp(), sessionKey));
+					} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+							| NoSuchPaddingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
-					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					//TODO Device service version should be read from file
+					bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+					bioResponse.setBioType(bio.type);
 					bioResponse.setEnv(bioVal.getEnv());
 					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 					bioResponse.setPurpose(bioVal.getPurpose());
+					//TODO Domain URL need to be set
+					bioResponse.setDomainUri("");
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
@@ -994,7 +1135,8 @@ public class CaptureRequest extends HttpServlet {
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -1004,11 +1146,15 @@ public class CaptureRequest extends HttpServlet {
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 						data.put(HASH, finalHash);
-						data.put(SESSION_KEY, "");
+						data.put(SESSION_KEY, Base64.getUrlEncoder().encodeToString(
+								MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 						data.put(THUMB_PRINT, "");
+						data.put("error", errorMap);
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
-					} catch (JsonProcessingException | InterruptedException e) {
+					} catch (InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+							| CertificateException | IOException | InvalidKeyException | NoSuchPaddingException
+							| InvalidAlgorithmParameterException e) {
 						e.printStackTrace();
 					}
 
@@ -1035,15 +1181,27 @@ public class CaptureRequest extends HttpServlet {
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 				String[] previousHashArray = { HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes())) };
 				bioMetricsDataDtoList.forEach(bioVal -> {
+					SecretKey sessionKey = MdsUtility.getSymmetricKey();
 					Map<String, Object> data = new HashMap<>();
 					NewBioDto bioResponse = new NewBioDto();
 					bioResponse.setBioSubType(bioVal.getBioSubType());
-					bioResponse.setBioValue(bioVal.getBioExtract());
+					try {
+						bioResponse.setBioValue(
+								MdsUtility.encryptedData(bioVal.getBioExtract(), getTimeStamp(), sessionKey));
+					} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+							| NoSuchPaddingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					bioResponse.setDeviceCode(bioVal.getDeviceCode());
-					bioResponse.setDeviceServiceVersion(bioVal.getDeviceServiceVersion());
+					//TODO Device service version should be read from file
+					bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+					bioResponse.setBioType(bio.type);
 					bioResponse.setEnv(bioVal.getEnv());
 					bioResponse.setDigitalId(getDigitalFingerId(bio.type));
 					bioResponse.setPurpose(bioVal.getPurpose());
+					//TODO Domain URL need to be set
+					bioResponse.setDomainUri("");
 					bioResponse.setRequestedScore(bio.requestedScore);
 					bioResponse.setQualityScore(bioVal.getQualityScore());
 					bioResponse.setTimestamp(getTimeStamp());
@@ -1051,12 +1209,13 @@ public class CaptureRequest extends HttpServlet {
 
 					try {
 
-						data.put(SPEC_VERSION, captureRequestDto.specVersion);	
+						data.put(SPEC_VERSION, captureRequestDto.specVersion);
 
 						if (Integer.valueOf(bioVal.getQualityScore()) < bio.requestedScore)
 							Thread.sleep(captureRequestDto.timeout);
 
-						String dataBlock = getJwsPart(oB.writeValueAsString(bioResponse).getBytes());
+						String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(bioResponse),
+								JwtUtility.getPrivateKey(), JwtUtility.getCertificate());
 						data.put(DATA, dataBlock);
 
 						String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
@@ -1066,11 +1225,15 @@ public class CaptureRequest extends HttpServlet {
 								.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 
 						data.put(HASH, finalHash);
-						data.put(SESSION_KEY, "");
+						data.put(SESSION_KEY, Base64.getUrlEncoder().encodeToString(
+								MdsUtility.asymmetricEncrypt(JwtUtility.getPublicKey(), sessionKey.getEncoded())));
 						data.put(THUMB_PRINT, "");
+						data.put("error", errorMap);
 						listOfBiometric.add(data);
 						previousHashArray[0] = finalHash;
-					} catch (JsonProcessingException | InterruptedException e) {
+					} catch (InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+							| CertificateException | IOException | InvalidKeyException | NoSuchPaddingException
+							| InvalidAlgorithmParameterException e) {
 						e.printStackTrace();
 					}
 
@@ -1229,74 +1392,6 @@ public class CaptureRequest extends HttpServlet {
 	}
 
 	/**
-	 * Gets the jws part.
-	 *
-	 * @param data the data
-	 * @return the jws part
-	 */
-	public String getJwsPart(byte[] data) {
-		String jwt = null;
-		try {
-
-			FileInputStream pkeyfis = new FileInputStream(
-					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
-
-			String pKey = getFileContent(pkeyfis, "UTF-8");
-			FileInputStream certfis = new FileInputStream(
-
-					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
-
-			String cert = getFileContent(certfis, "UTF-8");
-			pKey = trimBeginEnd(pKey);
-			cert = trimBeginEnd(cert);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			X509Certificate certificate = (X509Certificate) cf
-					.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(cert)));
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pKey)));
-
-			jwt = jwsValidation.sign(data, privateKey, certificate);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return jwt;
-
-	}
-
-	/**
-	 * Gets the file content.
-	 *
-	 * @param fis      the fis
-	 * @param encoding the encoding
-	 * @return the file content
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public static String getFileContent(FileInputStream fis, String encoding) throws IOException {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, encoding))) {
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-				sb.append('\n');
-			}
-			return sb.toString();
-		}
-	}
-
-	/**
-	 * Trim begin end.
-	 *
-	 * @param pKey the key
-	 * @return the string
-	 */
-	private String trimBeginEnd(String pKey) {
-		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
-		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
-		pKey = pKey.replaceAll("\\s", "");
-		return pKey;
-	}
-
-	/**
 	 * Gets the digital finger id.
 	 *
 	 * @param moralityType the morality type
@@ -1355,11 +1450,12 @@ public class CaptureRequest extends HttpServlet {
 		digitalMap.put("make", digitalIdMap.get("make"));
 		digitalMap.put("serialNo", digitalIdMap.get("serialNo"));
 		digitalMap.put("model", digitalIdMap.get("model"));
-		digitalMap.put("subType", digitalIdMap.get("subType"));
+		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
 		try {
-			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
-		} catch (JsonProcessingException e) {
+			result = JwtUtility.getJwt(oB.writeValueAsBytes(digitalMap), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
 			e.printStackTrace();
 		}
 		return result;

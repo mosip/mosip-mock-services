@@ -2,7 +2,7 @@
 	"deviceId": "1",
 	"deviceStatus": "READY",
 	"certification": "L0",
-	"serviceVersion": "SB.WIN.001",
+	"serviceVersion": "MOSIP.MDS.001",
 	"deviceSubId": [
 		1,
 		2,

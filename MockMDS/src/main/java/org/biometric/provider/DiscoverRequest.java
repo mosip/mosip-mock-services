@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -147,8 +150,6 @@ public class DiscoverRequest extends HttpServlet {
 
 		});
 
-		String info = new String(Files
-				.readAllBytes(Paths.get(System.getProperty("user.dir") + "/files/MockMDS/" + "discoverInfo" + ".txt")));
 		response.setContentType("application/json");
 		response = CORSManager.setCors(response);
 		PrintWriter out = response.getWriter();
@@ -223,8 +224,9 @@ public class DiscoverRequest extends HttpServlet {
 		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
 		try {
-			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
-		} catch (JsonProcessingException e) {
+			result = JwtUtility.getJwt(oB.writeValueAsBytes(digitalMap), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
 			e.printStackTrace();
 		}
 		return result;
