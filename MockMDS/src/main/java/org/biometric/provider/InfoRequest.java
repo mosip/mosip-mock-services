@@ -325,7 +325,7 @@ public class InfoRequest extends HttpServlet {
 		try {
 			result = JwtUtility.getJwt(oB.writeValueAsBytes(digitalMap), JwtUtility.getPrivateKey(),
 					JwtUtility.getCertificate());
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return result;
