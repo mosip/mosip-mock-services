@@ -1,10 +1,10 @@
 {
 	"serialNo": "273125570",
-	"make": "Realtek",
+	"make": "MOSIP",
 	"model": "6bdd1fc6-810f-11d0-bec7-08002be2092f",
 	"type": "Face",
 	"deviceSubType": "Full face",
-	"deviceProvider": "SYNCBYTE",
-	"deviceProviderId": "SYNCBYTE.LTC165",
+	"deviceProvider": "MOSIP DEVICE PARTNER",
+	"deviceProviderId": "MOSIP MDS",
 	"dateTime": "2020-03-19T18:21:34.729+05:30"
 }

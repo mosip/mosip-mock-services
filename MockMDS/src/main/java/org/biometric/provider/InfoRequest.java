@@ -4,15 +4,19 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -191,6 +195,7 @@ public class InfoRequest extends HttpServlet {
 			info.Model = deviceInfo.Model;
 			info.HostId = deviceInfo.HostId;
 			info.firmware = deviceInfo.firmware;
+
 			byte[] deviceInfoData = null;
 			try
 			{
@@ -202,6 +207,7 @@ public class InfoRequest extends HttpServlet {
 			}
 			return deviceInfoData;
 	}
+
 
 	private X509Certificate getCertificate()
 	{
@@ -250,6 +256,7 @@ public class InfoRequest extends HttpServlet {
 		return pKey;
 	}
 
+	
 	private String getDigitalId(String type) {
 
 		return getDigitalFingerId(type);
@@ -316,11 +323,16 @@ public class InfoRequest extends HttpServlet {
 		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
 		try {
-			result = Base64.getEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
-		} catch (JsonProcessingException e) {
+			result = JwtUtility.getJwt(oB.writeValueAsBytes(digitalMap), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | CertificateException | IOException e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
+	
+	
+	
+	
 }

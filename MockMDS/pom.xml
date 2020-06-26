@@ -73,6 +73,20 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>3.10</version>
 			</dependency>
+			
+			<dependency>
+		    <groupId>org.bouncycastle</groupId>
+		    <artifactId>bcprov-jdk16</artifactId>
+		    <version>1.46</version>
+		</dependency>
+			
+			<!-- https://mvnrepository.com/artifact/javax.xml.crypto/jsr105-api -->
+<dependency>
+    <groupId>javax.xml.crypto</groupId>
+    <artifactId>jsr105-api</artifactId>
+    <version>1.0.1</version>
+</dependency>
+
 
 			
 			<!-- <dependency>
@@ -86,6 +100,14 @@
 	<artifactId>kernel-core</artifactId>
 	<version>1.0.8</version>
 </dependency>
+
+<!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
+<dependency>
+    <groupId>org.bitbucket.b_c</groupId>
+    <artifactId>jose4j</artifactId>
+    <version>0.7.1</version>
+</dependency>
+
 
 
 	</dependencies>
