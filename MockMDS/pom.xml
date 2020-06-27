@@ -193,6 +193,7 @@
 							<tasks>
 								<echo>Using env.test.properties</echo>
 								<copy file="run.bat" tofile="${basedir}/target/run.bat" />
+								<copy file="run.sh" tofile="${basedir}/target/run.sh" />
 							</tasks>
 						</configuration>
 					</execution>

@@ -36,10 +36,14 @@ public class JwtUtility {
 	public static String getJwt(byte[] data, PrivateKey privateKey, X509Certificate x509Certificate) {
 		String jwsToken = null;
 		JsonWebSignature jws = new JsonWebSignature();
-		List<X509Certificate> certList = new ArrayList<>();
-		certList.add(x509Certificate);
-		X509Certificate[] certArray = certList.toArray(new X509Certificate[] {});
-		jws.setCertificateChainHeaderValue(certArray);
+		
+		if(x509Certificate != null) {
+			List<X509Certificate> certList = new ArrayList<>();
+			certList.add(x509Certificate);
+			X509Certificate[] certArray = certList.toArray(new X509Certificate[] {});
+			jws.setCertificateChainHeaderValue(certArray);
+		}
+		
 		jws.setPayloadBytes(data);
 		jws.setAlgorithmHeaderValue(signAlgorithm);
 		jws.setKey(privateKey);
@@ -53,31 +57,38 @@ public class JwtUtility {
 
 	}
 
-	public static X509Certificate getCertificate()
-			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException {
+	public static X509Certificate getCertificate() {
+		
+		try {
+			FileInputStream certfis = new FileInputStream(
 
-		FileInputStream certfis = new FileInputStream(
+					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
 
-				new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
+			String cert = getFileContent(certfis, "UTF-8");
 
-		String cert = getFileContent(certfis, "UTF-8");
-
-		cert = trimBeginEnd(cert);
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-		return (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(cert)));
-
+			cert = trimBeginEnd(cert);
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			return (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(cert)));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 
-	public static PrivateKey getPrivateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public static PrivateKey getPrivateKey() {		
+		try {
+			FileInputStream pkeyfis = new FileInputStream(
+					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
 
-		FileInputStream pkeyfis = new FileInputStream(
-				new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
-
-		String pKey = getFileContent(pkeyfis, "UTF-8");
-		pKey = trimBeginEnd(pKey);
-		KeyFactory kf = KeyFactory.getInstance("RSA");
-		return kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pKey)));
-
+			String pKey = getFileContent(pkeyfis, "UTF-8");
+			pKey = trimBeginEnd(pKey);
+			KeyFactory kf = KeyFactory.getInstance("RSA");
+			return kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pKey)));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			//throw new Exception("Failed to get private key");
+		}
+		return null;
 	}
 	
 	public static PublicKey getPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
