@@ -189,6 +189,8 @@ public class CaptureRequest extends HttpServlet {
 					previousHash = (String) biometricData.get(HASH);
 				}
 			}
+			
+			responseMap.put(BIOMETRICS, listOfBiometric);
 		
 		} catch (Exception exception) {
 
