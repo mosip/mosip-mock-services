@@ -5,7 +5,7 @@
 
 	<artifactId>mock-sdk</artifactId>
 	<groupId>io.mosip.mock.sdk</groupId>
-	<version>0.9-rc1</version>
+	<version>0.9</version>
 	<name>mock-sdk</name>
 	<description>Sample implementation of biometrics SDK</description>
 	<packaging>jar</packaging>
@@ -74,7 +74,7 @@
 		<maven.javadoc.version>3.0.1</maven.javadoc.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
-		<kernel.biometricsdk.version>0.9-rc1</kernel.biometricsdk.version>
+		<kernel.biometricsdk.version>0.9</kernel.biometricsdk.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
 	</properties>
