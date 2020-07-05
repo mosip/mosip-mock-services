@@ -347,7 +347,10 @@ public class CaptureRequest extends HttpServlet {
 		NewBioDto bioResponse = new NewBioDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
 		bioResponse.setBioType(bioType);
-		bioResponse.setBioValue(Base64.getUrlEncoder().encodeToString(bioMetricsData.getBioExtract().getBytes()));
+		
+		if(bioMetricsData.getBioExtract() != null)
+			bioResponse.setBioValue(Base64.getUrlEncoder().encodeToString(bioMetricsData.getBioExtract().getBytes()));
+		
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 		//TODO Device service version should be read from file
 		bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
@@ -448,7 +451,8 @@ public class CaptureRequest extends HttpServlet {
 		bioResponse.setDomainUri("");
 		
 		bioResponse.setTimestamp(cryptoResult.get("TIMESTAMP"));
-		bioResponse.setBioValue(cryptoResult.get("ENC_DATA"));		
+		bioResponse.setBioValue(cryptoResult.containsKey("ENC_DATA") ? 
+				cryptoResult.get("ENC_DATA") : null);		
 		return bioResponse;
 	}
 	
