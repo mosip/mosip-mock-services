@@ -171,10 +171,6 @@ public class CaptureRequest extends HttpServlet {
 			CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB
 					.readValue(getRequestString(request).getBytes(), CaptureRequestDto.class));
 
-			Map<String, Object> errorCountMap = new LinkedHashMap<>();
-			errorCountMap.put(errorCode, "102");
-			errorCountMap.put(errorInfo, "Count Mismatch");
-
 			if (environmentList.contains(captureRequestDto.getEnv())
 					&& captureRequestDto.getPurpose().equalsIgnoreCase(Auth)) {
 
@@ -206,11 +202,15 @@ public class CaptureRequest extends HttpServlet {
 							listOfBiometric.add(biometricData);
 							previousHash = (String) biometricData.get(HASH);
 						}
+					}else {
+						Map<String, Object> errorCountMap = new LinkedHashMap<>();
+						errorCountMap.put(errorCode, "102");
+						errorCountMap.put(errorInfo, "Count Mismatch");
+						listOfBiometric.add(errorCountMap);
 					}
 				}
 
-				responseMap.put(BIOMETRICS,
-						!listOfBiometric.isEmpty() ? listOfBiometric : listOfBiometric.add(errorCountMap));
+				responseMap.put(BIOMETRICS, listOfBiometric);
 
 			} else {
 				Map<String, Object> errorMap = new LinkedHashMap<>();
@@ -347,7 +347,10 @@ public class CaptureRequest extends HttpServlet {
 		NewBioDto bioResponse = new NewBioDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
 		bioResponse.setBioType(bioType);
-		bioResponse.setBioValue(Base64.getUrlEncoder().encodeToString(bioMetricsData.getBioExtract().getBytes()));
+		
+		if(bioMetricsData.getBioExtract() != null)
+			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+		
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 		//TODO Device service version should be read from file
 		bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
@@ -448,7 +451,8 @@ public class CaptureRequest extends HttpServlet {
 		bioResponse.setDomainUri("");
 		
 		bioResponse.setTimestamp(cryptoResult.get("TIMESTAMP"));
-		bioResponse.setBioValue(cryptoResult.get("ENC_DATA"));		
+		bioResponse.setBioValue(cryptoResult.containsKey("ENC_DATA") ? 
+				cryptoResult.get("ENC_DATA") : null);		
 		return bioResponse;
 	}
 	

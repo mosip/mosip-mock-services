@@ -37,8 +37,8 @@ public class StreamRequest extends HttpServlet {
             doPost(req, res);
         if(req.getMethod().contentEquals("OPTIONS"))
             CORSManager.doOptions(req, res);
-            if(req.getMethod().contentEquals("GET"))
-			CORSManager.doOptions(req, res);
+        //if(req.getMethod().contentEquals("GET"))
+		//	CORSManager.doOptions(req, res);
     }
 
 
@@ -93,7 +93,7 @@ public class StreamRequest extends HttpServlet {
 					i = 1;
 				else if (i == 1)
 					i = 0;
-				TimeUnit.MILLISECONDS.sleep(5);
+				TimeUnit.MILLISECONDS.sleep(3000);
 			} catch (Exception e) {
 				return;
 			}
