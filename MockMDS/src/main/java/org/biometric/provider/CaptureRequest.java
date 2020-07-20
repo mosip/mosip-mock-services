@@ -171,10 +171,6 @@ public class CaptureRequest extends HttpServlet {
 			CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB
 					.readValue(getRequestString(request).getBytes(), CaptureRequestDto.class));
 
-			Map<String, Object> errorCountMap = new LinkedHashMap<>();
-			errorCountMap.put(errorCode, "102");
-			errorCountMap.put(errorInfo, "Count Mismatch");
-
 			if (environmentList.contains(captureRequestDto.getEnv())
 					&& captureRequestDto.getPurpose().equalsIgnoreCase(Auth)) {
 
@@ -206,11 +202,15 @@ public class CaptureRequest extends HttpServlet {
 							listOfBiometric.add(biometricData);
 							previousHash = (String) biometricData.get(HASH);
 						}
+					}else {
+						Map<String, Object> errorCountMap = new LinkedHashMap<>();
+						errorCountMap.put(errorCode, "102");
+						errorCountMap.put(errorInfo, "Count Mismatch");
+						listOfBiometric.add(errorCountMap);
 					}
 				}
 
-				responseMap.put(BIOMETRICS,
-						!listOfBiometric.isEmpty() ? listOfBiometric : listOfBiometric.add(errorCountMap));
+				responseMap.put(BIOMETRICS, listOfBiometric);
 
 			} else {
 				Map<String, Object> errorMap = new LinkedHashMap<>();
@@ -349,7 +349,7 @@ public class CaptureRequest extends HttpServlet {
 		bioResponse.setBioType(bioType);
 		
 		if(bioMetricsData.getBioExtract() != null)
-			bioResponse.setBioValue(Base64.getUrlEncoder().encodeToString(bioMetricsData.getBioExtract().getBytes()));
+			bioResponse.setBioValue(bioMetricsData.getBioExtract());
 		
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 		//TODO Device service version should be read from file

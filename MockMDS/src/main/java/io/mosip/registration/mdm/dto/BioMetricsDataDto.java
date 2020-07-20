@@ -1,5 +1,6 @@
 package io.mosip.registration.mdm.dto;
 
+
 public class BioMetricsDataDto {
 
 	private String digitalId;
