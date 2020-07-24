@@ -30,6 +30,7 @@ import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDeviceDetailDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDto;
+import io.mosip.registration.mdm.dto.NewBioAuthDto;
 import io.mosip.registration.mdm.dto.NewBioDto;
 
 public class CaptureRequest extends HttpServlet {
@@ -144,8 +145,12 @@ public class CaptureRequest extends HttpServlet {
 					}
 				}
 				
-				responseMap.put(BIOMETRICS,
-						!listOfBiometric.isEmpty() ? listOfBiometric : listOfBiometric.add(errorCountMap));
+				if(listOfBiometric.isEmpty()) {
+					listOfBiometric.add(errorCountMap);
+				}
+				
+				responseMap.put(BIOMETRICS, listOfBiometric);
+				
 			} else {
 				Map<String, Object> errorMap = new LinkedHashMap<>();
 				errorMap.put(errorCode, "101");
@@ -195,7 +200,7 @@ public class CaptureRequest extends HttpServlet {
 							Map<String, String> result = CryptoUtility.encrypt(JwtUtility.getPublicKey(),
 									dto.getBioExtract());
 
-							NewBioDto data = buildAuthNewBioDto(dto, bio.type, bio.requestedScore,
+							NewBioAuthDto data = buildAuthNewBioDto(dto, bio.type, bio.requestedScore,
 									captureRequestDto.transactionId, result);
 							Map<String, Object> biometricData = getAuthMinimalResponse(captureRequestDto.specVersion,
 									data, previousHash, result);
@@ -431,10 +436,10 @@ public class CaptureRequest extends HttpServlet {
 	
 	
 	
-	private NewBioDto buildAuthNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, int requestedScore, String transactionId, 
+	private NewBioAuthDto buildAuthNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, int requestedScore, String transactionId, 
 			Map<String, String> cryptoResult) throws Exception {	
 		
-		NewBioDto bioResponse = new NewBioDto();
+		NewBioAuthDto bioResponse = new NewBioAuthDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
 		bioResponse.setBioType(bioType);
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
@@ -457,7 +462,7 @@ public class CaptureRequest extends HttpServlet {
 	}
 	
 	
-	private Map<String, Object> getAuthMinimalResponse(String specVersion, NewBioDto data, String previousHash, 
+	private Map<String, Object> getAuthMinimalResponse(String specVersion, NewBioAuthDto data, String previousHash, 
 			Map<String, String> cryptoResult) {
 		Map<String, Object> biometricData = new LinkedHashMap<>();
 		try {
