@@ -38,6 +38,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,14 +55,18 @@ import io.mosip.registration.mdm.dto.DataHeader;
 import io.mosip.registration.mdm.dto.DeviceInfo;
 import io.mosip.registration.mdm.dto.DeviceRequest;
 
+
 public class InfoRequest extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private CryptoCore jwsValidation;
 
-	InfoRequest(CryptoCore cryptoCore) {
+	private String serverPort;
+
+	InfoRequest(CryptoCore cryptoCore,  String serverPort) {
 		this.jwsValidation = cryptoCore;
+		this.serverPort = serverPort;
 	}
 
 	ObjectMapper oB = null;
@@ -166,9 +175,9 @@ public class InfoRequest extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			
 			DeviceInfo info = new DeviceInfo();
-			info.callbackId = deviceInfo.callbackId;
+			info.callbackId = String.format("http://127.0.0.1:%s/", serverPort);
 			info.certification = deviceInfo.certification;
 			info.ComplianceLevel = deviceInfo.ComplianceLevel;
 			info.deviceCode = deviceInfo.deviceCode;

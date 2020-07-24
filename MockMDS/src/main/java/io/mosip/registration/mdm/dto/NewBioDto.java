@@ -14,22 +14,7 @@ public class NewBioDto {
 	private String timestamp;
 	private int requestedScore;
 	private String qualityScore;
-	private String domainUri;
-
-	/**
-	 * @return the domainUri
-	 */
-	public String getDomainUri() {
-		return domainUri;
-	}
-
-	/**
-	 * @param domainUri the domainUri to set
-	 */
-	public void setDomainUri(String domainUri) {
-		this.domainUri = domainUri;
-	}
-
+	
 	/**
 	 * @return the digitalId
 	 */
