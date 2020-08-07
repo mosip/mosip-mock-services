@@ -47,9 +47,7 @@ public class DiscoverRequest extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		// if(req.getMethod().contentEquals("MOSIPDISC"))
-		if (req.getMethod().contentEquals("MOSIPDISC") || req.getMethod().contentEquals("GET")
-				|| req.getMethod().contentEquals("POST"))
+		if (req.getMethod().contentEquals("MOSIPDISC"))
 			doPost(req, res);
 		if (req.getMethod().contentEquals("OPTIONS"))
 			CORSManager.doOptions(req, res);
@@ -166,7 +164,7 @@ public class DiscoverRequest extends HttpServlet {
 		discoverResponse.deviceId = fingerDiscovery.deviceId;
 		discoverResponse.deviceStatus = fingerDiscovery.deviceStatus;
 		discoverResponse.deviceSubId = fingerDiscovery.deviceSubId;
-		discoverResponse.digitalId = getDigitalFingerId(modality);
+		discoverResponse.digitalId = getDigitalId(modality);
 		discoverResponse.purpose = fingerDiscovery.purpose;
 		discoverResponse.serviceVersion = fingerDiscovery.serviceVersion;
 		discoverResponse.specVersion = fingerDiscovery.specVersion;
@@ -175,12 +173,12 @@ public class DiscoverRequest extends HttpServlet {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String getDigitalFingerId(String moralityType) {
+	public String getDigitalId(String modalityType) {
 
 		String digitalId = null;
 
 		try {
-			switch (moralityType) {
+			switch (modalityType) {
 
 			case "FIR":
 				digitalId = getDigitalModality(oB.readValue(
@@ -211,9 +209,7 @@ public class DiscoverRequest extends HttpServlet {
 		return digitalId;
 	}
 
-	private String getDigitalModality(Map<String, String> digitalIdMap) {
-
-		String result = null;
+	private String getDigitalModality(Map<String, String> digitalIdMap) throws JsonProcessingException {
 		Map<String, String> digitalMap = new LinkedHashMap<String, String>();
 		digitalMap.put("dateTime", getTimeStamp());
 		digitalMap.put("deviceProvider", digitalIdMap.get("deviceProvider"));
@@ -223,14 +219,7 @@ public class DiscoverRequest extends HttpServlet {
 		digitalMap.put("model", digitalIdMap.get("model"));
 		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
-		try {
-			result = JwtUtility.getJwt(oB.writeValueAsBytes(digitalMap), JwtUtility.getPrivateKey(),
-					JwtUtility.getCertificate());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-
+		return Base64.getUrlEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
 	}
 
 	private String getTimeStamp() {

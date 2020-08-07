@@ -68,10 +68,7 @@ public class CaptureRequest extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		// if(req.getMethod().contentEquals("RCAPTURE") ||
-		// req.getMethod().contentEquals("CAPTURE"))
-		if (req.getMethod().contentEquals("RCAPTURE") || req.getMethod().contentEquals("CAPTURE")
-				|| req.getMethod().contentEquals("POST"))
+		if (req.getMethod().contentEquals("RCAPTURE") || req.getMethod().contentEquals("CAPTURE"))
 			doPost(req, res);
 		if (req.getMethod().contentEquals("OPTIONS"))
 			CORSManager.doOptions(req, res);
