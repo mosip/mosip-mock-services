@@ -21,7 +21,7 @@
 	"deviceSubId": [1, 2, 3],
 	"firmware": "TCI322L1.0",
 	"deviceStatus": "Active",
-	"status": "READY",
+	"status": "Ready",
 	"DeviceExpiryDate": "2025-01-01T00:00:00.000+05:30",
 	"DeviceTimestamp": "2020-03-19T18:21:28.410+05:30",
 	"certification": "L0",

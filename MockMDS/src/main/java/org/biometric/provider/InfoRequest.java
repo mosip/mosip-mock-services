@@ -73,8 +73,7 @@ public class InfoRequest extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		// if(req.getMethod().contentEquals("MOSIPDINFO"))
-		if (req.getMethod().contentEquals("MOSIPDINFO") || req.getMethod().contentEquals("GET"))
+		if (req.getMethod().contentEquals("MOSIPDINFO"))
 			doPost(req, res);
 		if (req.getMethod().contentEquals("OPTIONS"))
 			CORSManager.doOptions(req, res);

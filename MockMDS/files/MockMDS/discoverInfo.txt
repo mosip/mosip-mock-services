@@ -1,7 +1,7 @@
 [
    {
       "deviceId":"1",
-      "deviceStatus":"READY",
+      "deviceStatus":"Ready",
       "certification":"L0",
       "serviceVersion":"SB.WIN.001",
       "deviceSubId":[

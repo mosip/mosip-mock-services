@@ -1,6 +1,6 @@
 {
 	"deviceId": "1",
-	"deviceStatus": "READY",
+	"deviceStatus": "Ready",
 	"certification": "L0",
 	"serviceVersion": "MOSIP.MDS.001",
 	"deviceSubId": [
