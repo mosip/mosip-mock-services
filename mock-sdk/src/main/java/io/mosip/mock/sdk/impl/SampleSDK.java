@@ -32,10 +32,6 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
  */
 @Component
 public class SampleSDK implements IBioApi {
-	
-	public SampleSDK() {
-		System.err.println("init");
-	}
 
 	private static final String API_VERSION = "0.9";
 
