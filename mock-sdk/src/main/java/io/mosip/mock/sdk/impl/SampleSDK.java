@@ -47,6 +47,7 @@ public class SampleSDK implements IBioApi {
 		Map<BiometricFunction, List<BiometricType>> supportedMethods = new HashMap<>();
 		supportedMethods.put(BiometricFunction.MATCH, supportedModalities);
 		supportedMethods.put(BiometricFunction.QUALITY_CHECK, supportedModalities);
+		supportedMethods.put(BiometricFunction.EXTRACT, supportedModalities);
 		sdkInfo.setSupportedMethods(supportedMethods);
 		return sdkInfo;
 	}
