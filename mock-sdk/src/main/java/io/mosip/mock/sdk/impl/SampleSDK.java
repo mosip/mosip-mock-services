@@ -32,6 +32,10 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
  */
 @Component
 public class SampleSDK implements IBioApi {
+	
+	public SampleSDK() {
+		System.err.println("init");
+	}
 
 	private static final String API_VERSION = "0.9";
 
@@ -48,6 +52,8 @@ public class SampleSDK implements IBioApi {
 		supportedMethods.put(BiometricFunction.MATCH, supportedModalities);
 		supportedMethods.put(BiometricFunction.QUALITY_CHECK, supportedModalities);
 		supportedMethods.put(BiometricFunction.EXTRACT, supportedModalities);
+		supportedMethods.put(BiometricFunction.CONVERT_FORMAT, supportedModalities);
+		supportedMethods.put(BiometricFunction.SEGMENT, supportedModalities);
 		sdkInfo.setSupportedMethods(supportedMethods);
 		return sdkInfo;
 	}
@@ -352,9 +358,9 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
+	public Response<BiometricRecord> segment(BiometricRecord sample, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
 		BiometricRecord record = new BiometricRecord();
-		record.setSegments(null);
+		record.setSegments(sample.getSegments());
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
 		response.setResponse(record);
@@ -367,6 +373,4 @@ public class SampleSDK implements IBioApi {
 		// TODO Auto-generated method stub
 		return sample;
 	}
-
-
 }
