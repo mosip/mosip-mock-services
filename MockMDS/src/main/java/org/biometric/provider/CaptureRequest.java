@@ -3,6 +3,8 @@ package org.biometric.provider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.naming.java.javaURLContextFactory;
 import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -26,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.kernel.core.util.HMACUtils;
+import io.mosip.kernel.core.util.constant.StringUtilConstants;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDeviceDetailDto;
@@ -106,7 +110,7 @@ public class CaptureRequest extends HttpServlet {
 		Map<String, Object> responseMap = new HashMap<>();
 		try {
 			CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB
-					.readValue(getRequestString(request).getBytes(), CaptureRequestDto.class));
+					.readValue(getRequestString(request).getBytes(StandardCharsets.UTF_8), CaptureRequestDto.class));
 			
 			Map<String, Object> errorCountMap = new LinkedHashMap<>();
 			errorCountMap.put(errorCode, "102");
@@ -116,7 +120,7 @@ public class CaptureRequest extends HttpServlet {
 					&& captureRequestDto.getPurpose().equalsIgnoreCase(Registration)) {
 
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
+				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes(StandardCharsets.UTF_8)));
 
 				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.mosipBioRequest) {
 					List<BioMetricsDataDto> list = new ArrayList<>();
@@ -171,13 +175,13 @@ public class CaptureRequest extends HttpServlet {
 		
 		try {
 			CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB
-					.readValue(getRequestString(request).getBytes(), CaptureRequestDto.class));
+					.readValue(getRequestString(request).getBytes(StandardCharsets.UTF_8), CaptureRequestDto.class));
 
 			if (environmentList.contains(captureRequestDto.getEnv())
 					&& captureRequestDto.getPurpose().equalsIgnoreCase(Auth)) {
 
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
+				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes(StandardCharsets.UTF_8)));
 
 				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.mosipBioRequest) {
 					List<BioMetricsDataDto> list = new ArrayList<>();
@@ -377,9 +381,9 @@ public class CaptureRequest extends HttpServlet {
 			String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(data), JwtUtility.getPrivateKey(),
 					JwtUtility.getCertificate());
 			biometricData.put(DATA, dataBlock);
-			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes(StandardCharsets.UTF_8)));
 			String concatenatedHash = previousHash + presentHash;
-			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes(StandardCharsets.UTF_8)));
 			biometricData.put(HASH, finalHash);
 			biometricData.put(error, null);
 		} catch (Exception ex) {
@@ -439,13 +443,13 @@ public class CaptureRequest extends HttpServlet {
 		NewBioAuthDto bioResponse = new NewBioAuthDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
 		bioResponse.setBioType(bioType);
-		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+		bioResponse.setDeviceCode("1");
 		//TODO Device service version should be read from file
-		bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+		bioResponse.setDeviceServiceVersion("SB.WIN.001");
 		bioResponse.setEnv(bioMetricsData.getEnv());
 		//TODO - need to change, should handle based on deviceId
 		bioResponse.setDigitalId(getDigitalId(bioType));		
-		bioResponse.setPurpose(bioMetricsData.getPurpose());
+		bioResponse.setPurpose("Auth");
 		bioResponse.setRequestedScore(requestedScore);
 		bioResponse.setQualityScore(bioMetricsData.getQualityScore());		
 		bioResponse.setTransactionId(transactionId);
@@ -467,9 +471,9 @@ public class CaptureRequest extends HttpServlet {
 			String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(data), JwtUtility.getPrivateKey(),
 					JwtUtility.getCertificate());
 			biometricData.put(DATA, dataBlock);
-			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(oB.writeValueAsBytes(data)));
 			String concatenatedHash = previousHash + presentHash;
-			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
+			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes(StandardCharsets.UTF_8)));
 			biometricData.put(HASH, finalHash);
 			biometricData.put(SESSION_KEY, cryptoResult.get("ENC_SESSION_KEY"));
 			biometricData.put(THUMB_PRINT, "");
