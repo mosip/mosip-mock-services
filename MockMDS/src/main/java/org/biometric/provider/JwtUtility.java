@@ -64,8 +64,28 @@ import org.jose4j.lang.JoseException;
 
 
 public class JwtUtility {
-	
-	
+
+	private static final String X_509 = "X.509";
+	private static final String USER_DIR = "user.dir";
+	private static final String UTF_8 = "UTF-8";
+	private static final String PUBLIC_KEY = "publicKey";
+	private static final String RESPONSE = "response";
+	private static final String COOKIE = "Cookie";
+	private static final String AUTHORIZATION = "Authorization";
+	private static final String REFERENCE_ID = "referenceId";
+	private static final String TIME_STAMP = "timeStamp";
+	private static final String BASE_URL = "https://qa.mosip.net/";
+	private static final String IDA_FIR = "IDA-FIR";
+	private static final String IDA = "IDA";
+	private static final String IDA_PUBLICKEY_URL = BASE_URL+"idauthentication/v1/internal/publickey/IDA";
+	private static final String RSA = "RSA";
+	private static final String REGPROC = "regproc";
+	private static final String APP_ID = "appId";
+	private static final String MOSIP_REGPROC_CLIENT = "mosip-regproc-client";
+	private static final String CLIENT_ID = "clientId";
+	private static final String SECRET_KEY = "secretKey";
+	private static final String ABC123 = "abc123";
+	private static final String IDA_AUTHMANAGER_URL = BASE_URL+"v1/authmanager/authenticate/clientidsecretkey";
 	static ObjectMapper mapper = new ObjectMapper();
 	//TODO Need to be implement using properties 
 	//@Value("${mosip.kernel.crypto.sign-algorithm-name:RS256}")
@@ -100,12 +120,12 @@ public class JwtUtility {
 		try {
 			FileInputStream certfis = new FileInputStream(
 
-					new File(System.getProperty("user.dir") + "/files/keys/MosipTestCert.pem").getPath());
+					new File(System.getProperty(USER_DIR) + "/files/keys/MosipTestCert.pem").getPath());
 
-			String cert = getFileContent(certfis, "UTF-8");
+			String cert = getFileContent(certfis, UTF_8);
 
 			cert = trimBeginEnd(cert);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			CertificateFactory cf = CertificateFactory.getInstance(X_509);
 			return (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(cert)));
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -116,11 +136,11 @@ public class JwtUtility {
 	public static PrivateKey getPrivateKey() {		
 		try {
 			FileInputStream pkeyfis = new FileInputStream(
-					new File(System.getProperty("user.dir") + "/files/keys/PrivateKey.pem").getPath());
+					new File(System.getProperty(USER_DIR) + "/files/keys/PrivateKey.pem").getPath());
 
-			String pKey = getFileContent(pkeyfis, "UTF-8");
+			String pKey = getFileContent(pkeyfis, UTF_8);
 			pKey = trimBeginEnd(pKey);
-			KeyFactory kf = KeyFactory.getInstance("RSA");
+			KeyFactory kf = KeyFactory.getInstance(RSA);
 			return kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pKey)));
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -135,25 +155,25 @@ public class JwtUtility {
 		RestTemplate restTemplate = createTemplate();
 
 		CryptomanagerRequestDto request = new CryptomanagerRequestDto();
-		request.setApplicationId("IDA");
+		request.setApplicationId(IDA);
 		//request.setData(org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString(data.getBytes(StandardCharsets.UTF_8)));
-		String publicKeyId = "IDA-FIR";
+		String publicKeyId = IDA_FIR;
 		request.setReferenceId(publicKeyId);
 		String utcTime = getUTCCurrentDateTimeISOString();
 		request.setTimeStamp(utcTime);
 		Map<String, String> uriParams = new HashMap<>();
-		uriParams.put("appId", "IDA");
+		uriParams.put(APP_ID, IDA);
 
 		UriComponentsBuilder builder = UriComponentsBuilder
-				.fromUriString("https://qa.mosip.net/idauthentication/v1/internal/publickey/IDA")
-				.queryParam("timeStamp", getUTCCurrentDateTimeISOString())
-				.queryParam("referenceId", publicKeyId);
+				.fromUriString(IDA_PUBLICKEY_URL)
+				.queryParam(TIME_STAMP, getUTCCurrentDateTimeISOString())
+				.queryParam(REFERENCE_ID, publicKeyId);
 		ResponseEntity<Map> response = restTemplate.exchange(builder.build(uriParams), HttpMethod.GET, null, Map.class);
-		String pKey= (String) ((Map<String, Object>) response.getBody().get("response")).get("publicKey");
+		String pKey= (String) ((Map<String, Object>) response.getBody().get(RESPONSE)).get(PUBLIC_KEY);
 //		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 //		return (PublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(pKey)));
 //		
-		return KeyFactory.getInstance("RSA")
+		return KeyFactory.getInstance(RSA)
 				.generatePublic(new X509EncodedKeySpec(org.apache.commons.codec.binary.Base64.decodeBase64(pKey)));
 		
 	}
@@ -167,7 +187,7 @@ public class JwtUtility {
 					throws IOException {
 				String authToken = generateAuthToken();
 				if (authToken != null && !authToken.isEmpty()) {
-					request.getHeaders().set("Cookie", "Authorization=" + authToken);
+					request.getHeaders().set(COOKIE, AUTHORIZATION+"=" + authToken);
 				}
 				return execution.execute(request, body);
 			}
@@ -184,18 +204,18 @@ public class JwtUtility {
 		ObjectNode requestBody = mapper.createObjectNode();
 
 		//TODO check client id and secret key
-		requestBody.put("clientId", "mosip-regproc-client");
-		requestBody.put("secretKey", "abc123");
+		requestBody.put(CLIENT_ID, MOSIP_REGPROC_CLIENT);
+		requestBody.put(SECRET_KEY, ABC123);
 
 		//TODO check app id
-		requestBody.put("appId", "regproc");
+		requestBody.put(APP_ID, REGPROC);
 		RequestWrapper<ObjectNode> request = new RequestWrapper<>();
 		request.setRequesttime(DateUtils.getUTCCurrentDateTime());
 		request.setRequest(requestBody);
 		ClientResponse response = WebClient
-				.create("https://qa.mosip.net/v1/authmanager/authenticate/clientidsecretkey")
+				.create(IDA_AUTHMANAGER_URL)
 				.post().syncBody(request).exchange().block();
-		List<ResponseCookie> list = response.cookies().get("Authorization");
+		List<ResponseCookie> list = response.cookies().get(AUTHORIZATION);
 		if (list != null && !list.isEmpty()) {
 			ResponseCookie responseCookie = list.get(0);
 			return responseCookie.getValue();
