@@ -195,7 +195,7 @@ public class CaptureRequest extends HttpServlet {
 
 						for (BioMetricsDataDto dto : list) {
 							Map<String, String> result = CryptoUtility.encrypt(JwtUtility.getPublicKey(),
-									dto.getBioExtract());
+									dto.getBioExtract(), captureRequestDto.transactionId);
 
 							NewBioAuthDto data = buildAuthNewBioDto(dto, bio.type, bio.requestedScore,
 									captureRequestDto.transactionId, result);

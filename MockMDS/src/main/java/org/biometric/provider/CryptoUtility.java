@@ -53,13 +53,14 @@ public class CryptoUtility {
     	return formatter.format(ZonedDateTime.now());
 	}
 	
-	public static Map<String, String>  encrypt(PublicKey publicKey, String data) {
+	public static Map<String, String>  encrypt(PublicKey publicKey, String data, String transactionId) {
 		Map<String, String> result = new HashMap<>();
-		try {	
+		try {
 			String timestamp =  getTimestamp();
+			byte[] xorResult = getXOR(timestamp, transactionId);
 			
-			byte[] aadBytes = timestamp.substring(timestamp.length() - 16).getBytes();
-			byte[] ivBytes = timestamp.substring(timestamp.length() - 12).getBytes();
+			byte[] aadBytes = getLastBytes(xorResult, 16);
+			byte[] ivBytes = getLastBytes(xorResult, 12);
 			byte[] dataBytes = data.getBytes();
 		
 			SecretKey secretKey = getSymmetricKey();
@@ -175,7 +176,54 @@ public class CryptoUtility {
 	private static byte[] doFinal(byte[] data, Cipher cipher) throws Exception {
 		return cipher.doFinal(data);
 	}
-	
+
+	// Function to insert n 0s in the
+	// beginning of the given string
+	static byte[] prependZeros(byte[] str, int n) {
+		byte[] newBytes = new byte[str.length + n];
+		int i = 0;
+		for (; i < n; i++) {
+			newBytes[i] = 0;
+		}
+
+		for(int j = 0;i < newBytes.length; i++, j++) {
+			newBytes[i] = str[j];
+		}
+
+		return newBytes;
+	}
+
+	// Function to return the XOR
+	// of the given strings
+	private static byte[] getXOR(String a, String b) {
+		byte[] aBytes = a.getBytes();
+		byte[] bBytes = b.getBytes();
+		// Lengths of the given strings
+		int aLen = aBytes.length;
+		int bLen = bBytes.length;
+		// Make both the strings of equal lengths
+		// by inserting 0s in the beginning
+		if (aLen > bLen) {
+			bBytes = prependZeros(bBytes, aLen - bLen);
+		} else if (bLen > aLen) {
+			aBytes = prependZeros(aBytes, bLen - aLen);
+		}
+		// Updated length
+		int len = Math.max(aLen, bLen);
+		byte[] xorBytes = new byte[len];
+
+		// To store the resultant XOR
+		for (int i = 0; i < len; i++) {
+			xorBytes[i] = (byte)(aBytes[i] ^ bBytes[i]);
+		}
+		return xorBytes;
+	}
+
+	private static byte[] getLastBytes(byte[] xorBytes, int lastBytesNum) {
+		assert(xorBytes.length >= lastBytesNum);
+		return java.util.Arrays.copyOfRange(xorBytes, xorBytes.length - lastBytesNum, xorBytes.length);
+	}
+
 	public static void main(String[] args) throws Exception {
 		String data = "this is my test";
 		
