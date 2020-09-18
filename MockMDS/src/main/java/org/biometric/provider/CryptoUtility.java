@@ -54,6 +54,9 @@ public class CryptoUtility {
 	}
 	
 	public static Map<String, String>  encrypt(PublicKey publicKey, String data, String transactionId) {
+		JwtUtility jwtUtility = new JwtUtility();
+		jwtUtility.getPublicKeyFromIDA();
+
 		Map<String, String> result = new HashMap<>();
 		try {
 			String timestamp =  getTimestamp();
@@ -77,12 +80,14 @@ public class CryptoUtility {
 		return result;
 	}
 	
-	public static String decrypt(PrivateKey privateKey, String sessionKey, String data, String timestamp) {
+	public static String decrypt(PrivateKey privateKey, String sessionKey, String data, String timestamp,
+								 String transactionId) {
 		try {
 			
 			timestamp = timestamp.trim();
-			byte[] aadBytes = timestamp.substring(timestamp.length() - 16).getBytes();
-			byte[] ivBytes = timestamp.substring(timestamp.length() - 12).getBytes();
+			byte[] xorResult = getXOR(timestamp, transactionId);
+			byte[] aadBytes = getLastBytes(xorResult, 16);
+			byte[] ivBytes = getLastBytes(xorResult, 12);
 			
 			byte[] decodedSessionKey =  java.util.Base64.getUrlDecoder().decode(sessionKey);		
 			final byte[] symmetricKey = asymmetricDecrypt(privateKey, decodedSessionKey);		
@@ -232,9 +237,10 @@ public class CryptoUtility {
 		KeyPair pair = gen.generateKeyPair();
 		
 		String timestamp =  getTimestamp();
-		
-		byte[] aadBytes = timestamp.substring(timestamp.length() - 16).getBytes();
-		byte[] ivBytes = timestamp.substring(timestamp.length() - 12).getBytes();
+		String transactionId = "sdfsdf-sdfsd";
+		byte[] xorResult = getXOR(timestamp, transactionId);
+		byte[] aadBytes = getLastBytes(xorResult, 16);
+		byte[] ivBytes = getLastBytes(xorResult, 12);
 		byte[] dataBytes = data.getBytes();
 	
 		SecretKey secretKey = getSymmetricKey();

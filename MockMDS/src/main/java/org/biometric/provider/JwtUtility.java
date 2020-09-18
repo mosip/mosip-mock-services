@@ -1,11 +1,6 @@
 package org.biometric.provider;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
@@ -21,10 +16,17 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Properties;
 
+import com.squareup.okhttp.*;
+import io.mosip.kernel.core.util.DateUtils;
+import okio.BufferedSink;
 import org.bouncycastle.asn1.eac.RSAPublicKey;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.core.env.PropertiesPropertySource;
 
 
 public class JwtUtility {
@@ -32,6 +34,9 @@ public class JwtUtility {
 	//TODO Need to be implement using properties 
 	//@Value("${mosip.kernel.crypto.sign-algorithm-name:RS256}")
 	private static String signAlgorithm="RS256";
+	private static Properties properties = null;
+	private static String AUTH_REQ_TEMPLATE = "{ \"id\": \"string\",\"metadata\": {},\"request\": { \"appId\": \"%s\", \"clientId\": \"%s\", \"secretKey\": \"%s\" }, \"requesttime\": \"%s\", \"version\": \"string\"}";
+
 
 	public static String getJwt(byte[] data, PrivateKey privateKey, X509Certificate x509Certificate) {
 		String jwsToken = null;
@@ -121,6 +126,67 @@ public class JwtUtility {
 			}
 			return sb.toString();
 		}
+	}
+
+	public String getPropertyValue(String key) {
+		if(properties == null) {
+			properties = new Properties();
+			try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+				properties.load(inputStream);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return properties.getProperty(key);
+	}
+
+	public PublicKey getPublicKeyToEncryptCaptureBioValue() throws Exception {
+		String certificate = getPublicKeyFromIDA();
+		certificate = trimBeginEnd(certificate);
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
+				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
+
+		return x509Certificate.getPublicKey();
+	}
+
+	public String getPublicKeyFromIDA() {
+		OkHttpClient client = new OkHttpClient();
+		String requestBody = String.format(AUTH_REQ_TEMPLATE,
+				getPropertyValue("mosip.auth.appid"),
+				getPropertyValue("mosip.auth.clientid"),
+				getPropertyValue("mosip.auth.secretkey"),
+				DateUtils.getUTCCurrentDateTime());
+
+		MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+		RequestBody body = RequestBody.create(mediaType, requestBody);
+		Request request = new Request.Builder()
+				.url(getPropertyValue("mosip.auth.server.url"))
+				.post(body)
+				.build();
+		try {
+			Response response = client.newCall(request).execute();
+			if(response.isSuccessful()) {
+				String authToken = response.header("authorization");
+
+				Request idarequest = new Request.Builder()
+						.header("cookie", "Authorization="+authToken)
+						.url(getPropertyValue("mosip.ida.server.url"))
+						.get()
+						.build();
+
+				Response idaResponse = new OkHttpClient().newCall(idarequest).execute();
+				if(idaResponse.isSuccessful()) {
+					JSONObject jsonObject = new JSONObject(idaResponse.body().string());
+					jsonObject = jsonObject.getJSONObject("response");
+					return jsonObject.getString("certificate");
+				}
+			}
+
+		} catch (IOException | JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private static String trimBeginEnd(String pKey) {
