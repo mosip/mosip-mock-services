@@ -10,6 +10,7 @@ import lombok.Setter;
 @JsonIgnoreProperties
 public class DeviceInfo {
 	public String[] specVersion;
+	public String env;
     public String digitalId;
 	public String deviceId;
 	public String deviceCode;

@@ -2,7 +2,7 @@
 	"serialNo": "C8R1CP11441",
 	"make": "Greenbit",
 	"model": "DactyScan84c",
-	"type": "Fingerprint",
+	"type": "Finger",
 	"deviceSubType": "Slab",
 	"deviceProvider": "MOSIP DEVICE PARTNER",
 	"deviceProviderId": "MOSIP MDS",

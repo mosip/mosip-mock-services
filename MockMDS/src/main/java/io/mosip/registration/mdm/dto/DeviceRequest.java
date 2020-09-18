@@ -8,6 +8,7 @@ import lombok.Setter;
 
 public class DeviceRequest {
 	public String[] specVersion;
+	public String env;
     public String digitalId;
 	public String deviceId;
 	public String deviceCode;

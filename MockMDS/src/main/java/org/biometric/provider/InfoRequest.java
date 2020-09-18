@@ -177,6 +177,7 @@ public class InfoRequest extends HttpServlet {
 			
 			DeviceInfo info = new DeviceInfo();
 			info.callbackId = String.format("http://127.0.0.1:%s/", serverPort);
+			info.env=deviceInfo.env;
 			info.certification = deviceInfo.certification;
 			info.ComplianceLevel = deviceInfo.ComplianceLevel;
 			info.deviceCode = deviceInfo.deviceCode;
