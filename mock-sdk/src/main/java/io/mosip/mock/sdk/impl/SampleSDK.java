@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Match;
-import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.model.MatchDecision;
@@ -21,6 +20,8 @@ import io.mosip.kernel.biometrics.model.QualityScore;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.kernel.biometrics.model.SDKInfo;
 import io.mosip.kernel.biometrics.spi.IBioApi;
+import io.mosip.kernel.core.cbeffutil.entity.BIR;
+import io.mosip.kernel.core.cbeffutil.jaxbclasses.SingleType;
 import io.mosip.mock.sdk.constant.ResponseStatus;
 
 /**
@@ -330,7 +331,8 @@ public class SampleSDK implements IBioApi {
 
 		Map<BiometricType, List<BIR>> bioSegmentMap = new HashMap<>();
 		for (BIR segment : record.getSegments()) {
-			BiometricType bioType = segment.getBdbInfo().getType().get(0);
+			SingleType singleType = segment.getBdbInfo().getType().get(0);
+			BiometricType bioType = BiometricType.valueOf(singleType.value());
 
 			// ignore modalities that are not to be matched
 			if (noFilter == false && !modalitiesToMatch.contains(bioType))
