@@ -332,7 +332,7 @@ public class SampleSDK implements IBioApi {
 		Map<BiometricType, List<BIR>> bioSegmentMap = new HashMap<>();
 		for (BIR segment : record.getSegments()) {
 			SingleType singleType = segment.getBdbInfo().getType().get(0);
-			BiometricType bioType = BiometricType.valueOf(singleType.value());
+			BiometricType bioType = BiometricType.fromValue(singleType.value());
 
 			// ignore modalities that are not to be matched
 			if (noFilter == false && !modalitiesToMatch.contains(bioType))
