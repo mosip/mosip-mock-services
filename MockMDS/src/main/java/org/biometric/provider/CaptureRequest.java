@@ -3,6 +3,7 @@ package org.biometric.provider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -464,16 +465,18 @@ public class CaptureRequest extends HttpServlet {
 		Map<String, Object> biometricData = new LinkedHashMap<>();
 		try {
 			biometricData.put(SPEC_VERSION, specVersion);
-			String dataBlock = JwtUtility.getJwt(oB.writeValueAsBytes(data), JwtUtility.getPrivateKey(),
-					JwtUtility.getCertificate());
-			biometricData.put(DATA, dataBlock);
-			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataBlock.getBytes()));
+			String dataAsString = oB.writeValueAsString(data);
+			String presentHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(dataAsString.getBytes(StandardCharsets.UTF_8)));
 			String concatenatedHash = previousHash + presentHash;
 			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 			biometricData.put(HASH, finalHash);
 			biometricData.put(SESSION_KEY, cryptoResult.get("ENC_SESSION_KEY"));
 			biometricData.put(THUMB_PRINT, "");
 			biometricData.put(error, null);
+			String dataBlock = JwtUtility.getJwt(dataAsString.getBytes(StandardCharsets.UTF_8), JwtUtility.getPrivateKey(),
+					JwtUtility.getCertificate());
+			biometricData.put(DATA, dataBlock);
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			Map<String, String> map = new HashMap<String, String>();
