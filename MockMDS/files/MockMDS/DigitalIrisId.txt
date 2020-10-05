@@ -5,6 +5,6 @@
 	"type": "Iris",
 	"deviceSubType": "Double",
 	"deviceProvider": "MOSIP DEVICE PARTNER",
-	"deviceProviderId": "MOSIP MDS",
+	"deviceProviderId": "MOSIPMDS",
 	"dateTime": "2020-03-19T18:21:28.410+05:30"
 }

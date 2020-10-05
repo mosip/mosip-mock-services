@@ -54,8 +54,6 @@ public class CryptoUtility {
 	}
 	
 	public static Map<String, String>  encrypt(PublicKey publicKey, String data, String transactionId) {
-		JwtUtility jwtUtility = new JwtUtility();
-		jwtUtility.getPublicKeyFromIDA();
 
 		Map<String, String> result = new HashMap<>();
 		try {

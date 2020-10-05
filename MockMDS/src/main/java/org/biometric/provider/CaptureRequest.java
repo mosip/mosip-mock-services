@@ -196,7 +196,7 @@ public class CaptureRequest extends HttpServlet {
 
 						for (BioMetricsDataDto dto : list) {
 							Map<String, String> result = CryptoUtility.encrypt(new JwtUtility().getPublicKeyToEncryptCaptureBioValue(),
-									dto.getBioExtract(), captureRequestDto.transactionId);
+									dto.getBioValue(), captureRequestDto.transactionId);
 
 							NewBioAuthDto data = buildAuthNewBioDto(dto, bio.type, bio.requestedScore,
 									captureRequestDto.transactionId, result);
@@ -351,8 +351,8 @@ public class CaptureRequest extends HttpServlet {
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
 		bioResponse.setBioType(bioType);
 		
-		if(bioMetricsData.getBioExtract() != null)
-			bioResponse.setBioValue(bioMetricsData.getBioExtract());
+		if(bioMetricsData.getBioValue() != null)
+			bioResponse.setBioValue(bioMetricsData.getBioValue());
 		
 		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
 		//TODO Device service version should be read from file
@@ -471,7 +471,7 @@ public class CaptureRequest extends HttpServlet {
 			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 			biometricData.put(HASH, finalHash);
 			biometricData.put(SESSION_KEY, cryptoResult.get("ENC_SESSION_KEY"));
-			biometricData.put(THUMB_PRINT, "");
+			biometricData.put(THUMB_PRINT, new JwtUtility().getThumbprint());
 			biometricData.put(error, null);
 			String dataBlock = JwtUtility.getJwt(dataAsString.getBytes(StandardCharsets.UTF_8), JwtUtility.getPrivateKey(),
 					JwtUtility.getCertificate());
