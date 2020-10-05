@@ -1,10 +1,10 @@
 {
 	"serialNo": "273125570",
 	"make": "MOSIP",
-	"model": "6bdd1fc6-810f-11d0-bec7-08002be2092f",
+	"model": "DactyScan84c",
 	"type": "Face",
 	"deviceSubType": "Full face",
 	"deviceProvider": "MOSIP DEVICE PARTNER",
-	"deviceProviderId": "MOSIP MDS",
+	"deviceProviderId": "MOSIPMDS",
 	"dateTime": "2020-03-19T18:21:34.729+05:30"
 }

@@ -6,6 +6,7 @@ public class BioMetricsDataDto {
 	private String digitalId;
 	private String deviceCode;
 	private String deviceServiceVersion;
+	private String bioType;
 	private String bioSubType;
 	private String purpose;
 	private String env;
@@ -171,6 +172,12 @@ public class BioMetricsDataDto {
 	 */
 	public void setQualityScore(String qualityScore) {
 		this.qualityScore = qualityScore;
+	}
+	public String getBioType() {
+		return bioType;
+	}
+	public void setBioType(String bioType) {
+		this.bioType = bioType;
 	}
 	
 	

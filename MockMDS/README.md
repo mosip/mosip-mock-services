@@ -6,6 +6,8 @@ Biometric data for registration capture is from files/MockMDS/registration
 
 Biometric data for auth capture is from files/MockMDS/auth
 
+Java 11 is a prerequisite
+
 ### Supported SPEC versions
 
 0.9.5

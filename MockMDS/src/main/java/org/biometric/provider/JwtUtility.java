@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Properties;
 
 import com.squareup.okhttp.*;
+
+import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.DateUtils;
 import okio.BufferedSink;
 import org.bouncycastle.asn1.eac.RSAPublicKey;
@@ -148,6 +150,17 @@ public class JwtUtility {
 				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
 
 		return x509Certificate.getPublicKey();
+	}
+	
+	public String getThumbprint() throws Exception {
+		String certificate = getPublicKeyFromIDA();
+		certificate = trimBeginEnd(certificate);
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
+				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
+		String thumbprint = CryptoUtil.computeFingerPrint(x509Certificate.getEncoded(), null);
+
+		return thumbprint;
 	}
 
 	public String getPublicKeyFromIDA() {
