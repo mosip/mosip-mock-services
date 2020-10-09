@@ -12,10 +12,11 @@ import org.slf4j.LoggerFactory;
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
-public class SBIWroker implements Runnable {
+public class SBIWorker implements Runnable {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIWroker.class);	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SBIWorker.class);	
 	
+	private SBIMockService mockService;
 	private Socket clientSocket;
 	private int serverPort;
 	private String biometricType;
@@ -23,8 +24,9 @@ public class SBIWroker implements Runnable {
 	/**
 	 * Constructor SBIWroker 
 	 */
-	public SBIWroker(Socket clientSocket, int serverPort, String biometricType) {
+	public SBIWorker(SBIMockService mockService, Socket clientSocket, int serverPort, String biometricType) {
 		super();
+		setMockService(mockService);
 		setClientSocket(clientSocket);
 		setServerPort(serverPort);
 		setBiometricType(biometricType);
@@ -36,10 +38,10 @@ public class SBIWroker implements Runnable {
 		BufferedReader reader = null;
 		try
 		{
-			if (this.clientSocket != null)
+			if (getClientSocket() != null)
 			{
-				bos = new BufferedOutputStream (clientSocket.getOutputStream ());
-				reader = new BufferedReader (new InputStreamReader (clientSocket.getInputStream (), "UTF-8"));
+				bos = new BufferedOutputStream (getClientSocket().getOutputStream ());
+				reader = new BufferedReader (new InputStreamReader (getClientSocket().getInputStream (), "UTF-8"));
 			}
 			
 			StringBuilder out = new StringBuilder ();
@@ -84,7 +86,7 @@ public class SBIWroker implements Runnable {
 			{
 				LOGGER.info("Method Valid ::");
 				SBIServiceResponse serviceResponse = new SBIServiceResponse (getServerPort ());
-				responseJson = SBIResponseInfo.generateResponse ("en", getServerPort (), serviceResponse.getServiceresponse (getClientSocket(), strJsonRequest));
+				responseJson = SBIResponseInfo.generateResponse ("en", getServerPort (), serviceResponse.getServiceresponse (getMockService(), getClientSocket(), strJsonRequest));
 			}
 			else
 			{
@@ -136,8 +138,8 @@ public class SBIWroker implements Runnable {
 			try
 			{
 				reader.close ();
-				if (this.getClientSocket() != null)
-					this.getClientSocket().close ();
+				if (getClientSocket() != null)
+					getClientSocket().close ();
 			}
 			catch (IOException e)
 			{
@@ -147,19 +149,25 @@ public class SBIWroker implements Runnable {
 		}
 	}
      
+	
+	public SBIMockService getMockService() {
+		return mockService;
+	}
+
+	public void setMockService(SBIMockService mockService) {
+		this.mockService = mockService;
+	}
+
 	public Socket getClientSocket() {
 		return clientSocket;
 	}
-
 	public void setClientSocket(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 	}
-
 	
 	public int getServerPort() {
 		return serverPort;
 	}
-
 	public void setServerPort(int serverPort) {
 		this.serverPort = serverPort;
 	}
@@ -167,7 +175,6 @@ public class SBIWroker implements Runnable {
 	public String getBiometricType() {
 		return biometricType;
 	}
-
 	public void setBiometricType(String biometricType) {
 		this.biometricType = biometricType;
 	}	

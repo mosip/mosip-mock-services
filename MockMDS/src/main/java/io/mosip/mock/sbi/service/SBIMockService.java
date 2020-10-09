@@ -4,11 +4,16 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.mock.sbi.SBIConstant;
+import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
+import io.mosip.mock.sbi.devicehelper.face.SBIFaceHelper;
+import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapHelper;
+import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleHelper;
 import io.mosip.mock.sbi.exception.SBIException;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
@@ -16,7 +21,9 @@ public class SBIMockService implements Runnable {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIMockService.class);	
 
+	protected String profileId = "Default";
 	protected String biometricType;
+	protected HashMap <String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
 	
 	protected Thread runningThread = null;
 	protected int serverPort = 0;
@@ -40,12 +47,14 @@ public class SBIMockService implements Runnable {
 		try
 		{
 			createServerSocket ();
+			initDeviceHelpers();
 			while (!isStopped ())
 			{
 				Socket clientSocket = null;
 				try
 				{
 					clientSocket = this.serverSocket.accept ();
+					//clientSocket.setKeepAlive(true);
 				}
 				catch (IOException ex)
 				{
@@ -56,7 +65,7 @@ public class SBIMockService implements Runnable {
 					}
 					throw new SBIException (ex.hashCode() + "", "SBI Mock Service Error Accepting Client Connection", new Throwable (ex.getLocalizedMessage()));
 				}
-				new Thread (new SBIWroker (clientSocket, getServerPort(), getBiometricType ())).start ();
+				new Thread (new SBIWorker (this, clientSocket, getServerPort(), getBiometricType ())).start ();
 			}			
 		}
 		catch (SBIException ex)
@@ -71,6 +80,25 @@ public class SBIMockService implements Runnable {
 		LOGGER.info ("SBI Mock Service Stopped.");
 	}
 	
+	private void initDeviceHelpers() {
+		this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), SBIFingerSlapHelper.getInstance(getServerPort()));
+		this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE), SBIFaceHelper.getInstance(getServerPort()));
+		this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort()));		
+	}
+	
+	public SBIDeviceHelper getDeviceHelper (String deviceTypeName)
+    {
+        if (this.deviceHelpers != null && this.deviceHelpers.size() >= 0)
+        {
+            if (this.deviceHelpers.containsKey(deviceTypeName) )
+            {
+                return this.deviceHelpers.get(deviceTypeName);
+            }
+        }
+
+        return null;
+    }
+
 	private void createServerSocket () throws SBIException
 	{
 		try
@@ -135,5 +163,13 @@ public class SBIMockService implements Runnable {
 
 	public void setServerPort(int serverPort) {
 		this.serverPort = serverPort;
+	}
+
+	public String getProfileId() {
+		return profileId;
+	}
+
+	public void setProfileId(String profileId) {
+		this.profileId = profileId;
 	}		
 }

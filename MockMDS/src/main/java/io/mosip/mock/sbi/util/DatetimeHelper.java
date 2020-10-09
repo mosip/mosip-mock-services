@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class DatetimeHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatetimeHelper.class);	
-    public static String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSzzz";
+    public static String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public static String getISO8601CurrentDate ()
     {

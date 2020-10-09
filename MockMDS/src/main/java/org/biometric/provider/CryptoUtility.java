@@ -1,7 +1,9 @@
 package org.biometric.provider;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -47,6 +49,19 @@ public class CryptoUtility {
 		Security.addProvider(provider);
 		return provider;
 	}
+	
+	public static byte[] generateHash(byte[] message, String algorithm) {
+        byte[] hash = null;
+        try {
+            // Registering the Bouncy Castle as the RSA provider.
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+            digest.reset();
+            hash = digest.digest(message);
+        } catch (GeneralSecurityException ex) {
+        	ex.printStackTrace();
+        }
+        return hash;
+    }
 	
 	public static String getTimestamp() {
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
@@ -113,9 +128,7 @@ public class CryptoUtility {
 		}
 		return null;
 	}
-	
-	
-	
+		
 	public static byte[] symmetricEncrypt(SecretKey secretKey, byte[] data, byte[] ivBytes, byte[] aadBytes) {
 		try {			
 			Cipher cipher = Cipher.getInstance(SYMMETRIC_ALGORITHM);
