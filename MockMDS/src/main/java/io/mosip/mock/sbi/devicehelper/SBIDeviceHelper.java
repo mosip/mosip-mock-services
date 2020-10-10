@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -128,8 +129,8 @@ public abstract class SBIDeviceHelper {
 
 			if (FileHelper.exists(fileName)) 
 			{
-				File file = new File(fileName);
-				discoverDto = objectMapper.readValue(file, DiscoverDto.class);
+				File jsonFile = new File(fileName);
+				discoverDto = objectMapper.readValue(jsonFile, DiscoverDto.class);
 				if (discoverDto != null)
 				{
 					discoverDto.setDigitalId(getUnsignedDigitalId (digitalId, true));
@@ -151,6 +152,7 @@ public abstract class SBIDeviceHelper {
 		String keyStoreFileName = null;
 		String keyAlias = null;
 		String keyPwd = null;
+		FileInputStream inputStream = null;
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
@@ -180,8 +182,14 @@ public abstract class SBIDeviceHelper {
 
 			if (FileHelper.exists(fileName) && FileHelper.exists(keyStoreFileName)) 
 			{
-				File file = new File(fileName);
-				KeyStore keystore = loadKeyStore (keyStoreFileName, keyPwd);
+				File jsonFile = new File(fileName);
+			    File keyStoreFile = new File(keyStoreFileName);
+			    KeyStore keystore = null;
+			    if (keyStoreFile.exists())
+			    {
+			    	inputStream = new FileInputStream (keyStoreFile);
+					keystore = loadKeyStore (inputStream, keyPwd);			    	
+			    }
 				
 				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
 
@@ -196,7 +204,7 @@ public abstract class SBIDeviceHelper {
 	            //LOGGER.Info("\nPrivate Key:");
 	            //LOGGER.Info(key);
 	            
-				deviceInfo = objectMapper.readValue(file, DeviceInfo.class);
+				deviceInfo = objectMapper.readValue(jsonFile, DeviceInfo.class);
 				if (deviceInfo != null)
 				{
 					deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, false));
@@ -209,6 +217,12 @@ public abstract class SBIDeviceHelper {
 		} catch (Exception ex) {
         	LOGGER.error("getDeviceInfo :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
 		}
+		finally
+		{
+			try { // because close can throw an exception
+		        if (inputStream != null) inputStream.close();
+		    } catch (IOException ignored) {}
+		}
 		return null;
 	}
 	
@@ -217,6 +231,8 @@ public abstract class SBIDeviceHelper {
 		String keyStoreFileName = null;
 		String keyAlias = null;
 		String keyPwd = null;
+		FileInputStream inputStream = null;
+
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
@@ -244,8 +260,14 @@ public abstract class SBIDeviceHelper {
 			if (FileHelper.exists(keyStoreFileName)) 
 			{
 				String strDeviceInfo = objectMapper.writeValueAsString(deviceInfo);
-				KeyStore keystore = loadKeyStore (keyStoreFileName, keyPwd);
-				
+			    File keyStoreFile = new File(keyStoreFileName);
+			    KeyStore keystore = null;
+			    if (keyStoreFile.exists())
+			    {
+			    	inputStream = new FileInputStream (keyStoreFile);
+					keystore = loadKeyStore (inputStream, keyPwd);			    	
+			    }
+								
 				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
 
 	            /* Get certificate of public key */
@@ -266,6 +288,12 @@ public abstract class SBIDeviceHelper {
 		} catch (Exception ex) {
         	LOGGER.error("getDeviceInfoDto :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
 		}
+		finally
+		{
+			try { // because close can throw an exception
+		        if (inputStream != null) inputStream.close();
+		    } catch (IOException ignored) {}
+		}
 		return null;
 	}
 
@@ -274,6 +302,8 @@ public abstract class SBIDeviceHelper {
 		String keyStoreFileName = null;
 		String keyAlias = null;
 		String keyPwd = null;
+		FileInputStream inputStream = null;
+		
 		try {
 			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
 					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
@@ -299,7 +329,13 @@ public abstract class SBIDeviceHelper {
 
 			if (FileHelper.exists(keyStoreFileName)) 
 			{
-				KeyStore keystore = loadKeyStore (keyStoreFileName, keyPwd);
+				File keyStoreFile = new File(keyStoreFileName);
+			    KeyStore keystore = null;
+			    if (keyStoreFile.exists())
+			    {
+			    	inputStream = new FileInputStream (keyStoreFile);
+					keystore = loadKeyStore (inputStream, keyPwd);			    	
+			    }
 				
 				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
 
@@ -320,6 +356,12 @@ public abstract class SBIDeviceHelper {
 		} catch (Exception ex) {
         	LOGGER.error("getSignBioMetricsDataDto :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
 		}
+		finally
+		{
+			try { // because close can throw an exception
+		        if (inputStream != null) inputStream.close();
+		    } catch (IOException ignored) {}
+		}		
 		return null;
 	}
 
@@ -351,17 +393,18 @@ public abstract class SBIDeviceHelper {
 		return null;
     }
 	
-	private KeyStore loadKeyStore(String fileName, String keystorePwd) throws Exception {
-	    File file = new File(fileName);
+	private KeyStore loadKeyStore(FileInputStream inputStream, String keystorePwd) throws Exception {
 	    KeyStore keyStore = KeyStore.getInstance("JKS");
-	    if (file.exists()) {
-	        // if exists, load
-	        keyStore.load(new FileInputStream(file), keystorePwd.toCharArray());
-	    } else {
+        // if exists, load
+        keyStore.load(inputStream, keystorePwd.toCharArray());
+
+        /*
+	    else {
 	        // if not exists, create
 	        keyStore.load(null, null);
 	        keyStore.store(new FileOutputStream(file), keystorePwd.toCharArray());
 	    }
+	    */
 	    return keyStore;
 	}
 		
