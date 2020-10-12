@@ -5,6 +5,6 @@
    	"type":"Iris",
    	"deviceSubType":"Double",
    	"deviceProvider":"MOSIP",
-   	"deviceProviderId":"MOSIP.IRIS01",
+   	"deviceProviderId":"MOSIP.PROXY.SBI",
    	"dateTime":""
 }

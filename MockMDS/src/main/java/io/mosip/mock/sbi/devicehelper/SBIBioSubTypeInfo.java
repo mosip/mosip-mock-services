@@ -83,6 +83,10 @@ public class SBIBioSubTypeInfo {
                 }
 			}
 		}
+		else
+		{
+			setChkUnknown (SBICheckState.Checked);
+		}
 	}
 
 	public SBICheckState getChkUnknown() {

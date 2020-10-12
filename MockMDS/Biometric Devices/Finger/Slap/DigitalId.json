@@ -5,6 +5,6 @@
    	"type":"Finger",
    	"deviceSubType":"Slap",
    	"deviceProvider":"MOSIP",
-   	"deviceProviderId":"MOSIP.SLAP01",
+   	"deviceProviderId":"MOSIP.PROXY.SBI",
    	"dateTime":""
 }
