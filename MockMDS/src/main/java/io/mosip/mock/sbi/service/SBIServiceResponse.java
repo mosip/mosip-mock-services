@@ -1,30 +1,43 @@
 package io.mosip.mock.sbi.service;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import javax.imageio.ImageIO;
-
 import org.biometric.provider.CryptoUtility;
+import org.biometric.provider.JwtUtility;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+
+import io.mosip.kernel.core.util.CryptoUtil;
+import io.mosip.kernel.core.util.DateUtils;
+import io.mosip.kernel.core.util.HMACUtils;
 import io.mosip.mock.sbi.SBIConstant;
+import io.mosip.mock.sbi.devicehelper.SBIBioSubTypeInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.mock.sbi.devicehelper.face.SBIFaceCaptureInfo;
@@ -36,7 +49,6 @@ import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleBioExceptionIn
 import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleCaptureInfo;
 import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleHelper;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
-import io.mosip.mock.sbi.util.DatetimeHelper;
 import io.mosip.mock.sbi.util.StringHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.BioMetricsDto;
@@ -54,6 +66,7 @@ import io.mosip.registration.mdm.dto.StreamingRequestDetail;
 public class SBIServiceResponse {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIServiceResponse.class);	
+	private static String AUTH_REQ_TEMPLATE = "{ \"id\": \"string\",\"metadata\": {},\"request\": { \"appId\": \"%s\", \"clientId\": \"%s\", \"secretKey\": \"%s\" }, \"requesttime\": \"%s\", \"version\": \"string\"}";
 	
 	protected int port = 0;
 	protected String request = "";
@@ -96,7 +109,7 @@ public class SBIServiceResponse {
 		}
 		else if (strJsonRequest.contains(SBIConstant.MOSIP_CAPTURE_VERB))
 		{
-			
+			responseJson = processCaptureInfo (mockService);			
 		}
 		else
 		{
@@ -293,7 +306,12 @@ public class SBIServiceResponse {
         SBIDeviceHelper deviceHelper = null;
         try
         {
-        	StreamingRequestDetail requestObject = (StreamingRequestDetail) getRequestJson (SBIConstant.MOSIP_STREAM_VERB);
+            if (mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_AUTH)))
+            {
+                return SBIJsonInfo.getErrorJson (lang, "601", "");
+            }
+
+            StreamingRequestDetail requestObject = (StreamingRequestDetail) getRequestJson (SBIConstant.MOSIP_STREAM_VERB);
             String deviceId = requestObject.getDeviceId();
             int deviceSubId = Integer.parseInt(requestObject.getDeviceSubId());
 
@@ -407,7 +425,12 @@ public class SBIServiceResponse {
         SBIDeviceHelper deviceHelper = null;
         try
         {
-        	String deviceId = "";
+            if (!mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_AUTH)))
+            {
+                return SBIJsonInfo.getErrorJson (lang, "709", "");
+            }
+
+            String deviceId = "";
         	int deviceSubId = 0;
         	CaptureRequestDto requestObject = (CaptureRequestDto) getRequestJson (SBIConstant.MOSIP_RCAPTURE_VERB);
         	List<CaptureRequestDeviceDetailDto> mosipBioRequest = null;
@@ -535,7 +558,7 @@ public class SBIServiceResponse {
             }
             else
             {            	
-            	List<BioMetricsDto> biometrics = getBioMetricsDtoList (lang, requestObject, deviceHelper, deviceSubId);
+            	List<BioMetricsDto> biometrics = getBioMetricsDtoList (lang, requestObject, deviceHelper, deviceSubId, false);
             	if (biometrics != null && biometrics.size() > 0)
             	{
                 	RCaptureResponse captureResponse = new RCaptureResponse ();
@@ -594,31 +617,571 @@ public class SBIServiceResponse {
         return response;
 	}
 
-	private List<BioMetricsDto> getBioMetricsDtoList (String lang, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, int deviceSubId) throws JsonGenerationException, JsonMappingException, IOException
+	private String processCaptureInfo(SBIMockService mockService) {
+		String response = null;
+        String lang = "en";
+        String specVersion = "";
+        SBIDeviceHelper deviceHelper = null;
+        try
+        {
+            if (!mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_AUTH)))
+            {
+                return SBIJsonInfo.getErrorJson (lang, "809", "");
+            }
+
+            String deviceId = "";
+        	int deviceSubId = 0;
+        	CaptureRequestDto requestObject = (CaptureRequestDto) getRequestJson (SBIConstant.MOSIP_RCAPTURE_VERB);
+        	List<CaptureRequestDeviceDetailDto> mosipBioRequest = null;
+        	// if Null Throw Errors here
+        	if (requestObject != null)
+        	{
+        		mosipBioRequest = requestObject.getBio();
+        		if (mosipBioRequest != null && mosipBioRequest.size() > 0)
+        		{
+                    deviceId = requestObject.getBio().get(0).getDeviceId();
+                    deviceSubId = Integer.parseInt(requestObject.getBio().get(0).getDeviceSubId());
+        		}
+        	}
+
+            LOGGER.info("processCaptureInfo :: deviceId :: "+ deviceId + " :: deviceSubId ::" + deviceSubId);
+
+            if (deviceId != null && deviceId.trim().length() == 0)
+            {
+                return SBIJsonInfo.getErrorJson (lang, "804", "");
+            }
+            
+            deviceHelper = getDeviceInfoForDeviceId (mockService, deviceId);
+            if (deviceHelper.getDeviceInfo() == null)
+            {
+                return SBIJsonInfo.getErrorJson (lang, "805", "");
+            }
+            if (deviceHelper.getDeviceInfo() != null && !deviceHelper.getDeviceInfo().getPurpose().trim().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+            {
+                return SBIJsonInfo.getErrorJson (lang, "806", "");
+            }
+
+            if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISREADY))
+            {
+                deviceHelper.initDevice();
+                deviceHelper.setDeviceId(deviceId);
+                deviceHelper.setDeviceSubId(deviceSubId);
+                deviceHelper.setDeviceStatus(SBIConstant.DEVICE_STATUS_ISUSED);
+            }
+            else if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISUSED))
+            {
+            	if (deviceHelper.getCaptureInfo().isCaptureStarted())
+                    return SBIJsonInfo.getErrorJson (lang, "803", "");
+            }
+            
+            String bioType = mosipBioRequest.get(0).getType();
+            String [] bioSubType = mosipBioRequest.get(0).getBioSubType();// Bio Subtype
+            int timeout = Integer.parseInt(requestObject.getTimeout()+ "");
+            int requestScore = Integer.parseInt(mosipBioRequest.get(0).getRequestedScore() + "");
+            int bioCount = Integer.parseInt(mosipBioRequest.get(0).getCount() + "");
+            
+            specVersion = requestObject.getSpecVersion();
+            int returnCode = -1;
+            long startTime = System.currentTimeMillis();
+            long endTime = startTime + timeout;
+            boolean captureStarted = false;    
+            boolean captureTimeOut = false;
+            boolean captureLiveStreamEnded = false;
+            while (true)
+            {
+            	if (!captureStarted)
+            	{
+            		deviceHelper.setProfileId(mockService.getProfileId());
+            		
+        			deviceHelper.getCaptureInfo().setBioCount(bioCount);
+        			deviceHelper.getCaptureInfo().setBioSubType(bioSubType);
+            		deviceHelper.getCaptureInfo().setRequestScore(requestScore);
+                    deviceHelper.getCaptureInfo().setCaptureStarted(true);
+            		captureStarted = true;
+            	}
+            	try
+                {
+            		if (System.currentTimeMillis () > endTime)
+                    {
+            			captureTimeOut = true;
+                        break;
+                    }
+            		// acquiring the lock 
+            		if (semaphore != null)
+            			semaphore.acquire(); 
+            			
+            		if (deviceHelper.getCaptureInfo() == null)
+                    {
+                        captureLiveStreamEnded = true;
+                        break;
+                    }
+            		
+                    returnCode = deviceHelper.getBioCapture(true);
+
+                    if (deviceHelper.getCaptureInfo() != null && deviceHelper.getCaptureInfo().isCaptureCompleted())
+                    {
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                { }
+            	finally
+                {
+                    try
+                    {
+                        if (semaphore != null)
+                            semaphore.release();
+                    }
+                    catch (Exception ex)
+                    { }
+                }
+            	
+                Thread.sleep (30);
+            }
+            
+            if (captureLiveStreamEnded)
+            {
+                response = SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "700", "", true);
+            }
+            else if (captureTimeOut)
+            {
+                response = SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "701", "", true);
+        		if (deviceHelper.getCaptureInfo() == null)
+        			deviceHelper.getCaptureInfo().setCaptureCompleted(true);
+            }
+            else
+            {            	
+            	List<BioMetricsDto> biometrics = getBioMetricsDtoList (lang, requestObject, deviceHelper, deviceSubId, true);
+            	if (biometrics != null && biometrics.size() > 0)
+            	{
+                	RCaptureResponse captureResponse = new RCaptureResponse ();
+	            	captureResponse.setBiometrics(biometrics);
+
+	            	ObjectMapper mapper = new ObjectMapper ();	
+	                SerializationConfig config = mapper.getSerializationConfig();
+	                config.setSerializationInclusion(Inclusion.NON_NULL);
+	                mapper.setSerializationConfig(config);
+
+	                response = mapper.writeValueAsString(captureResponse);
+        		}
+            	else
+            	{
+                    response = SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "708", "", true);
+            	}
+ 
+                deviceHelper.deInitDevice();
+        		deviceHelper.setDeviceStatus(SBIConstant.DEVICE_STATUS_ISREADY);
+            }
+            
+        	if (deviceHelper.getCaptureInfo() != null)
+        	{
+                deviceHelper.getCaptureInfo().getBioExceptionInfo().deInitBioException();
+                // When Capture is called After LiveStreaming is called
+                // DeInit is called in Livestream method
+                if (deviceHelper.getCaptureInfo().isLiveStreamStarted())
+                {
+                    deviceHelper.getCaptureInfo().setCaptureStarted(false);
+                    deviceHelper.getCaptureInfo().setCaptureCompleted(true);               	
+                }
+                // DeInit When Capture is called Directly
+                else
+                {
+                    deviceHelper.deInitDevice();
+            		deviceHelper.setDeviceStatus(SBIConstant.DEVICE_STATUS_ISREADY);
+                }
+        	}
+        }
+        catch (Exception ex)
+        {
+            response = SBIJsonInfo.getCaptureErrorJson (specVersion, lang, "810", "", true);
+            LOGGER.error("processCaptureInfo", ex);
+        }
+        finally
+        {
+        	try
+            {
+        		if (semaphore != null)
+        			semaphore.release ();
+            }
+            catch (Exception ex)
+            {
+            }                    
+        }
+        return response;
+	}
+
+	private List<BioMetricsDto> getBioMetricsDtoList (String lang, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, int deviceSubId, boolean isForAuthenication) throws JsonGenerationException, JsonMappingException, IOException
 	{
         List<BioMetricsDto> biometrics = new ArrayList<BioMetricsDto> ();
     	String specVersion = requestObject.getSpecVersion();
     	String transactionId = requestObject.getTransactionId();
     	int captureScore = 40; // SET MANUALLY
     	int requestScore = requestObject.getBio().get(0).getRequestedScore();
+    	int bioCount = requestObject.getBio().get(0).getCount();
     	String bioType = requestObject.getBio().get(0).getType();
-        String [] bioException = requestObject.getBio().get(0).getException();// Bio exceptions
+        String [] bioExceptions = requestObject.getBio().get(0).getException();// Bio exceptions
+        String [] bioSubType = requestObject.getBio().get(0).getBioSubType();// Bio SubTypes
 
     	String previousHash = requestObject.getBio().get(0).getPreviousHash() + "".trim ();  
-    	// For Finger Slap
-    	if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
-    			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+    	if (!isForAuthenication)
     	{
-    		SBIFingerSlapCaptureInfo captureInfo = (SBIFingerSlapCaptureInfo)deviceHelper.getCaptureInfo();
-    		SBIFingerSlapBioExceptionInfo bioExceptionInfo = (SBIFingerSlapBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
-    		if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT)
-    		{
-    			if (bioExceptionInfo.getChkMissingLeftIndex() == SBICheckState.Unchecked)
+        	// For Finger Slap
+        	if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+        	{
+        		SBIFingerSlapCaptureInfo captureInfo = (SBIFingerSlapCaptureInfo)deviceHelper.getCaptureInfo();
+        		SBIFingerSlapBioExceptionInfo bioExceptionInfo = (SBIFingerSlapBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
+        		if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT)
+        		{
+        			if (bioExceptionInfo.getChkMissingLeftIndex() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLI() != null && captureInfo.getBioValueLI().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_INDEX,
+                                    captureInfo.getBioValueLI(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingLeftMiddle() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLM() != null && captureInfo.getBioValueLM().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_MIDDLE,
+                                    captureInfo.getBioValueLM(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingLeftRing() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLR() != null && captureInfo.getBioValueLR().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_RING,
+                                    captureInfo.getBioValueLR(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingLeftLittle() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLL() != null && captureInfo.getBioValueLL().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_LITTLE,
+                                    captureInfo.getBioValueLL(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        		}
+        		else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT)
+        		{
+        			if (bioExceptionInfo.getChkMissingRightIndex() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRI() != null && captureInfo.getBioValueRI().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_INDEX,
+                                    captureInfo.getBioValueRI(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingRightMiddle() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRM() != null && captureInfo.getBioValueRM().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_MIDDLE,
+                                    captureInfo.getBioValueRM(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingRightRing() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRR() != null && captureInfo.getBioValueRR().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_RING,
+                                    captureInfo.getBioValueRR(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingRightLittle() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRL() != null && captureInfo.getBioValueRL().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_LITTLE,
+                                    captureInfo.getBioValueRL(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        		}
+    			else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
     			{
-    				if (captureInfo.getBioValueLI() != null && captureInfo.getBioValueLI().length() > 0)
+        			if (bioExceptionInfo.getChkMissingLeftThumb() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLT() != null && captureInfo.getBioValueLT().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_THUMB,
+                                    captureInfo.getBioValueLT(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingRightThumb() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRT() != null && captureInfo.getBioValueRT().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_THUMB,
+                                    captureInfo.getBioValueRT(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+    			}
+        	}
+        	// For IRIS DOUBLE
+        	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+        	{
+        		SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo)deviceHelper.getCaptureInfo();
+        		SBIIrisDoubleBioExceptionInfo bioExceptionInfo = (SBIIrisDoubleBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
+
+        		if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+    			{
+        			if (bioExceptionInfo.getChkMissingLeftIris() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLI() != null && captureInfo.getBioValueLI().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_IRIS,
+                                    captureInfo.getBioValueLI(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+    			}
+    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
+    			{
+        			if (bioExceptionInfo.getChkMissingRightIris() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRI() != null && captureInfo.getBioValueRI().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_IRIS,
+                                    captureInfo.getBioValueRI(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+    			}
+    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+    			{
+        			if (bioExceptionInfo.getChkMissingLeftIris() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueLI() != null && captureInfo.getBioValueLI().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_IRIS,
+                                    captureInfo.getBioValueLI(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+        			if (bioExceptionInfo.getChkMissingRightIris() == SBICheckState.Unchecked)
+        			{
+        				if (captureInfo.getBioValueRI() != null && captureInfo.getBioValueRI().length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_IRIS,
+                                    captureInfo.getBioValueRI(), captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+    			}    		
+        	}    
+        	// For Face
+        	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
+        	{
+        		SBIFaceCaptureInfo captureInfo = (SBIFaceCaptureInfo)deviceHelper.getCaptureInfo();
+        		
+        		boolean isExceptionPhoto = false;    		
+        		if (bioExceptions != null && bioExceptions.length > 0)
+        			isExceptionPhoto = true;
+
+        		if (!isExceptionPhoto)
+    			{
+    				if (captureInfo.getBioValueFace() != null && captureInfo.getBioValueFace().length() > 0)
     				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_INDEX,
-                                captureInfo.getBioValueLI(), captureScore, requestScore, "", "100", false);
+        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, null,
+                                captureInfo.getBioValueFace(), captureScore, requestScore, "", "100", isForAuthenication);
                         if (bioDto != null)
                         {
                         	biometrics.add(bioDto);
@@ -627,7 +1190,7 @@ public class SBIServiceResponse {
     				}
     				else
     				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
+    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
                         if (bioDto != null)
                         {
                         	biometrics.add (bioDto);
@@ -635,12 +1198,12 @@ public class SBIServiceResponse {
                         }
                     }
     			}
-    			if (bioExceptionInfo.getChkMissingLeftMiddle() == SBICheckState.Unchecked)
+        		else
     			{
-    				if (captureInfo.getBioValueLM() != null && captureInfo.getBioValueLM().length() > 0)
+    				if (captureInfo.getBioValueExceptionPhoto() != null && captureInfo.getBioValueExceptionPhoto().length() > 0)
     				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_MIDDLE,
-                                captureInfo.getBioValueLM(), captureScore, requestScore, "", "100", false);
+        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, null,
+                                captureInfo.getBioValueExceptionPhoto(), captureScore, requestScore, "", "100", isForAuthenication);
                         if (bioDto != null)
                         {
                         	biometrics.add(bioDto);
@@ -649,7 +1212,7 @@ public class SBIServiceResponse {
     				}
     				else
     				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
+    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
                         if (bioDto != null)
                         {
                         	biometrics.add (bioDto);
@@ -657,312 +1220,481 @@ public class SBIServiceResponse {
                         }
                     }
     			}
-    			if (bioExceptionInfo.getChkMissingLeftRing() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueLR() != null && captureInfo.getBioValueLR().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_RING,
-                                captureInfo.getBioValueLR(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    			if (bioExceptionInfo.getChkMissingLeftLittle() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueLL() != null && captureInfo.getBioValueLL().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_LITTLE,
-                                captureInfo.getBioValueLL(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    		}
-    		else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT)
-    		{
-    			if (bioExceptionInfo.getChkMissingRightIndex() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRI() != null && captureInfo.getBioValueRI().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_INDEX,
-                                captureInfo.getBioValueRI(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    			if (bioExceptionInfo.getChkMissingRightMiddle() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRM() != null && captureInfo.getBioValueRM().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_MIDDLE,
-                                captureInfo.getBioValueRM(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    			if (bioExceptionInfo.getChkMissingRightRing() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRR() != null && captureInfo.getBioValueRR().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_RING,
-                                captureInfo.getBioValueRR(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    			if (bioExceptionInfo.getChkMissingRightLittle() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRL() != null && captureInfo.getBioValueRL().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_LITTLE,
-                                captureInfo.getBioValueRL(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    		}
-			else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
-			{
-    			if (bioExceptionInfo.getChkMissingLeftThumb() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueLT() != null && captureInfo.getBioValueLT().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_THUMB,
-                                captureInfo.getBioValueLT(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    			if (bioExceptionInfo.getChkMissingRightThumb() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRT() != null && captureInfo.getBioValueRT().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_THUMB,
-                                captureInfo.getBioValueRT(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-			}
+        	}
     	}
-    	// For IRIS DOUBLE
-    	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
-    			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+    	else if (isForAuthenication)
     	{
-    		SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo)deviceHelper.getCaptureInfo();
-    		SBIIrisDoubleBioExceptionInfo bioExceptionInfo = (SBIIrisDoubleBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
-
-    		if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
-			{
-    			if (bioExceptionInfo.getChkMissingLeftIris() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueLI() != null && captureInfo.getBioValueLI().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_IRIS,
-                                captureInfo.getBioValueLI(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-			}
-			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
-			{
-    			if (bioExceptionInfo.getChkMissingRightIris() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRI() != null && captureInfo.getBioValueRI().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_IRIS,
-                                captureInfo.getBioValueRI(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-			}
-			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
-			{
-    			if (bioExceptionInfo.getChkMissingLeftIris() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueLI() != null && captureInfo.getBioValueLI().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_LEFT_IRIS,
-                                captureInfo.getBioValueLI(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-    			if (bioExceptionInfo.getChkMissingRightIris() == SBICheckState.Unchecked)
-    			{
-    				if (captureInfo.getBioValueRI() != null && captureInfo.getBioValueRI().length() > 0)
-    				{
-        				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, SBIConstant.BIO_NAME_RIGHT_IRIS,
-                                captureInfo.getBioValueRI(), captureScore, requestScore, "", "100", false);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add(bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-    			}
-			}    		
-    	}    
-    	// For Face
-    	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
-    			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
-    	{
-    		SBIFaceCaptureInfo captureInfo = (SBIFaceCaptureInfo)deviceHelper.getCaptureInfo();
+    		SBIBioSubTypeInfo bioSubTypeInfo = new SBIBioSubTypeInfo ();
+    		bioSubTypeInfo.initBioSubType(bioSubType);
     		
-    		boolean isExceptionPhoto = false;    		
-    		if (bioException != null && bioException.length > 0)
-    			isExceptionPhoto = true;
-            LOGGER.info("getBioMetricsDtoList :: isExceptionPhoto :: " + isExceptionPhoto);
+        	// For Finger Slap
+        	if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+        	{
+        		SBIFingerSlapCaptureInfo captureInfo = (SBIFingerSlapCaptureInfo)deviceHelper.getCaptureInfo();
+        		if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT)
+        		{
+    				HashMap<String, String> biometricData = captureInfo.getBiometricData();
+    				if (biometricData != null && biometricData.size() > 0)
+    				{
+    					int bioCounter = 1;
+    					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
+    						if (bioCounter > bioCount)
+    							break;
+    			            
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIndex() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_INDEX))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftIndex() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_INDEX : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftMiddle() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_MIDDLE))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftIndex() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_MIDDLE : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
 
-    		if (!isExceptionPhoto)
-			{
-				if (captureInfo.getBioValueFace() != null && captureInfo.getBioValueFace().length() > 0)
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftRing() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_RING))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftRing() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_RING : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftLittle() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_LITTLE))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftLittle() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_LITTLE: SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+
+    	        			bioCounter ++;
+    			        }
+    				}
+    				else
+    				{
+    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                        if (bioDto != null)
+                        {
+                        	biometrics.add (bioDto);
+                            previousHash = bioDto.getHash();
+                        }
+                    }
+        		}
+        		else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT)
+        		{
+    				HashMap<String, String> biometricData = captureInfo.getBiometricData();
+    				if (biometricData != null && biometricData.size() > 0)
+    				{
+    					int bioCounter = 1;
+    					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
+    						if (bioCounter > bioCount)
+    							break;
+    			            
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_INDEX))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_INDEX : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightMiddle() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_MIDDLE))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_MIDDLE : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightRing() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_RING))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightRing() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_RING : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightLittle() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_LITTLE))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightLittle() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_LITTLE: SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+
+    	        			bioCounter ++;
+    			        }
+    				}
+    				else
+    				{
+    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                        if (bioDto != null)
+                        {
+                        	biometrics.add (bioDto);
+                            previousHash = bioDto.getHash();
+                        }
+                    }
+        		}
+        		else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
+        		{
+    				HashMap<String, String> biometricData = captureInfo.getBiometricData();
+    				if (biometricData != null && biometricData.size() > 0)
+    				{
+    					int bioCounter = 1;
+    					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
+    						if (bioCounter > bioCount)
+    							break;
+    			            
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftThumb() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_THUMB))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftThumb() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_THUMB : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightThumb() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_THUMB))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightThumb() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_THUMB : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			bioCounter ++;
+    			        }
+    				}
+    				else
+    				{
+    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                        if (bioDto != null)
+                        {
+                        	biometrics.add (bioDto);
+                            previousHash = bioDto.getHash();
+                        }
+                    }
+        		}
+        	}
+        	// For IRIS DOUBLE
+        	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+        	{
+        		SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo)deviceHelper.getCaptureInfo();
+        		SBIIrisDoubleBioExceptionInfo bioExceptionInfo = (SBIIrisDoubleBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
+
+        		if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+    			{        		
+        			if (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked)
+        			{
+            			String bioData = captureInfo.getBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_IRIS);
+        				if (bioData != null && bioData.length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_IRIS : SBIConstant.BIO_NAME_UNKNOWN),
+            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+    			}
+    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
+    			{
+        			if (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked)
+        			{
+            			String bioData = captureInfo.getBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_IRIS);
+        				if (bioData != null && bioData.length() > 0)
+        				{
+            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_IRIS : SBIConstant.BIO_NAME_UNKNOWN),
+            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add(bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+        				}
+        				else
+        				{
+        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                            if (bioDto != null)
+                            {
+                            	biometrics.add (bioDto);
+                                previousHash = bioDto.getHash();
+                            }
+                        }
+        			}
+    			}
+    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+    			{
+    				HashMap<String, String> biometricData = captureInfo.getBiometricData();
+    				if (biometricData != null && biometricData.size() > 0)
+    				{
+    					int bioCounter = 1;
+    					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
+    						if (bioCounter > bioCount)
+    							break;
+    			            
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_IRIS))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_IRIS : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+    	        			
+    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked)
+    	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_IRIS))
+    	        			{
+    	            			String bioData = pair.getValue();
+    	        				if (bioData != null && bioData.length() > 0)
+    	        				{
+    	            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_IRIS : SBIConstant.BIO_NAME_UNKNOWN),
+    	            						bioData, captureScore, requestScore, "", "100", isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add(bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	        				}
+    	        				else
+    	        				{
+    	        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+    	                            if (bioDto != null)
+    	                            {
+    	                            	biometrics.add (bioDto);
+    	                                previousHash = bioDto.getHash();
+    	                            }
+    	                        }
+    	        			}
+
+    	        			bioCounter ++;
+    			        }
+    				}
+    				else
+    				{
+    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
+                        if (bioDto != null)
+                        {
+                        	biometrics.add (bioDto);
+                            previousHash = bioDto.getHash();
+                        }
+                    }
+    			}    		
+        	}    
+        	// For Face
+        	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
+        	{
+        		SBIFaceCaptureInfo captureInfo = (SBIFaceCaptureInfo)deviceHelper.getCaptureInfo();
+        		String bioData = captureInfo.getBiometricForBioSubType(SBIConstant.BIO_NAME_UNKNOWN);
+				if (bioData != null && bioData.length() > 0)
 				{
     				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, null,
-                            captureInfo.getBioValueFace(), captureScore, requestScore, "", "100", false);
+    						bioData, captureScore, requestScore, "", "100", isForAuthenication);
                     if (bioDto != null)
                     {
                     	biometrics.add(bioDto);
@@ -971,43 +1703,19 @@ public class SBIServiceResponse {
 				}
 				else
 				{
-					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
+					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
                     if (bioDto != null)
                     {
                     	biometrics.add (bioDto);
                         previousHash = bioDto.getHash();
                     }
                 }
-			}
-    		else
-			{
-                LOGGER.info("getBioMetricsDtoList :: 1111 :: ");
-				if (captureInfo.getBioValueExceptionPhoto() != null && captureInfo.getBioValueExceptionPhoto().length() > 0)
-				{
-    				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, null,
-                            captureInfo.getBioValueExceptionPhoto(), captureScore, requestScore, "", "100", false);
-                    if (bioDto != null)
-                    {
-                    	biometrics.add(bioDto);
-                        previousHash = bioDto.getHash();
-                    }
-                    LOGGER.info("getBioMetricsDtoList :: previousHash :: " + previousHash);
-				}
-				else
-				{
-					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, true);
-                    if (bioDto != null)
-                    {
-                    	biometrics.add (bioDto);
-                        previousHash = bioDto.getHash();
-                    }
-                }
-			}
+        	}
     	}
     	return biometrics;
 	}
 	
-	private BioMetricsDto getBiometricData (String txnID, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, 
+	private BioMetricsDto getBiometricData (String transactionId, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, 
 			String previousHash, String bioType, String bioSubType, String bioValue, 
 			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws JsonGenerationException, JsonMappingException, IOException
     {
@@ -1031,18 +1739,33 @@ public class SBIServiceResponse {
         if (isUsedForAuthenication)
             biometricData.setDomainUri(requestObject.getDomainUri() + "");
 
-        byte [] secretKey = null;
-        String timeStamp = DatetimeHelper.getISO8601CurrentDate ();
-
+        String timeStamp = CryptoUtility.getTimestamp();
         if (isUsedForAuthenication == false)
         {
             biometricData.setBioValue(bioValue);
         }
+        else
+        {
+			try {
+				Map<String, String> cryptoResult = CryptoUtility.encrypt(new JwtUtility().getPublicKeyToEncryptCaptureBioValue(),
+						bioValue, transactionId);
+				
+				biometricData.setTimestamp(cryptoResult.get("TIMESTAMP"));
+				biometricData.setBioValue(cryptoResult.containsKey("ENC_DATA") ? 
+						cryptoResult.get("ENC_DATA") : null);		
+				biometric.setSessionKey(cryptoResult.get("ENC_SESSION_KEY"));
+				biometric.setThumbprint(new JwtUtility().getThumbprint().replaceAll(":", "").toUpperCase());
+			} catch (Exception ex) {
+                LOGGER.error("getBiometricData :: encrypt :: ", ex);
+				// TODO Auto-generated catch block
+                ex.printStackTrace();
+			}
+        }
 
         biometricData.setTimestamp(timeStamp);
         biometricData.setRequestedScore(qualityRequestScore + "");
-        biometricData.setQualityScore(10 + "");
-        biometricData.setTransactionId(txnID);
+        biometricData.setQualityScore(80 + "");
+        biometricData.setTransactionId(transactionId);
 
         ObjectMapper mapper = new ObjectMapper ();	
         SerializationConfig config = mapper.getSerializationConfig();
@@ -1053,18 +1776,13 @@ public class SBIServiceResponse {
 
         //base64 signature of the data block. base64 signature of the hash element
         String dataBlockSignBase64 = deviceHelper.getSignBioMetricsDataDto (deviceHelper.getDeviceType(), deviceHelper.getDeviceSubType(), currentBioData);
-        //GetLogger ().Info ("currentBioData>dataBlockSignBase64>base64>" + dataBlockSignBase64);
-
-        //GetLogger ().Info ("currentBioData>dataBlockVerify>>" + cryptoService.VerifyBioCaptureUsingJWS (currentBioData, dataBlockSignBase64, deviceInfo.SerialNo));
-
         biometric.setData (dataBlockSignBase64);
-        //GetLogger ().Info ("currentBioData>Base64>>" + biometric.data);
 
         String previousDataHashSHA256Hex = "";
         if (previousHash == null || previousHash.trim().length() == 0)
         {
             byte [] previousDataByteArr = StringHelper.toUtf8ByteArray (previousHash);
-            previousDataHashSHA256Hex = StringHelper.toHexaFromByteArray (CryptoUtility.generateHash(previousDataByteArr, algorithm));
+            previousDataHashSHA256Hex = HMACUtils.digestAsPlainText (HMACUtils.generateHash(previousDataByteArr));
         }
         else
         {
@@ -1072,28 +1790,30 @@ public class SBIServiceResponse {
         }
 
         byte [] currentDataByteArr = StringHelper.toUtf8ByteArray (currentBioData);
-        String currentDataHashSHA256Hex = StringHelper.toHexaFromByteArray (CryptoUtility.generateHash (currentDataByteArr, algorithm));
+        String currentDataHashSHA256Hex = HMACUtils.digestAsPlainText (HMACUtils.generateHash (currentDataByteArr));
 
         String finalDataHash = previousDataHashSHA256Hex + currentDataHashSHA256Hex;
         byte [] finalDataByteArr = StringHelper.toUtf8ByteArray (finalDataHash);
-        biometric.setHash(StringHelper.toHexaFromByteArray (CryptoUtility.generateHash (finalDataByteArr, algorithm)));
+        biometric.setHash(HMACUtils.digestAsPlainText (HMACUtils.generateHash (finalDataByteArr)));
 
         return biometric;
     }
 
-	private BioMetricsDto getBiometricErrorData (String lang, String specVersion, boolean isRCapture)
+	private BioMetricsDto getBiometricErrorData (String lang, String specVersion, boolean isForAuthenication)
 	{
+		String errorCode = "701"; 
 	    BioMetricsDto biometric = new BioMetricsDto ();
 	    biometric.setSpecVersion(specVersion);
 	    biometric.setData("");
 	    biometric.setHash("");
-	    if (isRCapture == false)
+	    if (isForAuthenication)
 	    {
+	    	errorCode = "801";
 	        biometric.setSessionKey("");
 	        biometric.setThumbprint("");
 	    }
 
-	    biometric.setError(new ErrorInfo ("701", (SBIJsonInfo.getErrorDescription (lang, "701")).trim()));
+	    biometric.setError(new ErrorInfo (errorCode, (SBIJsonInfo.getErrorDescription (lang, errorCode)).trim()));
 	    
 	    return biometric;
 	}
@@ -1227,6 +1947,74 @@ public class SBIServiceResponse {
             return null;
         }
     }
+	
+	
+	public PublicKey getPublicKeyToEncryptCaptureBioValue() throws Exception {
+		String certificate = getPublicKeyFromIDA();
+		certificate = trimBeginEnd(certificate);
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
+				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
+
+		return x509Certificate.getPublicKey();
+	}
+	
+	public String getThumbprint() throws Exception {
+		String certificate = getPublicKeyFromIDA();
+		certificate = trimBeginEnd(certificate);
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
+				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
+		String thumbprint = CryptoUtil.computeFingerPrint(x509Certificate.getEncoded(), null);
+
+		return thumbprint;
+	}
+
+	public String getPublicKeyFromIDA() {
+		OkHttpClient client = new OkHttpClient();
+		String requestBody = String.format(AUTH_REQ_TEMPLATE,
+				ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.appid"),
+				ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.clientid"),
+				ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.secretkey"),
+				DateUtils.getUTCCurrentDateTime());
+
+		MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+		RequestBody body = RequestBody.create(mediaType, requestBody);
+		Request request = new Request.Builder()
+				.url(ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.server.url"))
+				.post(body)
+				.build();
+		try {
+			Response response = client.newCall(request).execute();
+			if(response.isSuccessful()) {
+				String authToken = response.header("authorization");
+
+				Request idarequest = new Request.Builder()
+						.header("cookie", "Authorization="+authToken)
+						.url(ApplicationPropertyHelper.getPropertyKeyValue("mosip.ida.server.url"))
+						.get()
+						.build();
+
+				Response idaResponse = new OkHttpClient().newCall(idarequest).execute();
+				if(idaResponse.isSuccessful()) {
+					JSONObject jsonObject = new JSONObject(idaResponse.body().string());
+					jsonObject = jsonObject.getJSONObject("response");
+					return jsonObject.getString("certificate");
+				}
+			}
+
+		} catch (IOException | JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private String trimBeginEnd(String pKey) {
+		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
+		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
+		pKey = pKey.replaceAll("\\s", "");
+		return pKey;
+	}
 	
 	public int getPort() {
 		return port;

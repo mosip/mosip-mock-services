@@ -1,9 +1,7 @@
 package io.mosip.mock.sbi.devicehelper;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -11,8 +9,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 
-import javax.imageio.ImageIO;
-
+import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -21,10 +18,8 @@ import org.slf4j.LoggerFactory;
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.service.SBIJsonInfo;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
-import io.mosip.mock.sbi.util.DatetimeHelper;
 import io.mosip.mock.sbi.util.FileHelper;
 import io.mosip.mock.sbi.util.StringHelper;
-import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.DeviceInfo;
 import io.mosip.registration.mdm.dto.DeviceInfoDto;
 import io.mosip.registration.mdm.dto.DigitalId;
@@ -33,6 +28,8 @@ import io.mosip.registration.mdm.dto.ErrorInfo;
 
 public abstract class SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIDeviceHelper.class);	
+
+	private String purpose;
 	private String profileId;
 	private int port;
 	private String deviceId;
@@ -53,9 +50,10 @@ public abstract class SBIDeviceHelper {
     public abstract int getLiveStream ();
     public abstract int getBioCapture (boolean isUsedForAuthenication);
 	
-	public SBIDeviceHelper(int port, String deviceType, String deviceSubType) {
+	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType) {
 		super();
 		setPort(port);
+		setPurpose (purpose);
 		setDeviceType (deviceType);
 		setDeviceSubType (deviceSubType);
 		setDeviceStatus (SBIConstant.DEVICE_STATUS_ISREADY);
@@ -95,7 +93,7 @@ public abstract class SBIDeviceHelper {
 				digitalId = objectMapper.readValue(file, DigitalId.class);
 				if (digitalId != null)
 				{
-					digitalId.setDateTime(DatetimeHelper.getISO8601CurrentDate());
+					digitalId.setDateTime(CryptoUtility.getTimestamp());
 				}
 				
 				return digitalId;
@@ -135,6 +133,7 @@ public abstract class SBIDeviceHelper {
 				{
 					discoverDto.setDigitalId(getUnsignedDigitalId (digitalId, true));
 					discoverDto.setDeviceStatus(getDeviceStatus());
+					discoverDto.setPurpose(getPurpose ());
 					discoverDto.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
 				}
 				
@@ -209,6 +208,7 @@ public abstract class SBIDeviceHelper {
 				{
 					deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, false));
 					deviceInfo.setDeviceStatus(getDeviceStatus());
+					deviceInfo.setPurpose(getPurpose ());
 					deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
 					deviceInfo.setDigitalId(getSignedDigitalId (deviceInfo.getDigitalId(), key, cert));
 				}
@@ -482,7 +482,13 @@ public abstract class SBIDeviceHelper {
 		}
 		return null;
 	}
-
+	
+	public String getPurpose() {
+		return purpose;
+	}
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
+	}
 	public String getProfileId() {
 		return profileId;
 	}
@@ -580,5 +586,5 @@ public abstract class SBIDeviceHelper {
 	}
 	public void setDeviceSubId(int deviceSubId) {
 		this.deviceSubId = deviceSubId;
-	}		
+	}	
 }

@@ -11,7 +11,7 @@
   	"digitalId": "",
   	"deviceCode": "b692b595-3523-iris-99fc-bd76e35f190f",
   	"env": "Staging",
-  	"purpose": "Registration",
+  	"purpose": "",
   	"specVersion": [
   		"0.9.5"
 	]

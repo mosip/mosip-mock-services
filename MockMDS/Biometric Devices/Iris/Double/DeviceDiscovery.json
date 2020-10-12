@@ -12,7 +12,7 @@
    	"specVersion":[
    		"0.9.5"
 	],
-   	"purpose":"Registration",
+   	"purpose":"",
    	"error":{
       	"errorCode":"100",
       	"errorInfo":"Success"

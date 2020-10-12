@@ -14,18 +14,18 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 
 	private static SBIIrisDoubleHelper instance; 
 	  
-	private SBIIrisDoubleHelper(int port)  
+	private SBIIrisDoubleHelper(int port, String purpose)  
 	{ 
-		super (port, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIIrisDoubleHelper getInstance(int port)  
+	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose)  
 	{ 
 		if (instance == null)  
 		{ 
 			// if instance is null, initialize 
-			instance = new SBIIrisDoubleHelper(port); 
+			instance = new SBIIrisDoubleHelper(port, purpose); 
 		} 
 		return instance; 
 	}
@@ -57,86 +57,138 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 	}
 
 	@Override
-	public int getBioCapture(boolean isUsedForAuthenication) {
+	public int getBioCapture(boolean isForAuthenication) {
 		byte [] isoImage = null;
-		if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+		
+		if (!isForAuthenication)
 		{
-			if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingLeftIris() == SBICheckState.Unchecked)
+			if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+			{
+				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingLeftIris() == SBICheckState.Unchecked)
+				{
+					isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_IRIS);
+					if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
+					{
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueLI(StringHelper.base64UrlEncode(isoImage));
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);
+					}				
+				}
+				else
+				{
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
+				}	
+				
+				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
+				{
+					getCaptureInfo ().setCaptureCompleted(true);
+				}
+			}
+			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
+			{
+				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingRightIris() == SBICheckState.Unchecked)
+				{
+					isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_IRIS);
+					if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
+					{
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueRI(StringHelper.base64UrlEncode(isoImage));
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureRI(true);
+					}				
+				}
+				else
+				{
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
+				}			
+				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
+				{
+					getCaptureInfo ().setCaptureCompleted(true);
+				}
+			}
+			else if (getDeviceSubId () == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
+			{
+				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingLeftIris() == SBICheckState.Unchecked)
+				{
+					isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_IRIS);
+					if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
+					{
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueLI(StringHelper.base64UrlEncode(isoImage));
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);
+					}				
+				}
+				else
+				{
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
+				}			
+
+				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingRightIris() == SBICheckState.Unchecked)
+				{
+					isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_IRIS);
+					if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
+					{
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueRI(StringHelper.base64UrlEncode(isoImage));
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureRI(true);
+					}				
+				}
+				else
+				{
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
+				}			
+
+				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI() ||
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
+				{
+					getCaptureInfo ().setCaptureCompleted(true);
+				}
+			}
+		}
+		else if (isForAuthenication)
+		{
+			if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
 			{
 				isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_IRIS);
 				if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
 				{
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueLI(StringHelper.base64UrlEncode(isoImage));
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);
+					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_IRIS, StringHelper.base64UrlEncode(isoImage));
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
 				}				
+				
+				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
+					getCaptureInfo ().setCaptureCompleted(true);
 			}
-			else
-			{
-				((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
-			}	
-			
-			if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
-			{
-				getCaptureInfo ().setCaptureCompleted(true);
-			}
-		}
-		else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
-		{
-			if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingRightIris() == SBICheckState.Unchecked)
+			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
 			{
 				isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_IRIS);
 				if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
 				{
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueRI(StringHelper.base64UrlEncode(isoImage));
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureRI(true);
+					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_IRIS, StringHelper.base64UrlEncode(isoImage));
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
 				}				
+				
+				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
+					getCaptureInfo ().setCaptureCompleted(true);
 			}
-			else
-			{
-				((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
-			}			
-			if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
-			{
-				getCaptureInfo ().setCaptureCompleted(true);
-			}
-		}
-		else if (getDeviceSubId () == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
-		{
-			if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingLeftIris() == SBICheckState.Unchecked)
+			else if (getDeviceSubId () == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
 			{
 				isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_IRIS);
 				if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
 				{
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueLI(StringHelper.base64UrlEncode(isoImage));
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);
+					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_IRIS, StringHelper.base64UrlEncode(isoImage));
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
 				}				
-			}
-			else
-			{
-				((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
-			}			
 
-			if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingRightIris() == SBICheckState.Unchecked)
-			{
 				isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_IRIS);
 				if (isoImage != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
 				{
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setBioValueRI(StringHelper.base64UrlEncode(isoImage));
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureRI(true);
+					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_IRIS, StringHelper.base64UrlEncode(isoImage));
+					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
 				}				
-			}
-			else
-			{
-				((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);				
-			}			
 
-			if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI() ||
-					((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
-			{
-				getCaptureInfo ().setCaptureCompleted(true);
+				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI() ||
+						((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
+				{
+					getCaptureInfo ().setCaptureCompleted(true);
+				}
 			}
 		}
-		// TODO Auto-generated method stub
 		return 0;
 	} 	
 }

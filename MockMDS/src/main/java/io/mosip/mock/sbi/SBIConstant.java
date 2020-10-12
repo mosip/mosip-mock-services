@@ -80,6 +80,7 @@ public class SBIConstant {
 
 	public static final String Error_Code_551 = "mds_ERROR_551_msg_en";
 
+	public static final String Error_Code_601 = "mds_ERROR_601_msg_en";
 	public static final String Error_Code_604 = "mds_ERROR_604_msg_en";
 	public static final String Error_Code_605 = "mds_ERROR_605_msg_en";
 	public static final String Error_Code_606 = "mds_ERROR_606_msg_en";
@@ -96,7 +97,17 @@ public class SBIConstant {
 	public static final String Error_Code_706 = "mds_ERROR_706_msg_en";
 	public static final String Error_Code_707 = "mds_ERROR_707_msg_en";
 	public static final String Error_Code_708 = "mds_ERROR_708_msg_en";
+	public static final String Error_Code_709 = "mds_ERROR_709_msg_en";
 	public static final String Error_Code_710 = "mds_ERROR_710_msg_en";
+
+	public static final String Error_Code_800 = "mds_ERROR_800_msg_en";
+	public static final String Error_Code_801 = "mds_ERROR_801_msg_en";
+	public static final String Error_Code_803 = "mds_ERROR_803_msg_en";
+	public static final String Error_Code_804 = "mds_ERROR_804_msg_en";
+	public static final String Error_Code_805 = "mds_ERROR_805_msg_en";
+	public static final String Error_Code_806 = "mds_ERROR_806_msg_en";
+	public static final String Error_Code_809 = "mds_ERROR_809_msg_en";
+	public static final String Error_Code_810 = "mds_ERROR_810_msg_en";
 
 	public static final String Error_Code_999 = "mds_ERROR_999_msg_en";
 		
@@ -110,6 +121,14 @@ public class SBIConstant {
 	public static String MOSIP_RCAPTURE_VERB = "RCAPTURE /capture HTTP";
 	public static String MOSIP_SETPROFILE_VERB = "SETPROFILE /profile HTTP";
 		
+	/** Command Line Arguments Names */
+	public static String MOSIP_PURPOSE = "mosip.mock.sbi.device.purpose";
+	public static String MOSIP_BIOMETRIC_TYPE = "mosip.mock.sbi.biometric.type";
+
+	/** Device Purpose Names */
+	public static String MOSIP_PURPOSE_REGISTRATION = "mosip.mock.sbi.device.purpose.registration";
+	public static String MOSIP_PURPOSE_AUTH = "mosip.mock.sbi.device.purpose.auth";
+
 	/** Biometric Types Names */
 	public static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "mosip.mock.sbi.biometric.type.biometricdevice";
 	public static String MOSIP_BIOMETRIC_TYPE_FINGER = "mosip.mock.sbi.biometric.type.finger";
