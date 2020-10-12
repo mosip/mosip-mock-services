@@ -39,16 +39,18 @@ public class SampleSDKTest {
     private String samplePath = "";
     private String sampleIrisNoMatchPath = "";
     private String sampleFullMatchPath = "";
+    private String sampleFaceMissing = "";
 
     @Before
     public void Setup() {
         samplePath = SampleSDKTest.class.getResource("/sample_files/sample.xml").getPath();
         sampleIrisNoMatchPath = SampleSDKTest.class.getResource("/sample_files/sample_iris_no_match.xml").getPath();
         sampleFullMatchPath = SampleSDKTest.class.getResource("/sample_files/sample_full_match.xml").getPath();
+        sampleFaceMissing = SampleSDKTest.class.getResource("/sample_files/sample_face_missing.xml").getPath();
     }
 
     @Test
-    public void match() {
+    public void match_different_iris() {
         try {
             List<BiometricType> modalitiesToMatch = new ArrayList<BiometricType>(){{
                 add(BiometricType.FACE);
@@ -80,9 +82,35 @@ public class SampleSDKTest {
     }
 
     @Test
-    public void hashCalculator() throws NoSuchAlgorithmException {
-        String s = "dssssssssssssssaffdgdgdgddhdhdhdhd";
-        LOGGER.info(Util.computeFingerPrint(s.getBytes(), null));
+    public void match_face_missing() {
+        try {
+            List<BiometricType> modalitiesToMatch = new ArrayList<BiometricType>(){{
+                add(BiometricType.FACE);
+                add(BiometricType.FINGER);
+                add(BiometricType.IRIS);
+            }};
+            BiometricRecord[] gallery = new BiometricRecord[1];
+            BiometricRecord sample_record = xmlFileToBiometricRecord(samplePath);
+            BiometricRecord gallery0 = xmlFileToBiometricRecord(sampleFaceMissing);
+
+            gallery[0] = gallery0;
+
+            SampleSDK sampleSDK = new SampleSDK();
+            Response<MatchDecision[]> response = sampleSDK.match(sample_record, gallery, modalitiesToMatch, new HashMap<>());
+            for (int i=0; i< response.getResponse().length; i++){
+                Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
+                Assert.assertEquals(decisions.get(BiometricType.FACE).toString(), decisions.get(BiometricType.FACE).getMatch().toString(), Match.NOT_MATCHED.toString());
+                Assert.assertEquals(decisions.get(BiometricType.FINGER).toString(), decisions.get(BiometricType.FINGER).getMatch().toString(), Match.MATCHED.toString());
+                Assert.assertEquals(decisions.get(BiometricType.IRIS).toString(), decisions.get(BiometricType.IRIS).getMatch().toString(), Match.MATCHED.toString());
+            }
+            ObjectMapper objectMapper = new ObjectMapper();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
     }
 
     private BiometricRecord xmlFileToBiometricRecord(String path) throws ParserConfigurationException, IOException, SAXException {
@@ -107,7 +135,6 @@ public class SampleSDKTest {
                 String minor_version = ((Element) nVersion).getElementsByTagName("Minor").item(0).getTextContent();
                 VersionType bir_version = new VersionType(parseInt(major_version), parseInt(minor_version));
                 bd.withVersion(bir_version);
-                LOGGER.debug("Version : Major " + major_version+" --- Minor "+minor_version);
 
                 /* CBEFF Version */
                 Node nCBEFFVersion = ((Element) childNode).getElementsByTagName("Version").item(0);
@@ -115,7 +142,6 @@ public class SampleSDKTest {
                 String cbeff_minor_version = ((Element) nCBEFFVersion).getElementsByTagName("Minor").item(0).getTextContent();
                 VersionType cbeff_bir_version = new VersionType(parseInt(cbeff_major_version), parseInt(cbeff_minor_version));
                 bd.withCbeffversion(cbeff_bir_version);
-                LOGGER.debug("CBEFF Version : Major " + cbeff_major_version+" --- Minor "+cbeff_minor_version);
 
                 /* BDB Info */
                 Node nBDBInfo = ((Element) childNode).getElementsByTagName("BDBInfo").item(0);
