@@ -1,4 +1,4 @@
-package com.proxy.abis.entity;
+package io.mosip.proxy.abis.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

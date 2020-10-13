@@ -1,4 +1,4 @@
-package com.proxy.abis;
+package io.mosip.proxy.abis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -9,10 +9,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.web.client.RestTemplate;
 
-@ComponentScan(basePackages = { "com.proxy.abis" })
+@ComponentScan(basePackages = { "io.mosip.proxy.abis" })
 @SpringBootApplication
 @EnableAutoConfiguration
-@EnableJpaRepositories(basePackages = { "com.proxy.abis.dao" })
+@EnableJpaRepositories(basePackages = { "io.mosip.proxy.abis.dao" })
 @EnableJms
 public class ProxyAbisApplication {
 	public static void main(String[] args) {

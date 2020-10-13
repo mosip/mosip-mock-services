@@ -1,4 +1,4 @@
-package com.proxy.abis.dao;
+package io.mosip.proxy.abis.dao;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.entity.BiometricData;
 
 @Repository
 public interface ProxyAbisBioDataRepository extends CrudRepository<BiometricData, Long> {

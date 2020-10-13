@@ -1,4 +1,4 @@
-package com.proxy.abis.service.impl;
+package io.mosip.proxy.abis.service.impl;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -39,22 +39,22 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.proxy.abis.dao.ProxyAbisBioDataRepository;
-import com.proxy.abis.dao.ProxyAbisInsertRepository;
-import com.proxy.abis.entity.BiometricData;
-import com.proxy.abis.entity.IdentityRequest;
-import com.proxy.abis.entity.IdentityResponse;
-import com.proxy.abis.entity.IdentityResponse.Modalities;
-import com.proxy.abis.entity.InsertEntity;
-import com.proxy.abis.entity.InsertRequestMO;
-import com.proxy.abis.entity.RequestMO;
-import com.proxy.abis.exception.FailureReasonsConstants;
-import com.proxy.abis.exception.RequestException;
 import com.proxy.abis.service.ProxyAbisInsertService;
 
 import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
+import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
+import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
+import io.mosip.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.entity.IdentityRequest;
+import io.mosip.proxy.abis.entity.IdentityResponse;
+import io.mosip.proxy.abis.entity.InsertEntity;
+import io.mosip.proxy.abis.entity.InsertRequestMO;
+import io.mosip.proxy.abis.entity.RequestMO;
+import io.mosip.proxy.abis.entity.IdentityResponse.Modalities;
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
+import io.mosip.proxy.abis.exception.RequestException;
 
 @Service
 @Configuration

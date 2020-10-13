@@ -1,6 +1,9 @@
-package com.proxy.abis;
+package io.mosip.proxy.abis;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
@@ -9,9 +12,6 @@ import org.apache.activemq.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -20,10 +20,11 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
-import com.proxy.abis.controller.ProxyAbisController;
-import com.proxy.abis.entity.IdentityRequest;
-import com.proxy.abis.entity.InsertRequestMO;
-import com.proxy.abis.entity.RequestMO;
+
+import io.mosip.proxy.abis.controller.ProxyAbisController;
+import io.mosip.proxy.abis.entity.IdentityRequest;
+import io.mosip.proxy.abis.entity.InsertRequestMO;
+import io.mosip.proxy.abis.entity.RequestMO;
 
 @Component
 public class Listener {
@@ -50,7 +51,9 @@ public class Listener {
 		Map map = new Gson().fromJson(messageData, Map.class);
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.findAndRegisterModules();
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+	    mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		
+		
 		ResponseEntity<Object> obj = null;
 
 		logger.info("Request type is " + map.get("id"));

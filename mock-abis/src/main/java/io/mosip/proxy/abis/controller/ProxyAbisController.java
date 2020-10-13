@@ -1,4 +1,4 @@
-package com.proxy.abis.controller;
+package io.mosip.proxy.abis.controller;
 
 import javax.validation.Valid;
 
@@ -14,17 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proxy.abis.entity.FailureResponse;
-import com.proxy.abis.entity.IdentityRequest;
-import com.proxy.abis.entity.IdentityResponse;
-import com.proxy.abis.entity.InsertRequestMO;
-import com.proxy.abis.entity.ResponseMO;
-import com.proxy.abis.entity.RequestMO;
-import com.proxy.abis.exception.BindingException;
-import com.proxy.abis.exception.FailureReasonsConstants;
-import com.proxy.abis.exception.RequestException;
-import com.proxy.abis.service.impl.ProxyAbisInsertServiceImpl;
-
+import io.mosip.proxy.abis.entity.FailureResponse;
+import io.mosip.proxy.abis.entity.IdentityRequest;
+import io.mosip.proxy.abis.entity.IdentityResponse;
+import io.mosip.proxy.abis.entity.InsertRequestMO;
+import io.mosip.proxy.abis.entity.RequestMO;
+import io.mosip.proxy.abis.entity.ResponseMO;
+import io.mosip.proxy.abis.exception.BindingException;
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
+import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.impl.ProxyAbisInsertServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 

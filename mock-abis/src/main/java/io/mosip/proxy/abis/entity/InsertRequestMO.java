@@ -1,4 +1,4 @@
-package com.proxy.abis.entity;
+package io.mosip.proxy.abis.entity;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import com.proxy.abis.exception.FailureReasonsConstants;
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 
 public class InsertRequestMO {
 

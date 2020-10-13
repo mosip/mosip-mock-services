@@ -1,8 +1,8 @@
 package com.proxy.abis.service;
 
-import com.proxy.abis.entity.IdentityRequest;
-import com.proxy.abis.entity.IdentityResponse;
-import com.proxy.abis.entity.InsertRequestMO;
+import io.mosip.proxy.abis.entity.IdentityRequest;
+import io.mosip.proxy.abis.entity.IdentityResponse;
+import io.mosip.proxy.abis.entity.InsertRequestMO;
 
 public interface ProxyAbisInsertService {
 	
