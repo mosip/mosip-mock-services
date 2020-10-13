@@ -442,8 +442,8 @@ public abstract class SBIDeviceHelper {
 			{
 				//image = FileHelper.readAllBytes ImageIO.read(new File(fileName));
 				image = FileHelper.readAllBytes (fileName);
-            	//LOGGER.info ("processLiveStreamInfo :: fileName ::" + fileName);
-				//LOGGER.info ("processLiveStreamInfo :: image ::" + image.length);
+            	//LOGGER.info ("getLiveStreamBufferedImage :: fileName ::" + fileName);
+				//LOGGER.info ("getLiveStreamBufferedImage :: image ::" + image.length);
 
 				return image;
 			}	
