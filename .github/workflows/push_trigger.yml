@@ -56,13 +56,6 @@ jobs:
       run: |
         cd mock-abis
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
- 
-    - name: Publish the maven package
-      run: |
-        chmod +x ./deploy.sh
-        ./deploy.sh . $GITHUB_WORKSPACE/settings.xml .*
-      env:
-        GPG_TTY: $(tty)
     
     - name: Build image
       run: |
@@ -84,3 +77,10 @@ jobs:
           echo VERSION=$VERSION
           docker tag mock-abis $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+          
+    - name: Publish the maven package
+      run: |
+        chmod +x ./deploy.sh
+        ./deploy.sh . $GITHUB_WORKSPACE/settings.xml .*
+      env:
+        GPG_TTY: $(tty)
