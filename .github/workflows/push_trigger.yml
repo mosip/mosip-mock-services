@@ -67,6 +67,7 @@ jobs:
     - name: Build image
       run: |
           cd mock-abis
+          ls -ltr ./target
           docker build . --file Dockerfile --tag mock-abis
           
     - name: Log into registry
