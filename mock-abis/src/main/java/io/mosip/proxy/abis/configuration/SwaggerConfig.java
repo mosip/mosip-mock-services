@@ -1,4 +1,4 @@
-package com.proxy.abis.configuration;
+package io.mosip.proxy.abis.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

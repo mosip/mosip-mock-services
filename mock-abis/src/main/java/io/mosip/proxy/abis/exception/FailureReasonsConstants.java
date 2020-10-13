@@ -1,4 +1,4 @@
-package com.proxy.abis.exception;
+package io.mosip.proxy.abis.exception;
 
 public class FailureReasonsConstants {
 	

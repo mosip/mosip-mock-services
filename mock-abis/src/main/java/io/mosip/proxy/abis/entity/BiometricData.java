@@ -1,4 +1,4 @@
-package com.proxy.abis.entity;
+package io.mosip.proxy.abis.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -1,30 +1,51 @@
-package com.proxy.abis.entity;
+package io.mosip.proxy.abis.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-public class RequestMO {
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
+@Entity(name = "InsertRequest")
+@Table
+public class InsertEntity {
+
+	@Column(name = "id")
 	private String id;
 
+	@Column(name = "version")
 	private String version;
 
+	@Column(name = "requestId")
 	private String requestId;
 
+	@Column(name = "requesttime")
 	private LocalDateTime requesttime;
 
+	@Id
 	private String referenceId;
 
-	public RequestMO() {
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "insertEntity", fetch = FetchType.EAGER)
+	private List<BiometricData> biometricList;
+
+	public InsertEntity() {
 		super();
 	}
 
-	public RequestMO(String id, String version, String requestId, LocalDateTime requesttime, String referenceId) {
+	public InsertEntity(String id, String version, String requestId, LocalDateTime requesttime, String referenceId) {
 		super();
+
 		this.id = id;
 		this.version = version;
 		this.requestId = requestId;
 		this.requesttime = requesttime;
 		this.referenceId = referenceId;
+
 	}
 
 	public String getId() {
@@ -67,4 +88,15 @@ public class RequestMO {
 		this.referenceId = referenceId;
 	}
 
+	public List<BiometricData> getBiometricList() {
+		return biometricList;
+	}
+
+	public void setBiometricList(List<BiometricData> biometricList) {
+		this.biometricList = biometricList;
+	}
+	
+	
+
+	
 }

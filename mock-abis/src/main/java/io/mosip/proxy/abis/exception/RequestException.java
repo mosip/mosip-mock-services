@@ -1,6 +1,6 @@
-package com.proxy.abis.exception;
+package io.mosip.proxy.abis.exception;
 
-import com.proxy.abis.entity.RequestMO;
+import io.mosip.proxy.abis.entity.RequestMO;
 
 public class RequestException extends RuntimeException {
 

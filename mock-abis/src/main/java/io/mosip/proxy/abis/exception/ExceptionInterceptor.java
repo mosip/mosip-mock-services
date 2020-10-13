@@ -1,4 +1,4 @@
-package com.proxy.abis.exception;
+package io.mosip.proxy.abis.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.proxy.abis.entity.FailureResponse;
+import io.mosip.proxy.abis.entity.FailureResponse;
 
 @ControllerAdvice
 public class ExceptionInterceptor extends ResponseEntityExceptionHandler {
