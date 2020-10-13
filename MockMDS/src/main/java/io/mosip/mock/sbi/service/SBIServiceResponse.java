@@ -279,13 +279,13 @@ public class SBIServiceResponse {
         	 if (requestObject != null && requestObject.getProfileId() != null && requestObject.getProfileId().length() > 0)
         	 {
         		 mockService.setProfileId(profileId);
-        		 ErrorInfo errorInfo = new ErrorInfo ("0", SBIJsonInfo.getErrorDescription(lang, "0")); 
+        		 ErrorInfo errorInfo = new ErrorInfo ("0", SBIJsonInfo.getErrorDescription(lang, "100")); 
         		 response = objectMapper.writeValueAsString(errorInfo);
         	 }	 
         	 else
         	 {
         		 mockService.setProfileId("Default");
-        		 ErrorInfo errorInfo = new ErrorInfo ("0", SBIJsonInfo.getErrorDescription(lang, "0")); 
+        		 ErrorInfo errorInfo = new ErrorInfo ("0", SBIJsonInfo.getErrorDescription(lang, "100")); 
         		 response = objectMapper.writeValueAsString(errorInfo);
         	 }
          }
