@@ -8,7 +8,7 @@ ENV spring_config_url_env=${spring_config_url}
 # environment variable to pass glowroot, at docker runtime
 ENV is_glowroot_env=${is_glowroot}
 
-COPY target/mockabis.jar  mockabis-service.jar
+COPY ./target/mockabis.jar  mockabis-service.jar
 RUN echo "Build application"
 EXPOSE 8081
 CMD if [ "$is_glowroot_env" = "present" ]; then \
