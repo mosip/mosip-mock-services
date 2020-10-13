@@ -425,7 +425,7 @@ public class SBIServiceResponse {
         SBIDeviceHelper deviceHelper = null;
         try
         {
-            if (!mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_AUTH)))
+            if (!mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_REGISTRATION)))
             {
                 return SBIJsonInfo.getErrorJson (lang, "709", "");
             }
