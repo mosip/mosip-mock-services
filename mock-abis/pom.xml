@@ -149,15 +149,16 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
+			 <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<release>11</release>
+        <compilerArgs>--enable-preview</compilerArgs>
 				</configuration>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -166,7 +167,7 @@
 					<addResources>true</addResources>
 				</configuration>
 			</plugin>
-			<plugin>
+		 <!--  <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.2.0</version>
@@ -181,7 +182,7 @@
 				<configuration>
 					<doclint>none</doclint>
                 </configuration>
-         </plugin>
+         </plugin>-->
          <plugin>
                   <groupId>org.sonatype.plugins</groupId>
                   <artifactId>nexus-staging-maven-plugin</artifactId>
