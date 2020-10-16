@@ -13,65 +13,70 @@
 	<url>https://github.com/mosip/mosip-ref-impl</url>
 
 	<licenses>
-          <license>
-                <name>MPL 2.0</name>
-                <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
-          </license>
-        </licenses>
-		<scm>
-                <connection>scm:git:git://github.com/mosip/mosip-ref-impl.git</connection>
-                <developerConnection>scm:git:ssh://github.com:mosip/mosip-ref-impl.git</developerConnection>
-                <url>https://github.com/mosip/mosip-ref-impl</url>
-                <tag>HEAD</tag>
-        </scm>
-		
-		<developers>
-                <developer>
-                  <name>Mosip</name>
-                  <email>mosip.emailnotifier@gmail.com</email>
-                  <organization>io.mosip</organization>
-                  <organizationUrl>https://github.com/mosip/mosip-ref-impl</organizationUrl>
-                </developer>
-        </developers>
-		
-		<repositories>
+		<license>
+			<name>MPL 2.0</name>
+			<url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+		</license>
+	</licenses>
+	<scm>
+		<connection>scm:git:git://github.com/mosip/mosip-ref-impl.git</connection>
+		<developerConnection>scm:git:ssh://github.com:mosip/mosip-ref-impl.git</developerConnection>
+		<url>https://github.com/mosip/mosip-ref-impl</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<developers>
+		<developer>
+			<name>Mosip</name>
+			<email>mosip.emailnotifier@gmail.com</email>
+			<organization>io.mosip</organization>
+			<organizationUrl>https://github.com/mosip/mosip-ref-impl</organizationUrl>
+		</developer>
+	</developers>
+
+	<repositories>
 		<repository>
 			<id>ossrh</id>
 			<name>Central Repository</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 			<layout>default</layout>
 			<snapshots>
-			<enabled>true</enabled>
+				<enabled>true</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
-	
+
 	<distributionManagement>
-                <snapshotRepository>
-                        <id>ossrh</id>
-                        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                        <id>ossrh</id>
-                        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-        </distributionManagement>
-		
-		<properties>
-			<doclint>none</doclint>
-		</properties>
-		
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<properties>
+		<doclint>none</doclint>
+	</properties>
+
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.4.RELEASE</version>
+	</parent>
+
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>2.3.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>2.3.4.RELEASE</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
@@ -101,7 +106,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-activemq</artifactId>
-			<version>2.3.4.RELEASE</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
@@ -122,7 +126,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jms</artifactId>
-			<version>5.2.9.RELEASE</version>
+
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
@@ -134,12 +138,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-			<version>2.3.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
-			<version>2.3.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -149,110 +151,65 @@
 	</dependencies>
 	<build>
 		<plugins>
-			 <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<release>11</release>
-        <compilerArgs>--enable-preview</compilerArgs>
-				</configuration>
-			</plugin>
-			
+		
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.3.4.RELEASE</version>
 				<configuration>
 					<addResources>true</addResources>
 				</configuration>
 			</plugin>
-		 <!--  <plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
 				<executions>
 					<execution>
-					 	<id>attach-javadocs</id>
-					  	<goals>
-							<goal>jar</goal>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>validate</phase>
+					</execution>
+				</executions>
 				<configuration>
-					<doclint>none</doclint>
-                </configuration>
-         </plugin>-->
-         <plugin>
-                  <groupId>org.sonatype.plugins</groupId>
-                  <artifactId>nexus-staging-maven-plugin</artifactId>
-                  <version>1.6.7</version>
-                  <extensions>true</extensions>
-                  <configuration>
-                        <serverId>ossrh</serverId>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                  </configuration>
-                </plugin>
-				<plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-source-plugin</artifactId>
-                  <version>2.2.1</version>
-                  <executions>
-                        <execution>
-                          <id>attach-sources</id>
-                          <goals>
-                                <goal>jar-no-fork</goal>
-                          </goals>
-                        </execution>
-                  </executions>
-                </plugin>
-				 <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-gpg-plugin</artifactId>
-                  <version>1.5</version>
-                  <executions>
-                        <execution>
-                          <id>sign-artifacts</id>
-                          <phase>verify</phase>
-                          <goals>
-                                <goal>sign</goal>
-                          </goals>
-		          <configuration>
-                		<gpgArguments>
-                    			<arg>--pinentry-mode</arg>
-                    			<arg>loopback</arg>
-                		</gpgArguments>
-            		   </configuration>
-                        </execution>
-                  </executions>
-                </plugin>
-				
-		<plugin>
-                  <groupId>pl.project13.maven</groupId>
-                  <artifactId>git-commit-id-plugin</artifactId>
-                  <version>3.0.1</version>
-                  <executions>
-                      <execution>
-                          <id>get-the-git-infos</id>
-                          <goals>
-                              <goal>revision</goal>
-                          </goals>
-                          <phase>validate</phase>
-                      </execution>
-                  </executions>
-                  <configuration>
-                      <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                      <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                      <includeOnlyProperties>
-                          <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
-                          <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
-                      </includeOnlyProperties>
-                      <commitIdGenerationMode>full</commitIdGenerationMode>
-                      <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                      <!-- <format>json</format> -->
-                  </configuration>
-              </plugin>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<includeOnlyProperties>
+						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+					</includeOnlyProperties>
+					<commitIdGenerationMode>full</commitIdGenerationMode>
+					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+					<!-- <format>json</format> -->
+				</configuration>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -266,6 +223,45 @@
 					<finalName>mockabis</finalName>
 				</configuration>
 			</plugin>
+			
+			<!--   <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doclint>none</doclint>
+				</configuration>
+			</plugin>-->
+			 <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
 		</plugins>
 	</build>
 
