@@ -51,6 +51,11 @@ jobs:
       run: |
         cd mock-sdk
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+        
+    - name: Build SBI with Maven
+      run: |
+        cd MockMDS
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build abis with Maven
       run: |
