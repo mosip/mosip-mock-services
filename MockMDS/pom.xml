@@ -62,6 +62,13 @@
 				<artifactId>okhttp</artifactId>
 				<version>2.7.5</version>
 			</dependency>
+
+			<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+			<dependency>
+			    <groupId>javax.xml.bind</groupId>
+			    <artifactId>jaxb-api</artifactId>
+			    <version>2.3.1</version>
+			</dependency>
 		
 		   <dependency>
 				<groupId>io.mosip.kernel</groupId>
