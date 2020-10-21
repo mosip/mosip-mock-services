@@ -24,7 +24,7 @@ public class CaptureRequestDto{
 	public String transactionId;
 
 	@JsonProperty("bio")
-	public List<CaptureRequestDeviceDetailDto> mosipBioRequest;
+	public List<CaptureRequestDeviceDetailDto> bio;
 
 	@JsonIgnore
 	public List<Map<String, String>> customOpts;
