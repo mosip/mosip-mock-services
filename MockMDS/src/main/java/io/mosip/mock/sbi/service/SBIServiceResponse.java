@@ -1762,7 +1762,7 @@ public class SBIServiceResponse {
 			}
         }
 
-        biometricData.setTimestamp(timeStamp);
+        //biometricData.setTimestamp(timeStamp);
         biometricData.setRequestedScore(qualityRequestScore + "");
         biometricData.setQualityScore(80 + "");
         biometricData.setTransactionId(transactionId);
