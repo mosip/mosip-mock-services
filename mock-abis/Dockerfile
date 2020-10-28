@@ -11,6 +11,5 @@ ENV is_glowroot_env=${is_glowroot}
 COPY ./target/mockabis.jar  mockabis-service.jar
 RUN echo "Build application"
 EXPOSE 8081
-CMD if [ "$is_glowroot_env" = "present" ]; then \
-    java -jar -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}"  -Dspring.cloud.config.uri="${spring_config_url_env}" mockabis-service.jar; \
-    fi
+CMD java -jar -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}"  -Dspring.cloud.config.uri="${spring_config_url_env}" mockabis-service.jar;
+    
