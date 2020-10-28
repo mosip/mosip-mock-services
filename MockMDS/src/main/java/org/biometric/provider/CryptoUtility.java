@@ -27,6 +27,8 @@ import javax.crypto.spec.PSource.PSpecified;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import io.mosip.kernel.core.util.DateUtils;
+
 
 public class CryptoUtility {
 	
@@ -64,8 +66,7 @@ public class CryptoUtility {
     }
 	
 	public static String getTimestamp() {
-		DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-    	return formatter.format(ZonedDateTime.now());
+    	return DateUtils.formatToISOString(DateUtils.getUTCCurrentDateTime());
 	}
 	
 	public static Map<String, String>  encrypt(PublicKey publicKey, String data, String transactionId) {
