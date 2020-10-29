@@ -44,17 +44,3 @@ ipaddress of the machine where the softhsm is running.
 ## Publish
 Once completed please push the softhsm to mosipdev and publish the client.zip to artifactory
 
-
-## How to convert this to use a hardware HSM
-The HSM connects over a network. In order for application to connect to HSM the applications need a client library installed before the webserver starts.
-
-In mosip all of this installation is orchestrated inside the docker files where HSM connection is required. The dockers that need access to HSM will look for a client.zip file from the artifactory.
-
-This client.zip is the bundle of self dependant libraries that can be used to connect to the HSM. The client.zip should also have a install.sh script with executable permission. When the dockers start we pull the client.zip file from the artifactory and unzip the file. Later we instantiate the install.sh script. The expectation here is the the install.sh scripts sets up everything thats needed to connect to the HSM.
-
-__Note__: All our dockers are debian based as we inherit from openjdk dockers.
-__Note__: Do not attempt to set environment variables through install.sh rather use the dockers/yml files to setup the environment variables 
-
-The application is expected to be PKCS11 compatible. Replace the client.zip in the artifactory with the actual client that you need. Add a install script which takes care of installation of the client. The install script should also setup the pkcs11 cfg file in /config/softhsm-application.conf. This is a PKCS11 configuration file and please consult your HSM vendor to get the correct PKCS11 configuration file.
-
-The PKCS11 library uses the PKCS11_PROXY_SOCKET environment variable and this is sent to the docker as shown above in step 3
