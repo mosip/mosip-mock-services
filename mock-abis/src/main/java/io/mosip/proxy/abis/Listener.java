@@ -145,11 +145,13 @@ public class Listener {
 
 	public static String getJson(String configServerFileStorageURL, String uri) {
 		RestTemplate restTemplate = new RestTemplate();
+		System.out.println("Json URL"+configServerFileStorageURL + uri);
 		return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 	}
 
 	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() {
 		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
+		
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson);
 
 		System.out.println(registrationProcessorAbis);
