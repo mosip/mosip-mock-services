@@ -459,6 +459,7 @@ public abstract class SBIDeviceHelper {
 		boolean isFolderExist = true;
 		try {
 			fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PROFILE_FOLDER_PATH) + File.separator + getProfileId ();
+        	//LOGGER.error("getBiometricISOImage :: profileId::" + getProfileId() + " :: Not Set :: fileName :: " + fileName);
 			if (!FileHelper.directoryExists(fileName))	
 			{
 				isFolderExist = false;
@@ -470,7 +471,7 @@ public abstract class SBIDeviceHelper {
 			if (isFolderExist)
 			{
 				fileName = fileName + File.separator + bioSubTypeFileName;
-	            //LOGGER.info("getBiometricISOImage :: bioSubTypeFileName :: " + bioSubTypeFileName);
+	            //LOGGER.info("getBiometricISOImage :: bioSubTypeFileName :: " + bioSubTypeFileName + " :: fileName ::" + fileName);
 				if (FileHelper.exists(fileName))	
 				{
 					image = FileHelper.readAllBytes (fileName);

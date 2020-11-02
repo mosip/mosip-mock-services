@@ -21,7 +21,7 @@ public class SBIMockService implements Runnable {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIMockService.class);	
 
-	protected String profileId = "Default";
+	protected static String profileId = "Default";
 	protected String purpose;
 	protected String biometricType;
 	protected HashMap <String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
