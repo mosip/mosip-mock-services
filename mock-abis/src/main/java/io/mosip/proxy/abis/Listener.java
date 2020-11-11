@@ -96,13 +96,14 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
-	private Integer textType = 0;
+	
 
 	@Autowired
 	ProxyAbisController proxycontroller;
 
 	public boolean consumeLogic(javax.jms.Message message, String abismiddlewareaddress) {
 		boolean isrequestAddedtoQueue = false;
+		Integer textType = 0;
 		String messageData = null;
 		logger.info("Received message " + message);
 		try {
@@ -113,9 +114,10 @@ public class Listener {
 			} else if (message instanceof ActiveMQBytesMessage) {
 				textType = 2;
 				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
-			} else
+			} else {
+				logger.error("Received message is neither text nor byte");
 				return false;
-
+			}
 			logger.info("Message Data " + messageData);
 			Map map = new Gson().fromJson(messageData, Map.class);
 			final ObjectMapper mapper = new ObjectMapper();
