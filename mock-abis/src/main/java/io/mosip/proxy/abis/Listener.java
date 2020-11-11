@@ -1,5 +1,7 @@
 package io.mosip.proxy.abis;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,9 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQBytesMessage;
+import org.apache.activemq.command.ActiveMQMessage;
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +36,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 
 import io.mosip.proxy.abis.controller.ProxyAbisController;
-import io.mosip.proxy.abis.entity.MockAbisQueueDetails;
 import io.mosip.proxy.abis.entity.IdentityRequest;
 import io.mosip.proxy.abis.entity.InsertRequestMO;
+import io.mosip.proxy.abis.entity.MockAbisQueueDetails;
 import io.mosip.proxy.abis.entity.RequestMO;
 
 @Component
@@ -91,21 +96,28 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
+	
 
 	@Autowired
 	ProxyAbisController proxycontroller;
 
 	public boolean consumeLogic(javax.jms.Message message, String abismiddlewareaddress) {
 		boolean isrequestAddedtoQueue = false;
+		Integer textType = 0;
 		String messageData = null;
 		logger.info("Received message " + message);
-
-		if (!(message instanceof TextMessage)) {
-			return false;
-		}
 		try {
-			TextMessage textMessage = (TextMessage) message;
-			messageData = textMessage.getText();
+			if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
+				textType = 1;
+				TextMessage textMessage = (TextMessage) message;
+				messageData = textMessage.getText();
+			} else if (message instanceof ActiveMQBytesMessage) {
+				textType = 2;
+				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
+			} else {
+				logger.error("Received message is neither text nor byte");
+				return false;
+			}
 			logger.info("Message Data " + messageData);
 			Map map = new Gson().fromJson(messageData, Map.class);
 			final ObjectMapper mapper = new ObjectMapper();
@@ -133,25 +145,29 @@ public class Listener {
 			}
 
 			logger.info("Response " + mapper.writeValueAsString(obj.getBody()));
-
-			isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
-					abismiddlewareaddress);
+			if (textType == 2) {
+				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
+						abismiddlewareaddress);
+			} else if (textType == 1) {
+				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()), abismiddlewareaddress);
+			}
 		} catch (Exception e) {
 			logger.error("Issue while hitting mock abis API", e.getMessage());
 			e.printStackTrace();
 		}
+		logger.info("Is response sent=" + isrequestAddedtoQueue);
 		return isrequestAddedtoQueue;
 	}
 
 	public static String getJson(String configServerFileStorageURL, String uri) {
 		RestTemplate restTemplate = new RestTemplate();
-		System.out.println("Json URL"+configServerFileStorageURL + uri);
+		System.out.println("Json URL" + configServerFileStorageURL + uri);
 		return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 	}
 
 	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() {
 		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
-		
+
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson);
 
 		System.out.println(registrationProcessorAbis);
@@ -297,6 +313,29 @@ public class Listener {
 			BytesMessage byteMessage = session.createBytesMessage();
 			byteMessage.writeObject(message);
 			messageProducer.send(byteMessage);
+			flag = true;
+		} catch (JMSException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	public Boolean send(String message, String address) {
+		boolean flag = false;
+
+		try {
+			initialSetup();
+			destination = session.createQueue(address);
+			MessageProducer messageProducer = session.createProducer(destination);
+			Message m = session.createMessage();
+			m.setJMSPriority(4);
+			m.setStringProperty("response", message);
+			messageProducer.send(m);
+
 			flag = true;
 		} catch (JMSException e) {
 			logger.error(e.getMessage());
