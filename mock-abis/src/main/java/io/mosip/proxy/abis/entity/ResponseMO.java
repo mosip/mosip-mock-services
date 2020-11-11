@@ -11,17 +11,17 @@ public class ResponseMO {
 	
 	private String requestId;
 	
-	private LocalDateTime responseTime;
+	private LocalDateTime responsetime;
 	
 	private int returnValue;
 	
 	
 
-	public ResponseMO(String id, String requestId, LocalDateTime responseTime, int returnValue) {
+	public ResponseMO(String id, String requestId, LocalDateTime responsetime, int returnValue) {
 		super();
 		this.id = id;
 		this.requestId = requestId;
-		this.responseTime = responseTime;
+		this.responsetime = responsetime;
 		this.returnValue = returnValue;
 	}
 
@@ -41,12 +41,14 @@ public class ResponseMO {
 		this.requestId = requestId;
 	}
 
-	public LocalDateTime getResponseTime() {
-		return responseTime;
+
+
+	public LocalDateTime getResponsetime() {
+		return responsetime;
 	}
 
-	public void setResponseTime(LocalDateTime responseTime) {
-		this.responseTime = responseTime;
+	public void setResponsetime(LocalDateTime responsetime) {
+		this.responsetime = responsetime;
 	}
 
 	public int getReturnValue() {

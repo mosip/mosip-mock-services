@@ -257,7 +257,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		IdentityResponse response = new IdentityResponse();
 		response.setId(ir.getId());
 		response.setRequestId(ir.getRequestId());
-		response.setReturnvalue(1);
+		response.setReturnValue(1);
 		response.setResponsetime(ir.getRequesttime());
 		IdentityResponse.CandidateList cl = new IdentityResponse.CandidateList();
 		if (null == lst || lst.size() == 0) {
