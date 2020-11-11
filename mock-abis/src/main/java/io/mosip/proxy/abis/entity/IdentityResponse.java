@@ -11,23 +11,23 @@ public class IdentityResponse {
 
 	private LocalDateTime responsetime;
 
-	private Integer returnvalue;
+	private Integer returnValue;
 
 	private CandidateList candidateList;
 
-	private Analytics analytics;
+	private Analytics analytics=new Analytics();
 
 	public IdentityResponse() {
 		super();
 	}
 
-	public IdentityResponse(String id, String requestId, LocalDateTime responsetime, Integer returnvalue,
+	public IdentityResponse(String id, String requestId, LocalDateTime responsetime, Integer returnValue,
 			CandidateList candidateList, Analytics analytics) {
 		super();
 		this.id = id;
 		this.requestId = requestId;
 		this.responsetime = responsetime;
-		this.returnvalue = returnvalue;
+		this.returnValue = returnValue;
 		this.candidateList = candidateList;
 		this.analytics = analytics;
 	}
@@ -56,14 +56,6 @@ public class IdentityResponse {
 		this.responsetime = responsetime;
 	}
 
-	public Integer getReturnvalue() {
-		return returnvalue;
-	}
-
-	public void setReturnvalue(Integer returnvalue) {
-		this.returnvalue = returnvalue;
-	}
-
 	public CandidateList getCandidateList() {
 		return candidateList;
 	}
@@ -79,6 +71,18 @@ public class IdentityResponse {
 	public void setAnalytics(Analytics analytics) {
 		this.analytics = analytics;
 	}
+
+	
+	
+	public Integer getReturnValue() {
+		return returnValue;
+	}
+
+	public void setReturnValue(Integer returnValue) {
+		this.returnValue = returnValue;
+	}
+
+
 
 	public static class CandidateList {
 
