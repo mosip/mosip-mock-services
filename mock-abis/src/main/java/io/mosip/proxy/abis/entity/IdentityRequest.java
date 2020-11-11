@@ -3,7 +3,6 @@ package io.mosip.proxy.abis.entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class IdentityRequest {
 
@@ -17,7 +16,7 @@ public class IdentityRequest {
 
 	private String referenceId;
 
-	private String referenceURL;
+	private String referenceUrl;
 
 	private Gallery gallery=null;
 
@@ -63,12 +62,12 @@ public class IdentityRequest {
 		this.referenceId = referenceId;
 	}
 
-	public String getReferenceURL() {
-		return referenceURL;
+	public String getReferenceUrl() {
+		return referenceUrl;
 	}
 
-	public void setReferenceURL(String referenceURL) {
-		this.referenceURL = referenceURL;
+	public void setReferenceUrl(String referenceUrl) {
+		this.referenceUrl = referenceUrl;
 	}
 
 	public Gallery getGallery() {
@@ -99,7 +98,7 @@ public class IdentityRequest {
 		this.requestId = requestId;
 		this.requesttime = requesttime;
 		this.referenceId = referenceId;
-		this.referenceURL = referenceURL;
+		this.referenceUrl = referenceURL;
 		this.gallery = gallery;
 		this.flags = flags;
 	}
