@@ -44,6 +44,3 @@ ipaddress of the machine where the softhsm is running.
 ## Publish
 Once completed please push the softhsm to mosipdev and publish the client.zip to artifactory
 
-
-## How to convert this to use a hardware HSM
-The entire application is expected to the PKCS11 compatible. Replace the client.zip in the artifactory with the actual client that you need. Add a install script which takes care of installation of the client. The install script should also setup the pkcs11 cfg file in /config/softhsm-application.conf. The PKCS11 library uses the PKCS11_PROXy_SOCKET environment variable and this is sent to the docker as shown above in step 3

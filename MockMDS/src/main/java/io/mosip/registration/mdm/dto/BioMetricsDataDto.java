@@ -1,6 +1,10 @@
 package io.mosip.registration.mdm.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class BioMetricsDataDto {
 
 	private String digitalId;
@@ -10,6 +14,7 @@ public class BioMetricsDataDto {
 	private String bioSubType;
 	private String purpose;
 	private String env;
+	private String domainUri;
 	private String bioValue;
 	private String bioExtract;
 	private String registrationId;
@@ -89,6 +94,20 @@ public class BioMetricsDataDto {
 	public void setEnv(String env) {
 		this.env = env;
 	}
+	
+	/**
+	 * @return the domainUri
+	 */
+	public String getDomainUri() {
+		return domainUri;
+	}
+	/**
+	 * @param domainUri the domainUri to set
+	 */
+	public void setDomainUri(String domainUri) {
+		this.domainUri = domainUri;
+	}
+	
 	/**
 	 * @return the bioValue
 	 */
@@ -179,8 +198,4 @@ public class BioMetricsDataDto {
 	public void setBioType(String bioType) {
 		this.bioType = bioType;
 	}
-	
-	
-	
-
 }
