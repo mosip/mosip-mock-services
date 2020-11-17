@@ -74,7 +74,6 @@
         <maven.javadoc.version>3.2.0</maven.javadoc.version>
 		
 		<kernel.biometricsdk.version>1.1.2</kernel.biometricsdk.version>
-		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
         <lombok.version>1.18.8</lombok.version>
 
