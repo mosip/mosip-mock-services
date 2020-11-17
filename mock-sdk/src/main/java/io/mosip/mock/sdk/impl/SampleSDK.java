@@ -453,12 +453,10 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
-		BiometricRecord record = new BiometricRecord();
-		record.setSegments(null);
+	public Response<BiometricRecord> segment(BiometricRecord biometricRecord, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
-		response.setResponse(record);
+		response.setResponse(biometricRecord);
 		return response;
 	}
 
