@@ -60,29 +60,29 @@ public class SampleSDK implements IBioApi {
 
 	@Override
 	public Response<QualityCheck> checkQuality(BiometricRecord sample, List<BiometricType> modalitiesToCheck, Map<String, String> flags) {
-				Response<QualityCheck> response = new Response<>();
-				if (sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
-					response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.MISSING_INPUT.getStatusMessage(), "sample"));
-					response.setResponse(null);
-					return response;
-				}
-				Map<BiometricType, QualityScore> scores = new HashMap<>();
-				Map<BiometricType, List<BIR>> segmentMap = getBioSegmentMap(sample, modalitiesToCheck);
-				for(BiometricType modality:segmentMap.keySet())
-				{
-					QualityScore qualityScore = evaluateQuality(modality, segmentMap.get(modality));
-					scores.put(modality, qualityScore);
-				}
-				// int major =
-				// Optional.ofNullable(sample.getBdbInfo()).map(BDBInfo::getQuality).map(QualityType::getScore)
-				// .orElse(0L).intValue();
-				response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
-				response.setStatusMessage(ResponseStatus.SUCCESS.getStatusMessage());
-				QualityCheck check = new QualityCheck();
-				check.setScores(scores);
-				response.setResponse(check);
-				return response;
+		Response<QualityCheck> response = new Response<>();
+		if (sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
+			response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
+			response.setStatusMessage(String.format(ResponseStatus.MISSING_INPUT.getStatusMessage(), "sample"));
+			response.setResponse(null);
+			return response;
+		}
+		Map<BiometricType, QualityScore> scores = new HashMap<>();
+		Map<BiometricType, List<BIR>> segmentMap = getBioSegmentMap(sample, modalitiesToCheck);
+		for(BiometricType modality:segmentMap.keySet())
+		{
+			QualityScore qualityScore = evaluateQuality(modality, segmentMap.get(modality));
+			scores.put(modality, qualityScore);
+		}
+		// int major =
+		// Optional.ofNullable(sample.getBdbInfo()).map(BDBInfo::getQuality).map(QualityType::getScore)
+		// .orElse(0L).intValue();
+		response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
+		response.setStatusMessage(ResponseStatus.SUCCESS.getStatusMessage());
+		QualityCheck check = new QualityCheck();
+		check.setScores(scores);
+		response.setResponse(check);
+		return response;
 	}
 
 	private QualityScore evaluateQuality(BiometricType modality, List<BIR> segments)
@@ -143,40 +143,6 @@ public class SampleSDK implements IBioApi {
 
 	@Override
 	public Response<MatchDecision[]> match(BiometricRecord sample, BiometricRecord[] gallery,
-			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
-		if (true)
-			return doMatch(sample, gallery, modalitiesToMatch, flags);
-		MatchDecision matchingScore[] = new MatchDecision[gallery.length];
-		int count = 0;
-		Map<BiometricType, List<BIR>> sampleBioSegmentMap = getBioSegmentMap(sample, modalitiesToMatch);
-		for (BiometricRecord recorded : gallery) {
-			Map<BiometricType, List<BIR>> recordBioSegmentMap = getBioSegmentMap(recorded, modalitiesToMatch);
-			Map<BiometricType, Decision> decision = new HashMap<>();
-			matchingScore[count] = new MatchDecision(count);
-			matchingScore[count].setGalleryIndex(count);
-
-			/*
-			 * if (Objects.nonNull(recordedValue) && Objects.nonNull(recordedValue.getBdb())
-			 * && recordedValue.getBdb().length != 0 &&
-			 * Arrays.equals(recordedValue.getBdb(), sample.getBdb())) {
-			 * matchingScore[count].setDecisions(decisions); } else {
-			 * matchingScore[count].setMatch(false); }
-			 */
-			modalitiesToMatch.forEach(type -> {
-				Decision d = new Decision();
-				d.setMatch(Match.MATCHED);
-				decision.put(type, d);
-			});
-			matchingScore[count].setDecisions(decision);
-			count++;
-		}
-		Response<MatchDecision[]> response = new Response<>();
-		response.setStatusCode(200);
-		response.setResponse(matchingScore);
-		return response;
-	}
-
-	private Response<MatchDecision[]> doMatch(BiometricRecord sample, BiometricRecord[] gallery,
 			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
 		int index = 0;
 		MatchDecision matchDecision[] = new MatchDecision[gallery.length];
@@ -248,7 +214,14 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR: sampleSegments){
 			Boolean bio_found = false;
-			if(sampleBIR.getBdbInfo().getSubtype().get(0) != null && !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()){
+			if(sampleBIR.getBdbInfo().getSubtype().get(0) == null || sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()){
+				LOGGER.info("Modality: "+BiometricType.FINGER.value()+" -- biometric subtype is missing");
+				errors.add("Modality: "+BiometricType.FINGER.value()+" -- biometric subtype is missing");
+				decision.setErrors(errors);
+				decision.setMatch(Match.ERROR);
+				return decision;
+			}
+			if(!sampleBIR.getBdbInfo().getSubtype().get(0).equalsIgnoreCase("unknown")){
 				for (BIR galleryBIR: gallerySegments){
 					if(galleryBIR.getBdbInfo().getSubtype().get(0).equals(sampleBIR.getBdbInfo().getSubtype().get(0))){
 						if(Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())){
@@ -311,7 +284,14 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR: sampleSegments){
 			Boolean bio_found = false;
-			if(sampleBIR.getBdbInfo().getSubtype().get(0) != null && !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()){
+			if(sampleBIR.getBdbInfo().getSubtype().get(0) == null || sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()){
+				LOGGER.info("Modality: "+BiometricType.IRIS.value()+" -- biometric subtype is missing");
+				errors.add("Modality: "+BiometricType.IRIS.value()+" -- biometric subtype is missing");
+				decision.setErrors(errors);
+				decision.setMatch(Match.ERROR);
+				return decision;
+			}
+			if(!sampleBIR.getBdbInfo().getSubtype().get(0).equalsIgnoreCase("unknown")){
 				for (BIR galleryBIR: gallerySegments){
 					if(galleryBIR.getBdbInfo().getSubtype().get(0).equals(sampleBIR.getBdbInfo().getSubtype().get(0))){
 						if(Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())){
