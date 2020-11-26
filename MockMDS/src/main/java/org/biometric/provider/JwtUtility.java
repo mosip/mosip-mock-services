@@ -181,7 +181,6 @@ public class JwtUtility {
 			Response response = client.newCall(request).execute();
 			if(response.isSuccessful()) {
 				String authToken = response.header("authorization");
-
 				Request idarequest = new Request.Builder()
 						.header("cookie", "Authorization="+authToken)
 						.url(getPropertyValue("mosip.ida.server.url"))
