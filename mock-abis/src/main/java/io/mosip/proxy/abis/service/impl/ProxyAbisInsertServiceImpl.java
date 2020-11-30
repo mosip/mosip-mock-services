@@ -42,6 +42,7 @@ import org.xml.sax.InputSource;
 import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
+import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
 import io.mosip.proxy.abis.entity.BiometricData;
@@ -70,6 +71,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	@Autowired
 	RestTemplate restTemplate;
+	
+	@Autowired
+	CryptoCoreUtil cryptoUtil;
 	
 	@Autowired
     private Environment env;
@@ -148,6 +152,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
 			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
 
+			//String cbf=cryptoUtil.decrypt(cbeff);
+			
 			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

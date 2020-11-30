@@ -91,14 +91,14 @@ public class IdentityRequest {
 	}
 
 	public IdentityRequest(String id, String version, String requestId, LocalDateTime requesttime, String referenceId,
-			String referenceURL, Gallery gallery, Flags flags) {
+			String referenceUrl, Gallery gallery, Flags flags) {
 		super();
 		this.id = id;
 		this.version = version;
 		this.requestId = requestId;
 		this.requesttime = requesttime;
 		this.referenceId = referenceId;
-		this.referenceUrl = referenceURL;
+		this.referenceUrl = referenceUrl;
 		this.gallery = gallery;
 		this.flags = flags;
 	}

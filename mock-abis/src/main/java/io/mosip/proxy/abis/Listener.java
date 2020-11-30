@@ -331,10 +331,11 @@ public class Listener {
 			initialSetup();
 			destination = session.createQueue(address);
 			MessageProducer messageProducer = session.createProducer(destination);
-			Message m = session.createMessage();
-			m.setJMSPriority(4);
-			m.setStringProperty("response", message);
-			messageProducer.send(m);
+			
+			//Message m = session.createMessage();
+			//m.setJMSPriority(4);
+			//m.setStringProperty("response", message);
+			messageProducer.send(session.createTextMessage(message));
 
 			flag = true;
 		} catch (JMSException e) {
