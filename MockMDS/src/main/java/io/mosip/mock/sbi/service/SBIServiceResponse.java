@@ -275,19 +275,21 @@ public class SBIServiceResponse {
          {
         	 ObjectMapper objectMapper = new ObjectMapper();
         	 ProfileRequest requestObject = (ProfileRequest) getRequestJson (SBIConstant.MOSIP_SETPROFILE_VERB);
-        	 String profileId = null;
         	 if (requestObject != null && requestObject.getProfileId() != null && requestObject.getProfileId().length() > 0)
         	 {
-        		 mockService.setProfileId(profileId);
-        		 ErrorInfo errorInfo = new ErrorInfo ("0", SBIJsonInfo.getErrorDescription(lang, "100")); 
+        		 mockService.setProfileId(requestObject.getProfileId());
+        		 ErrorInfo errorInfo = new ErrorInfo ("100", SBIJsonInfo.getErrorDescription(lang, "100")); 
         		 response = objectMapper.writeValueAsString(errorInfo);
         	 }	 
         	 else
         	 {
+            	 LOGGER.info("processSetProfileInfo :: ProfileId :: Was  Not SET Check the JSON request :: " );
         		 mockService.setProfileId("Default");
-        		 ErrorInfo errorInfo = new ErrorInfo ("0", SBIJsonInfo.getErrorDescription(lang, "100")); 
+        		 ErrorInfo errorInfo = new ErrorInfo ("100", SBIJsonInfo.getErrorDescription(lang, "100")); 
         		 response = objectMapper.writeValueAsString(errorInfo);
         	 }
+        	 
+        	 LOGGER.info("processSetProfileInfo :: ProfileId :: "+  mockService.getProfileId ());
          }
          catch (Exception ex)
          {
@@ -1931,7 +1933,7 @@ public class SBIServiceResponse {
         		if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_RCAPTURE_VERB))
         			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), CaptureRequestDto.class);
         		if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_SETPROFILE_VERB))
-        			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), ProfileRequest.class);
+        			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), ProfileRequest.class);        			
         		
         		return null;
             }
