@@ -18,7 +18,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
 
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
