@@ -83,6 +83,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Value("${secret_url}")
 	private String SECRET_URL ;
 
+	/**
+	 * set this flag to false then we will not check for duplicate we will always return unique biometric
+	 */
+	@Value("${abis.return.duplicate:true}")
+	private boolean findDuplicate;
+
 	@Override
 	public void insertData(InsertRequestMO ire) {
 		System.out.println(SECRET_URL);
@@ -248,7 +254,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
+				if (findDuplicate) {
+					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
+				}
+				
 			}
 			logger.info("Number of dulplicate candidates are " + lst.size());
 			return constructIdentityResponse(ir, lst);
