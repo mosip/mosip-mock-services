@@ -1,8 +1,13 @@
 package io.mosip.proxy.abis.service.impl;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -10,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,9 +37,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -62,7 +71,11 @@ import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
+	private static String UPLOAD_FOLDER = "src/main/resources/";
+	private static String UPLOAD_FOLDER_PROPERTIES = "src/main/resources/parter.properties";
 
+	
+	
 	@Autowired
 	ProxyAbisInsertRepository proxyabis;
 
@@ -152,9 +165,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
 			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
 
-			//String cbf=cryptoUtil.decrypt(cbeff);
+			String cbf=cryptoUtil.decrypt(cbeff);
 			
-			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			//BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbf));
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(new InputSource(new StringReader(cbeff)));
@@ -310,11 +324,45 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private IdentityResponse.Analytics getAnalytics() {
 		IdentityResponse.Analytics a = new IdentityResponse.Analytics();
-		a.setConfidence(Integer.parseInt(env.getProperty("analytics.cofidence")));
+		a.setConfidence(Integer.parseInt(env.getProperty("analytics.confidence")));
 		a.setInternalScore(Integer.parseInt(env.getProperty("analytics.internalscore")));
 		a.setKey1(env.getProperty("analytics.key1"));
 		a.setKey2(env.getProperty("analytics.key2"));
 		return a;
+	}
+	
+
+	public  String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
+			String password, String keystore) {
+		try {
+			byte[] bytes = upoadedFile.getBytes();
+			Path path = Paths.get(UPLOAD_FOLDER + upoadedFile.getOriginalFilename());
+			Files.write(path, bytes);
+			
+			FileWriter myWriter = new FileWriter(UPLOAD_FOLDER_PROPERTIES);
+			myWriter.write("cerificate.alias=" + alias + "\n" + "cerificate.password=" + password + "\n");
+			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
+					+ upoadedFile.getOriginalFilename());
+			myWriter.close();
+			CryptoCoreUtil.setCertificateValues(upoadedFile.getOriginalFilename(), keystore, password, alias);
+			
+			File dir = new File("src/main/resources");
+			File[] fileList = dir.listFiles();
+			for (File file : fileList) {
+				if (!file.getName().equalsIgnoreCase(upoadedFile.getOriginalFilename())
+						&& file.getName().endsWith(".p12")) {
+					logger.info("Deleting file" + file.getName());
+					file.delete();
+					break;
+				}
+			}
+			return "Successfully uploaded file";
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			logger.error("Could not upload file");
+		}
+		return "Could not upload file";
+
 	}
 
 }

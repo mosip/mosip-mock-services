@@ -1,5 +1,11 @@
 package io.mosip.proxy.abis.controller;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -12,7 +18,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.proxy.abis.entity.FailureResponse;
 import io.mosip.proxy.abis.entity.IdentityRequest;
@@ -23,6 +31,7 @@ import io.mosip.proxy.abis.entity.ResponseMO;
 import io.mosip.proxy.abis.exception.BindingException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 import io.mosip.proxy.abis.service.impl.ProxyAbisInsertServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,8 +45,9 @@ public class ProxyAbisController {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisController.class);
 
 	@Autowired
-	ProxyAbisInsertServiceImpl abisInsertServiceImpl;
+	ProxyAbisInsertService abisInsertService;
 
+	
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Save Insert Request")
 	public ResponseEntity<Object> saveInsertRequest(@Valid @RequestBody InsertRequestMO ie, BindingResult bd)
@@ -76,6 +86,23 @@ public class ProxyAbisController {
 
 	}
 
+	@RequestMapping(value = "upload", method = RequestMethod.POST)
+	@ApiOperation(value = "Upload certificate Request")
+	public ResponseEntity<String> uploadcertificate(@RequestParam("file") MultipartFile uploadfile,
+			@RequestParam("password") String password, @RequestParam("alias") String alias,@RequestParam("keystore") String keystore) {
+		if (uploadfile.isEmpty())
+			return new ResponseEntity("Please select a file", HttpStatus.NO_CONTENT);
+
+		if (null == alias || alias.isEmpty())
+			return new ResponseEntity("Please enter alias", HttpStatus.NO_CONTENT);
+		if (null == password || password.isEmpty())
+			return new ResponseEntity("Please enter password", HttpStatus.NO_CONTENT);
+
+		return new ResponseEntity<String>( abisInsertService.saveUploadedFileWithParameters(uploadfile, alias, password,keystore),HttpStatus.OK);
+
+
+	}
+
 	@RequestMapping(value = "identityrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Checks duplication")
 	public ResponseEntity<Object> identityRequest(@RequestBody IdentityRequest ir) {
@@ -101,7 +128,7 @@ public class ProxyAbisController {
 
 	private ResponseEntity<Object> processDeleteRequest(RequestMO ie) {
 		logger.info("Deleting request with reference id" + ie.getReferenceId());
-		abisInsertServiceImpl.deleteData(ie.getReferenceId());
+		abisInsertService.deleteData(ie.getReferenceId());
 		ResponseMO response = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
 		logger.info("Successfully deleted reference id" + ie.getReferenceId());
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
@@ -119,7 +146,7 @@ public class ProxyAbisController {
 
 	private ResponseEntity<Object> processIdentityRequest(IdentityRequest ir) {
 		logger.info("Finding duplication for reference ID " + ir.getReferenceId());
-		IdentityResponse res = abisInsertServiceImpl.findDupication(ir);
+		IdentityResponse res = abisInsertService.findDupication(ir);
 		return new ResponseEntity<Object>(res, HttpStatus.OK);
 	}
 
@@ -143,7 +170,7 @@ public class ProxyAbisController {
 	}
 
 	private ResponseEntity<Object> processInsertRequest(InsertRequestMO ie) {
-		abisInsertServiceImpl.insertData(ie);
+		abisInsertService.insertData(ie);
 		ResponseMO response = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
 		logger.info("Successfully inserted record ");
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
@@ -166,4 +193,5 @@ public class ProxyAbisController {
 		return null;
 
 	}
+
 }
