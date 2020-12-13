@@ -2,7 +2,12 @@ package io.mosip.proxy.abis;
 
 import static java.util.Arrays.copyOfRange;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -18,6 +23,7 @@ import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
+import java.util.Properties;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -34,31 +40,74 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.encodings.OAEPEncoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import javassist.bytecode.stackmap.TypeData.ClassName;
 
 @Component
 public class CryptoCoreUtil {
 
     private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
+ 
+    
+    private static String certiPassword;
+  
+    private static String alias;
+   
+    private static String keystore;
+  
+    private static String filePath;
 
+	public static void setPropertyValues() {
+		Properties prop = new Properties();
+		try {
+			prop.load(CryptoCoreUtil.class.getClassLoader().getResourceAsStream("parter.properties"));
+			certiPassword = prop.getProperty("cerificate.password");
+			alias = prop.getProperty("cerificate.alias");
+			keystore = prop.getProperty("certificate.keystore");
+			filePath = prop.getProperty("certificate.filename");
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+
+	}
+    
 	public String decrypt(String data) throws Exception {
-        PrivateKey privateKey = loadP12();
-        byte[] dataBytes = org.apache.commons.codec.binary.Base64.decodeBase64(data);
-        byte[] data1 = decryptData(dataBytes, privateKey);
-        String strData = new String(data1);
+		PrivateKey privateKey = loadP12();
+		byte[] dataBytes = org.apache.commons.codec.binary.Base64.decodeBase64(data);
+		byte[] data1 = decryptData(dataBytes, privateKey);
+		String strData = new String(data1);
 		return strData;
-    }
+	}
+	
+	public static void setCertificateValues(String filePathVal, String keystoreVal, String passwordVal,
+			String aliasVal) {
+		alias = aliasVal;
+		filePath = filePathVal;
+		keystore = keystoreVal;
+		certiPassword = passwordVal;
 
-    public static PrivateKey loadP12() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
-            IOException, UnrecoverableEntryException {
-        KeyStore mosipKeyStore = KeyStore.getInstance("PKCS12");
-		java.io.FileInputStream fis = new java.io.FileInputStream("src/main/resources/partner.p12");
-		mosipKeyStore.load(fis, "password@123".toCharArray());
-		ProtectionParameter password = new PasswordProtection("password@123".toCharArray());
-		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry("partner", password);
-        PrivateKey privateKey = privateKeyEntry.getPrivateKey();
-        return privateKey;
-    }
+	}
+
+	public static PrivateKey loadP12() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
+			IOException, UnrecoverableEntryException {
+		if (null == certiPassword || certiPassword.isEmpty()) {
+			setPropertyValues();
+		}
+		KeyStore mosipKeyStore = KeyStore.getInstance(keystore);
+		java.io.FileInputStream fis = new java.io.FileInputStream("src/main/resources/" + filePath);
+		mosipKeyStore.load(fis, certiPassword.toCharArray());
+		ProtectionParameter password = new PasswordProtection(certiPassword.toCharArray());
+		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry(alias, password);
+		PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+
+		return privateKey;
+	}
 
 	public static byte[] decryptData(byte[] key, PrivateKey privateKey) {
 
