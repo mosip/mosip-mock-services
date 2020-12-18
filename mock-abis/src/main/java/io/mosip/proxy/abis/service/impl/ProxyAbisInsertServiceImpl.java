@@ -1,7 +1,9 @@
 package io.mosip.proxy.abis.service.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -107,7 +109,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		System.out.println(SECRET_URL);
 		try {
 			java.util.Optional<InsertEntity> op = proxyabis.findById(ire.getReferenceId());
-			if (!op.isEmpty()) {
+			if (op == null) {
 				logger.error("Reference Id already exists " + ire.getReferenceId());
 				RequestMO re = new RequestMO(ire.getId(), ire.getVersion(), ire.getRequestId(), ire.getRequesttime(),
 						ire.getReferenceId());
@@ -150,34 +152,32 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			jsonObject.put("request", jsonObject1);
 
 			HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
-			HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
+			//HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
 
-			Object obj = JSONValue.parse(response.getBody());
+			//Object obj = JSONValue.parse(response.getBody());
 
-			JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
+			/*JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
 			HttpHeaders responseHeader = response.getHeaders();
 			if (!(jo1.get("status").toString().equalsIgnoreCase("Success"))) {
 
 				throw new Exception();
-			}
+			}*/
 
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
 			HttpHeaders headers1 = new HttpHeaders();
 
-			headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+			/*headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 			headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
-					responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
+					responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));*/
 
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
-			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
+
+			String cbeff = new String(Files.readAllBytes(Paths.get("C:\\Users\\M1045447\\Desktop\\cbeff2.xml")));//restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
 
 			String cbf=cryptoUtil.decrypt(cbeff);
 			
 			//BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbf));
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(new InputSource(new StringReader(cbeff)));
 			logger.info("Validating CBEFF data");
 			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
@@ -185,25 +185,15 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			}
 
 			logger.info("Valid CBEFF data");
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer trans = tf.newTransformer();
-			NodeList birs = doc.getElementsByTagName("BIR");
 			logger.info("Inserting biometric details to concerned table");
 
-			for (int i = 1; i < birs.getLength(); i++) {
-				Element birEle = (Element) birs.item(i);
-				Element bdbInfo = ((Element) birEle.getElementsByTagName("BDBInfo").item(0));
+			for (BIRType type : birType.getBIR()) {
 
 				BiometricData bd = new BiometricData();
-				bd.setType(bdbInfo.getElementsByTagName("Type").item(1).getTextContent());
-				bd.setSubtype(bdbInfo.getElementsByTagName("Subtype").item(0).getTextContent());
-
-				Element bdb = ((Element) birEle.getElementsByTagName("BDB").item(0));
-				StringWriter sw = new StringWriter();
-				trans.transform(new DOMSource(bdb), new StreamResult(sw));
-
-				bd.setBioData(getSHA(sw.toString()));
-
+				bd.setType(type.getBDBInfo().getType().iterator().next().value());
+				if (type.getBDBInfo().getSubtype() != null && type.getBDBInfo().getSubtype().size() >0)
+					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
+				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
 
 				lst.add(bd);
@@ -353,7 +343,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
 					+ upoadedFile.getOriginalFilename());
 			myWriter.close();
-			CryptoCoreUtil.setCertificateValues(upoadedFile.getOriginalFilename(), keystore, password, alias);
+			//CryptoCoreUtil.setCertificateValues(upoadedFile.getOriginalFilename(), keystore, password, alias);
 			
 			File dir = new File("src/main/resources");
 			File[] fileList = dir.listFiles();
