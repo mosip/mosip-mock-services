@@ -175,9 +175,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			
 			//BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbf));
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(new InputSource(new StringReader(cbeff)));
 			logger.info("Validating CBEFF data");
 			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
@@ -185,25 +182,15 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			}
 
 			logger.info("Valid CBEFF data");
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer trans = tf.newTransformer();
-			NodeList birs = doc.getElementsByTagName("BIR");
 			logger.info("Inserting biometric details to concerned table");
 
-			for (int i = 1; i < birs.getLength(); i++) {
-				Element birEle = (Element) birs.item(i);
-				Element bdbInfo = ((Element) birEle.getElementsByTagName("BDBInfo").item(0));
+			for (BIRType type : birType.getBIR()) {
 
 				BiometricData bd = new BiometricData();
-				bd.setType(bdbInfo.getElementsByTagName("Type").item(1).getTextContent());
-				bd.setSubtype(bdbInfo.getElementsByTagName("Subtype").item(0).getTextContent());
-
-				Element bdb = ((Element) birEle.getElementsByTagName("BDB").item(0));
-				StringWriter sw = new StringWriter();
-				trans.transform(new DOMSource(bdb), new StreamResult(sw));
-
-				bd.setBioData(getSHA(sw.toString()));
-
+				bd.setType(type.getBDBInfo().getType().iterator().next().value());
+				if (type.getBDBInfo().getSubtype() != null && type.getBDBInfo().getSubtype().size() >0)
+					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
+				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
 
 				lst.add(bd);
