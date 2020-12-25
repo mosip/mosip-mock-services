@@ -2,9 +2,9 @@ package io.mosip.proxy.abis;
 
 import static java.util.Arrays.copyOfRange;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -18,7 +18,6 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 import java.util.Properties;
@@ -33,19 +32,15 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource.PSpecified;
 import javax.crypto.spec.SecretKeySpec;
 
-import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.encodings.OAEPEncoding;
-import org.bouncycastle.crypto.engines.RSAEngine;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CryptoCoreUtil {
 
 	private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
+
+	private static final String KEY_SPLITTER = "#KEY_SPLITTER#";
 
 	private static String certiPassword;
 
@@ -73,12 +68,11 @@ public class CryptoCoreUtil {
 
 	}
 
-	public String decrypt(String data) throws Exception {
-		PrivateKeyEntry privateKey = loadP12();
-		byte[] dataBytes = org.apache.commons.codec.binary.Base64.decodeBase64(data);
-		byte[] data1 = decryptData(dataBytes, privateKey);
-		String strData = new String(data1);
-		return strData;
+	public String decryptCbeff(String responseData) throws Exception {
+		PrivateKeyEntry privateKey = getPrivateKeyEntryFromP12();
+		byte[] responseBytes = org.apache.commons.codec.binary.Base64.decodeBase64(responseData);
+		byte[] deryptedCbeffData = decryptCbeffData(responseBytes, privateKey);
+		return new String(deryptedCbeffData);
 	}
 
 	public static void setCertificateValues(String filePathVal, String keystoreVal, String passwordVal,
@@ -90,51 +84,70 @@ public class CryptoCoreUtil {
 
 	}
 
-	public static PrivateKeyEntry loadP12() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
+	private PrivateKeyEntry getPrivateKeyEntryFromP12() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			IOException, UnrecoverableEntryException {
 		if (null == certiPassword || certiPassword.isEmpty()) {
 			setPropertyValues();
 		}
-		KeyStore mosipKeyStore = KeyStore.getInstance(keystore);
+		KeyStore keyStore = KeyStore.getInstance(keystore);
 		java.io.FileInputStream fis = new java.io.FileInputStream("src/main/resources/" + filePath);
-		mosipKeyStore.load(fis, certiPassword.toCharArray());
+		keyStore.load(fis, certiPassword.toCharArray());
 		ProtectionParameter password = new PasswordProtection(certiPassword.toCharArray());
-		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) mosipKeyStore.getEntry(alias, password);
+		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(alias, password);
 
 		return privateKeyEntry;
 	}
 
-	public byte[] decryptData(byte[] key, PrivateKeyEntry privateKey) {
+	@SuppressWarnings("unused")
+	private byte[] decryptCbeffData(byte[] responseData, PrivateKeyEntry privateKey) throws Exception {
 
-		String keySplitter = "#KEY_SPLITTER#";
-		int keyDemiliterIndex = 0;
-		SecretKey symmetricKey = null;
-		byte[] encryptedData = null;
-		byte[] encryptedSymmetricKey = null;
-		final int cipherKeyandDataLength = key.length;
-		final int keySplitterLength = keySplitter.length();
-		keyDemiliterIndex = getSplitterIndex(key, keyDemiliterIndex, keySplitter);
-		byte[] encryptedKey = copyOfRange(key, 0, keyDemiliterIndex);
+		int cipherKeyandDataLength = responseData.length;
+		int keySplitterLength = KEY_SPLITTER.length();
+		int keyDemiliterIndex = getSplitterIndex(responseData, 0, KEY_SPLITTER);
 		try {
-			encryptedData = copyOfRange(key, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
-			byte[] dataThumbprint = Arrays.copyOfRange(encryptedKey, 0, THUMBPRINT_LENGTH);
-			encryptedSymmetricKey = Arrays.copyOfRange(encryptedKey, THUMBPRINT_LENGTH, encryptedKey.length);
+			/*
+				Copy the bytes from 0 location till KEY_SPLITTER index into an byte array. 
+				Since 1.1.4 copied bytes will be Certificate Thumbprint + encrypted random symmetric key.
+				Certificate thumbprint will be used as key/certificate identifier.
+				Since 1.1.4 certificate thumbprint will be prepended to encrypted random symmetric key.
+				Split the copied bytes from index 0 to 32 to get the certificate thumbprint.
+				Split the copied bytes from index 32 to length of copied bytes to get the random symmetric key.
+				Before 1.1.4 copied bytes does not prepended with certificate thumbprint, required to be used as encrypted random key.
+			*/
+			byte[] copiedBytes = copyOfRange(responseData, 0, keyDemiliterIndex);
+			/*
+				To Handle both 1.1.4 and before, check the size of copiedBytes.
+				If copied bytes are more than 256, certificate is prepended to the encrypted random key 
+				Otherwise copied bytes contains only encypted random key.
+			*/
+			byte[] dataCertThumbprint = null;
+			byte[] encryptedSymmetricKey = null;
+			if (copiedBytes.length > 256){
+				dataCertThumbprint = Arrays.copyOfRange(copiedBytes, 0, THUMBPRINT_LENGTH);
+				encryptedSymmetricKey = Arrays.copyOfRange(copiedBytes, THUMBPRINT_LENGTH, copiedBytes.length);
+			} else {
+				encryptedSymmetricKey = copiedBytes;
+			}
+			
+			byte[] encryptedCbeffData = copyOfRange(responseData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
+			
 			byte[] certThumbprint = getCertificateThumbprint(privateKey.getCertificate());
+			/*
+				Compare certificates thumbprint to verify certificate matches or not. 
+				If does not match data will not get decrypted
+			*/
 			/*if (!Arrays.equals(dataThumbprint, certThumbprint)) {
 				throw new CbeffException("Error in generating Certificate Thumbprint.");
 			}*/
 
-			byte[] decryptedSymmetricKey = asymmetricDecrypt(privateKey.getPrivateKey(),
-					((RSAPrivateKey) privateKey.getPrivateKey()).getModulus(),
-					encryptedSymmetricKey);
-			symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
-
+			byte[] decryptedSymmetricKey = decryptRandomSymKey(privateKey.getPrivateKey(), encryptedSymmetricKey);
+			SecretKey symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
+			return decryptCbeffData(symmetricKey, encryptedCbeffData);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return symmetricDecrypt(symmetricKey, encryptedData, null);
-	}
+		throw new Exception("Error In Data Decryption.");
+	}	
 
 	private static int getSplitterIndex(byte[] encryptedData, int keyDemiliterIndex, String keySplitter) {
 		final byte keySplitterFirstByte = keySplitter.getBytes()[0];
@@ -155,8 +168,7 @@ public class CryptoCoreUtil {
 	/**
 	 *
 	 * @param privateKey
-	 * @param keyModulus
-	 * @param data
+	 * @param randomSymKey
 	 * @return
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
@@ -165,17 +177,16 @@ public class CryptoCoreUtil {
 	 * @throws InvalidAlgorithmParameterException
 	 * @throws InvalidKeyException
 	 */
-	private static byte[] asymmetricDecrypt(PrivateKey privateKey, BigInteger keyModulus, byte[] data)
+	private byte[] decryptRandomSymKey(PrivateKey privateKey, byte[] randomSymKey)
 			throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, InvalidKeyException {
 
-		Cipher cipher;
 		try {
-			cipher = Cipher.getInstance(RSA_ECB_OAEP_PADDING);
+			Cipher cipher = Cipher.getInstance(RSA_ECB_OAEP_PADDING);
 			OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
 					PSpecified.DEFAULT);
 			cipher.init(Cipher.DECRYPT_MODE, privateKey, oaepParams);
-			return cipher.doFinal(data);
+			return cipher.doFinal(randomSymKey);
 		} catch (java.security.NoSuchAlgorithmException e) {
 			throw new NoSuchAlgorithmException(e);
 		} catch (NoSuchPaddingException e) {
@@ -187,40 +198,17 @@ public class CryptoCoreUtil {
 		}
 	}
 
-	/**
-	 *
-	 * @param paddedPlainText
-	 * @return
-	 * @throws InvalidCipherTextException
-	 * @throws InvalidKeyException
-	 */
-	private static byte[] unpadOAEPPadding(byte[] paddedPlainText, BigInteger keyModulus)
-			throws InvalidCipherTextException {
-
-		OAEPEncoding encode = new OAEPEncoding(new RSAEngine(), new SHA256Digest());
-		BigInteger exponent = new BigInteger("1");
-		RSAKeyParameters keyParams = new RSAKeyParameters(false, keyModulus, exponent);
-		encode.init(false, keyParams);
-		return encode.processBlock(paddedPlainText, 0, paddedPlainText.length);
-	}
-
-	private static byte[] symmetricDecrypt(SecretKey key, byte[] data, byte[] aad) {
-		byte[] output = null;
+	private byte[] decryptCbeffData(SecretKey key, byte[] data) throws Exception {
 		try {
 			Cipher cipher = Cipher.getInstance("AES/GCM/PKCS5Padding");
 			byte[] randomIV = Arrays.copyOfRange(data, data.length - cipher.getBlockSize(), data.length);
-			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
 			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, randomIV);
-
-			cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
-			if (aad != null && aad.length != 0) {
-				cipher.updateAAD(aad);
-			}
-			output = cipher.doFinal(Arrays.copyOf(data, data.length - cipher.getBlockSize()));
+			cipher.init(Cipher.DECRYPT_MODE, key, gcmParameterSpec);
+			return cipher.doFinal(Arrays.copyOf(data, data.length - cipher.getBlockSize()));
 		} catch (Exception e) {
-
+			e.printStackTrace();
+			throw e;
 		}
-		return output;
 	}
 
 	public byte[] getCertificateThumbprint(Certificate cert) throws CertificateEncodingException {
