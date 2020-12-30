@@ -173,6 +173,7 @@ public class SampleSDK implements IBioApi {
 		}
 
 		response.setStatusCode(200);
+		response.setStatusMessage("Success");
 		response.setResponse(matchDecision);
 		return response;
 	}
@@ -428,6 +429,7 @@ public class SampleSDK implements IBioApi {
 	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, List<BiometricType> modalitiesToExtract, Map<String, String> flags) {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
+		response.setStatusMessage("Success");
 		response.setResponse(sample);
 		return response;
 	}
@@ -436,6 +438,7 @@ public class SampleSDK implements IBioApi {
 	public Response<BiometricRecord> segment(BiometricRecord biometricRecord, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
+		response.setStatusMessage("Success");
 		response.setResponse(biometricRecord);
 		return response;
 	}
