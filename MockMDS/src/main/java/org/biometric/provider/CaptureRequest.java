@@ -119,7 +119,7 @@ public class CaptureRequest extends HttpServlet {
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
 
-				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.mosipBioRequest) {
+				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.getBio()) {
 					List<BioMetricsDataDto> list = new ArrayList<>();
 
 					if (bio.getType().equals(FINGER))
@@ -180,7 +180,7 @@ public class CaptureRequest extends HttpServlet {
 				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
 				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
 
-				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.mosipBioRequest) {
+				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.getBio()) {
 					List<BioMetricsDataDto> list = new ArrayList<>();
 
 					if (bio.getType().equals(FINGER))

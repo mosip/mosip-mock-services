@@ -5,11 +5,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 public class DiscoverDto {
-
 	public String deviceId;
 	public String deviceStatus;
 	public String certification;
@@ -21,5 +19,4 @@ public class DiscoverDto {
 	public Map<String, String> error;
 	public String [] specVersion;
 	public String [] deviceSubId;
-
 }
