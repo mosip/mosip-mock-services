@@ -72,9 +72,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 	private static String UPLOAD_FOLDER = "src/main/resources/";
-	private static String UPLOAD_FOLDER_PROPERTIES = "src/main/resources/parter.properties";
+	private static String UPLOAD_FOLDER_PROPERTIES = "src/main/resources/partner.properties";
 
-	
+
 	
 	@Autowired
 	ProxyAbisInsertRepository proxyabis;
@@ -334,7 +334,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			byte[] bytes = upoadedFile.getBytes();
 			Path path = Paths.get(UPLOAD_FOLDER + upoadedFile.getOriginalFilename());
 			Files.write(path, bytes);
-			
+
 			FileWriter myWriter = new FileWriter(UPLOAD_FOLDER_PROPERTIES);
 			myWriter.write("cerificate.alias=" + alias + "\n" + "cerificate.password=" + password + "\n");
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
