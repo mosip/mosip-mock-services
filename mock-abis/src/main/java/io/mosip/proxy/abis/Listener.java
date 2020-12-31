@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -20,7 +21,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
-import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -145,6 +145,7 @@ public class Listener {
 			}
 
 			logger.info("Response " + mapper.writeValueAsString(obj.getBody()));
+			TimeUnit.MINUTES.sleep(2);
 			if (textType == 2) {
 				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
 						abismiddlewareaddress);
@@ -169,8 +170,8 @@ public class Listener {
 		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson);
-
-		System.out.println(registrationProcessorAbis);
+		
+		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
 		io.mosip.proxy.abis.entity.MockAbisQueueDetails abisQueueDetails = new io.mosip.proxy.abis.entity.MockAbisQueueDetails();
 		Gson g = new Gson();
