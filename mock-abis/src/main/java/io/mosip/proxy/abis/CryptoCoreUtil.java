@@ -2,8 +2,8 @@ package io.mosip.proxy.abis;
 
 import static java.util.Arrays.copyOfRange;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -96,10 +96,8 @@ public class CryptoCoreUtil {
 			setPropertyValues();
 		}
 		KeyStore keyStore = KeyStore.getInstance(keystore);
-		ClassLoader classLoader = getClass().getClassLoader();
-		File file = new File(classLoader.getResource(env.getProperty("certificate.filename")).getFile());
-		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		keyStore.load(fis, certiPassword.toCharArray());
+		InputStream is = getClass().getResourceAsStream("/" + env.getProperty("certificate.filename"));
+		keyStore.load(is, certiPassword.toCharArray());
 		ProtectionParameter password = new PasswordProtection(certiPassword.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(alias, password);
 
