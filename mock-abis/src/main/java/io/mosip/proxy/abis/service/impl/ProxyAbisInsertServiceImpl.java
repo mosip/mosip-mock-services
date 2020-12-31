@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import io.mosip.kernel.core.exception.ExceptionUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -277,44 +278,50 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		response.setResponsetime(ir.getRequesttime());
 		IdentityResponse.CandidateList cl = new IdentityResponse.CandidateList();
 		if (null == lst || lst.size() == 0) {
-			logger.info("No duplicates found for referenceID" + ir.getId());
+			logger.info("No duplicates found for referenceID" + ir.getReferenceId());
 			cl.setCount(0);
 			response.setCandidateList(cl);
 			return response;
 		}
-		logger.info("Duplicates found for referenceID" + ir.getId());
-		Map<String, IdentityResponse.Candidates> mp = new HashMap();
-		lst.stream().forEach(bio -> {
+		logger.info("Duplicates found for referenceID" + ir.getReferenceId());
+		try {
+			Map<String, IdentityResponse.Candidates> mp = new HashMap();
+			lst.stream().forEach(bio -> {
 
-			IdentityResponse.Candidates candi = null;
-			List<Modalities> modlst = null;
-			if (mp.containsKey(bio.getInsertEntity().getReferenceId())) {
-				candi = mp.get(bio.getInsertEntity().getReferenceId());
-				modlst = candi.getModalities();
-			} else {
-				candi = new IdentityResponse.Candidates();
-				candi.setReferenceId(bio.getInsertEntity().getReferenceId());
-				candi.setAnalytics(getAnalytics());
-				modlst = new ArrayList();
+				IdentityResponse.Candidates candi = null;
+				List<Modalities> modlst = null;
+				if (mp.containsKey(bio.getInsertEntity().getReferenceId())) {
+					candi = mp.get(bio.getInsertEntity().getReferenceId());
+					modlst = candi.getModalities();
+				} else {
+					candi = new IdentityResponse.Candidates();
+					candi.setReferenceId(bio.getInsertEntity().getReferenceId());
+					candi.setAnalytics(getAnalytics());
+					modlst = new ArrayList();
+				}
 
-			}
+				IdentityResponse.Modalities md = new IdentityResponse.Modalities();
+				md.setBiometricType(bio.getType());
+				md.setAnalytics(getAnalytics());
+				modlst.add(md);
+				candi.setModalities(modlst);
+				mp.put(bio.getInsertEntity().getReferenceId(), candi);
 
-			IdentityResponse.Modalities md = new IdentityResponse.Modalities();
-			md.setBiometricType(bio.getType());
-			md.setAnalytics(getAnalytics());
-			modlst.add(md);
-			candi.setModalities(modlst);
-			mp.put(bio.getInsertEntity().getReferenceId(), candi);
-
-		});
-		logger.info("Number of duplicates are" + mp.size());
-		cl.setCount(mp.size());
-		List<IdentityResponse.Candidates> clst = new ArrayList<>();
-		mp.entrySet().stream().forEach(e -> {
-			clst.add(e.getValue());
-		});
-		cl.setCandidates(clst);
-		response.setCandidateList(cl);
+			});
+			logger.info("Number of duplicates are" + mp.size());
+			cl.setCount(mp.size());
+			List<IdentityResponse.Candidates> clst = new ArrayList<>();
+			mp.entrySet().stream().forEach(e -> {
+				clst.add(e.getValue());
+			});
+			cl.setCandidates(clst);
+			response.setCandidateList(cl);
+			return response;
+		} catch (Exception e) {
+			logger.error(ExceptionUtils.getStackTrace(e));
+		}
+		cl.setCount(0);
+		response.setCandidateList(new IdentityResponse.CandidateList());
 		return response;
 	}
 
