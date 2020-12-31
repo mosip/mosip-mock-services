@@ -2,8 +2,7 @@ package io.mosip.proxy.abis;
 
 import static java.util.Arrays.copyOfRange;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -33,10 +32,17 @@ import javax.crypto.spec.PSource.PSpecified;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
+@PropertySource("classpath:partner.properties")
 public class CryptoCoreUtil {
+
+	@Autowired
+	private Environment env;
 
 	private final static String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
 
@@ -55,7 +61,7 @@ public class CryptoCoreUtil {
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(CryptoCoreUtil.class.getClassLoader().getResourceAsStream("parter.properties"));
+			prop.load(CryptoCoreUtil.class.getClassLoader().getResourceAsStream("partner.properties"));
 			certiPassword = prop.getProperty("cerificate.password");
 			alias = prop.getProperty("cerificate.alias");
 			keystore = prop.getProperty("certificate.keystore");
@@ -90,7 +96,9 @@ public class CryptoCoreUtil {
 			setPropertyValues();
 		}
 		KeyStore keyStore = KeyStore.getInstance(keystore);
-		java.io.FileInputStream fis = new java.io.FileInputStream("src/main/resources/" + filePath);
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource(env.getProperty("certificate.filename")).getFile());
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		keyStore.load(fis, certiPassword.toCharArray());
 		ProtectionParameter password = new PasswordProtection(certiPassword.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(alias, password);
