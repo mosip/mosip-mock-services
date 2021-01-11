@@ -67,6 +67,9 @@ jobs:
           cd mock-abis
           ls -ltr ./target
           docker build . --file Dockerfile --tag mock-abis
+          
+    - name: Log into registry
+      run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
 
     - name: Push image
       run: |
