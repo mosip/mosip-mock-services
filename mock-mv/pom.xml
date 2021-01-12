@@ -18,7 +18,7 @@
 		<version>2.0.2.RELEASE</version>
 	</parent>
 
-	<!--<licenses>
+	<licenses>
 		<license>
 			<name>MPL 2.0</name>
 			<url>https://www.mozilla.org/en-US/MPL/2.0/</url>
@@ -61,7 +61,7 @@
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
-	</distributionManagement>-->
+	</distributionManagement>
 
 	<properties>
 		<doclint>none</doclint>
@@ -223,6 +223,14 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<finalName>mock-mv</finalName>
+
+				</configuration>
 			</plugin>
 
 			<plugin>
