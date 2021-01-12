@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.web.client.RestTemplate;
 
-@ComponentScan(basePackages = { "io.mosip." })
+@ComponentScan(basePackages = { "io.mosip.*" })
 @SpringBootApplication
 @EnableAutoConfiguration
 @EnableJms
