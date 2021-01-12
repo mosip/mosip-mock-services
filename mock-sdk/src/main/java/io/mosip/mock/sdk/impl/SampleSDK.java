@@ -248,7 +248,8 @@ public class SampleSDK implements IBioApi {
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
-					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
@@ -322,7 +323,8 @@ public class SampleSDK implements IBioApi {
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
-					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
@@ -361,7 +363,7 @@ public class SampleSDK implements IBioApi {
 			}
 		}
 		if (matched.size() > 0) {
-			if (!matched.contains(false)) {
+			if (matched.contains(true)) {
 				decision.setMatch(Match.MATCHED);
 			} else {
 				decision.setMatch(Match.NOT_MATCHED);
