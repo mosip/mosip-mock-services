@@ -10,6 +10,8 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
 import org.json.JSONException;
@@ -137,18 +140,17 @@ public class JwtUtility {
 		return ApplicationPropertyHelper.getPropertyKeyValue(key);
 	}
 
-	public PublicKey getPublicKeyToEncryptCaptureBioValue() throws Exception {
-		String certificate = getPublicKeyFromIDA();
+	public X509Certificate getCertificateToEncryptCaptureBioValue() throws Exception {
+		String certificate = getCertificateFromIDA();
 		certificate = trimBeginEnd(certificate);
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
 				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
-
-		return x509Certificate.getPublicKey();
+		return x509Certificate;
 	}
 	
 	public String getThumbprint() throws Exception {
-		String certificate = getPublicKeyFromIDA();
+		String certificate = getCertificateFromIDA();
 		certificate = trimBeginEnd(certificate);
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
@@ -157,8 +159,12 @@ public class JwtUtility {
 
 		return thumbprint;
 	}
+	
+	public static byte[] getCertificateThumbprint(Certificate cert) throws CertificateEncodingException {
+		return DigestUtils.sha256(cert.getEncoded());
+	}
 
-	public String getPublicKeyFromIDA() {
+	public String getCertificateFromIDA() {
 		OkHttpClient client = new OkHttpClient();
 		String requestBody = String.format(AUTH_REQ_TEMPLATE,
 				getPropertyValue("mosip.auth.appid"),
