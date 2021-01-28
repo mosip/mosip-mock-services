@@ -5,9 +5,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
+
+import io.mosip.mock.mv.dto.AnalyticsDTO;
+import io.mosip.mock.mv.dto.Candidate;
+import io.mosip.mock.mv.dto.CandidateList;
 import io.mosip.mock.mv.dto.ManualAdjudicationRequestDTO;
+import io.mosip.mock.mv.dto.ManualAdjudicationResponseDTO;
 import io.mosip.mock.mv.dto.ManualVerificationDecisionDto;
 import io.mosip.mock.mv.dto.ManualVerificationStatus;
+import io.mosip.mock.mv.dto.ReferenceIds;
 import io.mosip.mock.mv.dto.ResponseWrapper;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -33,7 +39,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -106,20 +116,37 @@ public class Listener {
 
 			ManualAdjudicationRequestDTO requestDTO = objectMapper().readValue(messageData, ManualAdjudicationRequestDTO.class);
 
-			ManualVerificationDecisionDto decisionDto = new ManualVerificationDecisionDto();
-			decisionDto.setStatusCode(ManualVerificationStatus.APPROVED.name());
-			decisionDto.setRegId(requestDTO.getReferenceId());
-			decisionDto.setMvUsrId("mvuser");
-			decisionDto.setReasonCode("verified");
-
-			ResponseWrapper<ManualVerificationDecisionDto> responseWrapper = new ResponseWrapper<>();
-
-			responseWrapper.setResponsetime(OffsetDateTime.now().toInstant().toString());
-			responseWrapper.setId(env.getProperty(DECISION_SERVICE_ID));
-			responseWrapper.setVersion("1.0");
-			responseWrapper.setResponse(decisionDto);
-
-			String response = javaObjectToJsonString(responseWrapper);
+			ManualAdjudicationResponseDTO decisionDto = new ManualAdjudicationResponseDTO();
+			decisionDto.setId(env.getProperty(DECISION_SERVICE_ID));
+			decisionDto.setRequestId(requestDTO.getRequestId());
+			decisionDto.setResponsetime(LocalDateTime.now());
+			decisionDto.setReturnValue(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
+			
+			List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
+			List<Candidate> candidates=new ArrayList<>();
+			for(ReferenceIds refId:refIds) {// logic needs to be implemented.
+				Candidate candidate=new Candidate();
+				candidate.setReferenceId(refId.getReferenceId());
+				Map<String,String> analytics=new HashMap<>();
+				AnalyticsDTO analyticsDTO=new AnalyticsDTO();
+				analyticsDTO.setPrimaryOperatorID("110006");
+				analyticsDTO.setPrimaryOperatorComments("abcd");
+				analyticsDTO.setSecondaryOperatorComments("asbd");
+				analyticsDTO.setSecondaryOperatorID("110005");
+				analyticsDTO.setAnalytics(analytics);
+				candidate.setAnalytics(analyticsDTO);
+				candidates.add(candidate);
+			}
+			CandidateList candidateList=new CandidateList();
+			candidateList.setCandidates(candidates);
+			candidateList.setCount(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
+			Map<String,String> analytics=new HashMap<>();
+			analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
+			analytics.put("primaryOperatorComments", "abcd");
+			candidateList.setAnalytics(analytics);
+			decisionDto.setCandidateList(candidateList);
+			String response = javaObjectToJsonString(decisionDto);
+			
 
 			logger.info("Request type is " + response);
 
