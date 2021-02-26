@@ -24,9 +24,9 @@ jobs:
     - name: Setup branch and GPG public key 
       run: |
         # Strip git ref prefix from version
-        echo "::set-env name=BRANCH_NAME::$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')"
+        echo "BRANCH_NAME=$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
         echo ${{ env.BRANCH_NAME }}
-        echo "::set-env name=GPG_TTY::$(tty)"
+        echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
         echo ${{ env.GPG_TTY }}
         sudo apt-get --yes install gnupg2
         gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
@@ -51,6 +51,11 @@ jobs:
       run: |
         cd mock-sdk
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+        
+    - name: Build SBI with Maven
+      run: |
+        cd MockMDS
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build abis with Maven
       run: |
@@ -65,7 +70,7 @@ jobs:
           
     - name: Log into registry
       run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
-        
+
     - name: Push image
       run: |
           IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-abis
@@ -76,6 +81,32 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag mock-abis $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+    - name: Build MockMV with Maven
+      run: |
+        cd mock-mv
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+    
+    - name: Build image
+      run: |
+          cd mock-mv
+          ls -ltr ./target
+          docker build . --file Dockerfile --tag mock-mv
+          
+    - name: Log into registry
+      run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
+        
+    - name: Push image
+      run: |
+          IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-mv
+          
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$BRANCH_NAME
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag mock-mv $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
           
     - name: Publish the maven package

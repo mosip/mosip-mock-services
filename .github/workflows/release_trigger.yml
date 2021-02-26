@@ -95,4 +95,16 @@ jobs:
         ./deploy.sh mock-sdk $GITHUB_WORKSPACE/settings.xml .*
       env:
         GPG_TTY: $(tty)
+        
+    - name: Build MockMV with Maven
+      run: |
+        cd mock-mv
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+        
+    - name: Publish the maven package
+      run: |
+        chmod +x ./deploy.sh
+        ./deploy.sh mock-mv $GITHUB_WORKSPACE/settings.xml .*
+      env:
+        GPG_TTY: $(tty)
 

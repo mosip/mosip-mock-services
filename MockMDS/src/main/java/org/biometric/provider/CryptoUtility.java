@@ -1,7 +1,9 @@
 package org.biometric.provider;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -24,6 +26,8 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.spec.PSource.PSpecified;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import io.mosip.kernel.core.util.DateUtils;
 
 
 public class CryptoUtility {
@@ -48,12 +52,24 @@ public class CryptoUtility {
 		return provider;
 	}
 	
+	public static byte[] generateHash(byte[] message, String algorithm) {
+        byte[] hash = null;
+        try {
+            // Registering the Bouncy Castle as the RSA provider.
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+            digest.reset();
+            hash = digest.digest(message);
+        } catch (GeneralSecurityException ex) {
+        	ex.printStackTrace();
+        }
+        return hash;
+    }
+	
 	public static String getTimestamp() {
-		DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-    	return formatter.format(ZonedDateTime.now());
+    	return DateUtils.formatToISOString(DateUtils.getUTCCurrentDateTime());
 	}
 	
-	public static Map<String, String>  encrypt(PublicKey publicKey, String data, String transactionId) {
+	public static Map<String, String>  encrypt(PublicKey publicKey, byte[] dataBytes, String transactionId) {
 
 		Map<String, String> result = new HashMap<>();
 		try {
@@ -62,7 +78,6 @@ public class CryptoUtility {
 			
 			byte[] aadBytes = getLastBytes(xorResult, 16);
 			byte[] ivBytes = getLastBytes(xorResult, 12);
-			byte[] dataBytes = data.getBytes();
 		
 			SecretKey secretKey = getSymmetricKey();
 			final byte[] encryptedData = symmetricEncrypt(secretKey, dataBytes, ivBytes, aadBytes);			
@@ -113,9 +128,7 @@ public class CryptoUtility {
 		}
 		return null;
 	}
-	
-	
-	
+		
 	public static byte[] symmetricEncrypt(SecretKey secretKey, byte[] data, byte[] ivBytes, byte[] aadBytes) {
 		try {			
 			Cipher cipher = Cipher.getInstance(SYMMETRIC_ALGORITHM);
