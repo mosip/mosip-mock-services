@@ -27,3 +27,6 @@ target folder is created on successful build, run.sh / run.bat executable can be
 otherwise, we could simply run Main class
 
 > org.biometric.provider.ProviderApplication
+
+Sample command: `java -cp provider-0.0.1-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI "mosip.mock.sbi.device.purpose=Regis
+                 tration" "mosip.mock.sbi.biometric.type=Biometric Device"`
