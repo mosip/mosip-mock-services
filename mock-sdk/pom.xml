@@ -5,7 +5,7 @@
 
 	<artifactId>mock-sdk</artifactId>
 	<groupId>io.mosip.mock.sdk</groupId>
-	<version>0.9.1-SNAPSHOT</version>
+	<version>1.1.5-SNAPSHOT</version>
 	<name>mock-sdk</name>
 	<description>Sample implementation of biometrics SDK</description>
 	<packaging>jar</packaging>
