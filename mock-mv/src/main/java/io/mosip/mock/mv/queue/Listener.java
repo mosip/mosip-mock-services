@@ -4,17 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.gson.Gson;
-
 import io.mosip.mock.mv.dto.AnalyticsDTO;
 import io.mosip.mock.mv.dto.Candidate;
 import io.mosip.mock.mv.dto.CandidateList;
 import io.mosip.mock.mv.dto.ManualAdjudicationRequestDTO;
 import io.mosip.mock.mv.dto.ManualAdjudicationResponseDTO;
-import io.mosip.mock.mv.dto.ManualVerificationDecisionDto;
-import io.mosip.mock.mv.dto.ManualVerificationStatus;
 import io.mosip.mock.mv.dto.ReferenceIds;
-import io.mosip.mock.mv.dto.ResponseWrapper;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
@@ -25,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.jms.BytesMessage;
@@ -38,9 +32,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +91,7 @@ public class Listener {
 		boolean isrequestAddedtoQueue = false;
 		Integer textType = 0;
 		String messageData = null;
-		logger.info("Received message " + message);
+		logger.info("Received message >>>>>>>>>> " + message);
 		try {
 			if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
 				textType = 1;
@@ -163,20 +155,23 @@ public class Listener {
 	}
 
 	public void setup() {
+		logger.info("Inside setup.");
 		try {
 			if (connection == null || ((ActiveMQConnection) connection).isClosed()) {
+				logger.info("Creating new connection.");
 				connection = activeMQConnectionFactory.createConnection();
 
 				if (session == null) {
+					logger.info("Starting new Session.");
 					connection.start();
 					this.session = this.connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 				}
 			}
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(e));
 			e.printStackTrace();
 		}
-
+		logger.info("Setup Completed.");
 	}
 
 	public void runMvQueue() {
@@ -201,13 +196,15 @@ public class Listener {
 	public byte[] consume(String address, QueueListener object) throws Exception {
 
 		if (activeMQConnectionFactory == null) {
+			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
+			logger.info("Broker url : " + failOverBrokerUrl);
 			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(username, password, failOverBrokerUrl);
 		}
 
 		ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
 		if (activeMQConnectionFactory == null) {
-
+			logger.error("Could not create connection. Invalid connection configuration.");
 			throw new Exception("Invalid Connection Exception");
 
 		}
@@ -279,6 +276,7 @@ public class Listener {
 
 	private void initialSetup() throws Exception {
 		if (this.activeMQConnectionFactory == null) {
+			logger.error("Inside initialSetup method. Invalid connection.");
 			throw new Exception("Invalid Connection Exception");
 		}
 		setup();
