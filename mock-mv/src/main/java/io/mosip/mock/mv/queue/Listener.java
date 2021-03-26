@@ -33,6 +33,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,12 +44,14 @@ public class Listener {
 
 	private static final Logger logger = LoggerFactory.getLogger(Listener.class);
 	public static final String DECISION_SERVICE_ID = "mosip.registration.processor.manual.verification.decision.id";
+	private static final String APPROVED = "APPROVED";
+	private static final String REJECTED = "REJECTED";
 
 	@Autowired
 	private Environment env;
 
 	/** The username. */
-	@Value("${mock.mv.decision:}")
+	@Value("${mock.mv.decision:APPROVED}")
 	private String mockDecision;
 
 	/** The username. */
@@ -91,7 +94,6 @@ public class Listener {
 		boolean isrequestAddedtoQueue = false;
 		Integer textType = 0;
 		String messageData = null;
-		logger.info("Received message >>>>>>>>>> " + message);
 		try {
 			if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
 				textType = 1;
@@ -111,26 +113,31 @@ public class Listener {
 			ManualAdjudicationResponseDTO decisionDto = new ManualAdjudicationResponseDTO();
 			decisionDto.setId(env.getProperty(DECISION_SERVICE_ID));
 			decisionDto.setRequestId(requestDTO.getRequestId());
-			decisionDto.setResponsetime(LocalDateTime.now());
-			decisionDto.setReturnValue(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
+			decisionDto.setResponsetime(OffsetDateTime.now().toInstant().toString());
+			decisionDto.setReturnValue(mockDecision.equalsIgnoreCase(APPROVED) ? 1 : 2);// logic needs to be implemented.
 			
 			List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
-			List<Candidate> candidates=new ArrayList<>();
-			for(ReferenceIds refId:refIds) {// logic needs to be implemented.
-				Candidate candidate=new Candidate();
-				candidate.setReferenceId(refId.getReferenceId());
-				Map<String,String> analytics=new HashMap<>();
-				AnalyticsDTO analyticsDTO=new AnalyticsDTO();
-				analyticsDTO.setPrimaryOperatorID("110006");
-				analyticsDTO.setPrimaryOperatorComments("abcd");
-				analyticsDTO.setSecondaryOperatorComments("asbd");
-				analyticsDTO.setSecondaryOperatorID("110005");
-				analyticsDTO.setAnalytics(analytics);
-				candidate.setAnalytics(analyticsDTO);
-				candidates.add(candidate);
-			}
 			CandidateList candidateList=new CandidateList();
-			candidateList.setCandidates(candidates);
+			if (mockDecision.equalsIgnoreCase(REJECTED)) {
+				List<Candidate> candidates = new ArrayList<>();
+				for(ReferenceIds refId : refIds) {
+					Candidate candidate=new Candidate();
+					candidate.setReferenceId(refId.getReferenceId());
+					Map<String,String> analytics=new HashMap<>();
+					AnalyticsDTO analyticsDTO=new AnalyticsDTO();
+					analyticsDTO.setPrimaryOperatorID("110006");
+					analyticsDTO.setPrimaryOperatorComments("abcd");
+					analyticsDTO.setSecondaryOperatorComments("asbd");
+					analyticsDTO.setSecondaryOperatorID("110005");
+					analyticsDTO.setAnalytics(analytics);
+					candidate.setAnalytics(analyticsDTO);
+					candidates.add(candidate);
+					candidateList.setCandidates(candidates);
+				}
+			} else
+				candidateList.setCandidates(null);
+
+
 			candidateList.setCount(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
 			Map<String,String> analytics=new HashMap<>();
 			analytics.put("primaryOperatorID", "110006");//logic needs to be implemented

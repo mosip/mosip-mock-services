@@ -1,6 +1,7 @@
 package io.mosip.mock.mv.dto;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ManualAdjudicationResponseDTO {
@@ -11,7 +12,7 @@ private String id;
 	
 
 //	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private LocalDateTime responsetime ;//= LocalDateTime.now(ZoneId.of("UTC"));
+	private String responsetime ;//= LocalDateTime.now(ZoneId.of("UTC"));
 	
 	private Integer returnValue;
 	
@@ -33,10 +34,8 @@ private String id;
 		this.returnValue = returnValue;
 	//	this.analytics = analytics;
 		this.candidateList = candidateList;
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); 
-		LocalDateTime  dateTime= LocalDateTime.parse(responsetime, formatter);
-		this.responsetime = dateTime;
-		
+		this.responsetime = OffsetDateTime.now().toInstant().toString();
+
 	}
 
 	public String getId() {
@@ -55,11 +54,11 @@ private String id;
 		this.requestId = requestId;
 	}
 
-	public LocalDateTime getResponsetime() {
+	public String getResponsetime() {
 		return responsetime;
 	}
 
-	public void setResponsetime(LocalDateTime responsetime) {
+	public void setResponsetime(String responsetime) {
 		this.responsetime = responsetime;
 	}
 
