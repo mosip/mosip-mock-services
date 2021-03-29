@@ -51,6 +51,9 @@ public class Listener {
 
 	@Value("${registration.processor.abis.json}")
 	private String registrationProcessorAbisJson;
+	
+	@Value("${registration.processor.abis.response.delay:0}")
+	private int delayResponse;
 
 	private static final String ABIS_INSERT = "mosip.abis.insert";
 
@@ -143,9 +146,9 @@ public class Listener {
 				obj = proxycontroller.deleteRequestThroughListner(mo);
 				break;
 			}
-
-			logger.info("Response " + mapper.writeValueAsString(obj.getBody()));
-			TimeUnit.MINUTES.sleep(2);
+			logger.info("go on sleep {} ", delayResponse);
+			TimeUnit.SECONDS.sleep(delayResponse);
+			logger.info("Response " , mapper.writeValueAsString(obj.getBody()));
 			if (textType == 2) {
 				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
 						abismiddlewareaddress);
@@ -156,13 +159,13 @@ public class Listener {
 			logger.error("Issue while hitting mock abis API", e.getMessage());
 			e.printStackTrace();
 		}
-		logger.info("Is response sent=" + isrequestAddedtoQueue);
+		logger.info("Is response sent=", isrequestAddedtoQueue);
 		return isrequestAddedtoQueue;
 	}
 
 	public static String getJson(String configServerFileStorageURL, String uri) {
 		RestTemplate restTemplate = new RestTemplate();
-		System.out.println("Json URL" + configServerFileStorageURL + uri);
+		logger.info("Json URL ",configServerFileStorageURL,uri);
 		return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 	}
 
