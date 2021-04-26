@@ -75,4 +75,15 @@ public class SBIResponseInfo {
 		String accessHeaders = "Access-Control-Allow-Methods: " + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.CORS_HEADER_METHODS) + "\r\n";
 		return accessHeaders;
 	}
+
+	public static String generateOptionsResponse() {
+		String httpResponse = "";
+		httpResponse = "HTTP/1.1 200 OK\r\n";
+		httpResponse += "Access-Control-Allow-Origin:*\r\n";
+		httpResponse += "Access-Control-Allow-Headers:Content-Type\r\n";
+		httpResponse += "Access-Control-Allow-Methods:OPTIONS, RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM, GET, POST\r\n";
+		httpResponse += "CACHE-CONTROL:no-cache\r\n";
+		httpResponse += "Connection: Keep-Alive\r\n\r\n";
+		return httpResponse;
+	}
 }

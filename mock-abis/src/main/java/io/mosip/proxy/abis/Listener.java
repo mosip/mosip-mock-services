@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -20,7 +21,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
-import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -51,6 +51,9 @@ public class Listener {
 
 	@Value("${registration.processor.abis.json}")
 	private String registrationProcessorAbisJson;
+	
+	@Value("${registration.processor.abis.response.delay:0}")
+	private int delayResponse;
 
 	private static final String ABIS_INSERT = "mosip.abis.insert";
 
@@ -143,8 +146,9 @@ public class Listener {
 				obj = proxycontroller.deleteRequestThroughListner(mo);
 				break;
 			}
-
-			logger.info("Response " + mapper.writeValueAsString(obj.getBody()));
+			logger.info("go on sleep {} ", delayResponse);
+			TimeUnit.SECONDS.sleep(delayResponse);
+			logger.info("Response " , mapper.writeValueAsString(obj.getBody()));
 			if (textType == 2) {
 				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
 						abismiddlewareaddress);
@@ -155,13 +159,13 @@ public class Listener {
 			logger.error("Issue while hitting mock abis API", e.getMessage());
 			e.printStackTrace();
 		}
-		logger.info("Is response sent=" + isrequestAddedtoQueue);
+		logger.info("Is response sent=", isrequestAddedtoQueue);
 		return isrequestAddedtoQueue;
 	}
 
 	public static String getJson(String configServerFileStorageURL, String uri) {
 		RestTemplate restTemplate = new RestTemplate();
-		System.out.println("Json URL" + configServerFileStorageURL + uri);
+		logger.info("Json URL ",configServerFileStorageURL,uri);
 		return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 	}
 
@@ -169,8 +173,8 @@ public class Listener {
 		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson);
-
-		System.out.println(registrationProcessorAbis);
+		
+		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
 		io.mosip.proxy.abis.entity.MockAbisQueueDetails abisQueueDetails = new io.mosip.proxy.abis.entity.MockAbisQueueDetails();
 		Gson g = new Gson();
