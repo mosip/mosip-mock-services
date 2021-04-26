@@ -54,6 +54,8 @@ import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.registration.mdm.dto.DataHeader;
 import io.mosip.registration.mdm.dto.DeviceInfo;
 import io.mosip.registration.mdm.dto.DeviceRequest;
+import io.mosip.registration.mdm.dto.DeviceSBIInfo;
+import io.mosip.registration.mdm.dto.DeviceSBISubType;
 
 
 public class InfoRequest extends HttpServlet {
@@ -73,7 +75,7 @@ public class InfoRequest extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		if (req.getMethod().contentEquals("MOSIPDINFO"))
+		if (req.getMethod().contentEquals("MOSIPDINFO") || req.getMethod().contentEquals("SBIINFO"))
 			doPost(req, res);
 		if (req.getMethod().contentEquals("OPTIONS"))
 			CORSManager.doOptions(req, res);
@@ -103,8 +105,15 @@ public class InfoRequest extends HttpServlet {
 		listOfModalities.forEach(value -> {
 			Map<String, Object> data = new HashMap<>();
 			
-			byte[] deviceInfoData = getDeviceInfo(value);
-			byte[] signature = getSignature(deviceInfoData, certificate);
+			byte[] deviceInfoData = null;
+			byte[] signature = null;
+			if(request.getMethod().contentEquals("SBIINFO")) {
+				deviceInfoData = getSbiDeviceInfo(value, request);
+				signature = getSignature(deviceInfoData, certificate);
+			}else {
+				deviceInfoData = getDeviceInfo(value, request);
+				signature = getSignature(deviceInfoData, certificate);
+			}
 
 			String encodedDeviceInfo = getEncodedDeviceInfo(headerData, deviceInfoData, signature);
 
@@ -161,7 +170,7 @@ public class InfoRequest extends HttpServlet {
 		return jwt.getBytes();
 	}
 
-	private byte[] getDeviceInfo(String value)
+	private byte[] getDeviceInfo(String value, HttpServletRequest request)
 	{
 		Map<String, Object> data = new HashMap<>();
 			DeviceRequest deviceInfo = null;
@@ -193,7 +202,7 @@ public class InfoRequest extends HttpServlet {
 //			info.DeviceTimestamp = getTimeStamp();
 //			info.DeviceType = deviceInfo.DeviceType;
 //			info.DeviceTypeName = deviceInfo.DeviceTypeName;
-			info.digitalId = getDigitalId(value);
+			info.digitalId = getDigitalId(value, request);
 //			info.VendorId = deviceInfo.VendorId;
 //			info.status = deviceInfo.status;
 			info.specVersion = deviceInfo.specVersion;
@@ -209,6 +218,34 @@ public class InfoRequest extends HttpServlet {
 			try
 			{
 				deviceInfoData =  oB.writeValueAsString(info).getBytes();
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			return deviceInfoData;
+	}
+	
+	private byte[] getSbiDeviceInfo(String value, HttpServletRequest request)
+	{
+		Map<String, Object> data = new HashMap<>();
+		DeviceSBIInfo deviceInfo = null;
+			try {
+				deviceInfo = oB.readValue(
+						new String(Files.readAllBytes(Paths
+								.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DeviceInfo" + value + ".txt"))),
+						DeviceSBIInfo.class);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			deviceInfo.deviceInfo.digitalId = getDigitalId(value, request);
+
+			byte[] deviceInfoData = null;
+			try
+			{
+				deviceInfoData =  oB.writeValueAsString(deviceInfo).getBytes();
 			}
 			catch(Exception ex)
 			{
@@ -266,9 +303,12 @@ public class InfoRequest extends HttpServlet {
 	}
 
 	
-	private String getDigitalId(String type) {
+	private String getDigitalId(String type, HttpServletRequest request) {
 
-		return getDigitalFingerId(type);
+		if(request.getMethod().contentEquals("SBIINFO"))
+			return getSbiDigitalFingerId(type);
+		else
+			return getDigitalFingerId(type);
 
 	}
 
@@ -317,6 +357,43 @@ public class InfoRequest extends HttpServlet {
 		}
 
 		return digitalId;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String getSbiDigitalFingerId(String moralityType) {
+
+		String sbiDigitalId = null;
+
+		try {
+			switch (moralityType) {
+
+			case "FIR":
+				sbiDigitalId = getDigitalModality(oB.readValue(
+						new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DigitalFingerId.txt"))),
+						Map.class));
+
+				break;
+			case "IIR":
+				sbiDigitalId = getDigitalModality(oB.readValue(
+						new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DigitalIrisId.txt"))),
+						Map.class));
+
+				break;
+			case "FACE":
+				sbiDigitalId = getDigitalModality(oB.readValue(
+						new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DigitalFaceId.txt"))),
+						Map.class));
+
+				break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return sbiDigitalId;
 	}
 
 	private String getDigitalModality(Map<String, String> digitalIdMap) {

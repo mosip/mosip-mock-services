@@ -22,9 +22,13 @@ import io.mosip.mock.sbi.util.FileHelper;
 import io.mosip.mock.sbi.util.StringHelper;
 import io.mosip.registration.mdm.dto.DeviceInfo;
 import io.mosip.registration.mdm.dto.DeviceInfoDto;
+import io.mosip.registration.mdm.dto.DeviceSBIInfo;
+import io.mosip.registration.mdm.dto.DeviceSbiInfoDto;
 import io.mosip.registration.mdm.dto.DigitalId;
+import io.mosip.registration.mdm.dto.DigitalSBIId;
 import io.mosip.registration.mdm.dto.DiscoverDto;
-import io.mosip.registration.mdm.dto.ErrorInfo;
+import io.mosip.registration.mdm.dto.DiscoverSBIDto;
+import io.mosip.registration.mdm.dto.Error;
 
 public abstract class SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIDeviceHelper.class);	
@@ -38,10 +42,14 @@ public abstract class SBIDeviceHelper {
 	private String deviceType;
 	private String deviceSubType;
 
+	private DigitalSBIId digitalSbiId;
 	private DigitalId digitalId;
 	private DeviceInfo deviceInfo;
+	private DeviceSBIInfo deviceSbiInfo;
 	private DiscoverDto discoverDto;
+	private DiscoverSBIDto discoverSbiDto;
 	private DeviceInfoDto deviceInfoDto;
+	private DeviceSbiInfoDto deviceSbiInfoDto;
     private HashMap<String, String> statusMap = new HashMap<> ();
     private SBICaptureInfo captureInfo;
     
@@ -50,14 +58,17 @@ public abstract class SBIDeviceHelper {
     public abstract int getLiveStream ();
     public abstract int getBioCapture (boolean isUsedForAuthenication);
 	
-	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType) {
+	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType, String biometricType) {
 		super();
 		setPort(port);
 		setPurpose (purpose);
 		setDeviceType (deviceType);
 		setDeviceSubType (deviceSubType);
 		setDeviceStatus (SBIConstant.DEVICE_STATUS_ISREADY);
-		initDeviceDetails();
+		if(biometricType.equals("Biometric Device"))
+			initDeviceDetails();
+		else if(biometricType.equals("Biometric Devices-SBI-1.0"))
+			initSBIDeviceDetails();
 	}
 
 	public void initDeviceDetails() {
@@ -65,6 +76,13 @@ public abstract class SBIDeviceHelper {
 		setDiscoverDto (getDiscoverInfo (getDeviceType (), getDeviceSubType (), getDigitalId ()));
 		setDeviceInfo (getDeviceInfo (getDeviceType (), getDeviceSubType (), getDigitalId ()));
 		setDeviceInfoDto (getDeviceInfoDto (getDeviceType (), getDeviceSubType (), getDeviceInfo ()));
+	}
+	
+	public void initSBIDeviceDetails() {
+		setDigitalSbiId (getSBIDigitalId(getDeviceType (), getDeviceSubType ()));
+		setDiscoverSbiDto (getSBIDiscoverInfo(getDeviceType (), getDeviceSubType (), getDigitalSbiId()));
+		setDeviceSbiInfo(getSBIDeviceInfo(getDeviceType (), getDeviceSubType (), getDigitalSbiId()));
+		setDeviceSbiInfoDto (getDeviceSbiInfoDto (getDeviceType (), getDeviceSubType (), getDeviceSbiInfo ()));
 	}
 
 	protected DigitalId getDigitalId(String deviceType, String deviceSubType) {
@@ -97,6 +115,44 @@ public abstract class SBIDeviceHelper {
 				}
 				
 				return digitalId;
+			}	
+		} catch (Exception ex) {
+        	LOGGER.error("getDigitalId :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
+		}
+		return null;
+	}
+	
+	protected DigitalSBIId getSBIDigitalId(String deviceType, String deviceSubType) {
+		
+		DigitalSBIId digitalSbiId = null;
+		String fileName = null;
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FINGER_SLAP_SBI_DIGITALID_JSON);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FACE_SBI_DIGITALID_JSON);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_IRIS_DOUBLE_SBI_DIGITALID_JSON);
+			}
+			if (FileHelper.exists(fileName)) 
+			{
+				File file = new File(fileName);
+				digitalSbiId = objectMapper.readValue(file, DigitalSBIId.class);
+				if (digitalSbiId != null)
+				{
+					digitalSbiId.setDateTime(CryptoUtility.getTimestamp());
+				}
+				
+				return digitalSbiId;
 			}	
 		} catch (Exception ex) {
         	LOGGER.error("getDigitalId :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
@@ -141,6 +197,47 @@ public abstract class SBIDeviceHelper {
 			}	
 		} catch (Exception ex) {
         	LOGGER.error("getDiscoverInfo :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
+		}
+		return null;
+	}
+	
+	protected DiscoverSBIDto getSBIDiscoverInfo(String deviceType, String deviceSubType, DigitalSBIId digitalId) {		
+		DiscoverSBIDto discoverSbiDto = null;
+		String fileName = null;
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FINGER_SLAP_SBI_DEVICEDEISCOVERYINFO_JSON);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FACE_SBI_DEVICEDEISCOVERYINFO_JSON);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_IRIS_DOUBLE_SBI_DEVICEDEISCOVERYINFO_JSON);
+			}
+
+			if (FileHelper.exists(fileName)) 
+			{
+				File jsonFile = new File(fileName);
+				discoverSbiDto = objectMapper.readValue(jsonFile, DiscoverSBIDto.class);
+				if (discoverSbiDto != null)
+				{
+					discoverSbiDto.setDigitalId(getUnsignedDigitalSbiId (digitalId, true));
+					discoverSbiDto.setDeviceStatus(getDeviceStatus());
+					discoverSbiDto.setPurpose(getPurpose ());
+					discoverSbiDto.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
+				}
+				
+				return discoverSbiDto;
+			}	
+		} catch (Exception ex) {
+        	LOGGER.error("getSBIDiscoverInfo :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
 		}
 		return null;
 	}
@@ -206,7 +303,7 @@ public abstract class SBIDeviceHelper {
 				deviceInfo = objectMapper.readValue(jsonFile, DeviceInfo.class);
 				if (deviceInfo != null)
 				{
-					deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, false));
+					deviceInfo.setDigitalId(getUnsignedDigitalId(digitalId, false));
 					deviceInfo.setDeviceStatus(getDeviceStatus());
 					deviceInfo.setPurpose(getPurpose ());
 					deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
@@ -216,6 +313,87 @@ public abstract class SBIDeviceHelper {
 			}	
 		} catch (Exception ex) {
         	LOGGER.error("getDeviceInfo :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
+		}
+		finally
+		{
+			try { // because close can throw an exception
+		        if (inputStream != null) inputStream.close();
+		    } catch (IOException ignored) {}
+		}
+		return null;
+	}
+	
+	protected DeviceSBIInfo getSBIDeviceInfo(String deviceType, String deviceSubType, DigitalSBIId digitalSbiId) {
+		DeviceSBIInfo deviceSbiInfo = null;
+		String fileName = null;
+		String keyStoreFileName = null;
+		String keyAlias = null;
+		String keyPwd = null;
+		FileInputStream inputStream = null;
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FINGER_SLAP_SBI_DEVICEINFO_JSON);
+				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_SBI_KEYSTORE_FILE_NAME);
+				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_SBI_KEY_ALIAS);
+				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_SBI_KEYSTORE_PWD);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FACE_SBI_DEVICEINFO_JSON);
+				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_SBI_KEYSTORE_FILE_NAME);
+				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_SBI_KEY_ALIAS);
+				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_SBI_KEYSTORE_PWD);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+			{
+				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_IRIS_DOUBLE_SBI_DEVICEINFO_JSON);
+				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_SBI_KEYSTORE_FILE_NAME);
+				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_SBI_KEY_ALIAS);
+				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_SBI_KEYSTORE_PWD);
+			}
+
+			if (FileHelper.exists(fileName) && FileHelper.exists(keyStoreFileName)) 
+			{
+				File jsonFile = new File(fileName);
+			    File keyStoreFile = new File(keyStoreFileName);
+			    KeyStore keystore = null;
+			    if (keyStoreFile.exists())
+			    {
+			    	inputStream = new FileInputStream (keyStoreFile);
+					keystore = loadKeyStore (inputStream, keyPwd);			    	
+			    }
+				
+				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
+
+	            /* Get certificate of public key */
+	            java.security.cert.Certificate cert = keystore.getCertificate(keyAlias); 
+
+	            /* Here it prints the public key*/
+	            //LOGGER.Info("Public Key:");
+	            //LOGGER.Info(cert.getPublicKey());
+
+	            /* Here it prints the private key*/
+	            //LOGGER.Info("\nPrivate Key:");
+	            //LOGGER.Info(key);
+	            deviceSbiInfo = objectMapper.readValue(jsonFile, DeviceSBIInfo.class);
+				if (deviceSbiInfo != null)
+				{
+					System.out.println("sdlkfjs");
+					deviceSbiInfo.deviceInfo.setDigitalId(getUnsignedDigitalSbiId (digitalSbiId, false));
+					deviceSbiInfo.deviceInfo.setDeviceStatus(getDeviceStatus());
+					deviceSbiInfo.deviceInfo.setPurpose(getPurpose ());
+					deviceSbiInfo.deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
+					deviceSbiInfo.deviceInfo.setDigitalId(getSignedSBIDigitalId (deviceSbiInfo.deviceInfo.getDigitalId(), key, cert));
+				}
+        		return deviceSbiInfo;
+			}	
+		} catch (Exception ex) {
+        	LOGGER.error("getSBIDeviceInfo :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
 		}
 		finally
 		{
@@ -281,7 +459,7 @@ public abstract class SBIDeviceHelper {
 	            //LOGGER.Info("\nPrivate Key:");
 	            //LOGGER.Info(key);
 	            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
-           	 	deviceInfoDto.setError(new ErrorInfo ("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
+           	 	deviceInfoDto.setError(new Error("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
     		
         		return deviceInfoDto ;
 			}	
@@ -297,6 +475,77 @@ public abstract class SBIDeviceHelper {
 		return null;
 	}
 
+	protected DeviceSbiInfoDto getDeviceSbiInfoDto(String deviceType, String deviceSubType, DeviceSBIInfo deviceSbiInfo) {
+		DeviceSbiInfoDto deviceSbiInfoDto = new DeviceSbiInfoDto ();
+		String keyStoreFileName = null;
+		String keyAlias = null;
+		String keyPwd = null;
+		FileInputStream inputStream = null;
+
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+			{
+				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_SBI_KEYSTORE_FILE_NAME);
+				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_SBI_KEY_ALIAS);
+				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_SBI_KEYSTORE_PWD);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
+			{
+				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_SBI_KEYSTORE_FILE_NAME);
+				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_SBI_KEY_ALIAS);
+				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_SBI_KEYSTORE_PWD);
+			}
+			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
+					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+			{
+				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_SBI_KEYSTORE_FILE_NAME);
+				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_SBI_KEY_ALIAS);
+				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_SBI_KEYSTORE_PWD);
+			}
+
+			if (FileHelper.exists(keyStoreFileName)) 
+			{
+				String strDeviceInfo = objectMapper.writeValueAsString(deviceSbiInfo);
+			    File keyStoreFile = new File(keyStoreFileName);
+			    KeyStore keystore = null;
+			    if (keyStoreFile.exists())
+			    {
+			    	inputStream = new FileInputStream (keyStoreFile);
+					keystore = loadKeyStore (inputStream, keyPwd);			    	
+			    }
+								
+				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
+
+	            /* Get certificate of public key */
+	            java.security.cert.Certificate cert = keystore.getCertificate(keyAlias); 
+
+	            /* Here it prints the public key*/
+	            //LOGGER.Info("Public Key:");
+	            //LOGGER.Info(cert.getPublicKey());
+
+	            /* Here it prints the private key*/
+	            //LOGGER.Info("\nPrivate Key:");
+	            //LOGGER.Info(key);
+	            deviceSbiInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
+	            deviceSbiInfoDto.setError(new Error ("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
+    		
+        		return deviceSbiInfoDto ;
+			}	
+		} catch (Exception ex) {
+        	LOGGER.error("getDeviceSbiInfoDto :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
+		}
+		finally
+		{
+			try { // because close can throw an exception
+		        if (inputStream != null) inputStream.close();
+		    } catch (IOException ignored) {}
+		}
+		return null;
+	}
+	
 	public String getSignBioMetricsDataDto(String deviceType, String deviceSubType, String currentBioData) {
 		String signedBioMetricsDataDto = null;
 		String keyStoreFileName = null;
@@ -382,8 +631,36 @@ public abstract class SBIDeviceHelper {
 		}
 		return null;
     }
+	
+	private String getUnsignedDigitalSbiId (DigitalSBIId digitalId, boolean isBase64URLEncoded)
+    {
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			if (isBase64URLEncoded)
+			{
+				return StringHelper.base64UrlEncode (objectMapper.writeValueAsString(digitalId));
+			}
+			else
+			{
+				return objectMapper.writeValueAsString(digitalId);
+			}
+		} catch (Exception ex) {
+        	LOGGER.error("getUnsignedDigitalId :: " , ex);
+		}
+		return null;
+    }
 
 	private String getSignedDigitalId (String digitalId, PrivateKey privateKey, Certificate cert)
+    {
+		try {
+			return JwtUtility.getJwt (digitalId.getBytes("UTF-8"), privateKey, (X509Certificate) cert);
+		} catch (Exception ex) {
+        	LOGGER.error("getSignedDigitalId :: " , ex);
+		}
+		return null;
+    }
+	
+	private String getSignedSBIDigitalId (String digitalId, PrivateKey privateKey, Certificate cert)
     {
 		try {
 			return JwtUtility.getJwt (digitalId.getBytes("UTF-8"), privateKey, (X509Certificate) cert);
@@ -522,9 +799,25 @@ public abstract class SBIDeviceHelper {
 	public void setDigitalId(DigitalId digitalId) {
 		this.digitalId = digitalId;
 	}
+	
+	public DigitalSBIId getDigitalSbiId() {
+		return digitalSbiId;
+	}
+
+	public void setDigitalSbiId(DigitalSBIId digitalSbiId) {
+		this.digitalSbiId = digitalSbiId;
+	}
 
 	public DeviceInfo getDeviceInfo() {
 		return deviceInfo;
+	}
+
+	public void setDeviceSbiInfo(DeviceSBIInfo deviceSbiInfo) {
+		this.deviceSbiInfo = deviceSbiInfo;
+	}
+	
+	public DeviceSBIInfo getDeviceSbiInfo() {
+		return deviceSbiInfo;
 	}
 
 	public void setDeviceInfo(DeviceInfo deviceInfo) {
@@ -537,11 +830,25 @@ public abstract class SBIDeviceHelper {
 	public void setDiscoverDto(DiscoverDto discoverDto) {
 		this.discoverDto = discoverDto;
 	}
+	
+	public DiscoverSBIDto getDiscoverSbiDto() {
+		return discoverSbiDto;
+	}
+	public void setDiscoverSbiDto(DiscoverSBIDto discoverSbiDto) {
+		this.discoverSbiDto = discoverSbiDto;
+	}
 	public DeviceInfoDto getDeviceInfoDto() {
 		return deviceInfoDto;
 	}
 	public void setDeviceInfoDto(DeviceInfoDto deviceInfoDto) {
 		this.deviceInfoDto = deviceInfoDto;
+	}
+	
+	public DeviceSbiInfoDto getDeviceSbiInfoDto() {
+		return deviceSbiInfoDto;
+	}
+	public void setDeviceSbiInfoDto(DeviceSbiInfoDto deviceSbiInfoDto) {
+		this.deviceSbiInfoDto = deviceSbiInfoDto;
 	}
 	public String getDeviceStatus() {
 		if (statusMap == null)

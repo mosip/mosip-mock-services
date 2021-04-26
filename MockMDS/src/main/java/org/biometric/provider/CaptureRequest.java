@@ -33,16 +33,22 @@ import io.mosip.kernel.core.util.HMACUtils;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDeviceDetailDto;
+import io.mosip.registration.mdm.dto.CaptureRequestDeviceDetailSbiDto;
 import io.mosip.registration.mdm.dto.CaptureRequestDto;
 import io.mosip.registration.mdm.dto.NewBioAuthDto;
 import io.mosip.registration.mdm.dto.NewBioDto;
+import io.mosip.registration.mdm.dto.SbiBioMetricsDataDto;
+import io.mosip.registration.mdm.dto.SbiCaptureRequestDto;
 
 public class CaptureRequest extends HttpServlet {
 
 	private CryptoCore jwsValidation;
 
-	CaptureRequest(CryptoCore cryptoCore) {
+	private String deviceVersion = null;
+	
+	CaptureRequest(CryptoCore cryptoCore, String deviceVersion) {
 		this.jwsValidation = cryptoCore;
+		this.deviceVersion = deviceVersion;
 	}
 
 	private static final long serialVersionUID = -7250199164515356577L;
@@ -109,55 +115,110 @@ public class CaptureRequest extends HttpServlet {
 	protected void doRegistrationCapture(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {	
 		Map<String, Object> responseMap = new HashMap<>();
 		try {
-			CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB
-					.readValue(getRequestString(request).getBytes(), CaptureRequestDto.class));
 			
-			Map<String, Object> errorCountMap = new LinkedHashMap<>();
-			errorCountMap.put(errorCode, "102");
-			errorCountMap.put(errorInfo, "Count Mismatch");
+			if(!deviceVersion.equals("SBI 1.0")) {
+				CaptureRequestDto captureRequestDto = (CaptureRequestDto) (oB
+						.readValue(getRequestString(request).getBytes(), CaptureRequestDto.class));
+				
+				Map<String, Object> errorCountMap = new LinkedHashMap<>();
+				errorCountMap.put(errorCode, "102");
+				errorCountMap.put(errorInfo, "Count Mismatch");
 
-			if (environmentList.contains(captureRequestDto.getEnv())
-					&& captureRequestDto.getPurpose().equalsIgnoreCase(Registration)) {
+				if (environmentList.contains(captureRequestDto.getEnv())
+						&& captureRequestDto.getPurpose().equalsIgnoreCase(Registration)) {
 
-				List<Map<String, Object>> listOfBiometric = new ArrayList<>();
-				String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
+					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+					String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
 
-				for (CaptureRequestDeviceDetailDto bio : captureRequestDto.getBio()) {
-					List<BioMetricsDataDto> list = new ArrayList<>();
+					for (CaptureRequestDeviceDetailDto bio : captureRequestDto.getBio()) {
+						List<BioMetricsDataDto> list = new ArrayList<>();
 
-					if (bio.getType().equals(FINGER))
-						captureFingersModality(bio, list);
+						if (bio.getType().equals(FINGER))
+							captureFingersModality(bio, list);
 
-					if (bio.getType().equals(IRIS))
-						captureIrisModality(bio, list);
+						if (bio.getType().equals(IRIS))
+							captureIrisModality(bio, list);
 
-					if (bio.getType().equals(FACE))
-						captureFaceModality(bio, list);
-					if (!list.isEmpty()) {
-						
-						for (BioMetricsDataDto dto : list) {
-							NewBioDto data = buildNewBioDto(dto, bio.type, bio.requestedScore,
-									captureRequestDto.transactionId);
-							Map<String, Object> biometricData = getMinimalResponse(captureRequestDto.specVersion, data,
-									previousHash);
-							listOfBiometric.add(biometricData);
-							previousHash = (String) biometricData.get(HASH);
+						if (bio.getType().equals(FACE))
+							captureFaceModality(bio, list);
+						if (!list.isEmpty()) {
+							
+							for (BioMetricsDataDto dto : list) {
+								NewBioDto data = buildNewBioDto(dto, bio.type, bio.requestedScore,
+										captureRequestDto.transactionId);
+								Map<String, Object> biometricData = getMinimalResponse(captureRequestDto.specVersion, data,
+										previousHash);
+								listOfBiometric.add(biometricData);
+								previousHash = (String) biometricData.get(HASH);
+							}
 						}
 					}
+					
+					if(listOfBiometric.isEmpty()) {
+						listOfBiometric.add(errorCountMap);
+					}
+					
+					responseMap.put(BIOMETRICS, listOfBiometric);
+					
+				} else {
+					Map<String, Object> errorMap = new LinkedHashMap<>();
+					errorMap.put(errorCode, "101");
+					errorMap.put(errorInfo, "Invalid Environment / Purpose");
+					responseMap.put(error, errorMap);
 				}
+			}else {
+				SbiCaptureRequestDto sbiCaptureRequestDto = (SbiCaptureRequestDto) (oB
+						.readValue(getRequestString(request).getBytes(), SbiCaptureRequestDto.class));
 				
-				if(listOfBiometric.isEmpty()) {
-					listOfBiometric.add(errorCountMap);
+				Map<String, Object> errorCountMap = new LinkedHashMap<>();
+				errorCountMap.put(errorCode, "102");
+				errorCountMap.put(errorInfo, "Count Mismatch");
+
+				if (environmentList.contains(sbiCaptureRequestDto.getEnv())
+						&& sbiCaptureRequestDto.getPurpose().equalsIgnoreCase(Registration)) {
+
+					List<Map<String, Object>> listOfBiometric = new ArrayList<>();
+					String previousHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash("".getBytes()));
+
+					for (CaptureRequestDeviceDetailSbiDto bio : sbiCaptureRequestDto.getBio()) {
+						List<SbiBioMetricsDataDto> list = new ArrayList<>();
+
+						if (bio.getType().equals(FINGER))
+							sbiCaptureFingersModality(bio, list);
+
+						if (bio.getType().equals(IRIS))
+							sbiCaptureIrisModality(bio, list);
+
+						if (bio.getType().equals(FACE))
+							sbiCaptureFaceModality(bio, list);
+						
+						if (!list.isEmpty()) {
+							
+							for (SbiBioMetricsDataDto dto : list) {
+								NewBioDto data = buildNewSbiBioDto(dto, bio.type, bio.requestedScore,
+										sbiCaptureRequestDto.getTransactionId());
+								Map<String, Object> biometricData = getMinimalResponse(sbiCaptureRequestDto.getSpecVersion(), data,
+										previousHash);
+								listOfBiometric.add(biometricData);
+								previousHash = (String) biometricData.get(HASH);
+							}
+						}
+					}
+					
+					if(listOfBiometric.isEmpty()) {
+						listOfBiometric.add(errorCountMap);
+					}
+					
+					responseMap.put(BIOMETRICS, listOfBiometric);
+					
+				} else {
+					Map<String, Object> errorMap = new LinkedHashMap<>();
+					errorMap.put(errorCode, "101");
+					errorMap.put(errorInfo, "Invalid Environment / Purpose");
+					responseMap.put(error, errorMap);
 				}
-				
-				responseMap.put(BIOMETRICS, listOfBiometric);
-				
-			} else {
-				Map<String, Object> errorMap = new LinkedHashMap<>();
-				errorMap.put(errorCode, "101");
-				errorMap.put(errorInfo, "Invalid Environment / Purpose");
-				responseMap.put(error, errorMap);
 			}
+			
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
@@ -254,6 +315,16 @@ public class CaptureRequest extends HttpServlet {
 		
 		list.add(dto);
 	}
+	
+	private void sbiCaptureFaceModality(CaptureRequestDeviceDetailSbiDto bio, List<SbiBioMetricsDataDto> list)
+			throws IOException {
+			
+		SbiBioMetricsDataDto dto = oB.readValue(Base64.getDecoder().decode(new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/registration/Face.txt")))),
+						SbiBioMetricsDataDto.class);
+		
+		list.add(dto);
+	}
 
 	
 	private void captureIrisModality(CaptureRequestDeviceDetailDto bio, List<BioMetricsDataDto> list) 
@@ -295,6 +366,50 @@ public class CaptureRequest extends HttpServlet {
 								.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
 										+ "/files/MockMDS/registration/" + segment + ".txt")))),
 						BioMetricsDataDto.class);
+				list.add(bioMetricsData);
+			}
+		}
+	}
+	
+	private void sbiCaptureIrisModality(CaptureRequestDeviceDetailSbiDto bio, List<SbiBioMetricsDataDto> list) 
+			throws JsonParseException, JsonMappingException, IOException {
+		List<String> segmentsToCapture = null;
+
+		switch (bio.deviceSubId) {
+		case "1": // left
+			segmentsToCapture = getSegmentsToCapture(Arrays.asList("Left"),
+					bio.bioSubType == null ? null : Arrays.asList(bio.bioSubType),
+					bio.exception == null ? null : Arrays.asList(bio.exception));
+			break;
+
+		case "2": // right
+			segmentsToCapture = getSegmentsToCapture(Arrays.asList("Right"),
+					bio.bioSubType == null ? null : Arrays.asList(bio.bioSubType),
+					bio.exception == null ? null : Arrays.asList(bio.exception));
+			break;
+
+		case "3": // both
+			segmentsToCapture = getSegmentsToCapture(Arrays.asList("Left", "Right"),
+					bio.bioSubType == null ? null : Arrays.asList(bio.bioSubType),
+					bio.exception == null ? null : Arrays.asList(bio.exception));
+			break;
+
+		case "0": // not sure, need to check
+			break;
+		}
+
+		if (segmentsToCapture == null || segmentsToCapture.isEmpty()) {
+			// Throw exception
+		}
+
+		// TODO - validate requested Score, if deviceSubId is 3 then take the average of
+		if (segmentsToCapture.size() == bio.getCount()) {
+			for (String segment : segmentsToCapture) {
+				SbiBioMetricsDataDto bioMetricsData = oB.readValue(
+						Base64.getDecoder()
+								.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+										+ "/files/MockMDS/registration/" + segment + ".txt")))),
+						SbiBioMetricsDataDto.class);
 				list.add(bioMetricsData);
 			}
 		}
@@ -349,9 +464,83 @@ public class CaptureRequest extends HttpServlet {
 		}
 
 	}
+	
+	private void sbiCaptureFingersModality(CaptureRequestDeviceDetailSbiDto bio, List<SbiBioMetricsDataDto> list) 
+			throws JsonParseException, JsonMappingException, IOException {
+
+		List<String> segmentsToCapture = null;
+
+		switch (bio.deviceSubId) {
+		case "1": // left
+			segmentsToCapture = getSegmentsToCapture(
+					Arrays.asList("Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger"),
+					bio.bioSubType == null ? null : Arrays.asList(bio.bioSubType),
+					bio.exception == null ? null : Arrays.asList(bio.exception));
+
+			break;
+
+		case "2": // right
+			segmentsToCapture = getSegmentsToCapture(
+					Arrays.asList("Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger"),
+					bio.bioSubType == null ? null : Arrays.asList(bio.bioSubType),
+					bio.exception == null ? null : Arrays.asList(bio.exception));
+			break;
+
+		case "3": // thumbs
+			segmentsToCapture = getSegmentsToCapture(Arrays.asList("Left Thumb", "Right Thumb"),
+					bio.bioSubType == null ? null : Arrays.asList(bio.bioSubType),
+					bio.exception == null ? null : Arrays.asList(bio.exception));
+			break;
+
+		case "0":
+			break;
+		}
+
+		if (segmentsToCapture == null || segmentsToCapture.isEmpty()) {
+			// Throw exception
+		}
+
+		if (segmentsToCapture.size() == bio.getCount()) {
+			// TODO - validate requested Score, if deviceSubId is 3 then take the average of
+
+			for (String segment : segmentsToCapture) {
+				SbiBioMetricsDataDto bioMetricsData = oB.readValue(
+						Base64.getDecoder()
+								.decode(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir")
+										+ "/SBIfiles/MockMDS/registration/" + segment + ".txt")))),
+						SbiBioMetricsDataDto.class);
+				list.add(bioMetricsData);
+			}
+		}
+
+	}
 
 	
 	private NewBioDto buildNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, int requestedScore, String transactionId) {
+		NewBioDto bioResponse = new NewBioDto();
+		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
+		bioResponse.setBioType(bioType);
+		
+		if(bioMetricsData.getBioValue() != null)
+			bioResponse.setBioValue(bioMetricsData.getBioValue());
+		
+		bioResponse.setDeviceCode(bioMetricsData.getDeviceCode());
+		//TODO Device service version should be read from file
+		bioResponse.setDeviceServiceVersion("MOSIP.MDS.001");
+		bioResponse.setEnv(bioMetricsData.getEnv());
+		
+		//TODO - need to change, should handle based on deviceId
+		bioResponse.setDigitalId(getDigitalId(bioType));
+		
+		bioResponse.setPurpose(bioMetricsData.getPurpose());
+		bioResponse.setRequestedScore(requestedScore);
+		bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+		bioResponse.setTimestamp(CryptoUtility.getTimestamp());
+		bioResponse.setTransactionId(transactionId);
+		return bioResponse;
+	}
+	
+	private NewBioDto buildNewSbiBioDto(SbiBioMetricsDataDto bioMetricsData, String bioType, int requestedScore, String transactionId) {
 		NewBioDto bioResponse = new NewBioDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
 		bioResponse.setBioType(bioType);

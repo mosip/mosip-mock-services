@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 import io.mosip.registration.mdm.dto.DiscoverDto;
 import io.mosip.registration.mdm.dto.DiscoverResponse;
+import io.mosip.registration.mdm.dto.DiscoverSBIDto;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,7 +48,7 @@ public class DiscoverRequest extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		if (req.getMethod().contentEquals("MOSIPDISC"))
+		if (req.getMethod().contentEquals("MOSIPDISC") || req.getMethod().contentEquals("SBIDISC"))
 			doPost(req, res);
 		if (req.getMethod().contentEquals("OPTIONS"))
 			CORSManager.doOptions(req, res);
@@ -78,19 +79,30 @@ public class DiscoverRequest extends HttpServlet {
 
 		String[] splitString = sT.replace("{", "").replace("}", "").split(":");
 		List<String> myList = Arrays.asList(splitString[1].split(","));
-		List<DiscoverResponse> responseList = new ArrayList<DiscoverResponse>();
+		List<DiscoverDto> responseList = new ArrayList<DiscoverDto>();
+		List<DiscoverSBIDto> sbiResponseList = new ArrayList<DiscoverSBIDto>();
 		myList.forEach(req -> {
 
 			if (StringUtils.containsIgnoreCase(req, "Fingerprint")) {
 
 				try {
-					@SuppressWarnings("unchecked")
-					DiscoverDto fingerDiscovery = oB.readValue(
-							new String(Files.readAllBytes(
-									Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverFIR.txt"))),
-							DiscoverDto.class);
-
-					responseList.add(buildDto(fingerDiscovery, "FIR"));
+					
+					if(request.getMethod().contentEquals("SBIDISC")) {
+						DiscoverSBIDto fingerDiscovery = oB.readValue(
+								new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverFIR.txt"))),
+								DiscoverSBIDto.class);
+						fingerDiscovery.setDigitalId(getSbiDigitalId("FIR"));
+						sbiResponseList.add(fingerDiscovery);
+					}else {
+						DiscoverDto fingerDiscovery = oB.readValue(
+								new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverFIR.txt"))),
+								DiscoverDto.class);
+						fingerDiscovery.setDigitalId(getDigitalId("FIR"));
+						responseList.add(fingerDiscovery);
+					}
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -99,13 +111,15 @@ public class DiscoverRequest extends HttpServlet {
 			} else if (StringUtils.containsIgnoreCase(req, "Face")) {
 
 				try {
-					@SuppressWarnings("unchecked")
-					DiscoverDto faceDiscovery = oB.readValue(
-							new String(Files.readAllBytes(
-									Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverFACE.txt"))),
-							DiscoverDto.class);
-
-					responseList.add(buildDto(faceDiscovery, "FACE"));
+					if(request.getMethod().contentEquals("SBIDISC")) {
+						@SuppressWarnings("unchecked")
+						DiscoverSBIDto faceDiscovery = oB.readValue(
+								new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverFACE.txt"))),
+								DiscoverSBIDto.class);
+						faceDiscovery.setDigitalId(getSbiDigitalId("FACE"));
+						sbiResponseList.add(faceDiscovery);
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -114,12 +128,24 @@ public class DiscoverRequest extends HttpServlet {
 			} else if (StringUtils.containsIgnoreCase(req, "Iris")) {
 
 				try {
-					@SuppressWarnings("unchecked")
-					DiscoverDto irisDiscovery = oB.readValue(
-							new String(Files.readAllBytes(
-									Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverIIR.txt"))),
-							DiscoverDto.class);
-					responseList.add(buildDto(irisDiscovery, "IIR"));
+					
+					if(request.getMethod().contentEquals("SBIDISC")) {
+						@SuppressWarnings("unchecked")
+						DiscoverSBIDto irisDiscovery = oB.readValue(
+								new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DiscoverIIR.txt"))),
+								DiscoverSBIDto.class);
+						irisDiscovery.setDigitalId(getSbiDigitalId("IIR"));
+						sbiResponseList.add(irisDiscovery);
+					}else  {
+						@SuppressWarnings("unchecked")
+						DiscoverDto irisDiscovery = oB.readValue(
+								new String(Files.readAllBytes(
+										Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DiscoverIIR.txt"))),
+								DiscoverDto.class);
+						irisDiscovery.setDigitalId(getDigitalId("IIR"));
+						responseList.add(irisDiscovery);
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -128,21 +154,42 @@ public class DiscoverRequest extends HttpServlet {
 			} else if (StringUtils.containsIgnoreCase(req, "Biometric Device")) {
 
 				List<String> allModalityList = Arrays.asList("FIR", "IIR", "FACE");
-				allModalityList.forEach(obj -> {
+				if(request.getMethod().contentEquals("SBIDISC")) {
+					allModalityList.forEach(obj -> {
 
-					DiscoverDto allDiscovery = null;
-					try {
-						allDiscovery = oB.readValue(
-								new String(Files.readAllBytes(Paths.get(
-										System.getProperty("user.dir") + "/files/MockMDS/Discover" + obj + ".txt"))),
-								DiscoverDto.class);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					responseList.add(buildDto(allDiscovery, obj));
+						DiscoverSBIDto allDiscovery = null;
+						try {
+							allDiscovery = oB.readValue(
+									new String(Files.readAllBytes(Paths.get(
+											System.getProperty("user.dir") + "/SBIfiles/MockMDS/Discover" + obj + ".txt"))),
+									DiscoverSBIDto.class);
+							allDiscovery.setDigitalId(getSbiDigitalId(obj));
+							sbiResponseList.add(allDiscovery);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
-				});
+					});
+				}else {
+					allModalityList.forEach(obj -> {
+
+						DiscoverDto allDiscovery = null;
+						try {
+							allDiscovery = oB.readValue(
+									new String(Files.readAllBytes(Paths.get(
+											System.getProperty("user.dir") + "/files/MockMDS/Discover" + obj + ".txt"))),
+									DiscoverDto.class);
+							allDiscovery.setDigitalId(getDigitalId(obj));
+							responseList.add(allDiscovery);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					});
+				}
+				
 
 			}
 
@@ -152,7 +199,7 @@ public class DiscoverRequest extends HttpServlet {
 		response = CORSManager.setCors(response);
 		PrintWriter out = response.getWriter();
 
-		out.println(oB.writeValueAsString(responseList));
+		out.println(oB.writeValueAsString(responseList != null?responseList:sbiResponseList));
 	}
 
 	private DiscoverResponse buildDto(DiscoverDto fingerDiscovery, String modality) {
@@ -198,6 +245,43 @@ public class DiscoverRequest extends HttpServlet {
 				digitalId = getDigitalModality(oB.readValue(
 						new String(Files.readAllBytes(
 								Paths.get(System.getProperty("user.dir") + "/files/MockMDS/DigitalFaceId.txt"))),
+						Map.class));
+
+				break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return digitalId;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String getSbiDigitalId(String modalityType) {
+
+		String digitalId = null;
+
+		try {
+			switch (modalityType) {
+
+			case "FIR":
+				digitalId = getDigitalModality(oB.readValue(
+						new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DigitalFingerId.txt"))),
+						Map.class));
+
+				break;
+			case "IIR":
+				digitalId = getDigitalModality(oB.readValue(
+						new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DigitalIrisId.txt"))),
+						Map.class));
+
+				break;
+			case "FACE":
+				digitalId = getDigitalModality(oB.readValue(
+						new String(Files.readAllBytes(
+								Paths.get(System.getProperty("user.dir") + "/SBIfiles/MockMDS/DigitalFaceId.txt"))),
 						Map.class));
 
 				break;

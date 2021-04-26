@@ -115,7 +115,9 @@ public class SBIConstant {
 	public static String MOSIP_POST_VERB = "POST / HTTP";
 	public static String MOSIP_GET_VERB = "GET / HTTP";
 	public static String MOSIP_DISC_VERB = "MOSIPDISC /device HTTP";
+	public static String MOSIP_SBI_DISC_VERB = "SBIDISC /device HTTP";
 	public static String MOSIP_INFO_VERB = "MOSIPDINFO /info HTTP";
+	public static String MOSIP_INFO_SBI_VERB = "SBIINFO /info HTTP";
 	public static String MOSIP_CAPTURE_VERB = "CAPTURE /capture HTTP";
 	public static String MOSIP_STREAM_VERB = "STREAM /stream HTTP";
 	public static String MOSIP_RCAPTURE_VERB = "RCAPTURE /capture HTTP";
@@ -131,6 +133,7 @@ public class SBIConstant {
 
 	/** Biometric Types Names */
 	public static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "mosip.mock.sbi.biometric.type.biometricdevice";
+	public static String MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE = "mosip.mock.sbi.biometric.type.sbi.biometricdevice";
 	public static String MOSIP_BIOMETRIC_TYPE_FINGER = "mosip.mock.sbi.biometric.type.finger";
 	public static String MOSIP_BIOMETRIC_TYPE_FACE = "mosip.mock.sbi.biometric.type.face";
 	public static String MOSIP_BIOMETRIC_TYPE_IRIS = "mosip.mock.sbi.biometric.type.iris";
@@ -178,5 +181,29 @@ public class SBIConstant {
 	public static String MOSIP_STREAM_IRIS_DOUBLE_MOSIP_KEY = "mosip.mock.sbi.file.iris.double.keys.encryption";	
 	
 	public static String MOSIP_PROFILE_FOLDER_PATH = "mosip.mock.sbi.folder.profile";
-	public static String MOSIP_PROFILE_DEFAULT_FOLDER_PATH = "mosip.mock.sbi.file.folder.default";		
+	public static String MOSIP_PROFILE_DEFAULT_FOLDER_PATH = "mosip.mock.sbi.file.folder.default";	
+	
+	/**  SBI 1.0 Biometric Finger DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	public static String MOSIP_FINGER_SLAP_SBI_DIGITALID_JSON = "mosip.mock.sbi.file.finger.slap.sbi.digitalid.json";
+	public static String MOSIP_FINGER_SLAP_SBI_DEVICEINFO_JSON = "mosip.mock.sbi.file.finger.slap.sbi.deviceinfo.json";
+	public static String MOSIP_FINGER_SLAP_SBI_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.finger.slap.sbi.devicediscovery.json";
+	public static String MOSIP_STREAM_FINGER_SLAP_SBI_KEYSTORE_FILE_NAME = "mosip.mock.sbi.file.finger.slap.sbi.keys.keystorefilename";
+	public static String MOSIP_STREAM_FINGER_SLAP_SBI_KEY_ALIAS = "mosip.mock.sbi.file.finger.slap.sbi.keys.keyalias";
+	public static String MOSIP_STREAM_FINGER_SLAP_SBI_KEYSTORE_PWD = "mosip.mock.sbi.file.finger.slap.sbi.keys.keystorepwd";
+	
+	/** SBI 1.0 Biometric Face DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	public static String MOSIP_FACE_SBI_DIGITALID_JSON = "mosip.mock.sbi.file.face.sbi.digitalid.json";
+	public static String MOSIP_FACE_SBI_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.face.sbi.devicediscovery.json";
+	public static String MOSIP_FACE_SBI_DEVICEINFO_JSON = "mosip.mock.sbi.file.face.sbi.deviceinfo.json";
+	public static String MOSIP_STREAM_FACE_SBI_KEYSTORE_FILE_NAME = "mosip.mock.sbi.file.face.sbi.keys.keystorefilename";
+	public static String MOSIP_STREAM_FACE_SBI_KEY_ALIAS = "mosip.mock.sbi.file.face.sbi.keys.keyalias";
+	public static String MOSIP_STREAM_FACE_SBI_KEYSTORE_PWD = "mosip.mock.sbi.file.face.sbi.keys.keystorepwd";
+	
+	/** SBI 1.0 Biometric Iris DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	public static String MOSIP_IRIS_DOUBLE_SBI_DIGITALID_JSON = "mosip.mock.sbi.file.iris.double.sbi.digitalid.json";
+	public static String MOSIP_IRIS_DOUBLE_SBI_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.iris.double.sbi.devicediscovery.json";
+	public static String MOSIP_IRIS_DOUBLE_SBI_DEVICEINFO_JSON = "mosip.mock.sbi.file.iris.double.sbi.deviceinfo.json";
+	public static String MOSIP_STREAM_IRIS_DOUBLE_SBI_KEYSTORE_FILE_NAME = "mosip.mock.sbi.file.iris.double.sbi.keys.keystorefilename";
+	public static String MOSIP_STREAM_IRIS_DOUBLE_SBI_KEY_ALIAS = "mosip.mock.sbi.file.iris.double.sbi.keys.keyalias";
+	public static String MOSIP_STREAM_IRIS_DOUBLE_SBI_KEYSTORE_PWD = "mosip.mock.sbi.file.iris.double.sbi.keys.keystorepwd";
 }

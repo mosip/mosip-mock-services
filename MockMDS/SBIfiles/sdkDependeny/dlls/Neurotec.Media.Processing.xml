@@ -1,0 +1,390 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Neurotec.Media.Processing</name>
+    </assembly>
+    <members>
+        <member name="T:Neurotec.Media.Processing.NMediaProc">
+            <summary>
+            Provides media processing functionality.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Media.Processing.NMediaProc.DllName">
+            The DLL name.
+        </member>
+        <member name="P:Neurotec.Media.Processing.NMediaProc.NativeModule">
+            <summary>
+            Defines the native module of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Images.Processing.Ngip">
+            <summary>
+            Provides functionality for managing greyscale values.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Images.Processing.Ngip.NativeType">
+            <summary>
+            Defines the native type of the objects.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.Invert(Neurotec.Images.NImage)">
+            <summary>
+            Inverts the colors of the specified grayscale image and writes the result to another image.
+            </summary>
+            <param name="image">The original image.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.Invert(Neurotec.Images.NImage,Neurotec.Images.NImage)">
+            <summary>
+            Inverts the colors of the specified grayscale image and writes the result to another specified image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="dstImage">The result image.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.InvertSame(Neurotec.Images.NImage)">
+            <summary>
+            Inverts the colors of the specified grayscale image and writes the result to the same image.
+            </summary>
+            <param name="image">The original image.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.Scale(Neurotec.Images.NImage,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,Neurotec.Drawing.Drawing2D.InterpolationMode)">
+            <summary>
+            Sets width and height of a specified part of the specified image to specified values and writes the result to a new image.
+            </summary>
+            <param name="srcImage">The original image.</param>
+            <param name="srcLeft">Left coordinate of the original image.</param>
+            <param name="srcTop">Top coordinate of the original image.</param>
+            <param name="srcWidth">Width of the original image.</param>
+            <param name="srcHeight">Height of the original image.</param>
+            <param name="dstWidth">New width value.</param>
+            <param name="dstHeight">New height value.</param>
+            <param name="interpolationMode">The interpolation mode.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.Scale(Neurotec.Images.NImage,System.UInt32,System.UInt32,Neurotec.Drawing.Drawing2D.InterpolationMode)">
+            <summary>
+            Sets width and height of the specified image to specified values and writes the result to a new image.
+            </summary>
+            <param name="srcImage">The original image.</param>
+            <param name="dstWidth">New width value.</param>
+            <param name="dstHeight">New height value.</param>
+            <param name="interpolationMode">The interpolation mode.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.Scale(Neurotec.Images.NImage,System.UInt32,System.UInt32,System.UInt32,System.UInt32,Neurotec.Images.NImage,System.UInt32,System.UInt32,System.UInt32,System.UInt32,Neurotec.Drawing.Drawing2D.InterpolationMode)">
+            <summary>
+            Sets width and height of a specified part of the specified image to specified values and writes the result to the specified image.
+            </summary>
+            <param name="srcImage">The original image.</param>
+            <param name="srcLeft">Left coordinate of the original image.</param>
+            <param name="srcTop">Top coordinate of the original image.</param>
+            <param name="srcWidth">Width of the original image.</param>
+            <param name="srcHeight">Height of the original image.</param>
+            <param name="dstImage">The result image.</param>
+            <param name="dstLeft">Left coordinate of the result image.</param>
+            <param name="dstTop">Top coordinate of the result image.</param>
+            <param name="dstWidth">New width value.</param>
+            <param name="dstHeight">New height value.</param>
+            <param name="interpolationMode">The interpolation mode.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.Scale(Neurotec.Images.NImage,Neurotec.Images.NImage,System.UInt32,System.UInt32,System.UInt32,System.UInt32,Neurotec.Drawing.Drawing2D.InterpolationMode)">
+            <summary>
+            Sets width and height of the specified image to specified values and writes the result to the specified image.
+            </summary>
+            <param name="srcImage">The original image.</param>
+            <param name="dstImage">The result image.</param>
+            <param name="dstLeft">Left coordinate of the result image.</param>
+            <param name="dstTop">Top coordinate of the result image.</param>
+            <param name="dstWidth">New width value.</param>
+            <param name="dstHeight">New height value.</param>
+            <param name="interpolationMode">The interpolation mode.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.AdjustBrightnessContrast(Neurotec.Images.NImage,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of the specified image to specified values and writes the result to a new image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="brightness">New brightness value.</param>
+            <param name="contrast">New contrast value.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.AdjustBrightnessContrast(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of the specified image to specified values and writes the result to another specified image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="dstImage">The result image.</param>
+            <param name="brightness">New brightness value.</param>
+            <param name="contrast">New contrast value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.AdjustBrightnessContrastSame(Neurotec.Images.NImage,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of the specified image to specified values and writes the result to the same image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="brightness">New brightness value.</param>
+            <param name="contrast">New contrast value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.IFFT(Neurotec.Images.NImage,Neurotec.Images.NImage,Neurotec.Images.NImage@)">
+            <summary>
+            Applies inverse fast Fourier transform to the specified image and writes the result to the specified image.
+            </summary>
+            <param name="srcReal">Real image spectrum.</param>
+            <param name="srcImaginary">Imaginary image spectrum.</param>
+            <param name="dst">[out] The result image.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.FFT(Neurotec.Images.NImage,Neurotec.Images.NImage@,Neurotec.Images.NImage@)">
+            <summary>
+            Applies fast Fourier transform to the specified image and writes the result to the specified image.
+            </summary>
+            <param name="src">The source image.</param>
+            <param name="dstReal">[out] Real image spectrum.</param>
+            <param name="dstImaginary">[out] Imaginary image spectrum.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.ApplyMaskToSpectrum(Neurotec.Images.NImage,Neurotec.Images.NImage,Neurotec.Images.NImage)">
+            <summary>
+            Applies a grayscale mask to Fourier transform spectrum.
+            </summary>
+            <param name="srcReal">Real image spectrum.</param>
+            <param name="srcImaginary">Imaginary image spectrum.</param>
+            <param name="mask">The mask image.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.CreateMagnitudeFromSpectrum(Neurotec.Images.NImage,Neurotec.Images.NImage)">
+            <summary>
+            Creates a magnitude image from image spectrum.
+            </summary>
+            <param name="srcReal">Real image spectrum.</param>
+            <param name="srcImaginary">Imaginary image spectrum.</param>
+            <returns>Magnitude image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Ngip.FFTGetOptimalSize(Neurotec.Images.NImage,System.UInt32@,System.UInt32@)">
+            <summary>
+            Gets the optimal size of fast Fourier transform for the specified image.
+            </summary>
+            <param name="src">The image.</param>
+            <param name="width">[out] Optimal width.</param>
+            <param name="height">[out] Optimal height.</param>
+        </member>
+        <member name="T:Neurotec.Images.Processing.Nrgbip">
+            <summary>
+            Provides functionality for managing RGB values.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Images.Processing.Nrgbip.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.Invert(Neurotec.Images.NImage)">
+            <summary>
+            Inverts the colors of a specified RGB image and writes the result into a new image.
+            </summary>
+            <param name="image">The original image.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.Invert(Neurotec.Images.NImage,Neurotec.Images.NImage)">
+            <summary>
+            Inverts the colors of a specified RGB image and writes the result into another specified image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="dstImage">The destination image.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.InvertSame(Neurotec.Images.NImage)">
+            <summary>
+            Inverts the colors of a specified RGB image and writes the result into the same image.
+            </summary>
+            <param name="image">The original image.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AdjustBrightnessContrast(Neurotec.Images.NImage,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of the specified image to specified values and writes the result to a new image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="brightness">The new brightness value.</param>
+            <param name="contrast">The new contrast value.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AdjustBrightnessContrast(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of the specified image to specified values and writes the result to another specified image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="dstImage">The result image.</param>
+            <param name="brightness">The new brightness value.</param>
+            <param name="contrast">The new contrast value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AdjustBrightnessContrastSame(Neurotec.Images.NImage,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of the specified image to specified values and writes the result to the same image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="brightness">The new brightness value.</param>
+            <param name="contrast">The new contrast value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AdjustBrightnessContrast(Neurotec.Images.NImage,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of separate colors of the specified image to specified values and writes the result to a new image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="redBrightness">New brightness value for red color.</param>
+            <param name="redContrast">New contrast value for red color.</param>
+            <param name="greenBrightness">New brightness value for green color.</param>
+            <param name="greenContrast">New contrast value for green color.</param>
+            <param name="blueBrightness">New brightness value for blue color.</param>
+            <param name="blueContrast">New contrast value for blue color.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AdjustBrightnessContrast(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of separate colors of the specified image to specified values and writes the result to another specified image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="dstImage">The result image.</param>
+            <param name="redBrightness">New brightness value for red color.</param>
+            <param name="redContrast">New contrast value for red color.</param>
+            <param name="greenBrightness">New brightness value for green color.</param>
+            <param name="greenContrast">New contrast value for green color.</param>
+            <param name="blueBrightness">New brightness value for blue color.</param>
+            <param name="blueContrast">New contrast value for blue color.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AdjustBrightnessContrastSame(Neurotec.Images.NImage,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Sets brightness and contrast values of separate colors of the specified image to specified values and writes the result to the same image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="redBrightness">New brightness value for red color.</param>
+            <param name="redContrast">New contrast value for red color.</param>
+            <param name="greenBrightness">New brightness value for green color.</param>
+            <param name="greenContrast">New contrast value for green color.</param>
+            <param name="blueBrightness">New brightness value for blue color.</param>
+            <param name="blueContrast">New contrast value for blue color.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.ColorMatrixTransform(Neurotec.Images.NImage,System.Double[])">
+            <summary>
+            Sets the color matrix of the specified image to specified value and writes the result to a new image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="colorMatrix">The new color matrix value.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.ColorMatrixTransform(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double[])">
+            <summary>
+            Sets the color matrix of the specified image to specified value and writes the result to another specified image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="resultImage">The result image.</param>
+            <param name="colorMatrix">The new color matrix value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.ColorMatrixTransformSame(Neurotec.Images.NImage,System.Double[])">
+            <summary>
+            Sets the color matrix of the specified image to specified value and writes the result to the same image.
+            </summary>
+            <param name="image">The original image.</param>
+            <param name="colorMatrix">The new color matrix value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlend(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double)">
+            <summary>
+            Alpha-blends two specified images with specified alpha value and writes the result to a new image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="alpha">Alpha value.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlend(Neurotec.Images.NImage,Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double)">
+            <summary>
+            Alpha-blends two specified images with specified alpha value and writes the result to another specified image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="resultImage">The result image.</param>
+            <param name="alpha">Alpha value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlendSame(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double)">
+            <summary>
+            Alpha-blends two specified images with specified alpha value and writes the result to the first image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="alpha">Alpha value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlend(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Alpha-blends two specified images with specified alpha and RGB values and writes the result to a new image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="r">Red value.</param>
+            <param name="g">Green value.</param>
+            <param name="b">Blue value.</param>
+            <param name="a">Alpha value.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlend(Neurotec.Images.NImage,Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Alpha-blends two specified images with specified alpha and RGB values and writes the result to another specified image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="resultImage">The result image.</param>
+            <param name="r">Red value.</param>
+            <param name="g">Green value.</param>
+            <param name="b">Blue value.</param>
+            <param name="a">Alpha value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlendSame(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Alpha-blends two specified images with specified alpha and RGB values and writes the result to the first image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="r">Red value.</param>
+            <param name="g">Green value.</param>
+            <param name="b">Blue value.</param>
+            <param name="a">Alpha value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlend(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double[])">
+            <summary>
+            Alpha-blends two specified images with specified color matrix and writes the result to a new image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="colorMatrix">Color matrix value.</param>
+            <returns>The result image.</returns>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlend(Neurotec.Images.NImage,Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double[])">
+            <summary>
+            Alpha-blends two specified images with specified color matrix and writes the result to another specified image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="resultImage">The result image.</param>
+            <param name="colorMatrix">Color matrix value.</param>
+        </member>
+        <member name="M:Neurotec.Images.Processing.Nrgbip.AlphaBlendSame(Neurotec.Images.NImage,Neurotec.Images.NImage,System.Double[])">
+            <summary>
+            Alpha-blends two specified images with specified color matrix and writes the result to the first image.
+            </summary>
+            <param name="imageA">The first image.</param>
+            <param name="imageB">The second image.</param>
+            <param name="colorMatrix">Color matrix value.</param>
+        </member>
+        <member name="T:Neurotec.Sound.Processing.NSoundProc">
+            <summary>
+            Provides sound processing functionality.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Sound.Processing.NSoundProc.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Sound.Processing.NSoundProc.GetSoundLevel(Neurotec.Sound.NSoundBuffer)">
+            <summary>
+            Gets the sound level of the specified sound buffer.
+            </summary>
+            <param name="soundBuffer">The sound buffer.</param>
+            <returns>The sound level.</returns>
+        </member>
+    </members>
+</doc>

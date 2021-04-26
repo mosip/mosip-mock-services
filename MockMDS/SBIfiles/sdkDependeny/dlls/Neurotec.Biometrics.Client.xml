@@ -1,0 +1,839 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Neurotec.Biometrics.Client</name>
+    </assembly>
+    <members>
+        <member name="T:Neurotec.Biometrics.Client.NBiometricClient">
+            <summary>
+            Represents a biometric client, which provides methods for biometric data capture and its transfer through various connections.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NBiometricClient.RemoteConnectionCollection">
+            <summary>
+            Collection of remote biometric connections of the client.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.RemoteConnectionCollection.AddToCluster(System.String,System.Int32,System.Int32)">
+            <summary>
+            Adds the remote connection to a cluster server.
+            </summary>
+            <param name="host">Host name.</param>
+            <param name="port">Cluster port number.</param>
+            <param name="adminPort">Admin port number.</param>
+            <returns>The new cluster biometric connection.</returns>
+        </member>
+        <member name="F:Neurotec.Biometrics.Client.NBiometricClient.DllName">
+            <summary>Name of DLL containing unmanaged part of this class.</summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.NativeModule">
+            <summary>
+            Gets a pointer to the function that retrieves NModule object for the specified module name.
+            </summary>
+            <value>
+            A pointer to the function that retrieves NModule object for the specified module name.
+            </value>                                                                                           
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.#ctor">
+            <summary>
+            Creates a new biometric client.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.SetDatabaseConnectionToSQLite(System.String)">
+            <summary>
+            Replaces the specified client's database connection with SQLite connection.
+            </summary>
+            <param name="fileName">The SQLite connection file name.</param>
+            <returns>The new SQLite connection.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.SetDatabaseConnectionToOdbc(System.String,System.String)">
+            <summary>
+            Replaces the specified client's database connection with ODBC connection.
+            </summary>
+            <param name="connectionString">The ODBC connection string.</param>
+            <param name="tableName">The table in database to use.</param>
+            <returns>
+            The new ODBC connection.
+            </returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.Capture(Neurotec.Biometrics.NBiometric)">
+            <summary>
+            The biometric client captures data from the specified NBiometric object.
+            </summary>
+            <param name="biometric">The NBiometric object.</param>
+            <returns>The biometric status.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.BeginCapture(Neurotec.Biometrics.NBiometric,System.AsyncCallback,System.Object)">
+            <summary>
+            The biometric client begins to asynchronously capture data from the specified NBiometric object.
+            </summary>
+            <param name="biometric">The NBiometric object.</param>
+            <param name="callback">Callback to a method to be called when the asynchronous operation completes.</param>
+            <param name="state">A user-defined object that qualifies or contains information about an asynchronous operation.</param>
+            <returns>IAsyncResult object which allows to complete the operation.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.EndCapture(System.IAsyncResult)">
+            <summary>
+            The biometric client completes the asynchronous biometric capture.
+            </summary>
+            <param name="asyncResult">IAsyncResult object which allows to complete the operation.</param>
+            <returns>The biometric status.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.Capture(Neurotec.Biometrics.NSubject)">
+            <summary>
+            The biometric client captures data from the specified subject.
+            </summary>
+            <param name="subject">The subject.</param>
+            <returns>The biometric status.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.BeginCapture(Neurotec.Biometrics.NSubject,System.AsyncCallback,System.Object)">
+            <summary>
+            The biometric client begins to asynchronously capture data from the specified subject.
+            </summary>
+            <param name="subject">The subject.</param>
+            <param name="callback">Callback to a method to be called when the asynchronous operation completes.</param>
+            <param name="state">A user-defined object that qualifies or contains information about an asynchronous operation.</param>
+            <returns>IAsyncResult object which allows to complete the operation.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.Cancel">
+            <summary>
+            The biometric client cancels the currently active capture.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.ForceStart">
+            <summary>
+            Forces the biometric client to start the manual capture process.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.Force">
+            <summary>
+            Forces the biometric client to complete the manual capture process.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.Repeat">
+            <summary>
+            The biometric client repeats the last capture.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NBiometricClient.Skip">
+            <summary>
+            The biometric client skips the next NBiometric during capture.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.BiometricTypes">
+            <summary>
+            Gets or sets the biometric types of the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.UseDeviceManager">
+            <summary>
+            Gets or sets whether a device manager is to be used.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.LocalOperations">
+            <summary>
+            Gets or sets the operations performed locally (i.e. without using the connection) by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.DatabaseConnection">
+            <summary>
+            Gets or sets the database connection of the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.DeviceManager">
+            <summary>
+            Gets or sets the device manager used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.FaceCaptureDevice">
+            <summary>
+            Gets or sets the face capture device (camera) used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.FingerScanner">
+            <summary>
+            Gets or sets the fingerprint scanner used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.IrisScanner">
+            <summary>
+            Gets or sets the iris scanner used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.PalmScanner">
+            <summary>
+            Gets or sets the palmprint scanner used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.VoiceCaptureDevice">
+            <summary>
+            Gets or sets the voice capture device used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.CurrentSubject">
+            <summary>
+            Gets the subject the client currently works with.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.CurrentBiometric">
+            <summary>
+            Gets or sets the NBiometric object currently used by the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.CurrentBiometricCompletedTimeout">
+            <summary>
+            Gets or sets the timeout period of the CurrentBiometricCompleted event.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.CustomDataSchema">
+            <summary>
+            Gets or sets custom data scheme of/for specified subject.
+            For more information read "Custom Data Support" section.
+            </summary>
+            <value>
+            Custom data scheme value.
+            </value>                                                                                        
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.RemoteConnections">
+            <summary>
+            Retrieves the remote connections of the client.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NBiometricClient.FingersCheckForDuplicatesWhenCapturing">
+            <summary>
+            Gets or sets fingerprints check for duplicates when capturing value.
+            </summary>
+            <value>
+            True, when new captured fingerprint is matched with other subject fingerprints. If matched
+            fingerprints were found, NBiometricStatus.DuplicateFound is set. False, when new captured fingerprint
+            is not matched with other subject fingerprints
+            </value>                                                                                             
+        </member>
+        <member name="E:Neurotec.Biometrics.Client.NBiometricClient.CurrentBiometricCompleted">
+            <summary>
+            An event which is called when all operations with the current NBiometric are completed.
+            </summary>
+        </member>
+        <member name="E:Neurotec.Biometrics.Client.NBiometricClient.CurrentSubjectCompleted">
+            <summary>
+            An event which is called when all operations with the current NSubject are completed.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NClusterAddress">
+            <summary>
+            Provides methods to create and change the address of the cluster server.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterAddress.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NClusterAddress.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            Creates a new cluster address.
+            </summary>
+            <param name="host">Host name.</param>
+            <param name="port">Connection port number.</param>
+            <param name="adminPort">Admin port number.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterAddress.Host">
+            <summary>
+            Gets or sets the host name.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterAddress.Port">
+            <summary>
+            Gets or sets the connection port number.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterAddress.AdminPort">
+            <summary>
+            Gets or sets the admin port number.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.Interop.NClusterAddress_">
+            <summary>
+            Represents cluster address. 
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Client.Interop.NClusterAddress_.hHost">
+            <summary>
+            Pointer to the host name.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Client.Interop.NClusterAddress_.port">
+            <summary>
+            The connection port number.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Client.Interop.NClusterAddress_.adminPort">
+            <summary>
+            The admin port number.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.Interop.NClusterAddress_.ToStruct(Neurotec.Biometrics.Client.Interop.NClusterAddress_@)">
+            <summary>
+            Converts the object to structure.
+            </summary>
+            <param name="value">The NClusterAddress_ object.</param>
+            <returns>NClusterAddress structure.</returns>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.Interop.NClusterAddress_.Create(Neurotec.Biometrics.Client.NClusterAddress,Neurotec.Biometrics.Client.Interop.NClusterAddress_@)">
+            <summary>
+            Creates ANCharset_ object for NClusterAddress structure.
+            </summary>
+            <param name="value">NClusterAddress structure.</param>
+            <param name="v">NClusterAddress_ object</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.Interop.NClusterAddress_.Dispose(Neurotec.Biometrics.Client.Interop.NClusterAddress_@)">
+            <summary>
+            Frees the NClusterAddress_ object.
+            </summary>
+            <param name="value">NClusterAddress_ object</param>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NClusterBiometricConnection">
+            <summary>
+            Provides methods to manage a biometric to a cluster server.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NClusterBiometricConnection.AddressCollection">
+            <summary>
+            Collection of cluster address structures.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterBiometricConnection.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NClusterBiometricConnection.#ctor">
+            <summary>
+            Creates a new cluster biometric connection.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NClusterBiometricConnection.#ctor(Neurotec.Biometrics.Client.NClusterAddress)">
+            <summary>
+            Creates a new cluster biometric connection with specified address.
+            </summary>
+            <param name="address">The cluster address.</param>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NClusterBiometricConnection.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            Creates a new cluster biometric connection with specified host.
+            </summary>
+            <param name="host">The host name.</param>
+            <param name="port">Connection port number.</param>
+            <param name="adminPort">Admin port number.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterBiometricConnection.Host">
+            <summary>
+            Gets or sets the host name.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterBiometricConnection.Port">
+            <summary>
+            Gets or sets the connection port number.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterBiometricConnection.AdminPort">
+            <summary>
+            Gets or sets the admin port number.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterBiometricConnection.RetryCount">
+            <summary>
+            Gets or sets the number of retries.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NClusterBiometricConnection.Addresses">
+            <summary>
+            Retrieves the collection of cluster addresses.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NOdbcBiometricConnection">
+            <summary>
+            Contains methods for creation Odbc biometric connections.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NOdbcBiometricConnection.#ctor">
+            <summary>
+            Creates a new NOdbc biometric connection.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.ConnectionString">
+            <summary>
+            Gets or sets the connection string of the ODBC.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.TableName">
+            <summary>
+            Gets or sets the database table to use.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.SubjectIdColumn">
+            <summary>
+            Gets or sets subject Id column.
+            </summary>
+            <value>
+            Subject Id column value.
+            </value>                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.TemplateColumn">
+            <summary>
+            Gets or sets template column.
+            </summary>
+            <value>
+            Template column value. 
+            </value>                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.SelectAllQuery">
+            <summary>
+            Gets or sets Odbc query for select all (selecting all the subjects in the database, returning <i>SubjectId</i>,
+            <i>Template</i> and any biographic parameters.).
+            </summary>
+            <value>
+            Select all query value.
+            </value>                                                                                                       
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.EnrollQuery">
+            <summary>
+            Gets or sets Odbc query for database enroll (inserting all the data associated with Subject to
+            database: SubjectId, Template, biographic attributes, custom attributes).
+            </summary>
+            <value>
+            Database enroll query value.
+            </value>                                                                                      
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.DeleteQuery">
+            <summary>
+            Gets or sets Odbc query for database delete (deleting a subject with the specified id. A question
+            mark ‘?’ should be used instead of actual id).
+            </summary>
+            <value>
+            Database delete query value. 
+            </value>                                                                                         
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.ClearQuery">
+            <summary>
+            Gets or sets Odbc query for database clear (deleting all the subjects from database).
+            </summary>
+            <value>
+            Database clear query value. 
+            </value>                                                                             
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NOdbcBiometricConnection.SelectSubjectQuery">
+            <summary>
+            Gets or sets Odbc select subject query (selects all the data associated with a single subject
+            identified by id: Template, biographic attributes, custom attributes).
+            </summary>
+            <value>
+            Select subject query value.
+            </value>                                                                                     
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NRemoteBiometricConnection">
+            <summary>
+            Base class for remote connections capable of performing biometric operations.
+            Contains properties limiting what connection may or may not be performed through the connection.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NRemoteBiometricConnection.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NRemoteBiometricConnection.Operations">
+            <summary>
+            Gets or sets which biometric operations can be performed through the remote connection.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NDatabaseBiometricConnection">
+            <summary>
+            Base class for connections which contain a database.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NDatabaseBiometricConnection.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Client.NSQLiteBiometricConnection">
+            <summary>
+            Contains methods for creation SQLite biometric connections.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NSQLiteBiometricConnection.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NSQLiteBiometricConnection.#ctor">
+            <summary>
+            Creates a new NSQLite biometric connection.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Client.NSQLiteBiometricConnection.#ctor(System.String)">
+            <summary>
+            Creates a new NSQLite biometric connection with the specified file name.
+            </summary>
+            <param name="fileName">The file name string.</param>
+        </member>
+        <member name="P:Neurotec.Biometrics.Client.NSQLiteBiometricConnection.FileName">
+            <summary>
+            Gets or sets the connection file name of the SQLite.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Biometrics.Ffv.NffvStatus">
+            <summary>
+            Enumerates enrollment or verification status values. 
+            </summary>                                           
+        </member>
+        <member name="F:Neurotec.Biometrics.Ffv.NffvStatus.TemplateCreated">
+            Indicates that no status is defined.
+        </member>
+        <member name="F:Neurotec.Biometrics.Ffv.NffvStatus.NoScanner">
+            Indicates that the fingerprint template was created.
+        </member>
+        <member name="F:Neurotec.Biometrics.Ffv.NffvStatus.ScannerTimeout">
+            Indicates that there is no fingerprint scanner connected.
+        </member>
+        <member name="F:Neurotec.Biometrics.Ffv.NffvStatus.UserCanceled">
+            Indicates that the fingerprint scanner has reached the
+            timeout.                                              
+        </member>
+        <member name="F:Neurotec.Biometrics.Ffv.NffvStatus.QualityCheckFailed">
+            Indicates that a user has canceled a fingerprint scanning.
+        </member>
+        <member name="T:Neurotec.Biometrics.Ffv.Nffv">
+            <summary>
+            The main class of the Free Fingerprint Verification SDK.
+            Provides methods and properties for working with user
+            collection and enrolling or verifying user fingerprints.
+            </summary>                                              
+        </member>
+        <member name="T:Neurotec.Biometrics.Ffv.Nffv.UserCollection">
+            <summary>
+            Represents a collection of NffvUsers objects that represent
+            the user fingerprints enrolled to a database.
+            </summary>
+            Note
+            This class is a sealed class, so it has a limited
+            extensibility (other classes cannot inherit from it).      
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.UserCollection.IndexOf(System.Int32)">
+            <summary>
+            \Returns an index of the UserCollection item specified by Id.
+            </summary>
+            <param name="id">The Id of a user to search in a collection.</param>
+            <returns>
+            A collection index of a user specified by Id.
+            </returns>                                                          
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.UserCollection.Contains(System.Int32)">
+            <summary>
+            \Returns a Boolean value indicating whether a UserCollection
+            object contains an element with a specified key.
+            </summary>
+            <param name="id">An integer value that specifies the Id for
+                             which to search the element of the
+                             collection.</param>
+            <returns>
+            A Boolean value indicating whether the UserCollection
+            contains an elements with the specified Id.
+            
+            If the return value is True, the collection contains an
+            element with an Id specified. Otherwise, the return value is
+            False.
+            </returns>
+            <example>
+            This C# example demonstrates how to use this method:
+            <code lang="c#">
+            int id = 3;
+            
+            if UserCollection.Contains(id)
+               MsgBox("The desired user is in collection");
+            else
+               MsgBox("The desired user was not find in a collection");
+            </code>
+            The VB.NET code this method:
+            <code lang="vb.net">
+            Dim id As Integer = 3
+            
+            If UserCollection.Contains(id) Then
+                MsgBox("The desired user is in the collection.")
+            Else
+                MsgBox("The desired user was not find in the collection.")
+            End If
+            </code>
+            
+            </example>                                                    
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.UserCollection.GetById(System.Int32)">
+            <summary>
+            \Returns user details by the Id from a database.
+            </summary>
+            <param name="id">User's identification number in a database. This Id is always unique. </param>
+            <returns>
+            Information about a user who was enrolled to a database. 
+            </returns>                                                                                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.Nffv.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.Nffv.NffvStatusNativeType">
+            <summary>
+            Defines the native type of the FFV status.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Biometrics.Ffv.Nffv.MaxUserCount">
+            <summary>
+            The maximum number of users that can be enrolled to a
+            database.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the Nffv class. During the
+            initialization a new database is created or used previously
+            created.
+            </summary>
+            <param name="dbName">A name of database. This
+                                 database will be used to save
+                                 user fingerprints. The database
+                                 will be saved to a working
+                                 folder as a file.</param>
+            <example>
+            This C# example code demonstrates how to create a new
+            instance of the Nffv class.
+            <code lang="c#">
+            string dbName = "FingerprintsDatabase.dat";
+            
+            Neurotec.Biometrics.Nffv engine = null;
+            
+            //Creates a new instance of the Nffv class
+            engine = new Neurotec.Biometrics.Nffv(dbName);
+            </code>
+            The same example code for VB.NET:
+            <code lang="vb.net">
+            Dim dbName As String = "FingerprintsDatabase.dat"
+            
+            Dim engine As Global.Neurotec.Biometrics.Nffv = Nothing
+            
+            engine = New Global.Neurotec.Biometrics.Nffv(dbName)
+            </code>
+            </example>
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.GetUserById(System.Int32)">
+            <summary>
+            Returns a user details by the Id from the UserCollection.
+            </summary>
+            <returns>
+            A reference to the NffvUser object that contains an
+            information about a user indicated by Id.
+            </returns>
+            <param name="id">User's identification number in a
+                             collection.</param>                      
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.Enroll(System.Int32,Neurotec.Biometrics.Ffv.NffvStatus@)">
+            <summary>
+            Gets a fingerprint from a scanner and saves it to a database.
+            </summary>
+            <param name="timeout">Specifies the time in milliseconds
+                                  after which the fingerprint scanner
+                                  stops scanning fingerprint. This
+                                  usually happens when a finger is
+                                  removed from a scanner for longer than
+                                  <i>timeout</i> milliseconds.</param>
+            <param name="status">Enrollment status value indicated by
+                                 one of the value enumerated in
+                                 NffvStatus.</param>
+            <returns>
+            A reference to NffvUser object which provides methods for
+            managing enrolled users.
+            
+            If there were problem enrolling a fingerprint, the method
+            \returns a zero pointer.
+            </returns>
+            <example>
+            This C# example demonstrates the usage of the <i>Enroll</i>
+            method:
+            <code lang="c#">
+            //Field that holds a reference to Nffv object
+            Nffv engine;
+            
+            //Internal class that saves the result of fingerprint enrollment
+            \internal class EnrollmentResult
+            {
+                public NffvStatus engineStatus;
+                public NffvUser engineUser;
+            };
+            
+            //Method used for a fingerprint enrollment
+            public void doEnroll(object sender, DoWorkEventArgs args)
+            {
+                EnrollmentResult enrollmentResults = new EnrollmentResult();
+                enrollmentResults.engineUser = engine.Enroll(20000, out enrollmentResults.engineStatus);
+                args.Result = enrollmentResults;
+            }
+            </code>
+            
+            </example>                                                                                  
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.Verify(Neurotec.Biometrics.Ffv.NffvUser,System.Int32,Neurotec.Biometrics.Ffv.NffvStatus@)">
+            <summary>
+            Compares a captured fingerprint with the one that was
+            enrolled to a database before in order to determine whether
+            two match.
+            </summary>
+            <param name="user">A reference to a database record that
+                               should be matched with the scanned
+                               fingerprint.</param>
+            <param name="timeout">Specifies the time in milliseconds
+                                  after which the fingerprint scanner
+                                  stops scanning fingerprint. This
+                                  usually happens when a finger is
+                                  removed from a scanner for longer than
+                                  <i>timeout</i> milliseconds.</param>
+            <param name="status">The verification status value
+                                 indicated by one of the value
+                                 enumerated in NffvStatus.</param>
+            <returns>
+            This function returns a matching score.
+            </returns>
+            <example>
+            This C# sample code demonstrates how to verify two
+            fingerprints.
+            <code lang="c#">
+            Nffv engine;
+            
+            //An internal class that saves the verification result
+            \internal class VerificationResult
+            {
+                public NffvStatus engineStatus;
+                public int score;
+            };
+            
+            public void doVerify(object sender, DoWorkEventArgs args)
+            {
+                VerificationResult verificationResult = new VerificationResult();
+                verificationResult.score = engine.Verify((NffvUser)args.Argument, 20000, out verificationResult.engineStatus);
+                args.Result = verificationResult;
+            }
+            </code>
+            \Note that it isn't a complete code that can be used in your
+            application.
+            
+            For a complete code see the C# Sample application. 
+            </example>                                                                                                        
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.Cancel">
+            <summary>
+            Cancels a fingerprint enrollment or verification operation.
+            </summary>
+            <remarks>
+            This method is useful when the fingerprint enrollment or
+            verification operation take too long. In this case a message
+            box can be shown for a user to cancel this operation.
+            </remarks>
+            <example>
+            This C# code demonstrates how to cancel enrollment or
+            verification operation:
+            <code lang="c#">
+            Nffv engine;
+            
+            engine.Cancel();
+            </code>
+            The same code using VB.NET notation:
+            <code lang="vb.net">
+            Private engine As Nffv
+            
+            engine.Cancel()
+            </code>
+            </example>                                                  
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.Nffv.QualityThreshold">
+            <summary>
+            Gets or sets image quality threshold.
+            </summary>
+            <value>
+            The fingerprint quality threshold. The value should be in
+            range [0, 255]. The default value is 100.
+            </value>                                                 
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.Nffv.MatchingThreshold">
+            <summary>
+            Gets or sets the minimum similarity value that verification
+            method uses to determine whether the fingerprint matches.
+            </summary>
+            <value>
+            The minimum similarity value that verification function
+            accept for the same finger fingerprints. The default value is
+            0.01 %. 
+            </value>                                                     
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.Nffv.Users">
+            <summary>
+            Gets or sets the users of the application.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.Nffv.Dispose(System.Boolean)">
+            <summary>
+            Disposes resources used by the Nffv.
+            </summary>                          
+        </member>
+        <member name="T:Neurotec.Biometrics.Ffv.NffvUser">
+            <summary>
+            Provides methods and properties for working with users. 
+            </summary>                                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.NffvUser.NativeType">
+            <summary>
+            Defines the native type of the object.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.NffvUser.GetRecord">
+            <summary>
+            Gets record of user fingerprint enrolled to database.
+            </summary>
+            <returns>
+            User fingerprint record (NFRecord).
+            </returns>                                           
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.NffvUser.GetImage">
+            <summary>
+            Gets a user's fingerprint image which was enrolled to a database.
+            </summary>
+            <returns>
+            NImage containing user fingerprint.
+            </returns>                                                       
+        </member>
+        <member name="M:Neurotec.Biometrics.Ffv.NffvUser.GetOriginalImage">
+            <summary>
+            Gets original user's fingerprint image which was enrolled to a database.
+            </summary>
+            <returns>
+            NImage containing user fingerprint. 
+            </returns>                                                              
+        </member>
+        <member name="P:Neurotec.Biometrics.Ffv.NffvUser.Id">
+            <summary>
+            Gets user Id.
+            </summary>
+            <value>
+            User Id.
+            </value>     
+        </member>
+    </members>
+</doc>

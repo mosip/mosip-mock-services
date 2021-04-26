@@ -13,18 +13,18 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 
 	private static SBIFaceHelper instance; 
 	  
-	private SBIFaceHelper(int port, String purpose)  
+	private SBIFaceHelper(int port, String purpose, String biometricType)  
 	{ 
-		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
+		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE), biometricType);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFaceHelper getInstance(int port, String purpose)  
+	synchronized public static SBIFaceHelper getInstance(int port, String purpose, String biometricType)  
 	{ 
 		if (instance == null)  
 		{ 
 			// if instance is null, initialize 
-			instance = new SBIFaceHelper(port, purpose); 
+			instance = new SBIFaceHelper(port, purpose, biometricType); 
 		} 
 		return instance; 
 	}

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.registration.mdm.dto.StreamingRequestDetail;
+import io.mosip.registration.mdm.dto.StreamingSbiRequestDetail;
 
 public class StreamRequest extends HttpServlet {
 
@@ -63,23 +64,56 @@ public class StreamRequest extends HttpServlet {
 		{
 			String devId = null;
 			String devSubId = null;
+			
+			String serialNo = null;
+			String deviceSubId = null;
+			String timeout = null;
+			String dimensions = null;
 			if(request.getMethod().equals("GET"))
 			{
 				devId = request.getParameter("deviceId");
 				devSubId = request.getParameter("deviceSubId");
+				sT = "{\"deviceId\": \"" 
+				+ (devId != null?devId:"")
+				+ "\", \"deviceSubId\": \""
+				+ (devSubId != null?devSubId:"")
+				+ "\"}";
+			}else if(request.getMethod().equals("STREAM")){
+				serialNo = request.getParameter("serialNo");
+				deviceSubId = request.getParameter("deviceSubId");
+				timeout = request.getParameter("timeout");
+				dimensions = request.getParameter("dimensions");
+				
+				sT = "{\"serialNo\": \""
+					+(serialNo != null?serialNo:"")
+					+"\", \"deviceSubId\":\""
+					+(deviceSubId != null?deviceSubId:"")
+					+"\", \"timeout\":\""
+					+(timeout != null?timeout:"")
+					+"\", \"dimensions\":\""
+					+(dimensions != null?dimensions:"")
+					+"\"}";
+				
 			}
-			sT = "{\"deviceId\": \"" 
-			+ (devId != null?devId:"")
-			+ "\", \"deviceSubId\": \""
-			+ (devSubId != null?devSubId:"")
-			+ "\"}";
 		}
-		StreamingRequestDetail streamRequest = (StreamingRequestDetail)(oB.readValue(sT.getBytes(), StreamingRequestDetail.class));
+		
+		StreamingSbiRequestDetail sbiStream = null;
+		StreamingRequestDetail streamRequest = null;
+		if(request.getMethod().equals("STREAM")) {
+			sbiStream = (StreamingSbiRequestDetail)(oB.readValue(sT.getBytes(), StreamingSbiRequestDetail.class));
+		}else if(request.getMethod().equals("GET")) {
+			streamRequest = (StreamingRequestDetail)(oB.readValue(sT.getBytes(), StreamingRequestDetail.class));
+		}
 		imageByteList = new ArrayList<byte[]>();
 		OutputStream outputStream = response.getOutputStream();
-	
-		getImage(streamRequest, imageByteList);
-		getImage(imageByteList);
+		
+		if(request.getMethod().equals("GET")) {
+			getImage(streamRequest, imageByteList);
+			getImage(imageByteList);
+		} else if(request.getMethod().equals("STREAM")) {
+			getSbiImage(sbiStream, imageByteList);
+			getSbiImage(imageByteList);
+		}
 
 		int i = 0;
 		while (true) {
@@ -111,10 +145,31 @@ public class StreamRequest extends HttpServlet {
 		baos.flush();
 		imageByteList.add(baos.toByteArray());
 	}
+	
+	private void getSbiImage(StreamingSbiRequestDetail requestBody, List<byte[]> imageByteList) throws IOException {
+
+		File image = new File(System.getProperty("user.dir") + "/SBIfiles/images/stream" + requestBody.getSerialNo()
+				+ requestBody.getDeviceSubId() + ".jpg");
+		BufferedImage originalImage = ImageIO.read(image);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(originalImage, "jpg", baos);
+		baos.flush();
+		imageByteList.add(baos.toByteArray());
+	}
 
 	private void getImage(List<byte[]> imageByteList) throws IOException {
 
 		File image = new File(System.getProperty("user.dir") + "/files/images/" + "empty" + ".jpg");
+		BufferedImage originalImage = ImageIO.read(image);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(originalImage, "jpg", baos);
+		baos.flush();
+		imageByteList.add(baos.toByteArray());
+	}
+	
+	private void getSbiImage(List<byte[]> imageByteList) throws IOException {
+
+		File image = new File(System.getProperty("user.dir") + "/SBIfiles/images/" + "empty" + ".jpg");
 		BufferedImage originalImage = ImageIO.read(image);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(originalImage, "jpg", baos);

@@ -8,5 +8,5 @@ import lombok.Setter;
 public class StreamingRequestDetail{
 
 	public String deviceId;
-	public String deviceSubId;	
+	public String deviceSubId;
 }

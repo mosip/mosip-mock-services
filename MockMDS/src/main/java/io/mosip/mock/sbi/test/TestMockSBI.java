@@ -31,7 +31,6 @@ public class TestMockSBI {
 			{
 				biometricType = biometricTypeInfo.split("=")[1];
 			}
-
 			LOGGER.info("main :: purpose :: " + purpose + " :: BiometricType :: " + biometricType);
 			//Check Purpose and BiometricType values
 			if (isValidPurpose (purpose) && isValidBiometricType(biometricType))
@@ -69,6 +68,7 @@ public class TestMockSBI {
 			return false;
 		if (biometricType != null && (
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
+				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE)) ||
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ||
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ||
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))

@@ -1,0 +1,489 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Neurotec.Gui</name>
+    </assembly>
+    <members>
+        <member name="F:Neurotec.Gui.Design.ValueConstructForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.ValueConstructForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Gui.Design.ValueConstructForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.Design.CollectionEditor">
+            <summary>
+            Provides functionality for editing collections.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.CollectionEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            Edits the specified object's value using the editor style indicated by the GetEditStyle method..
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <param name="provider">An IServiceProvider that this editor can use to obtain services. </param>
+            <param name="value">The object to edit. </param>
+            <returns>The new value of the object. </returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.CollectionEditor.GetEditStyle(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            Gets the editor style used by the EditValue method.
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <returns>A UITypeEditorEditStyle value that indicates the style of editor used by the EditValue method.</returns>
+        </member>
+        <member name="P:Neurotec.Gui.Design.CollectionEditor.ObjectWrapper`1.Value">
+            <summary>
+            Gets or sets the value type that can be assigned null.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.CollectionEditor.ObjectWrapper`1.#ctor(`0)">
+            <summary>
+            Initializes a new instance of ObjectWrapper class.
+            </summary>
+            <param name="value">A value type that can be assigned null.</param>
+        </member>
+        <member name="M:Neurotec.Gui.Design.CollectionEditor.ObjectWrapper`1.ToString">
+            <summary>
+            Retrieves a string representation of the object wrapper.
+            </summary>
+            <returns>The string representing the object wrapper.</returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.CollectionEditor.EditForm.#ctor(Neurotec.Gui.Design.CollectionEditor)">
+            <summary>
+            Edits the form with the specified editor.
+            </summary>
+            <param name="editor">Editor to be used.</param>
+        </member>
+        <member name="T:Neurotec.Gui.Design.NoConfirmAddCollectionEditor">
+            <summary>
+            Provides functionality for editing collections with no add confirmation.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NoConfirmAddCollectionEditor.#ctor">
+            <summary>
+            Initializes a new instance of NoConfirmAddCollectionEditor class.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.Design.FlagsEnumEditor">
+            <summary>
+            Provides functionality for editing flags and enumeration.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.FlagsEnumEditor.#ctor">
+            <summary>
+            Initializes a new instance of FlagsEnumEditor class.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.FlagsEnumEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            Edits the specified object's value using the editor style indicated by the GetEditStyle method..
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <param name="provider">An IServiceProvider that this editor can use to obtain services. </param>
+            <param name="value">The object to edit. </param>
+            <returns>The new value of the object. </returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.FlagsEnumEditor.GetEditStyle(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            Gets the editor style used by the EditValue method.
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <returns>A UITypeEditorEditStyle value that indicates the style of editor used by the EditValue method.</returns>
+        </member>
+        <member name="T:Neurotec.Gui.Design.NArrayCollectionEditor">
+            <summary>
+            Provides functionality for editing array collections.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.#ctor">
+            <summary>
+            Initializes a new instance of NArrayCollectionEditor class.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            Edits the specified object's value using the editor style indicated by the GetEditStyle method..
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <param name="provider">An IServiceProvider that this editor can use to obtain services. </param>
+            <param name="value">The object to edit. </param>
+            <returns>The new value of the object. </returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.NArrayCollectionEditForm.#ctor(Neurotec.Gui.Design.NArrayCollectionEditor)">
+            <summary>
+            Initializes a new instance of NArrayCollectionEditForm class.
+            </summary>
+            <param name="editor">The editor to be used.</param>
+        </member>
+        <member name="P:Neurotec.Gui.Design.NArrayCollectionEditor.ArrayCollectionWrapper`1.Value">
+            <summary>
+            Gets or sets the value type that can be assigned null.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.ArrayCollectionWrapper`1.#ctor(System.Collections.IList)">
+            <summary>
+            Initializes a new instance of ArrayCollectionWrapper class.
+            </summary>
+            <param name="list">A value type that can be assigned null.</param>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.ArrayConverter.GetProperties(System.ComponentModel.ITypeDescriptorContext,System.Object,System.Attribute[])">
+            <summary>
+            Returns a collection of properties for the type of array specified by the value parameter, using the
+            specified context and attributes.
+            </summary>
+            <param name="context">An ITypeDescriptorContext that provides a format context. </param>
+            <param name="value">An Object that specifies the type of array for which to get properties. </param>
+            <param name="attributes">An array of type Attribute that is used as a filter. </param>
+            <returns>A PropertyDescriptorCollection with the properties that are exposed for this data type.</returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.ArrayConverter.ConvertTo(System.ComponentModel.ITypeDescriptorContext,System.Globalization.CultureInfo,System.Object,System.Type)">
+            <summary>
+            Converts the given value object to the specified type, using the specified context and culture information.
+            </summary>
+            <param name="context">An ITypeDescriptorContext that provides a format context. </param>
+            <param name="culture">A CultureInfo. If null is passed, the current culture is assumed. </param>
+            <param name="value">The Object to convert. </param>
+            <param name="destinationType">The Type to convert the value parameter to. </param>
+            <returns>An Object that represents the converted value.</returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NArrayCollectionEditor.ArrayConverter.GetPropertiesSupported(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            Returns whether this object supports properties, using the specified context.
+            </summary>
+            <param name="context">An ITypeDescriptorContext that provides a format context. </param>
+            <returns>true if GetProperties should be called to find the properties of this object; otherwise, false.</returns>
+        </member>
+        <member name="T:Neurotec.Gui.Design.NullableDateTimeEditor">
+            <summary>
+            Provides functionality for editing nullable date and time values.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Gui.Design.NullableDateTimeEditorForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NullableDateTimeEditorForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NullableDateTimeEditorForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.Design.NullableValueEditor">
+            <summary>
+            Provides functionality for editing nullable values.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NullableValueEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            Edits the specified object's value using the editor style indicated by the GetEditStyle method..
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <param name="provider">An IServiceProvider that this editor can use to obtain services. </param>
+            <param name="value">The object to edit. </param>
+            <returns>The new value of the object. </returns>
+        </member>
+        <member name="F:Neurotec.Gui.Design.NullableValueEditorForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NullableValueEditorForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Gui.Design.NullableValueEditorForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.Design.ValueEditor">
+            <summary>
+            Provides functionality for editing values.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.ValueEditor.GetEditStyle(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            Gets the editor style used by the EditValue method.
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <returns>A UITypeEditorEditStyle value that indicates the style of editor used by the EditValue method.</returns>
+        </member>
+        <member name="M:Neurotec.Gui.Design.ValueEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            Edits the specified object's value using the editor style indicated by the GetEditStyle method..
+            </summary>
+            <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+            <param name="provider">An IServiceProvider that this editor can use to obtain services. </param>
+            <param name="value">The object to edit. </param>
+            <returns>The new value of the object. </returns>
+        </member>
+        <member name="F:Neurotec.Gui.Design.ValueEditorForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.Design.ValueEditorForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Gui.Design.ValueEditorForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.AboutBox">
+            <summary>
+            Displays a message box that displays information about the product.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.AboutBox.Show">
+            <summary>
+            Shows the message box.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.AboutBox.Show(System.Windows.Forms.IWin32Window)">
+            <summary>
+            Shows the message box with specified owner.
+            </summary>
+            <param name="owner">Owner of the box.</param>
+        </member>
+        <member name="P:Neurotec.Gui.AboutBox.Name">
+            <summary>
+            Gets the product name.
+            </summary>
+        </member>
+        <member name="F:Neurotec.Gui.AboutForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.AboutForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Gui.AboutForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.NGui">
+            <summary>
+            Represents Neurotechnology graphical user interface.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.NGui.InvokeAsync(System.Windows.Forms.MethodInvoker)">
+            <summary>
+            Invokes the specified method asynchronously.
+            </summary>
+            <param name="method">The method to be invoked.</param>
+        </member>
+        <member name="M:Neurotec.Gui.NGui.InvokeAsync(System.Windows.Forms.MethodInvoker,System.Windows.Forms.Control)">
+            <summary>
+            Invokes the specified method asynchronously with specified control.
+            </summary>
+            <param name="method">The method to be invoked.</param>
+            <param name="control">The control to be used.</param>
+        </member>
+        <member name="T:Neurotec.Gui.NView">
+            <summary>
+            Provides functionality for managing GUI images.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.AutoScroll">
+            <summary>
+            Gets or sets whether the container enables the user to scroll to any controls placed outside of its visible boundaries.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.AutoSize">
+            <summary>
+            Gets or sets whether the form will automatically resize itself.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.AllowPanning">
+            <summary>
+            Gets or sets whether window panning is allowed.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.Zoom">
+            <summary>
+            Gets and sets the zoom value.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.ZoomToFit">
+            <summary>
+            Gets and sets zoom to fit value
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.CanPan">
+            <summary>
+            Derived class sets CanPan when it does not
+            want to do anything on mouse down event.
+            When it is set, NView can provide automatic
+            panning.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.NView.IsPanning">
+            <summary>
+            If derived class set CanPan to true,
+            it must check IsPanning in all mouse
+            events handlers and don't do anything
+            if IsPanning is true.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.PluginManagerBox">
+            <summary>
+            Displays a control box that contains tools for controlling the Plugin Manager.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(Neurotec.Plugins.NPluginManager)">
+            <summary>
+            Displays a control box for specified plugin manager.
+            </summary>
+            <param name="pluginManager">The plugin manager.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(Neurotec.Plugins.NPluginManager,System.String)">
+            <summary>
+            Displays a control box for specified plugin manager with specified title.
+            </summary>
+            <param name="pluginManager">The plugin manager.</param>
+            <param name="title">The text to display in the title bar of the control box.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(Neurotec.Plugins.NPluginManager,Neurotec.Plugins.NPlugin)">
+            <summary>
+            Displays a control box for specified plugin manager with a selected plugin.
+            </summary>
+            <param name="pluginManager">The plugin manager.</param>
+            <param name="selectedPlugin">The selected plugin.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(Neurotec.Plugins.NPluginManager,System.String,Neurotec.Plugins.NPlugin)">
+            <summary>
+            Displays a control box for specified plugin manager with specified title and selected plugin.
+            </summary>
+            <param name="pluginManager">The plugin manager.</param>
+            <param name="title">The text to display in the title bar of the control box.</param>
+            <param name="selectedPlugin">The selected plugin.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(System.Windows.Forms.IWin32Window,Neurotec.Plugins.NPluginManager)">
+            <summary>
+            Displays a control box for specified plugin manager with specified owner.
+            </summary>
+            <param name="owner">The owner of the box.</param>
+            <param name="pluginManager">The plugin manager.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(System.Windows.Forms.IWin32Window,Neurotec.Plugins.NPluginManager,System.String)">
+            <summary>
+            Displays a control box for specified plugin manager with specified owner and title.
+            </summary>
+            <param name="owner">The owner of the box.</param>
+            <param name="pluginManager">The plugin manager.</param>
+            <param name="title">The text to display in the title bar of the control box.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(System.Windows.Forms.IWin32Window,Neurotec.Plugins.NPluginManager,Neurotec.Plugins.NPlugin)">
+            <summary>
+            Displays a control box for specified plugin manager with specified owner and selected plugin.
+            </summary>
+            <param name="owner">The owner of the box.</param>
+            <param name="pluginManager">The plugin manager.</param>
+            <param name="selectedPlugin">The selected plugin.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerBox.Show(System.Windows.Forms.IWin32Window,Neurotec.Plugins.NPluginManager,System.String,Neurotec.Plugins.NPlugin)">
+            <summary>
+            Displays a control box for specified plugin manager with specified owner, title and selected plugin.
+            </summary>
+            <param name="owner">The owner of the box.</param>
+            <param name="pluginManager">The plugin manager.</param>
+            <param name="title">The text to display in the title bar of the control box.</param>
+            <param name="selectedPlugin">The selected plugin.</param>
+        </member>
+        <member name="F:Neurotec.Gui.PluginManagerForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Neurotec.Gui.PluginManagerForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Neurotec.Gui.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.ArrowDown">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.ArrowUp">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.HandClosed">
+            <summary>
+              Looks up a localized resource of type System.Byte[].
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.HandOpen">
+            <summary>
+              Looks up a localized resource of type System.Byte[].
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.Neurotechnology">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+            </summary>
+        </member>
+        <member name="P:Neurotec.Gui.Properties.Resources.NeurotechnologyLogo">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+    </members>
+</doc>

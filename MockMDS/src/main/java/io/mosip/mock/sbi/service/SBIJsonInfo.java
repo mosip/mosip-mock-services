@@ -12,18 +12,18 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDto;
-import io.mosip.registration.mdm.dto.ErrorInfo;
+import io.mosip.registration.mdm.dto.Error;
 import io.mosip.registration.mdm.dto.RCaptureResponse;
 
 public class SBIJsonInfo {
 
-	public static String getErrorJson (String lang, String errorCode, String exceptionMessage)
+	public static String getErrorJson (String lang, String errorcode, String exceptionMessage)
     {
         StringBuilder sb = new StringBuilder ();
         ObjectMapper mapper = new ObjectMapper ();	
-        ErrorInfo errorInfo = new ErrorInfo (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim());
+        Error error = new Error(errorcode, (getErrorDescription (lang, errorcode) + " " + exceptionMessage).trim());
         try {
-			return mapper.writeValueAsString(errorInfo);
+			return mapper.writeValueAsString(error);
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,7 +52,7 @@ public class SBIJsonInfo {
             biometric.setThumbprint("");
         }
 
-        biometric.setError(new ErrorInfo (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim()));
+        biometric.setError(new Error (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim()));
 
         RCaptureResponse captureResponse = new RCaptureResponse ();
         biometrics.add(biometric);

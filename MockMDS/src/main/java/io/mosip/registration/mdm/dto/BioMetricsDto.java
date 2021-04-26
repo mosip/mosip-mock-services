@@ -16,5 +16,5 @@ public class BioMetricsDto {
 	private String sessionKey;
 	private String thumbprint;
 	
-	private ErrorInfo error;
+	private Error error;
 }

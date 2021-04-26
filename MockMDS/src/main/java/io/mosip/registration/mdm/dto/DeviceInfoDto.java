@@ -9,8 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@JsonIgnoreProperties
 public class DeviceInfoDto {
 	public String deviceInfo;
-	public ErrorInfo error;
+	public Error error;
 }
