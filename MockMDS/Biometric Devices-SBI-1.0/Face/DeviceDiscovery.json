@@ -1,0 +1,17 @@
+{
+    "serialNo": "3",
+    "deviceStatus": "Ready",
+    "certification": "SBI 1.0",
+    "serviceVersion": "SBI 1.0",
+    "deviceSubId": [
+   		"0"
+	],
+    "callbackId": "",
+    "digitalId": "",
+    "specVersion": ["SBI 1.0"],
+    "purpose": "",
+    "error":{
+      	"errorCode":"100",
+      	"errorInfo":"Success"
+   	}
+}
