@@ -1741,7 +1741,6 @@ public class SBIServiceResponse {
         if (isUsedForAuthenication)
             biometricData.setDomainUri(requestObject.getDomainUri() + "");
 
-        String timeStamp = CryptoUtility.getTimestamp();
         if (isUsedForAuthenication == false)
         {
             biometricData.setBioValue(bioValue);
@@ -1749,14 +1748,16 @@ public class SBIServiceResponse {
         else
         {
 			try {
-				Map<String, String> cryptoResult = CryptoUtility.encrypt(new JwtUtility().getPublicKeyToEncryptCaptureBioValue(),
-						bioValue, transactionId);
+				X509Certificate certificate = new JwtUtility().getCertificateToEncryptCaptureBioValue();
+				PublicKey publicKey = certificate.getPublicKey();
+				Map<String, String> cryptoResult = CryptoUtility.encrypt(publicKey,
+						java.util.Base64.getUrlDecoder().decode(bioValue), transactionId);
 				
 				biometricData.setTimestamp(cryptoResult.get("TIMESTAMP"));
 				biometricData.setBioValue(cryptoResult.containsKey("ENC_DATA") ? 
 						cryptoResult.get("ENC_DATA") : null);		
 				biometric.setSessionKey(cryptoResult.get("ENC_SESSION_KEY"));
-				biometric.setThumbprint(new JwtUtility().getThumbprint().replaceAll(":", "").toUpperCase());
+				biometric.setThumbprint(CryptoUtil.encodeBase64(JwtUtility.getCertificateThumbprint(certificate)));
 			} catch (Exception ex) {
                 LOGGER.error("getBiometricData :: encrypt :: ", ex);
 				// TODO Auto-generated catch block
@@ -1764,7 +1765,6 @@ public class SBIServiceResponse {
 			}
         }
 
-        biometricData.setTimestamp(timeStamp);
         biometricData.setRequestedScore(qualityRequestScore + "");
         biometricData.setQualityScore(80 + "");
         biometricData.setTransactionId(transactionId);

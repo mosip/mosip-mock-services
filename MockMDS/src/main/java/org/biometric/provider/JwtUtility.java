@@ -1,13 +1,17 @@
 package org.biometric.provider;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.CertificateException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
@@ -16,19 +20,22 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
 
-import com.squareup.okhttp.*;
-
-import io.mosip.kernel.core.util.CryptoUtil;
-import io.mosip.kernel.core.util.DateUtils;
-import okio.BufferedSink;
-import org.bouncycastle.asn1.eac.RSAPublicKey;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.core.env.PropertiesPropertySource;
+
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+
+import io.mosip.kernel.core.util.CryptoUtil;
+import io.mosip.kernel.core.util.DateUtils;
+import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
 
 public class JwtUtility {
@@ -36,7 +43,6 @@ public class JwtUtility {
 	//TODO Need to be implement using properties 
 	//@Value("${mosip.kernel.crypto.sign-algorithm-name:RS256}")
 	private static String signAlgorithm="RS256";
-	private static Properties properties = null;
 	private static String AUTH_REQ_TEMPLATE = "{ \"id\": \"string\",\"metadata\": {},\"request\": { \"appId\": \"%s\", \"clientId\": \"%s\", \"secretKey\": \"%s\" }, \"requesttime\": \"%s\", \"version\": \"string\"}";
 
 
@@ -131,29 +137,20 @@ public class JwtUtility {
 	}
 
 	public String getPropertyValue(String key) {
-		if(properties == null) {
-			properties = new Properties();
-			try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
-				properties.load(inputStream);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return properties.getProperty(key);
+		return ApplicationPropertyHelper.getPropertyKeyValue(key);
 	}
 
-	public PublicKey getPublicKeyToEncryptCaptureBioValue() throws Exception {
-		String certificate = getPublicKeyFromIDA();
+	public X509Certificate getCertificateToEncryptCaptureBioValue() throws Exception {
+		String certificate = getCertificateFromIDA();
 		certificate = trimBeginEnd(certificate);
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
 				new ByteArrayInputStream(Base64.getDecoder().decode(certificate)));
-
-		return x509Certificate.getPublicKey();
+		return x509Certificate;
 	}
 	
 	public String getThumbprint() throws Exception {
-		String certificate = getPublicKeyFromIDA();
+		String certificate = getCertificateFromIDA();
 		certificate = trimBeginEnd(certificate);
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate x509Certificate = (X509Certificate) cf.generateCertificate(
@@ -162,8 +159,12 @@ public class JwtUtility {
 
 		return thumbprint;
 	}
+	
+	public static byte[] getCertificateThumbprint(Certificate cert) throws CertificateEncodingException {
+		return DigestUtils.sha256(cert.getEncoded());
+	}
 
-	public String getPublicKeyFromIDA() {
+	public String getCertificateFromIDA() {
 		OkHttpClient client = new OkHttpClient();
 		String requestBody = String.format(AUTH_REQ_TEMPLATE,
 				getPropertyValue("mosip.auth.appid"),

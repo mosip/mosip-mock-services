@@ -85,8 +85,14 @@ public class SBIWorker implements Runnable {
 			if (strMethodName != null && corsHeaderMethods.contains (strMethodName))
 			{
 				LOGGER.info("Method Valid ::");
-				SBIServiceResponse serviceResponse = new SBIServiceResponse (getServerPort ());
-				responseJson = SBIResponseInfo.generateResponse ("en", getServerPort (), serviceResponse.getServiceresponse (getMockService(), getClientSocket(), strJsonRequest));
+				if (strMethodName.equals("OPTIONS")) {
+					responseJson = SBIResponseInfo.generateOptionsResponse();
+				}
+				else
+				{
+					SBIServiceResponse serviceResponse = new SBIServiceResponse (getServerPort ());
+					responseJson = SBIResponseInfo.generateResponse ("en", getServerPort (), serviceResponse.getServiceresponse (getMockService(), getClientSocket(), strJsonRequest));				
+				}
 			}
 			else
 			{
