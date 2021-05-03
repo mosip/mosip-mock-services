@@ -14,6 +14,7 @@ public class TestMockSBI {
 
 		String purpose = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_REGISTRATION);
 		String biometricType = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE);
+		String biometricVersion = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_VERSION);
 
 		if (args != null && args.length > 0)
 		{
@@ -29,13 +30,17 @@ public class TestMockSBI {
 			LOGGER.info("main :: BiometricType :: Argument [1] " + purposeInfo);
 			if (biometricTypeInfo.contains(SBIConstant.MOSIP_BIOMETRIC_TYPE))
 			{
-				biometricType = biometricTypeInfo.split("=")[1];
+				biometricType = biometricTypeInfo.split("=") [1];
 			}
 			LOGGER.info("main :: purpose :: " + purpose + " :: BiometricType :: " + biometricType);
+			String biometricVersionArg = args[2];
+			if(biometricVersionArg.contains(SBIConstant.MOSIP_BIOMETRIC_VERSION)) {
+				biometricVersion = biometricVersionArg.split("=") [2];
+			}
 			//Check Purpose and BiometricType values
 			if (isValidPurpose (purpose) && isValidBiometricType(biometricType))
 			{
-				SBIMockService mockService = new SBIMockService (purpose, biometricType);
+				SBIMockService mockService = new SBIMockService (purpose, biometricType, biometricVersion);
 				mockService.run();
 			}
 			else
@@ -68,7 +73,6 @@ public class TestMockSBI {
 			return false;
 		if (biometricType != null && (
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
-				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE)) ||
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ||
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ||
 				biometricType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))

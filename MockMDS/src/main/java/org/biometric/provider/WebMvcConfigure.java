@@ -26,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
+import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
 import io.mosip.registration.mdm.dto.DeviceInfo;
@@ -102,7 +103,7 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	  @Bean 
 	  public BioMetricsDataDto getBioMetricsDataDtoBean() { 
 		  try {
-			  if(env.getProperty("mosip.device.build.version").equals("SBI 1.0")) {
+			  if(env.getProperty("mosip.device.build.version").equals(SBIConstant.BIOMETRIC_VERSION)) {
 				  File f = new File(System.getProperty("user.dir") + "/SBIfiles/MockMDS/" + "DeviceInfoFACE" + ".txt");
 				  DeviceSBIInfo dto = oB.readValue(f, DeviceSBIInfo.class);
 				  System.out.println(dto);  

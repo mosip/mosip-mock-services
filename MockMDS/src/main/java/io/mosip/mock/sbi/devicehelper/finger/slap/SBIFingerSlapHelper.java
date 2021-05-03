@@ -15,18 +15,18 @@ public class SBIFingerSlapHelper extends SBIDeviceHelper {
 
 	private static SBIFingerSlapHelper instance; 
 	  
-	private SBIFingerSlapHelper(int port, String purpose, String biometricType)  
+	private SBIFingerSlapHelper(int port, String purpose, String biometricVersion)  
 	{ 
-		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), biometricType);
+		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), biometricVersion);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFingerSlapHelper getInstance(int port, String purpose, String biometricType)  
+	synchronized public static SBIFingerSlapHelper getInstance(int port, String purpose, String biometricVersion)  
 	{ 
 		if (instance == null)  
 		{ 
 			// if instance is null, initialize 
-			instance = new SBIFingerSlapHelper(port, purpose, biometricType); 
+			instance = new SBIFingerSlapHelper(port, purpose, biometricVersion); 
 		} 
 		return instance; 
 	}

@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -114,7 +116,7 @@ public class SBIServiceResponse {
 		}
 		else if (strJsonRequest.contains(SBIConstant.MOSIP_RCAPTURE_VERB))
 		{
-			responseJson = mockService.getBiometricType().equals("Biometric Device")? processRCaptureInfo (mockService): processSbiRCaptureInfo(mockService);			
+			responseJson = !mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)? processRCaptureInfo (mockService): processSbiRCaptureInfo(mockService);			
 		}
 		else if (strJsonRequest.contains(SBIConstant.MOSIP_SETPROFILE_VERB))
 		{
@@ -147,7 +149,7 @@ public class SBIServiceResponse {
 
              List<DiscoverDto> infoList = new ArrayList<DiscoverDto> ();
              List<DiscoverSBIDto> infoSbiList = new ArrayList<DiscoverSBIDto>();
-             if (type == null || type.trim().length() == 0 && mockService.getBiometricType().equals("Biometric Device"))
+             if (type == null || type.trim().length() == 0 && !mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION))
     		 {
             	 DiscoverDto discoverInfo = new DiscoverDto ();
             	 Map<String, String> errorMap  = new HashMap<String, String>() {{
@@ -156,7 +158,7 @@ public class SBIServiceResponse {
             	 discoverInfo.error = errorMap;
             	 infoList.add(discoverInfo);
             	 return objectMapper.writeValueAsString(infoList);
-    		 } else if (type == null || type.trim().length() == 0 && mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+    		 } else if (type == null || type.trim().length() == 0 && mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)){
             	 DiscoverSBIDto discoverSbiInfo = new DiscoverSBIDto();
             	 Map<String, String> errorMap  = new HashMap<String, String>() {{
             		    put("502",  SBIJsonInfo.getErrorDescription(lang, "502"));
@@ -167,12 +169,11 @@ public class SBIServiceResponse {
             	 return objectMapper.writeValueAsString(infoSbiList);
     		 }
              else if (!type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE).trim().toLowerCase())
-            	 && !type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE).trim().toLowerCase())
         		 && !type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER).trim().toLowerCase())
         		 && !type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE).trim().toLowerCase())
         		 && !type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS).trim().toLowerCase()))
              {
-            	 if(mockService.getBiometricType().equals("Biometric Device")) {
+            	 if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
             		 DiscoverDto discoverInfo = new DiscoverDto ();
                 	 Map<String, String> errorMap  = new HashMap<String, String>() {{
                 		    put("502",  SBIJsonInfo.getErrorDescription(lang, "502"));
@@ -180,7 +181,7 @@ public class SBIServiceResponse {
                 	 discoverInfo.error = errorMap;
                 	 infoList.add(discoverInfo);
                 	 return objectMapper.writeValueAsString(infoList);
-            	 }else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
+            	 }else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
             		 DiscoverSBIDto discoverSbiInfo = new DiscoverSBIDto ();
                 	 Map<String, String> errorMap  = new HashMap<String, String>() {{
                 		    put("502",  SBIJsonInfo.getErrorDescription(lang, "502"));
@@ -198,12 +199,12 @@ public class SBIServiceResponse {
 						 || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER).trim().toLowerCase()))
 			     {
 				 	SBIFingerSlapHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-				 	if(mockService.getBiometricType().equals("Biometric Device")) {
+				 	if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 				 		deviceHelper.initDeviceDetails();
 				 		DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 						if (discoverInfo != null)
 							infoList.add(discoverInfo);
-				 	}else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
+				 	}else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 				 		deviceHelper.initSBIDeviceDetails();
 				 		DiscoverSBIDto discoverSbiInfo = deviceHelper.getDiscoverSbiDto();
 						if (discoverSbiInfo != null)
@@ -215,12 +216,12 @@ public class SBIServiceResponse {
 					 || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE).trim().toLowerCase()))
 				 {
 					 SBIFaceHelper deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
-					 if(mockService.getBiometricType().equals("Biometric Device")) {
+					 if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 					 		deviceHelper.initDeviceDetails();
 					 		DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 							if (discoverInfo != null)
 								infoList.add(discoverInfo);
-					 	}else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
+					 	}else if(mockService.getBiometricType().equals(SBIConstant.BIOMETRIC_VERSION)) {
 					 		deviceHelper.initSBIDeviceDetails();
 					 		DiscoverSBIDto discoverSbiInfo = deviceHelper.getDiscoverSbiDto();
 							if (discoverSbiInfo != null)
@@ -232,12 +233,12 @@ public class SBIServiceResponse {
 					 || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS).trim().toLowerCase()))
 				 {
 					 SBIIrisDoubleHelper deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-					 if(mockService.getBiometricType().equals("Biometric Device")) {
+					 if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 					 	deviceHelper.initDeviceDetails();
 					 	DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 					 	if (discoverInfo != null)
 								infoList.add(discoverInfo);
-					 	}else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
+					 	}else if(mockService.getBiometricType().equals(SBIConstant.BIOMETRIC_VERSION)) {
 					 		deviceHelper.initSBIDeviceDetails();
 					 		DiscoverSBIDto discoverSbiInfo = deviceHelper.getDiscoverSbiDto();
 							if (discoverSbiInfo != null)
@@ -245,7 +246,7 @@ public class SBIServiceResponse {
 					 	}
 				 }
 				 
-				 if(mockService.getBiometricType().equals("Biometric Device")) {
+				 if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 					 if (infoList != null && infoList.size() > 0)
 		        	 {
 		            	 return objectMapper.writeValueAsString(infoList);
@@ -260,7 +261,7 @@ public class SBIServiceResponse {
 		            	 infoList.add(discoverInfo);
 		            	 return objectMapper.writeValueAsString(infoList);
 		             }
-				 }else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
+				 }else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 					 if (infoSbiList != null && infoSbiList.size() > 0)
 		        	 {
 		            	 return objectMapper.writeValueAsString(infoSbiList);
@@ -302,10 +303,10 @@ public class SBIServiceResponse {
              List<DeviceInfoDto> infoList = new ArrayList<DeviceInfoDto> ();
              List<DeviceSbiInfoDto> infoSbiList = new ArrayList<DeviceSbiInfoDto> ();
              SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-             if(mockService.getBiometricType().equals("Biometric Device")) {
+             if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
             	 deviceHelper.initDeviceDetails();
             	 deviceInfoDto = deviceHelper.getDeviceInfoDto(); 
-             }else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+             }else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)){
             	 deviceHelper.initSBIDeviceDetails();
             	 deviceSbiInfoDto = deviceHelper.getDeviceSbiInfoDto(); 
              }
@@ -317,10 +318,10 @@ public class SBIServiceResponse {
             	infoSbiList.add(deviceSbiInfoDto);
 
 			 deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
-			 if(mockService.getBiometricType().equals("Biometric Device")) {
+			 if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 				 deviceHelper.initDeviceDetails();
             	 deviceInfoDto = deviceHelper.getDeviceInfoDto(); 
-             }else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+             }else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)){
             	 deviceHelper.initSBIDeviceDetails();
             	 deviceSbiInfoDto = deviceHelper.getDeviceSbiInfoDto(); 
              }
@@ -331,10 +332,10 @@ public class SBIServiceResponse {
              	 infoSbiList.add(deviceSbiInfoDto);            	 
 
 			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-			 if(mockService.getBiometricType().equals("Biometric Device")) {
+			 if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 				 deviceHelper.initDeviceDetails();
             	 deviceInfoDto = deviceHelper.getDeviceInfoDto(); 
-             }else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+             }else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)){
             	 deviceHelper.initSBIDeviceDetails();
             	 deviceSbiInfoDto = deviceHelper.getDeviceSbiInfoDto(); 
              }
@@ -344,7 +345,7 @@ public class SBIServiceResponse {
              else if(deviceSbiInfoDto != null)
              	infoSbiList.add(deviceSbiInfoDto);           	 
              
-             if(mockService.getBiometricType().equals("Biometric Device")) {
+             if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 				 if (infoList != null && infoList.size() > 0)
 	        	 {
 	            	 return objectMapper.writeValueAsString(infoList);
@@ -357,7 +358,7 @@ public class SBIServiceResponse {
 	            	infoList.add(deviceInfoDtoError);
 	            	return objectMapper.writeValueAsString(infoList);
 	             }
-			 }else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
+			 }else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 				 if (infoSbiList != null && infoSbiList.size() > 0)
 	        	 {
 	            	 return objectMapper.writeValueAsString(infoSbiList);
@@ -428,7 +429,7 @@ public class SBIServiceResponse {
             {
                 return SBIJsonInfo.getErrorJson (lang, "601", "");
             }
-            if(mockService.getBiometricType().equals("Biometric Device")) {
+            if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
 	            StreamingRequestDetail requestObject = (StreamingRequestDetail) getRequestJson (SBIConstant.MOSIP_STREAM_VERB);
 	            String deviceId = requestObject.getDeviceId();
 	            int deviceSubId = Integer.parseInt(requestObject.getDeviceSubId());
@@ -454,8 +455,8 @@ public class SBIServiceResponse {
 	            {
 	                return SBIJsonInfo.getErrorJson (lang, "607", "");
 	            }
-            }else if (mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")) {
-            	StreamingSbiRequestDetail requestObject = (StreamingSbiRequestDetail) getRequestJson (SBIConstant.MOSIP_STREAM_VERB);
+            }else if (mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
+            	StreamingSbiRequestDetail requestObject = (StreamingSbiRequestDetail) getSbiRequestJson (SBIConstant.MOSIP_STREAM_VERB);
  	            int deviceSubId = Integer.parseInt(requestObject.getDeviceSubId());
  	
  	            deviceHelper = getSbiDeviceInfoForDeviceId (mockService, requestObject.getSerialNo());
@@ -765,7 +766,7 @@ public class SBIServiceResponse {
                 return SBIJsonInfo.getErrorJson (lang, "709", "");
             }
         	int deviceSubId = 0;
-        	SbiCaptureRequestDto requestObject = (SbiCaptureRequestDto) getRequestJson (SBIConstant.MOSIP_RCAPTURE_VERB);
+        	SbiCaptureRequestDto requestObject = (SbiCaptureRequestDto) getSbiRequestJson(SBIConstant.MOSIP_RCAPTURE_VERB);
         	List<CaptureRequestDeviceDetailSbiDto> mosipBioRequest = null;
         	// if Null Throw Errors here
         	if (requestObject != null)
@@ -778,7 +779,7 @@ public class SBIServiceResponse {
         	}
 
             LOGGER.info("processRCaptureInfo :: deviceSubId ::" + deviceSubId);
-            
+            System.out.println("sdkjhd");
             deviceHelper = getSbiDeviceInfoForDeviceId(mockService, mosipBioRequest.get(0).getSerialNo());
             if (deviceHelper.getDeviceSbiInfo().deviceInfo == null)
             {
@@ -885,7 +886,7 @@ public class SBIServiceResponse {
             	if (sbiBiometrics != null && sbiBiometrics.size() > 0)
             	{
                 	RCaptureSbiResponse captureSbiResponse = new RCaptureSbiResponse ();
-	            	captureSbiResponse.setListSbiBiometrics(sbiBiometrics);
+	            	captureSbiResponse.setBiometrics(sbiBiometrics);
 
 	            	ObjectMapper mapper = new ObjectMapper ();	
 	                SerializationConfig config = mapper.getSerializationConfig();
@@ -2947,6 +2948,7 @@ public class SBIServiceResponse {
 			String previousHash, String bioType, String bioSubType, String bioValue, 
 			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws JsonGenerationException, JsonMappingException, IOException
     {
+		Map<String, String> cryptoResult = null;
 		DeviceInfo deviceInfo = deviceHelper.getDeviceInfo();
 		
 		BioMetricsDto biometric = new BioMetricsDto ();
@@ -2976,7 +2978,7 @@ public class SBIServiceResponse {
 			try {
 				X509Certificate certificate = new JwtUtility().getCertificateToEncryptCaptureBioValue();
 				PublicKey publicKey = certificate.getPublicKey();
-				Map<String, String> cryptoResult = CryptoUtility.encrypt(publicKey,
+				cryptoResult = CryptoUtility.encrypt(publicKey,
 						java.util.Base64.getUrlDecoder().decode(bioValue), transactionId);
 				
 				biometricData.setTimestamp(cryptoResult.get("TIMESTAMP"));
@@ -2994,7 +2996,8 @@ public class SBIServiceResponse {
         biometricData.setRequestedScore(qualityRequestScore + "");
         biometricData.setQualityScore(80 + "");
         biometricData.setTransactionId(transactionId);
-
+        biometricData.setTimestamp(LocalDateTime.now().toString());
+        
         ObjectMapper mapper = new ObjectMapper ();	
         SerializationConfig config = mapper.getSerializationConfig();
         config.setSerializationInclusion(Inclusion.NON_NULL);
@@ -3244,13 +3247,13 @@ public class SBIServiceResponse {
 private SBIDeviceHelper getSbiDeviceInfoForDeviceId(SBIMockService mockService, String serialNo) {
 		
         SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-        if(mockService.getBiometricType().equals("Biometric Device")) {
+        if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
         	if (deviceHelper.getDeviceInfo() != null) {
         		deviceHelper.initDeviceDetails();
             	return deviceHelper; 
             }
         }
-        else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+        else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)){
         	if (deviceHelper.getDeviceSbiInfo() != null && deviceHelper.getDeviceSbiInfo().deviceInfo.getSerialNo().trim().equals(serialNo.trim())) {
         		deviceHelper.initSBIDeviceDetails();
             	return deviceHelper; 
@@ -3258,13 +3261,13 @@ private SBIDeviceHelper getSbiDeviceInfoForDeviceId(SBIMockService mockService, 
         }
         
         deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
-        if(mockService.getBiometricType().equals("Biometric Device")) {
+        if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
         	if (deviceHelper.getDeviceInfo() != null) {
         		deviceHelper.initDeviceDetails();
             	return deviceHelper; 
             }
         }
-        else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+        else if(mockService.getBiometricType().equals(SBIConstant.BIOMETRIC_VERSION)){
         	if (deviceHelper.getDeviceSbiInfo() != null && deviceHelper.getDeviceSbiInfo().deviceInfo.getSerialNo().trim().equals(serialNo.trim())) {
         		deviceHelper.initSBIDeviceDetails();
             	return deviceHelper; 
@@ -3272,13 +3275,13 @@ private SBIDeviceHelper getSbiDeviceInfoForDeviceId(SBIMockService mockService, 
         }
 
         deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-        if(mockService.getBiometricType().equals("Biometric Device")) {
+        if(!mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)) {
         	if (deviceHelper.getDeviceInfo() != null) {
         		deviceHelper.initDeviceDetails();
             	return deviceHelper; 
             }
         }
-        else if(mockService.getBiometricType().equals("Biometric Devices-SBI-1.0")){
+        else if(mockService.getBiometricVersion().equals(SBIConstant.BIOMETRIC_VERSION)){
         	if (deviceHelper.getDeviceSbiInfo() != null && deviceHelper.getDeviceSbiInfo().deviceInfo.getSerialNo().trim().equals(serialNo.trim())) {
         		deviceHelper.initSBIDeviceDetails();
             	return deviceHelper; 
@@ -3289,6 +3292,39 @@ private SBIDeviceHelper getSbiDeviceInfoForDeviceId(SBIMockService mockService, 
 	}
 
 	public Object getRequestJson (String methodVerb)
+    {
+        if (getRequest () != null && getRequest().indexOf("{") >= 0)
+        {
+            try
+            {
+            	com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            	mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
+        		if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_DISC_VERB))
+        			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), DeviceDiscoveryRequestDetail.class);
+        		if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_STREAM_VERB))
+        			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), StreamingRequestDetail.class);
+        		if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_RCAPTURE_VERB)) {
+        			mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), CaptureRequestDto.class);
+        		}
+        		if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_SETPROFILE_VERB))
+        			return mapper.readValue(getRequest().substring (getRequest().indexOf("{")), ProfileRequest.class);        			
+        		
+        		return null;
+            }
+            catch (Exception ex)
+            {
+            	LOGGER.error("getRequestJson", ex);
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+	
+	public Object getSbiRequestJson (String methodVerb)
     {
         if (getRequest () != null && getRequest().indexOf("{") >= 0)
         {

@@ -24,12 +24,11 @@ public class SBIWorker implements Runnable {
 	/**
 	 * Constructor SBIWroker 
 	 */
-	public SBIWorker(SBIMockService mockService, Socket clientSocket, int serverPort, String biometricType) {
+	public SBIWorker(SBIMockService mockService, Socket clientSocket, int serverPort, String biometricVersion) {
 		super();
 		setMockService(mockService);
 		setClientSocket(clientSocket);
 		setServerPort(serverPort);
-		setBiometricType(biometricType);
 	}
 
 	@Override

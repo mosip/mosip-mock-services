@@ -29,6 +29,7 @@ public class SBIConstant {
     public static String DEVICE_STATUS_ISUSED         	= "Busy";
     public static String DEVICE_STATUS_NOTREADY    		= "Not Ready";
     public static String DEVICE_STATUS_NOTREGISTERED  	= "Not Registered";
+    public static String BIOMETRIC_VERSION				= "1.0";
 
 	/** Device SubType Id Value */
     public static int DEVICE_IRIS_SUB_TYPE_ID_LEFT  = 1;	// LEFT IRIS IMAGE
@@ -126,6 +127,7 @@ public class SBIConstant {
 	/** Command Line Arguments Names */
 	public static String MOSIP_PURPOSE = "mosip.mock.sbi.device.purpose";
 	public static String MOSIP_BIOMETRIC_TYPE = "mosip.mock.sbi.biometric.type";
+	public static String MOSIP_BIOMETRIC_VERSION = "mosip.mock.sbi.biometric.version";
 
 	/** Device Purpose Names */
 	public static String MOSIP_PURPOSE_REGISTRATION = "mosip.mock.sbi.device.purpose.registration";
@@ -133,7 +135,6 @@ public class SBIConstant {
 
 	/** Biometric Types Names */
 	public static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "mosip.mock.sbi.biometric.type.biometricdevice";
-	public static String MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE = "mosip.mock.sbi.biometric.type.sbi.biometricdevice";
 	public static String MOSIP_BIOMETRIC_TYPE_FINGER = "mosip.mock.sbi.biometric.type.finger";
 	public static String MOSIP_BIOMETRIC_TYPE_FACE = "mosip.mock.sbi.biometric.type.face";
 	public static String MOSIP_BIOMETRIC_TYPE_IRIS = "mosip.mock.sbi.biometric.type.iris";

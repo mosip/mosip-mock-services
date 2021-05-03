@@ -24,6 +24,7 @@ public class SBIMockService implements Runnable {
 	protected static String profileId = "Default";
 	protected String purpose;
 	protected String biometricType;
+	protected String biometricVersion;
 	protected HashMap <String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
 	
 	protected Thread runningThread = null;
@@ -34,10 +35,11 @@ public class SBIMockService implements Runnable {
 	/**
 	 * Set Purpose and biometricType
 	 */
-	public SBIMockService(String purpose, String biometricType) {
+	public SBIMockService(String purpose, String biometricType, String biometricVersion) {
 		super();
 		setPurpose (purpose);
 		setBiometricType (biometricType);
+		setBiometricVersion(biometricVersion);
 	}
 
 	@Override
@@ -68,7 +70,7 @@ public class SBIMockService implements Runnable {
 					}
 					throw new SBIException (ex.hashCode() + "", "SBI Mock Service Error Accepting Client Connection", new Throwable (ex.getLocalizedMessage()));
 				}
-				new Thread (new SBIWorker (this, clientSocket, getServerPort(), getBiometricType ())).start ();
+				new Thread (new SBIWorker (this, clientSocket, getServerPort(), getBiometricVersion ())).start ();
 			}			
 		}
 		catch (SBIException ex)
@@ -85,22 +87,19 @@ public class SBIMockService implements Runnable {
 	
 	private void initDeviceHelpers() {
 		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
-				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE)) ||
 				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)))
 		{
-			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose (), getBiometricType()));
+			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose (), getBiometricVersion() ));
 		}
 		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
-				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE)) ||
 				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)))
 		{
-			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE), SBIFaceHelper.getInstance(getServerPort(), getPurpose (), getBiometricType()));
+			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE), SBIFaceHelper.getInstance(getServerPort(), getPurpose (), getBiometricVersion()));
 		}
 		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
-				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_SBI_DEVICE)) ||
 				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)))
 		{
-		this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose (), getBiometricType()));		
+		this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose (), getBiometricVersion()));		
 		}
 	}
 	
@@ -173,6 +172,14 @@ public class SBIMockService implements Runnable {
 
 	public void setBiometricType(String biometricType) {
 		this.biometricType = biometricType;
+	}
+	
+	public String getBiometricVersion() {
+		return biometricVersion;
+	}
+
+	public void setBiometricVersion(String biometricVersion) {
+		this.biometricVersion = biometricVersion;
 	}
 
 	public String getPurpose() {

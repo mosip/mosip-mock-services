@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class RCaptureSbiResponse {
 	
-	private List<SbiBioMetricsDto> listSbiBiometrics;
+	private List<SbiBioMetricsDto> biometrics;
 
 }

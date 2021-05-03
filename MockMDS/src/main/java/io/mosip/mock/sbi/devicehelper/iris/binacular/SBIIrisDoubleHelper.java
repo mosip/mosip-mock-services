@@ -14,18 +14,18 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 
 	private static SBIIrisDoubleHelper instance; 
 	  
-	private SBIIrisDoubleHelper(int port, String purpose, String biometricType)  
+	private SBIIrisDoubleHelper(int port, String purpose, String biometricVersion)  
 	{ 
-		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), biometricType);
+		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), biometricVersion);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose, String biometricType)  
+	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose, String biometricVersion)  
 	{ 
 		if (instance == null)  
 		{ 
 			// if instance is null, initialize 
-			instance = new SBIIrisDoubleHelper(port, purpose, biometricType); 
+			instance = new SBIIrisDoubleHelper(port, purpose, biometricVersion); 
 		} 
 		return instance; 
 	}

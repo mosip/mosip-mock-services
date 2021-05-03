@@ -58,16 +58,16 @@ public abstract class SBIDeviceHelper {
     public abstract int getLiveStream ();
     public abstract int getBioCapture (boolean isUsedForAuthenication);
 	
-	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType, String biometricType) {
+	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType, String biometricVersion) {
 		super();
 		setPort(port);
 		setPurpose (purpose);
 		setDeviceType (deviceType);
 		setDeviceSubType (deviceSubType);
 		setDeviceStatus (SBIConstant.DEVICE_STATUS_ISREADY);
-		if(biometricType.equals("Biometric Device"))
+		if(!biometricVersion.equals(SBIConstant.BIOMETRIC_VERSION))
 			initDeviceDetails();
-		else if(biometricType.equals("Biometric Devices-SBI-1.0"))
+		else
 			initSBIDeviceDetails();
 	}
 
@@ -188,6 +188,7 @@ public abstract class SBIDeviceHelper {
 				if (discoverDto != null)
 				{
 					discoverDto.setDigitalId(getUnsignedDigitalId (digitalId, true));
+					setDeviceStatus(SBIConstant.DEVICE_STATUS_ISREADY);
 					discoverDto.setDeviceStatus(getDeviceStatus());
 					discoverDto.setPurpose(getPurpose ());
 					discoverDto.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
@@ -383,7 +384,6 @@ public abstract class SBIDeviceHelper {
 	            deviceSbiInfo = objectMapper.readValue(jsonFile, DeviceSBIInfo.class);
 				if (deviceSbiInfo != null)
 				{
-					System.out.println("sdlkfjs");
 					deviceSbiInfo.deviceInfo.setDigitalId(getUnsignedDigitalSbiId (digitalSbiId, false));
 					deviceSbiInfo.deviceInfo.setDeviceStatus(getDeviceStatus());
 					deviceSbiInfo.deviceInfo.setPurpose(getPurpose ());

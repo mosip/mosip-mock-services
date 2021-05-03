@@ -14,7 +14,7 @@
 	],
    	"purpose":"",
    	"error":{
-      	"errorcode":"100",
-      	"errorinfo":"Success"
+      	"errorCode":"100",
+      	"errorInfo":"Success"
    	}
 }
