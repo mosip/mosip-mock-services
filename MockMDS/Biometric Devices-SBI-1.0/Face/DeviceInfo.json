@@ -2,15 +2,15 @@
     "deviceInfo": {
       "deviceStatus": "Ready",
       "serialNo": "3",
-      "firmware": "SBI 1.0",
-      "certification": "SBI 1.0",
-      "serviceVersion": "SBI 1.0",
+      "firmware": "1.0",
+      "certification": "1.0",
+      "serviceVersion": "1.0",
       "deviceSubId": ["0"],
       "callbackId": "",
       "digitalId": "",
       "env": "Staging",
       "purpose": "",
-      "specVersion": ["SBI 1.0"]
+      "specVersion": ["1.0"]
     },
     "error": {
       "errorCode": "100",
