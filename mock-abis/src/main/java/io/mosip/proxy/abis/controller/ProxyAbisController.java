@@ -1,7 +1,5 @@
 package io.mosip.proxy.abis.controller;
 
-import java.util.HashMap;
-
 import javax.validation.Valid;
 
 import io.mosip.proxy.abis.entity.*;
