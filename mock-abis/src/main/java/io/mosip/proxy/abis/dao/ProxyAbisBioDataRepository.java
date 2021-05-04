@@ -15,7 +15,7 @@ public interface ProxyAbisBioDataRepository extends CrudRepository<BiometricData
 	@Query(value = "select distinct(b.*) from Biometric_Data b where b.bio_data in (select bio_data from Biometric_Data where Biometric_Data.reference_id =?1) and b.reference_id <> ?1  order by reference_id asc", nativeQuery = true)
 	public List<BiometricData> fetchDuplicatesForReferenceId(@Param("referenceId") String referecenId);
 
-	@Query(value = "select distinct(b.*) from Biometric_Data b where b.reference_id = ?1  order by reference_id asc", nativeQuery = true)
+	@Query(value = "select b.* from Biometric_Data b where b.reference_id = ?1  order by reference_id asc", nativeQuery = true)
 	public List<BiometricData> fetchBiometricsForReferenceId(@Param("referenceId") String referecenId);
 
 	@Query(value = "select distinct(b.*) from Biometric_Data b where b.bio_data in (select bio_data from Biometric_Data where Biometric_Data.reference_id =?1) and b.reference_id <> ?1  and b.reference_id in ?2 order by reference_id asc", nativeQuery = true)
