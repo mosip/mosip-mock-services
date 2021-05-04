@@ -101,7 +101,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 * set this flag to false then we will not check for duplicate we will always return unique biometric
 	 */
 	@Value("${abis.return.duplicate:true}")
-	private boolean findDuplicate;
+	private static boolean findDuplicate;
 
 	@Override
 	public void insertData(InsertRequestMO ire) {
@@ -367,5 +367,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		return "Could not upload file";
 
 	}
+
+	public static Boolean getDuplicate(){
+		return findDuplicate;
+	}
+	public static void setDuplicate(Boolean d){
+		findDuplicate = d;
+	}
+
 
 }
