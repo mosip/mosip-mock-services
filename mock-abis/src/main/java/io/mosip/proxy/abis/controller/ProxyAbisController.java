@@ -5,9 +5,12 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.validation.Valid;
 
+import io.mosip.proxy.abis.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.mosip.proxy.abis.entity.FailureResponse;
-import io.mosip.proxy.abis.entity.IdentityRequest;
-import io.mosip.proxy.abis.entity.IdentityResponse;
-import io.mosip.proxy.abis.entity.InsertRequestMO;
-import io.mosip.proxy.abis.entity.RequestMO;
-import io.mosip.proxy.abis.entity.ResponseMO;
 import io.mosip.proxy.abis.exception.BindingException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
@@ -46,6 +43,56 @@ public class ProxyAbisController {
 
 	@Autowired
 	ProxyAbisInsertService abisInsertService;
+
+	@RequestMapping(value = "hash", method = RequestMethod.GET)
+	@ApiOperation(value = "Get saved biometric hashes Request")
+	public ResponseEntity<Object> getHashes()
+			throws Exception {
+		logger.info("Get hashes Request");
+		try {
+			HashMap hm = new HashMap();
+			hm.put("hashes", ProxyAbisInsertServiceImpl.hashes);
+			return new ResponseEntity<Object>(hm, HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception while getting hashes: "+exp.getMessage());
+			return new ResponseEntity<Object>("Failed to get hashes: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@RequestMapping(value = "hash", method = RequestMethod.POST)
+	@ApiOperation(value = "Add Biometric hash Request")
+	public ResponseEntity<Object> addHashes(@Valid @RequestBody HashDto ie)
+			throws Exception {
+		logger.info("Add Hash Request");
+		try {
+			if(ProxyAbisInsertServiceImpl.hashes == null){
+				ProxyAbisInsertServiceImpl.hashes = new ArrayList();
+			}
+			if(ie.getHashes() != null){
+				ProxyAbisInsertServiceImpl.hashes.addAll(ie.getHashes());
+			}
+
+			logger.info("[Hash added]: "+ProxyAbisInsertServiceImpl.hashes.toString());
+			return new ResponseEntity<Object>("Successfully added hashes", HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception in configure request: "+exp.getMessage());
+			return new ResponseEntity<Object>("Failed to add hashes: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@RequestMapping(value = "hash", method = RequestMethod.DELETE)
+	@ApiOperation(value = "Delete saved biometric hashes Request")
+	public ResponseEntity<Object> clearHashes()
+			throws Exception {
+		logger.info("Delete saved hashes Request");
+		try {
+			ProxyAbisInsertServiceImpl.hashes = null;
+			return new ResponseEntity<Object>("Successfully deleted hashes", HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception while deleting hashes: "+exp.getMessage());
+			return new ResponseEntity<Object>("Failed to delete hashes: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)

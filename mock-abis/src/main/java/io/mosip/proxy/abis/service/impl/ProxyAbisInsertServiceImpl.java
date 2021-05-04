@@ -103,6 +103,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Value("${abis.return.duplicate:true}")
 	private boolean findDuplicate;
 
+	public static List hashes;
+
 	@Override
 	public void insertData(InsertRequestMO ire) {
 		System.out.println(SECRET_URL);
@@ -256,7 +258,24 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-				if (findDuplicate) {
+				if(hashes != null){
+					boolean showDuplicate = false;
+					lst = proxyAbisBioDataRepository.fetchBiometricsForReferenceId(refId);
+					if(lst.size() > 0){
+						for(BiometricData bdt: lst){
+							if (hashes.contains(bdt.getBioData())) {
+								showDuplicate = true;
+								break;
+							}
+						}
+						logger.info("Show duplicate is " + showDuplicate+ "for refId "+refId);
+						if(!showDuplicate){
+							lst = new ArrayList<>();
+						}
+					} else {
+						logger.info("No biometrics found for " + refId);
+					}
+				} else if (findDuplicate) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 				
