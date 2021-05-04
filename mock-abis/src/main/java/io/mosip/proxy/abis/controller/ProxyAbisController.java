@@ -1,13 +1,10 @@
 package io.mosip.proxy.abis.controller;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashMap;
 
 import javax.validation.Valid;
 
+import io.mosip.proxy.abis.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.mosip.proxy.abis.entity.FailureResponse;
-import io.mosip.proxy.abis.entity.IdentityRequest;
-import io.mosip.proxy.abis.entity.IdentityResponse;
-import io.mosip.proxy.abis.entity.InsertRequestMO;
-import io.mosip.proxy.abis.entity.RequestMO;
-import io.mosip.proxy.abis.entity.ResponseMO;
 import io.mosip.proxy.abis.exception.BindingException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
@@ -46,6 +37,36 @@ public class ProxyAbisController {
 
 	@Autowired
 	ProxyAbisInsertService abisInsertService;
+
+	@RequestMapping(value = "configure", method = RequestMethod.GET)
+	@ApiOperation(value = "Configure Request")
+	public ResponseEntity<Object> checkConfiguration()
+			throws Exception {
+		logger.info("Configure Request");
+		try {
+			ConfigureDto configureDto = new ConfigureDto();
+			configureDto.setFindDuplicate(ProxyAbisInsertServiceImpl.overrideFindDuplicate);
+			return new ResponseEntity<Object>(configureDto, HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception while getting configuration: "+exp.getMessage());
+			return new ResponseEntity<Object>("Failed to get configuration: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@RequestMapping(value = "configure", method = RequestMethod.POST)
+	@ApiOperation(value = "Configure Request")
+	public ResponseEntity<Object> configure(@Valid @RequestBody ConfigureDto ie, BindingResult bd)
+			throws Exception {
+		logger.info("Configure Request");
+		try {
+			ProxyAbisInsertServiceImpl.overrideFindDuplicate = ie.getFindDuplicate();
+			logger.info("[Configuration updated] overrideFindDuplicate: "+ProxyAbisInsertServiceImpl.overrideFindDuplicate);
+			return new ResponseEntity<Object>("Successfully updated the configuration", HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception in configure request: "+exp.getMessage());
+			return new ResponseEntity<Object>("Failed to update configuration: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)

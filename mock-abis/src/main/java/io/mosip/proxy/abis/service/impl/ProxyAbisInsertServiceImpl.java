@@ -103,6 +103,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Value("${abis.return.duplicate:true}")
 	private boolean findDuplicate;
 
+	public static Boolean overrideFindDuplicate;
+
 	@Override
 	public void insertData(InsertRequestMO ire) {
 		System.out.println(SECRET_URL);
@@ -256,7 +258,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-				if (findDuplicate) {
+				if ((overrideFindDuplicate != null && overrideFindDuplicate) || (overrideFindDuplicate == null && findDuplicate)) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 				
