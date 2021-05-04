@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -9,7 +9,7 @@
 		<version>2.0.2.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	
+
 	<groupId>org.biometric</groupId>
 	<artifactId>provider</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -28,6 +28,12 @@
 			<artifactId>lombok</artifactId>
 			<version>1.18.12</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>2.7.5</version>
 		</dependency>
 
 		<dependency>
@@ -51,57 +57,57 @@
 
 
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp -->
-			<dependency>
-				<groupId>com.squareup.okhttp</groupId>
-				<artifactId>okhttp</artifactId>
-				<version>2.7.5</version>
-			</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>2.7.5</version>
+		</dependency>
 
-			<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-			<dependency>
-			    <groupId>javax.xml.bind</groupId>
-			    <artifactId>jaxb-api</artifactId>
-			    <version>2.3.1</version>
-			</dependency>
-		
-		   <dependency>
-				<groupId>io.mosip.kernel</groupId>
-				<artifactId>kernel-crypto-jce</artifactId>
-				<version>1.0.6</version>
-			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>3.10</version>
-			</dependency>
-			
-			<dependency>
-			    <groupId>org.bouncycastle</groupId>
-			    <artifactId>bcprov-jdk16</artifactId>
-			    <version>1.46</version>
-			</dependency>
-			
-			<!-- https://mvnrepository.com/artifact/javax.xml.crypto/jsr105-api -->
-			<dependency>
-			    <groupId>javax.xml.crypto</groupId>
-			    <artifactId>jsr105-api</artifactId>
-			    <version>1.0.1</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>io.mosip.kernel</groupId>
-				<artifactId>kernel-core</artifactId>
-				<!-- <version>1.2.0-SNAPSHOT</version> -->
-				<version>1.0.6</version>
-			</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
 
-			<!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
-			<dependency>
-			    <groupId>org.bitbucket.b_c</groupId>
-			    <artifactId>jose4j</artifactId>
-			    <version>0.7.1</version>
-			</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-crypto-jce</artifactId>
+			<version>1.0.6</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.10</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk16</artifactId>
+			<version>1.46</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/javax.xml.crypto/jsr105-api -->
+		<dependency>
+			<groupId>javax.xml.crypto</groupId>
+			<artifactId>jsr105-api</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-core</artifactId>
+			<!-- <version>1.2.0-SNAPSHOT</version> -->
+			<version>1.0.6</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
+		<dependency>
+			<groupId>org.bitbucket.b_c</groupId>
+			<artifactId>jose4j</artifactId>
+			<version>0.7.1</version>
+		</dependency>
 
 	</dependencies>
 
@@ -217,38 +223,38 @@
 									<directory>${basedir}</directory>
 									<filtering>true</filtering>
 									<includes><!-- what -->
-							          <include>application.properties</include>
-							          <include>run.bat</include>
-							          <include>run.sh</include>
-							       </includes>
+										<include>application.properties</include>
+										<include>run.bat</include>
+										<include>run.sh</include>
+									</includes>
 								</resource>
 							</resources>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-<!--  
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<phase>compile</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<echo>Using env.test.properties</echo>
-								<copy file="run.bat" tofile="${basedir}/target/run.bat" />
-								<copy file="run.sh" tofile="${basedir}/target/run.sh" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
--->
+			<!--
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-antrun-plugin</artifactId>
+                            <version>1.8</version>
+                            <executions>
+                                <execution>
+                                    <phase>compile</phase>
+                                    <goals>
+                                        <goal>run</goal>
+                                    </goals>
+                                    <configuration>
+                                        <tasks>
+                                            <echo>Using env.test.properties</echo>
+                                            <copy file="run.bat" tofile="${basedir}/target/run.bat" />
+                                            <copy file="run.sh" tofile="${basedir}/target/run.sh" />
+                                        </tasks>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+            -->
 		</plugins>
 	</build>
 
