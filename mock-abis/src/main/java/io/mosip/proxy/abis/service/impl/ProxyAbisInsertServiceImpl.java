@@ -56,6 +56,8 @@ import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
 import io.mosip.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.entity.Expectation;
+import io.mosip.proxy.abis.entity.FailureResponse;
 import io.mosip.proxy.abis.entity.IdentityRequest;
 import io.mosip.proxy.abis.entity.IdentityResponse;
 import io.mosip.proxy.abis.entity.InsertEntity;
@@ -64,6 +66,7 @@ import io.mosip.proxy.abis.entity.RequestMO;
 import io.mosip.proxy.abis.entity.IdentityResponse.Modalities;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 
 @Service
@@ -91,6 +94,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	
 	@Autowired
     private Environment env;
+
+	@Autowired
+	private ExpectationCache expectationCache;
 
 	private static String CBEFF_URL = null;
 	
@@ -193,7 +199,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
-
+//TODO: We should check the expectation and throw errors appropriate 
 				lst.add(bd);
 			}
 
@@ -242,10 +248,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 
 	@Override
-	public IdentityResponse findDupication(IdentityRequest ir) {
+	public IdentityResponse findDuplication(IdentityRequest ir) {
 		try {
 			String refId = ir.getReferenceId();
-			logger.info("Checking for dulication of reference ID " + refId);
+			logger.info("Checking for duplication of reference ID " + refId);
 			List<BiometricData> lst = null;
 			if (null != ir.getGallery() && ir.getGallery().getReferenceIds().size() > 0
 					&& null != ir.getGallery().getReferenceIds().get(0).getReferenceId()
@@ -256,6 +262,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
+				List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
+				if(!bioValue.isEmpty()){
+					Expectation exp = expectationCache.get(bioValue.get(0));
+					if(exp.getId()){
+						return processExpectation(ir, exp);
+					}
+				}
 				if (findDuplicate) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
@@ -268,6 +281,28 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 		}
 
+	}
+
+	
+	private IdentityResponse processExpectation(IdentityRequest ir, Expectation exp){
+
+	}
+
+	/**
+	 * Constructs a identity response based on the expectaions that are set.
+	 * @param ir
+	 * @param expectation
+	 * @return
+	 */
+	private IdentityResponse constructIdentityResponse(IdentityRequest ir, Excepectation expectation){
+		if(expectation.getActionToInterfere() != "Identity"){
+			return new IdentityResponse();
+		}
+		if(expectation.getForcedResponse() == "Error"){
+			IdentityResponse response = new IdentityResponse();
+			//TODO: send error back
+		}
+		
 	}
 
 	private IdentityResponse constructIdentityResponse(IdentityRequest ir, List<BiometricData> lst) {
