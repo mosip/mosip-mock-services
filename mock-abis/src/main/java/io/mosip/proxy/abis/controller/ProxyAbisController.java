@@ -49,7 +49,7 @@ public class ProxyAbisController {
 		logger.info("Configure Request");
 		try {
 			ConfigureDto configureDto = new ConfigureDto();
-			configureDto.setFindDuplicate(ProxyAbisInsertServiceImpl.getDuplicate());
+			configureDto.setFindDuplicate(abisInsertService.getDuplicate());
 			return new ResponseEntity<Object>(configureDto, HttpStatus.OK);
 		} catch (RuntimeException exp) {
 			logger.error("Exception while getting configuration: "+exp.getMessage());
@@ -63,8 +63,8 @@ public class ProxyAbisController {
 			throws Exception {
 		logger.info("Configure Request");
 		try {
-			ProxyAbisInsertServiceImpl.setDuplicate(ie.getFindDuplicate());
-			logger.info("[Configuration updated] overrideFindDuplicate: "+ProxyAbisInsertServiceImpl.getDuplicate());
+			abisInsertService.setDuplicate(ie.getFindDuplicate());
+			logger.info("[Configuration updated] overrideFindDuplicate: "+abisInsertService.getDuplicate());
 			return new ResponseEntity<Object>("Successfully updated the configuration", HttpStatus.OK);
 		} catch (RuntimeException exp) {
 			logger.error("Exception in configure request: "+exp.getMessage());
