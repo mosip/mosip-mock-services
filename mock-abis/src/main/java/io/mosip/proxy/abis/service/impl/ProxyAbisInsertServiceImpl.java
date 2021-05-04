@@ -368,4 +368,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	}
 
+	public Boolean getDuplicate(){
+		return findDuplicate;
+	}
+	public void setDuplicate(Boolean d){
+		findDuplicate = d;
+	}
+
+
 }

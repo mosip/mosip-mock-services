@@ -18,4 +18,7 @@ public interface ProxyAbisInsertService {
 	
 	public String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
 			String password,String keystore) ;
+
+	public Boolean getDuplicate();
+	public void setDuplicate(Boolean d);
 }
