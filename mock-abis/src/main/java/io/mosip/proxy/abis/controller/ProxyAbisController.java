@@ -42,33 +42,62 @@ public class ProxyAbisController {
 	@Autowired
 	ProxyAbisInsertService abisInsertService;
 
+	@RequestMapping(value = "expectation", method = RequestMethod.POST)
+	@ApiOperation(value = "Sets expectation")
+	public ResponseEntity<Boolean> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
+		logger.info("Setting expectation" + expectation.getId());
+
+	}
+
+	@RequestMapping(value = "expectation", method = RequestMethod.GET)
+	@ApiOperation(value = "Gets expectation")
+	public ResponseEntity<Expectation> getExpectation() throws Exception {
+		logger.info("Getting expectation");
+
+
+	}
+
+	@RequestMapping(value = "expectation", method = RequestMethod.DELETE)
+	@ApiOperation(value = "Delete expectation")
+	public ResponseEntity<Object> deleteExpectation(@RequestBody RequestMO ie) {
+		try {
+			return processDeleteRequest(ie);
+		} catch (RequestException exp) {
+			logger.error("Exception while deleting reference id");
+			exp.setEntity(ie);
+			exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
+			throw exp;
+		}
+
+	}
+
 	@RequestMapping(value = "configure", method = RequestMethod.GET)
 	@ApiOperation(value = "Configure Request")
-	public ResponseEntity<Object> checkConfiguration()
+	public ResponseEntity<ConfigureDto> checkConfiguration()
 			throws Exception {
 		logger.info("Configure Request");
 		try {
 			ConfigureDto configureDto = new ConfigureDto();
 			configureDto.setFindDuplicate(abisInsertService.getDuplicate());
-			return new ResponseEntity<Object>(configureDto, HttpStatus.OK);
+			return new ResponseEntity<>(configureDto, HttpStatus.OK);
 		} catch (RuntimeException exp) {
 			logger.error("Exception while getting configuration: "+exp.getMessage());
-			return new ResponseEntity<Object>("Failed to get configuration: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			throw exp;
 		}
 	}
 
 	@RequestMapping(value = "configure", method = RequestMethod.POST)
 	@ApiOperation(value = "Configure Request")
-	public ResponseEntity<Object> configure(@Valid @RequestBody ConfigureDto ie, BindingResult bd)
+	public ResponseEntity<String> configure(@Valid @RequestBody ConfigureDto ie, BindingResult bd)
 			throws Exception {
 		logger.info("Configure Request");
 		try {
 			abisInsertService.setDuplicate(ie.getFindDuplicate());
 			logger.info("[Configuration updated] overrideFindDuplicate: "+abisInsertService.getDuplicate());
-			return new ResponseEntity<Object>("Successfully updated the configuration", HttpStatus.OK);
+			return new ResponseEntity<>("Successfully updated the configuration", HttpStatus.OK);
 		} catch (RuntimeException exp) {
 			logger.error("Exception in configure request: "+exp.getMessage());
-			return new ResponseEntity<Object>("Failed to update configuration: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			throw exp;
 		}
 	}
 	

@@ -14,7 +14,7 @@ public interface ProxyAbisInsertService {
 
 	public void insertData(InsertRequestMO ie);
 	
-	public IdentityResponse findDupication(IdentityRequest ir);
+	public IdentityResponse findDuplication(IdentityRequest ir);
 	
 	public String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
 			String password,String keystore) ;
