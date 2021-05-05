@@ -283,36 +283,38 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	}
 
-
-    private IdentityResponse processExpectation(IdentityRequest ir, Expectation exp){
-
-    }
-
-    /**
-     * Constructs a identity response based on the expectaions that are set.
-     * @param ir
-     * @param expectation
-     * @return
-     */
-    private IdentityResponse constructIdentityResponse(IdentityRequest ir, Expectation expectation){
-        if(!expectation.getActionToInterfere().equals("Identity")){
-            return new IdentityResponse();
-        }
+	/**
+	 * Constructs a identity response based on the expectaions that are set.
+	 * @param ir
+	 * @param expectation
+	 * @return
+	 */
+    private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation){
+		if(!expectation.getActionToInterfere().equals("Identity")){
+			return new IdentityResponse();
+		}
 
 		IdentityResponse response = new IdentityResponse();
 		response.setId(ir.getId());
 		response.setRequestId(ir.getRequestId());
 		response.setResponsetime(ir.getRequesttime());
 
-        if(expectation.getForcedResponse() == "Error"){
-            //TODO: send error back
+		if(expectation.getForcedResponse() == "Error"){
 			response.setReturnValue(2);
-        } else {
+		} else {
 			response.setReturnValue(1);
-			Map<String, IdentityResponse.Candidates> mp = new HashMap();
-			response.setCandidateList();
-		}
+			IdentityResponse.CandidateList cdl = new IdentityResponse.CandidateList();
+			List<Modalities> modalitiesList = new ArrayList<>();
+			modalitiesList.add(new Modalities("FACE", new IdentityResponse.Analytics()));
+			modalitiesList.add(new Modalities("FINGER", new IdentityResponse.Analytics()));
+			modalitiesList.add(new Modalities("IRIS", new IdentityResponse.Analytics()));
 
+			for(Expectation.ReferenceId rd: expectation.getGallery().getReferenceIds()){
+				cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), new IdentityResponse.Analytics(), modalitiesList));
+			}
+			response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
+		}
+		return response;
     }
 
 	private IdentityResponse constructIdentityResponse(IdentityRequest ir, List<BiometricData> lst) {

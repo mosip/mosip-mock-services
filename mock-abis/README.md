@@ -5,7 +5,7 @@ A module to mock  ABIS functionality for testing non-production MOSIP deployment
 
 ### Set Expectation
 
-Url: http://{host}/v1/mock-abis-service/api/v0/proxyabis/expectation
+Url: http://{host}/v1/mock-abis-service/api/v0/proxyabisconfig/expectation
 
 Method: POST
 
@@ -17,7 +17,7 @@ Request:
   "requesttime": "2021-05-05T05:44:58.525Z",
   "actionToInterfere": "Identify/ Insert",
   "forcedResponse": "Error",
-  "matchedGallery": {
+  "gallery": {
     "referenceIds": [
       {
         "referenceId": "xxxxxx"
@@ -37,7 +37,7 @@ Successfully inserted expectation $expectation_id
 
 ### Get Expectations
 
-Url: http://{host}/v1/mock-abis-service/api/v0/proxyabis/expectation
+Url: http://{host}/v1/mock-abis-service/api/v0/proxyabisconfig/expectation
 
 Method: GET
 
@@ -50,7 +50,7 @@ Response:
         "requesttime": "2021-05-05T05:44:58.525Z",
         "actionToInterfere": "Identify/ Insert",
         "forcedResponse": "Error/Success",
-        "matchedGallery": {
+        "gallery": {
             "referenceIds": [
                 {
                   "referenceId": "xxxxxx"
@@ -67,7 +67,7 @@ Response:
         "requesttime": "2021-05-05T05:44:58.525Z",
         "actionToInterfere": "Identify/ Insert",
         "forcedResponse": "Error/Success",
-        "matchedGallery": {
+        "gallery": {
             "referenceIds": [
                 {
                   "referenceId": "xxxxxx"
@@ -83,7 +83,7 @@ Response:
 
 ### Delete Expectation
 
-Url: http://{host}/v1/mock-abis-service/api/v0/proxyabis/expectation/{id}
+Url: http://{host}/v1/mock-abis-service/api/v0/proxyabisconfig/expectation/{id}
 
 Method: DELETE
 

@@ -16,7 +16,7 @@ public class Expectation {
 
     private String forcedResponse;
 
-    private Gallery matchedGallery=null;
+    private Gallery matchedGallery;
 
     public String getId() {
         return id;
@@ -83,35 +83,35 @@ public class Expectation {
 
     public static class Gallery {
 
-        List<ReferenceIds> referenceIds = new ArrayList<>();
+        List<ReferenceId> referenceIds = new ArrayList<>();
 
         public Gallery() {
 
         }
 
-        public Gallery(List<ReferenceIds> referenceIds) {
+        public Gallery(List<ReferenceId> referenceIds) {
             super();
             this.referenceIds = referenceIds;
         }
 
-        public List<ReferenceIds> getReferenceIds() {
+        public List<ReferenceId> getReferenceIds() {
             return referenceIds;
         }
 
-        public void setReferenceIds(List<ReferenceIds> referenceIds) {
+        public void setReferenceIds(List<ReferenceId> referenceIds) {
             this.referenceIds = referenceIds;
         }
 
     }
 
-    public static class ReferenceIds {
+    public static class ReferenceId {
         private String referenceId;
 
-        public ReferenceIds() {
+        public ReferenceId() {
             super();
         }
 
-        public ReferenceIds(String referenceId) {
+        public ReferenceId(String referenceId) {
             super();
             this.referenceId = referenceId;
         }

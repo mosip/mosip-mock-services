@@ -17,8 +17,8 @@ import org.springframework.web.client.RestTemplate;
 @EnableJms
 public class ProxyAbisApplication {
 	public static void main(String[] args)  {
-		ConfigurableApplicationContext configurableApplcnConetxt = SpringApplication.run(ProxyAbisApplication.class, args);
-		configurableApplcnConetxt.getBean(Listener.class).runAbisQueue();
+		ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(ProxyAbisApplication.class, args);
+//		configurableApplicationContext.getBean(Listener.class).runAbisQueue();
 		}
 		
 
