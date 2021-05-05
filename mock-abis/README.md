@@ -1,6 +1,37 @@
 # Mock ABIS
 A module to mock  ABIS functionality for testing non-production MOSIP deployments
 
+## Setting configuration at runtime functionality
+
+### Update configuration
+Url: http://{host}/v1/mock-abis-service/api/v0/proxyabisconfig/configure
+
+Method: POST
+
+Request:
+```json
+{
+	"findDuplicate": "false"
+}
+```
+
+Response:
+```text
+Successfully updated the configuration
+```
+
+### Get configuration
+Url: http://{host}/v1/mock-abis-service/api/v0/proxyabisconfig/configure
+
+Method: GET
+
+Response:
+```json
+{
+  "findDuplicate": false
+}
+```
+
 ## Expectation functionality
 
 ### Set Expectation
