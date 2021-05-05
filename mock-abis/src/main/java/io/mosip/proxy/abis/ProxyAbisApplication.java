@@ -18,8 +18,8 @@ import org.springframework.web.client.RestTemplate;
 public class ProxyAbisApplication {
 	public static void main(String[] args)  {
 		ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(ProxyAbisApplication.class, args);
-//		configurableApplicationContext.getBean(Listener.class).runAbisQueue();
-		}
+		configurableApplicationContext.getBean(Listener.class).runAbisQueue();
+	}
 		
 
 	@Bean

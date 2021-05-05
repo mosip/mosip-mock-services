@@ -83,35 +83,35 @@ public class Expectation {
 
     public static class Gallery {
 
-        List<ReferenceId> referenceIds = new ArrayList<>();
+        List<ReferenceIds> referenceIds = new ArrayList<>();
 
         public Gallery() {
 
         }
 
-        public Gallery(List<ReferenceId> referenceIds) {
+        public Gallery(List<ReferenceIds> referenceIds) {
             super();
             this.referenceIds = referenceIds;
         }
 
-        public List<ReferenceId> getReferenceIds() {
+        public List<ReferenceIds> getReferenceIds() {
             return referenceIds;
         }
 
-        public void setReferenceIds(List<ReferenceId> referenceIds) {
+        public void setReferenceIds(List<ReferenceIds> referenceIds) {
             this.referenceIds = referenceIds;
         }
 
     }
 
-    public static class ReferenceId {
+    public static class ReferenceIds {
         private String referenceId;
 
-        public ReferenceId() {
+        public ReferenceIds() {
             super();
         }
 
-        public ReferenceId(String referenceId) {
+        public ReferenceIds(String referenceId) {
             super();
             this.referenceId = referenceId;
         }

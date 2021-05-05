@@ -109,6 +109,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Value("${abis.return.duplicate:true}")
 	private boolean findDuplicate;
 
+    /**
+     * This flag is added for fast-tracking core ABIS functionality testing without depending on working environment
+     */
+	private boolean encryption = true;
+
 	@Override
 	public void insertData(InsertRequestMO ire) {
 		System.out.println(SECRET_URL);
@@ -142,46 +147,48 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private List<BiometricData> fetchCBEFF(InsertEntity ie) throws Exception {
 		List<BiometricData> lst = new ArrayList();
 		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("id", env.getProperty("secret_url.id"));
-			jsonObject.put("metadata", new JSONObject());
-			JSONObject jsonObject1 = new JSONObject();
-			jsonObject1.put("clientId", env.getProperty("secret_url.clientnId"));
-			jsonObject1.put("secretKey", env.getProperty("secret_url.secretKey"));
-			jsonObject1.put("appId", env.getProperty("secret_url.appId"));
-			jsonObject.put("requesttime", env.getProperty("secret_url.requesttime"));
-			jsonObject.put("version", env.getProperty("secret_url.version"));
-			jsonObject.put("request", jsonObject1);
+			HttpHeaders headers1 = new HttpHeaders();
+			headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 
-			HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
-			HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
+			if(encryption) {
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("id", env.getProperty("secret_url.id"));
+				jsonObject.put("metadata", new JSONObject());
+				JSONObject jsonObject1 = new JSONObject();
+				jsonObject1.put("clientId", env.getProperty("secret_url.clientnId"));
+				jsonObject1.put("secretKey", env.getProperty("secret_url.secretKey"));
+				jsonObject1.put("appId", env.getProperty("secret_url.appId"));
+				jsonObject.put("requesttime", env.getProperty("secret_url.requesttime"));
+				jsonObject.put("version", env.getProperty("secret_url.version"));
+				jsonObject.put("request", jsonObject1);
 
-			Object obj = JSONValue.parse(response.getBody());
+				HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
+				HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
 
-			JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
-			HttpHeaders responseHeader = response.getHeaders();
-			if (!(jo1.get("status").toString().equalsIgnoreCase("Success"))) {
+				Object obj = JSONValue.parse(response.getBody());
 
-				throw new Exception();
+				JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
+				HttpHeaders responseHeader = response.getHeaders();
+				if (!(jo1.get("status").toString().equalsIgnoreCase("Success"))) {
+
+					throw new Exception();
+				}
+				headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
+						responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
 			}
 
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
-			HttpHeaders headers1 = new HttpHeaders();
-
-			headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
-					responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
-
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
 			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
 
-			String cbf=cryptoUtil.decryptCbeff(cbeff);
-			
-			//BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
-			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbf));
+			if(encryption) {
+				cbeff = cryptoUtil.decryptCbeff(cbeff);
+			}
+
+			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			logger.info("Validating CBEFF data");
 			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
@@ -199,7 +206,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
-//TODO: We should check the expectation and throw errors appropriate
+				Expectation exp = expectationCache.get(bd.getBioData());
+				if (exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert") && exp.getForcedResponse().equals("Error")){
+					throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
+				}
 				lst.add(bd);
 			}
 
@@ -265,7 +275,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
                 List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
                 if(!bioValue.isEmpty()){
                     Expectation exp = expectationCache.get(bioValue.get(0));
-                    if(!exp.getId().isEmpty()){
+                    if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
                         return processExpectation(ir, exp);
                     }
                 }
@@ -290,27 +300,25 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 * @return
 	 */
     private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation){
-		if(!expectation.getActionToInterfere().equals("Identity")){
-			return new IdentityResponse();
-		}
-
+		logger.info("processExpectation" + ir.getReferenceId());
 		IdentityResponse response = new IdentityResponse();
 		response.setId(ir.getId());
 		response.setRequestId(ir.getRequestId());
 		response.setResponsetime(ir.getRequesttime());
 
-		if(expectation.getForcedResponse() == "Error"){
-			response.setReturnValue(2);
+		if(expectation.getForcedResponse().equals("Error")){
+			throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
 		} else {
 			response.setReturnValue(1);
 			IdentityResponse.CandidateList cdl = new IdentityResponse.CandidateList();
+			cdl.setCandidates(new ArrayList<>());
 			List<Modalities> modalitiesList = new ArrayList<>();
-			modalitiesList.add(new Modalities("FACE", new IdentityResponse.Analytics()));
-			modalitiesList.add(new Modalities("FINGER", new IdentityResponse.Analytics()));
-			modalitiesList.add(new Modalities("IRIS", new IdentityResponse.Analytics()));
+			modalitiesList.add(new Modalities("FACE", getAnalytics()));
+			modalitiesList.add(new Modalities("FINGER", getAnalytics()));
+			modalitiesList.add(new Modalities("IRIS", getAnalytics()));
 
-			for(Expectation.ReferenceId rd: expectation.getGallery().getReferenceIds()){
-				cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), new IdentityResponse.Analytics(), modalitiesList));
+			for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
+				cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
 			}
 			response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
 		}

@@ -91,6 +91,7 @@ public class ProxyAbisController {
 		try {
 			return processIdentityRequest(ir);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error("Error while finding duplicates for " + ir.getReferenceId());
 			RequestMO re = new RequestMO(ir.getId(), ir.getVersion(), ir.getRequestId(), ir.getRequesttime(),
 					ir.getReferenceId());
