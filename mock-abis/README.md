@@ -12,7 +12,7 @@ Method: POST
 Request:
 ```json
 {
-  "id": "xxxx",
+  "id": "<Hash of the biometric>",
   "version": "xxxxx",
   "requesttime": "2021-05-05T05:44:58.525Z",
   "actionToInterfere": "Identify/ Insert",
