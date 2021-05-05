@@ -32,7 +32,7 @@ Request:
 
 Response:
 ```text
-true/false
+Successfully inserted expectation $expectation_id
 ```
 
 ### Get Expectations
@@ -89,5 +89,5 @@ Method: DELETE
 
 Response:
 ```text
-true/false
+Successfully deleted expectation $expectation_id
 ```

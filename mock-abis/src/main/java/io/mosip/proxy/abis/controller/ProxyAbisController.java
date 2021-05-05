@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -15,12 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.proxy.abis.exception.BindingException;
@@ -44,31 +42,40 @@ public class ProxyAbisController {
 
 	@RequestMapping(value = "expectation", method = RequestMethod.POST)
 	@ApiOperation(value = "Sets expectation")
-	public ResponseEntity<Boolean> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
+	public ResponseEntity<Expectation> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
 		logger.info("Setting expectation" + expectation.getId());
-
+		try {
+			abisInsertService.setExpectation(expectation);
+			return new ResponseEntity<>(expectation, HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception while getting expectation: "+exp.getMessage());
+			throw exp;
+		}
 	}
 
 	@RequestMapping(value = "expectation", method = RequestMethod.GET)
 	@ApiOperation(value = "Gets expectation")
-	public ResponseEntity<Expectation> getExpectation() throws Exception {
+	public ResponseEntity<Map<String, Expectation>> getExpectation() throws Exception {
 		logger.info("Getting expectation");
-
-
-	}
-
-	@RequestMapping(value = "expectation", method = RequestMethod.DELETE)
-	@ApiOperation(value = "Delete expectation")
-	public ResponseEntity<Object> deleteExpectation(@RequestBody RequestMO ie) {
 		try {
-			return processDeleteRequest(ie);
-		} catch (RequestException exp) {
-			logger.error("Exception while deleting reference id");
-			exp.setEntity(ie);
-			exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
+			return new ResponseEntity<>(abisInsertService.getExpectations(), HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception while getting expectation: "+exp.getMessage());
 			throw exp;
 		}
+	}
 
+	@RequestMapping(value = "expectation/{id}", method = RequestMethod.DELETE)
+	@ApiOperation(value = "Delete expectation")
+	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
+		logger.info("Delete expectation: "+id);
+		try {
+			abisInsertService.deleteExpectation(id);
+			return new ResponseEntity<>("Successfully deleted expectation "+id, HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error("Exception while getting expectation: "+exp.getMessage());
+			throw exp;
+		}
 	}
 
 	@RequestMapping(value = "configure", method = RequestMethod.GET)

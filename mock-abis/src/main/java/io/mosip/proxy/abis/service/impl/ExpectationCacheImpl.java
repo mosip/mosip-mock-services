@@ -23,4 +23,8 @@ public class ExpectationCacheImpl implements ExpectationCache {
     public Expectation get(String id) {
         return expectationMap.getOrDefault(id, new Expectation());
     }
+
+    public Map<String, Expectation> get() {
+        return expectationMap;
+    }
 }

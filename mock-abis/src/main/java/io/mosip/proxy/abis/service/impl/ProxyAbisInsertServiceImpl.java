@@ -420,5 +420,17 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		findDuplicate = d;
 	}
 
+	public Map<String, Expectation> getExpectations(){
+    	return expectationCache.get();
+	}
+
+	public void setExpectation(Expectation exp){
+		expectationCache.insert(exp);
+	}
+
+	public void deleteExpectation(String id){
+    	expectationCache.delete(id);
+	}
+
 
 }
