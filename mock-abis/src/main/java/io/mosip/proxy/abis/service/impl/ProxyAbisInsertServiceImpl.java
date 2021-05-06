@@ -288,7 +288,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				
 			}
-			logger.info("Number of dulplicate candidates are " + lst.size());
+			logger.info("Number of duplicate candidates are " + lst.size());
 			return constructIdentityResponse(ir, lst);
 		} catch (Exception ex) {
 			throw ex;
