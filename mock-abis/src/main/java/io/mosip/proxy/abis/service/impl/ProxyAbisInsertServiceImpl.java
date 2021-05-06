@@ -112,7 +112,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
     /**
      * This flag is added for fast-tracking core ABIS functionality testing without depending on working environment
      */
-	private boolean encryption = true;
+	@Value("${abis.bio.encryption:true}")
+	private boolean encryption;
 
 	@Override
 	public void insertData(InsertRequestMO ire) {
@@ -206,9 +207,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
+
+				/* Checking expectation */
 				Expectation exp = expectationCache.get(bd.getBioData());
 				if (exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert") && exp.getForcedResponse().equals("Error")){
-					throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
+					throw new RequestException(exp.getErrorCode());
 				}
 				lst.add(bd);
 			}
@@ -274,6 +277,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
                 List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
                 if(!bioValue.isEmpty()){
+                	/* Checking expectation */
                     Expectation exp = expectationCache.get(bioValue.get(0));
                     if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
                         return processExpectation(ir, exp);
@@ -307,8 +311,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		response.setResponsetime(ir.getRequesttime());
 
 		if(expectation.getForcedResponse().equals("Error")){
-			throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
-		} else {
+			throw new RequestException(expectation.getErrorCode());
+		} else if(expectation.getForcedResponse().equals("Duplicate")) {
 			response.setReturnValue(1);
 			IdentityResponse.CandidateList cdl = new IdentityResponse.CandidateList();
 			cdl.setCandidates(new ArrayList<>());
@@ -321,6 +325,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
 			}
 			response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
+		} else {
+			response.setReturnValue(1);
+			response.setCandidateList(new IdentityResponse.CandidateList(0, new ArrayList<>()));
 		}
 		return response;
     }
