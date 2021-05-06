@@ -56,6 +56,8 @@ import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
 import io.mosip.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.entity.Expectation;
+import io.mosip.proxy.abis.entity.FailureResponse;
 import io.mosip.proxy.abis.entity.IdentityRequest;
 import io.mosip.proxy.abis.entity.IdentityResponse;
 import io.mosip.proxy.abis.entity.InsertEntity;
@@ -64,6 +66,7 @@ import io.mosip.proxy.abis.entity.RequestMO;
 import io.mosip.proxy.abis.entity.IdentityResponse.Modalities;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 
 @Service
@@ -92,6 +95,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Autowired
     private Environment env;
 
+    @Autowired
+    private ExpectationCache expectationCache;
+
 	private static String CBEFF_URL = null;
 	
 	@Value("${secret_url}")
@@ -102,6 +108,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 */
 	@Value("${abis.return.duplicate:true}")
 	private boolean findDuplicate;
+
+    /**
+     * This flag is added for fast-tracking core ABIS functionality testing without depending on working environment
+     */
+	private boolean encryption = true;
 
 	@Override
 	public void insertData(InsertRequestMO ire) {
@@ -136,46 +147,48 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private List<BiometricData> fetchCBEFF(InsertEntity ie) throws Exception {
 		List<BiometricData> lst = new ArrayList();
 		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("id", env.getProperty("secret_url.id"));
-			jsonObject.put("metadata", new JSONObject());
-			JSONObject jsonObject1 = new JSONObject();
-			jsonObject1.put("clientId", env.getProperty("secret_url.clientnId"));
-			jsonObject1.put("secretKey", env.getProperty("secret_url.secretKey"));
-			jsonObject1.put("appId", env.getProperty("secret_url.appId"));
-			jsonObject.put("requesttime", env.getProperty("secret_url.requesttime"));
-			jsonObject.put("version", env.getProperty("secret_url.version"));
-			jsonObject.put("request", jsonObject1);
+			HttpHeaders headers1 = new HttpHeaders();
+			headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 
-			HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
-			HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
+			if(encryption) {
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("id", env.getProperty("secret_url.id"));
+				jsonObject.put("metadata", new JSONObject());
+				JSONObject jsonObject1 = new JSONObject();
+				jsonObject1.put("clientId", env.getProperty("secret_url.clientnId"));
+				jsonObject1.put("secretKey", env.getProperty("secret_url.secretKey"));
+				jsonObject1.put("appId", env.getProperty("secret_url.appId"));
+				jsonObject.put("requesttime", env.getProperty("secret_url.requesttime"));
+				jsonObject.put("version", env.getProperty("secret_url.version"));
+				jsonObject.put("request", jsonObject1);
 
-			Object obj = JSONValue.parse(response.getBody());
+				HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
+				HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
 
-			JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
-			HttpHeaders responseHeader = response.getHeaders();
-			if (!(jo1.get("status").toString().equalsIgnoreCase("Success"))) {
+				Object obj = JSONValue.parse(response.getBody());
 
-				throw new Exception();
+				JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
+				HttpHeaders responseHeader = response.getHeaders();
+				if (!(jo1.get("status").toString().equalsIgnoreCase("Success"))) {
+
+					throw new Exception();
+				}
+				headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
+						responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
 			}
 
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
-			HttpHeaders headers1 = new HttpHeaders();
-
-			headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
-					responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
-
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
 			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
 
-			String cbf=cryptoUtil.decryptCbeff(cbeff);
-			
-			//BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
-			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbf));
+			if(encryption) {
+				cbeff = cryptoUtil.decryptCbeff(cbeff);
+			}
+
+			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			logger.info("Validating CBEFF data");
 			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
@@ -193,7 +206,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
-
+				Expectation exp = expectationCache.get(bd.getBioData());
+				if (exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert") && exp.getForcedResponse().equals("Error")){
+					throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
+				}
 				lst.add(bd);
 			}
 
@@ -242,10 +258,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 
 	@Override
-	public IdentityResponse findDupication(IdentityRequest ir) {
+    public IdentityResponse findDuplication(IdentityRequest ir) {
 		try {
 			String refId = ir.getReferenceId();
-			logger.info("Checking for dulication of reference ID " + refId);
+            logger.info("Checking for duplication of reference ID " + refId);
 			List<BiometricData> lst = null;
 			if (null != ir.getGallery() && ir.getGallery().getReferenceIds().size() > 0
 					&& null != ir.getGallery().getReferenceIds().get(0).getReferenceId()
@@ -256,6 +272,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
+                List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
+                if(!bioValue.isEmpty()){
+                    Expectation exp = expectationCache.get(bioValue.get(0));
+                    if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
+                        return processExpectation(ir, exp);
+                    }
+                }
 				if (findDuplicate) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
@@ -269,6 +292,38 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		}
 
 	}
+
+	/**
+	 * Constructs a identity response based on the expectaions that are set.
+	 * @param ir
+	 * @param expectation
+	 * @return
+	 */
+    private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation){
+		logger.info("processExpectation" + ir.getReferenceId());
+		IdentityResponse response = new IdentityResponse();
+		response.setId(ir.getId());
+		response.setRequestId(ir.getRequestId());
+		response.setResponsetime(ir.getRequesttime());
+
+		if(expectation.getForcedResponse().equals("Error")){
+			throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
+		} else {
+			response.setReturnValue(1);
+			IdentityResponse.CandidateList cdl = new IdentityResponse.CandidateList();
+			cdl.setCandidates(new ArrayList<>());
+			List<Modalities> modalitiesList = new ArrayList<>();
+			modalitiesList.add(new Modalities("FACE", getAnalytics()));
+			modalitiesList.add(new Modalities("FINGER", getAnalytics()));
+			modalitiesList.add(new Modalities("IRIS", getAnalytics()));
+
+			for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
+				cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
+			}
+			response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
+		}
+		return response;
+    }
 
 	private IdentityResponse constructIdentityResponse(IdentityRequest ir, List<BiometricData> lst) {
 		IdentityResponse response = new IdentityResponse();
@@ -373,6 +428,18 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 	public void setDuplicate(Boolean d){
 		findDuplicate = d;
+	}
+
+	public Map<String, Expectation> getExpectations(){
+    	return expectationCache.get();
+	}
+
+	public void setExpectation(Expectation exp){
+		expectationCache.insert(exp);
+	}
+
+	public void deleteExpectation(String id){
+    	expectationCache.delete(id);
 	}
 
 

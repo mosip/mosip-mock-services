@@ -1,11 +1,5 @@
 package io.mosip.proxy.abis.controller;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import javax.validation.Valid;
 
 import io.mosip.proxy.abis.entity.*;
@@ -15,19 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.proxy.abis.exception.BindingException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
-import io.mosip.proxy.abis.service.impl.ProxyAbisInsertServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -41,36 +29,6 @@ public class ProxyAbisController {
 
 	@Autowired
 	ProxyAbisInsertService abisInsertService;
-
-	@RequestMapping(value = "configure", method = RequestMethod.GET)
-	@ApiOperation(value = "Configure Request")
-	public ResponseEntity<Object> checkConfiguration()
-			throws Exception {
-		logger.info("Configure Request");
-		try {
-			ConfigureDto configureDto = new ConfigureDto();
-			configureDto.setFindDuplicate(abisInsertService.getDuplicate());
-			return new ResponseEntity<Object>(configureDto, HttpStatus.OK);
-		} catch (RuntimeException exp) {
-			logger.error("Exception while getting configuration: "+exp.getMessage());
-			return new ResponseEntity<Object>("Failed to get configuration: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@RequestMapping(value = "configure", method = RequestMethod.POST)
-	@ApiOperation(value = "Configure Request")
-	public ResponseEntity<Object> configure(@Valid @RequestBody ConfigureDto ie, BindingResult bd)
-			throws Exception {
-		logger.info("Configure Request");
-		try {
-			abisInsertService.setDuplicate(ie.getFindDuplicate());
-			logger.info("[Configuration updated] overrideFindDuplicate: "+abisInsertService.getDuplicate());
-			return new ResponseEntity<Object>("Successfully updated the configuration", HttpStatus.OK);
-		} catch (RuntimeException exp) {
-			logger.error("Exception in configure request: "+exp.getMessage());
-			return new ResponseEntity<Object>("Failed to update configuration: "+exp.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
 	
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Save Insert Request")
@@ -133,6 +91,7 @@ public class ProxyAbisController {
 		try {
 			return processIdentityRequest(ir);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error("Error while finding duplicates for " + ir.getReferenceId());
 			RequestMO re = new RequestMO(ir.getId(), ir.getVersion(), ir.getRequestId(), ir.getRequesttime(),
 					ir.getReferenceId());
@@ -170,7 +129,7 @@ public class ProxyAbisController {
 
 	private ResponseEntity<Object> processIdentityRequest(IdentityRequest ir) {
 		logger.info("Finding duplication for reference ID " + ir.getReferenceId());
-		IdentityResponse res = abisInsertService.findDupication(ir);
+		IdentityResponse res = abisInsertService.findDuplication(ir);
 		return new ResponseEntity<Object>(res, HttpStatus.OK);
 	}
 
