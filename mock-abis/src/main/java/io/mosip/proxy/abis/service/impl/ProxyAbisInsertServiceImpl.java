@@ -112,7 +112,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
     /**
      * This flag is added for fast-tracking core ABIS functionality testing without depending on working environment
      */
-	private boolean encryption = true;
+	@Value("${abis.bio.encryption:true}")
+	private boolean encryption;
 
 	@Override
 	public void insertData(InsertRequestMO ire) {
@@ -284,7 +285,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				
 			}
-			logger.info("Number of dulplicate candidates are " + lst.size());
+			if(lst != null)
+				logger.info("Number of dulplicate candidates are " + lst.size());
 			return constructIdentityResponse(ir, lst);
 		} catch (Exception ex) {
 			throw ex;
