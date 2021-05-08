@@ -62,7 +62,8 @@ public class ProxyAbisController {
 		} catch (RequestException exp) {
 			logger.error("Exception while deleting reference id");
 			exp.setEntity(ie);
-			exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
+			if (null == exp.getReasonConstant())
+				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
 			throw exp;
 		}
 
@@ -90,12 +91,14 @@ public class ProxyAbisController {
 	public ResponseEntity<Object> identityRequest(@RequestBody IdentityRequest ir) {
 		try {
 			return processIdentityRequest(ir);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} catch (RequestException exp) {
 			logger.error("Error while finding duplicates for " + ir.getReferenceId());
 			RequestMO re = new RequestMO(ir.getId(), ir.getVersion(), ir.getRequestId(), ir.getRequesttime(),
 					ir.getReferenceId());
-			throw new RequestException(re, FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
+			exp.setEntity(re);
+			if (null == exp.getReasonConstant())
+				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
+			throw exp;
 		}
 	}
 

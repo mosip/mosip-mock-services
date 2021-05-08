@@ -19,7 +19,7 @@ public class RequestException extends RuntimeException {
 		this.reasonConstant=reasonConstant;
 	}
 
-	public RequestException(String invalidCbeffFormat) {
+	public RequestException(String reasonConstant) {
 		super();
 		this.reasonConstant=reasonConstant;
 	}

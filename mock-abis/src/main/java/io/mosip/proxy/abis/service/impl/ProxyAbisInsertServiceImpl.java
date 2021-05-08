@@ -10,12 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -115,6 +111,19 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Value("${abis.bio.encryption:true}")
 	private boolean encryption;
 
+	/**
+	 * This flag is added for development & debugging locally registration-processor-abis-sample.json
+	 * If true then registration-processor-abis-sample.json will be picked from resources
+	 */
+	@Value("${local.development:false}")
+	private boolean localDevelopment;
+
+	/**
+	 * Mosip host
+	 */
+	@Value("${mosip_host}")
+	private String mosipHost;
+
 	@Override
 	public void insertData(InsertRequestMO ire) {
 		System.out.println(SECRET_URL);
@@ -138,6 +147,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		} catch (CbeffException cbef) {
 			logger.error("CBEF error While inserting data " + cbef.getMessage());
 			throw new RequestException(cbef.getMessage());
+		} catch(RequestException rex) {
+			throw rex;
 		} catch (Exception exp) {
 			logger.error("Error While inserting data " + exp.getMessage());
 			throw new RequestException(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
@@ -180,7 +191,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
 						responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
 			}
-
+			if (localDevelopment){
+				/* It will replace the host in referenceUrl with the mosip host */
+				CBEFF_URL = CBEFF_URL.replace("http://datashare-service", mosipHost);
+			}
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
 			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
@@ -208,8 +222,16 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
 				Expectation exp = expectationCache.get(bd.getBioData());
-				if (exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert") && exp.getForcedResponse().equals("Error")){
-					throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
+				if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert")){
+					int delayResponse = 0;
+					if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
+						delayResponse = Integer.parseInt(exp.getDelayInExecution());
+					}
+					TimeUnit.SECONDS.sleep(delayResponse);
+
+					if(exp.getForcedResponse().equals("Error")){
+						throw new RequestException(exp.getErrorCode());
+					}
 				}
 				lst.add(bd);
 			}
@@ -276,9 +298,18 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
                 List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
                 if(!bioValue.isEmpty()){
                     Expectation exp = expectationCache.get(bioValue.get(0));
-                    if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
-                        return processExpectation(ir, exp);
-                    }
+					if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
+						int delayResponse = 0;
+						if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
+							delayResponse = Integer.parseInt(exp.getDelayInExecution());
+						}
+						try {
+							TimeUnit.SECONDS.sleep(delayResponse);
+						} catch (InterruptedException e) {
+							logger.info("findDuplication -> InterruptedException: " + e.getMessage());
+						}
+						return processExpectation(ir, exp);
+					}
                 }
 				if (findDuplicate) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
@@ -290,7 +321,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			return constructIdentityResponse(ir, lst);
 		} catch (Exception ex) {
 			throw ex;
-
 		}
 
 	}
@@ -309,8 +339,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		response.setResponsetime(ir.getRequesttime());
 
 		if(expectation.getForcedResponse().equals("Error")){
-			throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
-		} else {
+			throw new RequestException(expectation.getErrorCode());
+		} else if(expectation.getForcedResponse().equals("Duplicate")) {
 			response.setReturnValue(1);
 			IdentityResponse.CandidateList cdl = new IdentityResponse.CandidateList();
 			cdl.setCandidates(new ArrayList<>());
@@ -319,10 +349,16 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			modalitiesList.add(new Modalities("FINGER", getAnalytics()));
 			modalitiesList.add(new Modalities("IRIS", getAnalytics()));
 
-			for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
-				cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
+			if(expectation.getGallery() != null && expectation.getGallery().getReferenceIds().size() > 0){
+				for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
+					cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
+				}
+			} else {
+				cdl.getCandidates().add(new IdentityResponse.Candidates(UUID.randomUUID().toString(), getAnalytics(), modalitiesList));
 			}
 			response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
+		} else {
+			return constructIdentityResponse(ir, null);
 		}
 		return response;
     }

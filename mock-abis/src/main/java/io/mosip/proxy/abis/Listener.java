@@ -2,6 +2,11 @@ package io.mosip.proxy.abis;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +104,13 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
-	
+
+	/**
+	 * This flag is added for development & debugging locally registration-processor-abis-sample.json
+	 * If true then registration-processor-abis-sample.json will be picked from resources
+	 */
+	@Value("${local.development:false}")
+	private boolean localDevelopment;
 
 	@Autowired
 	ProxyAbisController proxycontroller;
@@ -163,16 +174,20 @@ public class Listener {
 		return isrequestAddedtoQueue;
 	}
 
-	public static String getJson(String configServerFileStorageURL, String uri) {
-		RestTemplate restTemplate = new RestTemplate();
-		logger.info("Json URL ",configServerFileStorageURL,uri);
-		return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
+	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf) throws IOException, URISyntaxException {
+		if (localAbisQueueConf) {
+			return readFileFromResources("registration-processor-abis-sample.json");
+		} else {
+			RestTemplate restTemplate = new RestTemplate();
+			logger.info("Json URL ",configServerFileStorageURL,uri);
+			return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
+		}
 	}
 
-	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() {
+	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
 		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
-		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson);
+		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson, localDevelopment);
 		
 		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
@@ -250,8 +265,7 @@ public class Listener {
 
 						@Override
 						public void setListener(javax.jms.Message message) {
-							consumeLogic(message, outBoundAddress);
-
+							runInNewThread(() -> consumeLogic(message, outBoundAddress));
 						}
 					};
 					consume(abisQueueDetails.get(i).getInboundQueueName(), listener,
@@ -360,6 +374,23 @@ public class Listener {
 
 		}
 		setup();
+	}
+
+	public static String readFileFromResources(String filename) throws URISyntaxException, IOException {
+		URL resource = Listener.class.getClassLoader().getResource(filename);
+		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
+		return new String(bytes);
+	}
+
+	public static void runInNewThread(Runnable runnable){
+		new Thread(() -> {
+			try {
+				runnable.run();
+			}
+			catch (Exception e){
+				System.err.println(e);
+			}
+		}).start();
 	}
 
 }
