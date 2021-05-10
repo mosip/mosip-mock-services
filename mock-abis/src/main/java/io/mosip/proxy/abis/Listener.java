@@ -3,6 +3,7 @@ package io.mosip.proxy.abis;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -23,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
@@ -115,8 +117,9 @@ public class Listener {
 	@Autowired
 	ProxyAbisController proxycontroller;
 
-	public boolean consumeLogic(javax.jms.Message message, String abismiddlewareaddress) {
-		boolean isrequestAddedtoQueue = false;
+	public String outBoundQueue;
+
+	public void consumeLogic(javax.jms.Message message, String abismiddlewareaddress) {
 		Integer textType = 0;
 		String messageData = null;
 		logger.info("Received message " + message);
@@ -130,8 +133,9 @@ public class Listener {
 				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
 			} else {
 				logger.error("Received message is neither text nor byte");
-				return false;
+				return ;
 			}
+			proxycontroller.setQueueMsgType(textType);
 			logger.info("Message Data " + messageData);
 			Map map = new Gson().fromJson(messageData, Map.class);
 			final ObjectMapper mapper = new ObjectMapper();
@@ -140,13 +144,15 @@ public class Listener {
 
 			ResponseEntity<Object> obj = null;
 
+			logger.info("go on sleep {} ", delayResponse);
+			TimeUnit.SECONDS.sleep(delayResponse);
+
 			logger.info("Request type is " + map.get("id"));
 
 			switch (map.get(ID).toString()) {
-
 			case ABIS_INSERT:
 				final InsertRequestMO ie = mapper.convertValue(map, InsertRequestMO.class);
-				obj = proxycontroller.saveInsertRequestThroughListner(ie);
+				proxycontroller.saveInsertRequestThroughListner(ie);
 				break;
 			case ABIS_IDENTIFY:
 				final IdentityRequest ir = mapper.convertValue(map, IdentityRequest.class);
@@ -157,26 +163,25 @@ public class Listener {
 				obj = proxycontroller.deleteRequestThroughListner(mo);
 				break;
 			}
-			logger.info("go on sleep {} ", delayResponse);
-			TimeUnit.SECONDS.sleep(delayResponse);
-			logger.info("Response " , mapper.writeValueAsString(obj.getBody()));
-			if (textType == 2) {
-				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
-						abismiddlewareaddress);
-			} else if (textType == 1) {
-				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()), abismiddlewareaddress);
-			}
 		} catch (Exception e) {
 			logger.error("Issue while hitting mock abis API", e.getMessage());
 			e.printStackTrace();
 		}
-		logger.info("Is response sent=", isrequestAddedtoQueue);
-		return isrequestAddedtoQueue;
+	}
+
+	public void sendToQueue(ResponseEntity<Object> obj, Integer textType) throws JsonProcessingException, UnsupportedEncodingException {
+		final ObjectMapper mapper = new ObjectMapper();
+		if (textType == 2) {
+			send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
+					outBoundQueue);
+		} else if (textType == 1) {
+			send(mapper.writeValueAsString(obj.getBody()), outBoundQueue);
+		}
 	}
 
 	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf) throws IOException, URISyntaxException {
 		if (localAbisQueueConf) {
-			return readFileFromResources("registration-processor-abis-sample.json");
+			return readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
 			logger.info("Json URL ",configServerFileStorageURL,uri);
@@ -261,12 +266,12 @@ public class Listener {
 
 				for (int i = 0; i < abisQueueDetails.size(); i++) {
 					String outBoundAddress = abisQueueDetails.get(i).getOutboundQueueName();
+					outBoundQueue = outBoundAddress;
 					QueueListener listener = new QueueListener() {
 
 						@Override
 						public void setListener(javax.jms.Message message) {
 							consumeLogic(message, outBoundAddress);
-//							runInNewThread(() -> consumeLogic(message, outBoundAddress));
 						}
 					};
 					consume(abisQueueDetails.get(i).getInboundQueueName(), listener,
@@ -383,15 +388,6 @@ public class Listener {
 		return new String(bytes);
 	}
 
-	public static void runInNewThread(Runnable runnable){
-		new Thread(() -> {
-			try {
-				runnable.run();
-			}
-			catch (Exception e){
-				System.err.println(e);
-			}
-		}).start();
-	}
+
 
 }

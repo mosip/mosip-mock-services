@@ -2,8 +2,6 @@ package io.mosip.proxy.abis.service.impl;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,16 +9,9 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import io.mosip.kernel.core.exception.ExceptionUtils;
+import io.mosip.proxy.abis.entity.*;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -34,16 +25,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
@@ -51,14 +36,6 @@ import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
 import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
-import io.mosip.proxy.abis.entity.BiometricData;
-import io.mosip.proxy.abis.entity.Expectation;
-import io.mosip.proxy.abis.entity.FailureResponse;
-import io.mosip.proxy.abis.entity.IdentityRequest;
-import io.mosip.proxy.abis.entity.IdentityResponse;
-import io.mosip.proxy.abis.entity.InsertEntity;
-import io.mosip.proxy.abis.entity.InsertRequestMO;
-import io.mosip.proxy.abis.entity.RequestMO;
 import io.mosip.proxy.abis.entity.IdentityResponse.Modalities;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
@@ -125,8 +102,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private String mosipHost;
 
 	@Override
-	public void insertData(InsertRequestMO ire) {
+	public int insertData(InsertRequestMO ire) {
 		System.out.println(SECRET_URL);
+		int delayResponse = 0;
 		try {
 			java.util.Optional<InsertEntity> op = proxyabis.findById(ire.getReferenceId());
 			if (!op.isEmpty()) {
@@ -141,17 +119,31 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			List<BiometricData> lst = fetchCBEFF(ie);
 			if (null == lst || lst.size() == 0)
 				throw new RequestException(FailureReasonsConstants.INVALID_CBEFF_FORMAT);
+
+			for (BiometricData bdt : lst) {
+				Expectation exp = expectationCache.get(bdt.getBioData());
+				if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert")){
+					logger.info("Expectation found for " + exp.getId());
+					if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
+						delayResponse = Integer.parseInt(exp.getDelayInExecution());
+					}
+					if(exp.getForcedResponse().equals("Error")){
+						throw new RequestException(exp.getErrorCode(), delayResponse);
+					}
+				}
+			}
 			ie.setBiometricList(lst);
 			proxyabis.save(ie);
-
+			return delayResponse;
 		} catch (CbeffException cbef) {
 			logger.error("CBEF error While inserting data " + cbef.getMessage());
-			throw new RequestException(cbef.getMessage());
+			throw new RequestException(cbef.getMessage(), delayResponse);
 		} catch(RequestException rex) {
+			rex.setDelayResponse(delayResponse);
 			throw rex;
 		} catch (Exception exp) {
 			logger.error("Error While inserting data " + exp.getMessage());
-			throw new RequestException(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
+			throw new RequestException(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, delayResponse);
 		}
 
 	}
@@ -221,18 +213,18 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
-				Expectation exp = expectationCache.get(bd.getBioData());
-				if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert")){
-					int delayResponse = 0;
-					if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
-						delayResponse = Integer.parseInt(exp.getDelayInExecution());
-					}
-					TimeUnit.SECONDS.sleep(delayResponse);
-
-					if(exp.getForcedResponse().equals("Error")){
-						throw new RequestException(exp.getErrorCode());
-					}
-				}
+//				Expectation exp = expectationCache.get(bd.getBioData());
+//				if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert")){
+//					int delayResponse = 0;
+//					if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
+//						delayResponse = Integer.parseInt(exp.getDelayInExecution());
+//					}
+//					TimeUnit.SECONDS.sleep(delayResponse);
+//
+//					if(exp.getForcedResponse().equals("Error")){
+//						throw new RequestException(exp.getErrorCode());
+//					}
+//				}
 				lst.add(bd);
 			}
 
@@ -281,7 +273,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 
 	@Override
-    public IdentityResponse findDuplication(IdentityRequest ir) {
+    public IdentifyDelayResponse findDuplication(IdentityRequest ir) {
+		int delayResponse = 0;
 		try {
 			String refId = ir.getReferenceId();
             logger.info("Checking for duplication of reference ID " + refId);
@@ -299,26 +292,20 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
                 if(!bioValue.isEmpty()){
                     Expectation exp = expectationCache.get(bioValue.get(0));
 					if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
-						int delayResponse = 0;
+						logger.info("Expectation found for " + exp.getId());
 						if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
 							delayResponse = Integer.parseInt(exp.getDelayInExecution());
 						}
-						try {
-							TimeUnit.SECONDS.sleep(delayResponse);
-						} catch (InterruptedException e) {
-							logger.info("findDuplication -> InterruptedException: " + e.getMessage());
-						}
-						return processExpectation(ir, exp);
+						return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
 					}
                 }
 				if (findDuplicate) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
-				
 			}
 			if(lst != null)
-				logger.info("Number of dulplicate candidates are " + lst.size());
-			return constructIdentityResponse(ir, lst);
+				logger.info("Number of duplicate candidates are " + lst.size());
+			return new IdentifyDelayResponse(constructIdentityResponse(ir, lst), delayResponse);
 		} catch (Exception ex) {
 			throw ex;
 		}

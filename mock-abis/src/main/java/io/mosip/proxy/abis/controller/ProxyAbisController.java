@@ -2,6 +2,8 @@ package io.mosip.proxy.abis.controller;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.mosip.proxy.abis.Listener;
 import io.mosip.proxy.abis.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,11 @@ import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
 @CrossOrigin
 @RestController
 @Api(value = "Abis", description = "Provides API's for proxy Abis", tags = "Proxy Abis API")
@@ -29,7 +36,14 @@ public class ProxyAbisController {
 
 	@Autowired
 	ProxyAbisInsertService abisInsertService;
-	
+
+	@Autowired
+	private Listener listener;
+
+	private Timer timer = new Timer();
+
+	private int queueMsgType = 1;
+
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Save Insert Request")
 	public ResponseEntity<Object> saveInsertRequest(@Valid @RequestBody InsertRequestMO ie, BindingResult bd)
@@ -42,7 +56,7 @@ public class ProxyAbisController {
 			throw new BindingException(re, bd);
 		}
 		try {
-			return processInsertRequest(ie);
+			processInsertRequest(ie);
 		} catch (RequestException exp) {
 			logger.error("Exception while saving insert request");
 			RequestMO re = new RequestMO(ie.getId(), ie.getVersion(), ie.getRequestId(), ie.getRequesttime(),
@@ -52,6 +66,7 @@ public class ProxyAbisController {
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
 			throw exp;
 		}
+		return new ResponseEntity<>("Success", HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "deleterequest", method = RequestMethod.DELETE)
@@ -132,8 +147,33 @@ public class ProxyAbisController {
 
 	private ResponseEntity<Object> processIdentityRequest(IdentityRequest ir) {
 		logger.info("Finding duplication for reference ID " + ir.getReferenceId());
-		IdentityResponse res = abisInsertService.findDuplication(ir);
-		return new ResponseEntity<Object>(res, HttpStatus.OK);
+		int delayResponse = 0;
+		ResponseEntity<Object> responseEntity;
+		try {
+			IdentifyDelayResponse idr = abisInsertService.findDuplication(ir);
+			responseEntity = new ResponseEntity<Object>(idr.getIdentityResponse(), HttpStatus.OK);
+			delayResponse = idr.getDelayResponse();
+		} catch (RequestException exp) {
+			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), 2,
+					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
+							: exp.getReasonConstant().toString());
+			responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
+		}
+		ResponseEntity<Object> finalResponseEntity = responseEntity;
+		TimerTask task = new TimerTask() {
+			public void run() {
+				try {
+					listener.sendToQueue(finalResponseEntity, queueMsgType);
+					logger.info("Scheduled job completed: MsgType "+queueMsgType);
+				} catch (JsonProcessingException | UnsupportedEncodingException e) {
+					logger.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		};
+		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
+		timer.schedule(task, delayResponse*1000);
+		return responseEntity;
 	}
 
 	public ResponseEntity<Object> saveInsertRequestThroughListner(InsertRequestMO ie) {
@@ -143,7 +183,6 @@ public class ProxyAbisController {
 			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2, validate);
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
-
 		try {
 			return processInsertRequest(ie);
 		} catch (RequestException exp) {
@@ -152,14 +191,42 @@ public class ProxyAbisController {
 							: exp.getReasonConstant().toString());
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
-
 	}
 
-	private ResponseEntity<Object> processInsertRequest(InsertRequestMO ie) {
-		abisInsertService.insertData(ie);
-		ResponseMO response = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
-		logger.info("Successfully inserted record ");
-		return new ResponseEntity<Object>(response, HttpStatus.OK);
+	public ResponseEntity<Object> processInsertRequest(InsertRequestMO ie) {
+		int delayResponse = 0;
+		ResponseEntity<Object> responseEntity;
+		try {
+			String validate = validateRequest(ie);
+			if (null != validate) {
+				FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2, validate);
+				responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
+			} else {
+				delayResponse = abisInsertService.insertData(ie);
+				ResponseMO responseMO = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
+				responseEntity = new ResponseEntity<Object>(responseMO, HttpStatus.OK);
+			}
+		} catch (RequestException exp) {
+			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
+					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
+							: exp.getReasonConstant().toString());
+			responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
+		}
+		ResponseEntity<Object> finalResponseEntity = responseEntity;
+		TimerTask task = new TimerTask() {
+			public void run() {
+				try {
+					listener.sendToQueue(finalResponseEntity, queueMsgType);
+					logger.info("Scheduled job completed: MsgType "+queueMsgType);
+				} catch (JsonProcessingException | UnsupportedEncodingException e) {
+					logger.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		};
+		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
+		timer.schedule(task, delayResponse*1000);
+		return responseEntity;
 	}
 
 	private String validateRequest(InsertRequestMO ie) {
@@ -180,4 +247,11 @@ public class ProxyAbisController {
 
 	}
 
+	public int getQueueMsgType(){
+		return this.queueMsgType;
+	}
+
+	public void setQueueMsgType(int t){
+		this.queueMsgType = t;
+	}
 }

@@ -54,10 +54,7 @@ Request:
   "gallery": {
     "referenceIds": [
       {
-        "referenceId": "xxxxxx"
-      },
-      {
-        "referenceId": "xxxxxx"
+        "referenceId": "<Hash of the biometric>"
       }
     ]
   }
@@ -108,7 +105,7 @@ Response:
         "gallery": {
             "referenceIds": [
                 {
-                  "referenceId": "xxxxxx"
+                  "referenceId": "xxxx"
                 },
                 {
                   "referenceId": "xxxxxx"
