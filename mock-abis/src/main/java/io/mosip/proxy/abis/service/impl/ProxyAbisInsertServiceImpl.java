@@ -121,7 +121,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	/**
 	 * Mosip host
 	 */
-	@Value("${mosip_host}")
+	@Value("${mosip_host:#{null}}")
 	private String mosipHost;
 
 	@Override
