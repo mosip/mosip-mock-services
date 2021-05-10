@@ -351,9 +351,14 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 			if(expectation.getGallery() != null && expectation.getGallery().getReferenceIds().size() > 0){
 				for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
-					cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
+					List<String> refIds = proxyAbisBioDataRepository.fetchReferenceId(rd.getReferenceId());
+					if(refIds.size() > 0){
+						for(String refId: refIds){
+							cdl.getCandidates().add(new IdentityResponse.Candidates(refId, getAnalytics(), modalitiesList));
+						}
+					}
 				}
-				response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
+				response.setCandidateList(cdl);
 				return response;
 			}
 		}

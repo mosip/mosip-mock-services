@@ -49,6 +49,8 @@ Request:
   "requesttime": "2021-05-05T05:44:58.525Z",
   "actionToInterfere": "Identify/ Insert",
   "forcedResponse": "Error",
+  "errorCode": "",
+  "delayInExecution": "",
   "gallery": {
     "referenceIds": [
       {
@@ -81,6 +83,8 @@ Response:
         "version": "xxxxx",
         "requesttime": "2021-05-05T05:44:58.525Z",
         "actionToInterfere": "Identify/ Insert",
+        "errorCode": "",
+        "delayInExecution": "",
         "forcedResponse": "Error/Success",
         "gallery": {
             "referenceIds": [
@@ -99,6 +103,8 @@ Response:
         "requesttime": "2021-05-05T05:44:58.525Z",
         "actionToInterfere": "Identify/ Insert",
         "forcedResponse": "Error/Success",
+        "errorCode": "",
+        "delayInExecution": "",
         "gallery": {
             "referenceIds": [
                 {
