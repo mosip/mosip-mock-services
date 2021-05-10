@@ -265,7 +265,8 @@ public class Listener {
 
 						@Override
 						public void setListener(javax.jms.Message message) {
-							runInNewThread(() -> consumeLogic(message, outBoundAddress));
+							consumeLogic(message, outBoundAddress);
+//							runInNewThread(() -> consumeLogic(message, outBoundAddress));
 						}
 					};
 					consume(abisQueueDetails.get(i).getInboundQueueName(), listener,

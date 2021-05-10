@@ -64,8 +64,8 @@ This expectation will make the ABIS to return a duplicate of the mentioned galle
 }
 ```
 
-### Return duplicate
-This expectation will make the ABIS to return a duplicate of the dynamically generated referenceId
+### Return not duplicate
+This expectation will make the ABIS to return "not duplicate"
 
 ```json
 {

@@ -353,14 +353,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
 					cdl.getCandidates().add(new IdentityResponse.Candidates(rd.getReferenceId(), getAnalytics(), modalitiesList));
 				}
-			} else {
-				cdl.getCandidates().add(new IdentityResponse.Candidates(UUID.randomUUID().toString(), getAnalytics(), modalitiesList));
+				response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
+				return response;
 			}
-			response.setCandidateList(new IdentityResponse.CandidateList(cdl.getCount(), cdl.getCandidates()));
-		} else {
-			return constructIdentityResponse(ir, null);
 		}
-		return response;
+		return constructIdentityResponse(ir, null);
     }
 
 	private IdentityResponse constructIdentityResponse(IdentityRequest ir, List<BiometricData> lst) {
