@@ -1742,6 +1742,7 @@ public class SBIServiceResponse {
         String timeStamp = CryptoUtility.getTimestamp();
         if (isUsedForAuthenication == false)
         {
+            biometricData.setTimestamp(CryptoUtility.getTimestamp());
             biometricData.setBioValue(bioValue);
         }
         else
