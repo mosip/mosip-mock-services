@@ -213,18 +213,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
 				bd.setBioData(getSHA(new String(type.getBDB())));
 				bd.setInsertEntity(ie);
-//				Expectation exp = expectationCache.get(bd.getBioData());
-//				if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Insert")){
-//					int delayResponse = 0;
-//					if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
-//						delayResponse = Integer.parseInt(exp.getDelayInExecution());
-//					}
-//					TimeUnit.SECONDS.sleep(delayResponse);
-//
-//					if(exp.getForcedResponse().equals("Error")){
-//						throw new RequestException(exp.getErrorCode());
-//					}
-//				}
 				lst.add(bd);
 			}
 

@@ -54,7 +54,7 @@ Request:
   "gallery": {
     "referenceIds": [
       {
-        "referenceId": "<Hash of the biometric>"
+        "referenceId": "<Hash of the duplicate biometric>"
       }
     ]
   }

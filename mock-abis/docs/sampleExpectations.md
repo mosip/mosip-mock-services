@@ -54,10 +54,7 @@ This expectation will make the ABIS to return a duplicate of the mentioned galle
   "gallery": {
     "referenceIds": [
       {
-        "referenceId": "12121"
-      },
-      {
-        "referenceId": "14244"
+        "referenceId": "bbe2a7932e9f228c21504a63a5ef1b829ad99478d0ca3b75a159b7342260314a"
       }
     ]
   }

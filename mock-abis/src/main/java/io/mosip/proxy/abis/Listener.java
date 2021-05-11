@@ -135,7 +135,6 @@ public class Listener {
 				logger.error("Received message is neither text nor byte");
 				return ;
 			}
-			proxycontroller.setQueueMsgType(textType);
 			logger.info("Message Data " + messageData);
 			Map map = new Gson().fromJson(messageData, Map.class);
 			final ObjectMapper mapper = new ObjectMapper();
@@ -152,15 +151,15 @@ public class Listener {
 			switch (map.get(ID).toString()) {
 			case ABIS_INSERT:
 				final InsertRequestMO ie = mapper.convertValue(map, InsertRequestMO.class);
-				proxycontroller.saveInsertRequestThroughListner(ie);
+				proxycontroller.saveInsertRequestThroughListner(ie, textType);
 				break;
 			case ABIS_IDENTIFY:
 				final IdentityRequest ir = mapper.convertValue(map, IdentityRequest.class);
-				obj = proxycontroller.identityRequestThroughListner(ir);
+				proxycontroller.identityRequestThroughListner(ir, textType);
 				break;
 			case ABIS_DELETE:
 				final RequestMO mo = mapper.convertValue(map, RequestMO.class);
-				obj = proxycontroller.deleteRequestThroughListner(mo);
+				proxycontroller.deleteRequestThroughListner(mo, textType);
 				break;
 			}
 		} catch (Exception e) {

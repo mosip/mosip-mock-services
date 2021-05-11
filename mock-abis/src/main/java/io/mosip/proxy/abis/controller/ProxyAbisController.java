@@ -42,8 +42,6 @@ public class ProxyAbisController {
 
 	private Timer timer = new Timer();
 
-	private int queueMsgType = 1;
-
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Save Insert Request")
 	public ResponseEntity<Object> saveInsertRequest(@Valid @RequestBody InsertRequestMO ie, BindingResult bd)
@@ -56,7 +54,7 @@ public class ProxyAbisController {
 			throw new BindingException(re, bd);
 		}
 		try {
-			processInsertRequest(ie);
+			processInsertRequest(ie, 1);
 		} catch (RequestException exp) {
 			logger.error("Exception while saving insert request");
 			RequestMO re = new RequestMO(ie.getId(), ie.getVersion(), ie.getRequestId(), ie.getRequesttime(),
@@ -73,7 +71,7 @@ public class ProxyAbisController {
 	@ApiOperation(value = "Delete Request")
 	public ResponseEntity<Object> deleteRequest(@RequestBody RequestMO ie) {
 		try {
-			return processDeleteRequest(ie);
+			return processDeleteRequest(ie, 1);
 		} catch (RequestException exp) {
 			logger.error("Exception while deleting reference id");
 			exp.setEntity(ie);
@@ -105,7 +103,7 @@ public class ProxyAbisController {
 	@ApiOperation(value = "Checks duplication")
 	public ResponseEntity<Object> identityRequest(@RequestBody IdentityRequest ir) {
 		try {
-			return processIdentityRequest(ir);
+			return processIdentityRequest(ir, 1);
 		} catch (RequestException exp) {
 			logger.error("Error while finding duplicates for " + ir.getReferenceId());
 			RequestMO re = new RequestMO(ir.getId(), ir.getVersion(), ir.getRequestId(), ir.getRequesttime(),
@@ -117,9 +115,9 @@ public class ProxyAbisController {
 		}
 	}
 
-	public ResponseEntity<Object> deleteRequestThroughListner(RequestMO ie) {
+	public ResponseEntity<Object> deleteRequestThroughListner(RequestMO ie, int msgType) {
 		try {
-			return processDeleteRequest(ie);
+			return processDeleteRequest(ie, msgType);
 		} catch (Exception ex) {
 			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
 					FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
@@ -127,17 +125,19 @@ public class ProxyAbisController {
 		}
 	}
 
-	private ResponseEntity<Object> processDeleteRequest(RequestMO ie) {
+	private ResponseEntity<Object> processDeleteRequest(RequestMO ie, int msgType) {
 		logger.info("Deleting request with reference id" + ie.getReferenceId());
 		abisInsertService.deleteData(ie.getReferenceId());
 		ResponseMO response = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
 		logger.info("Successfully deleted reference id" + ie.getReferenceId());
-		return new ResponseEntity<Object>(response, HttpStatus.OK);
+		ResponseEntity<Object> responseEntity = new ResponseEntity<Object>(response, HttpStatus.OK);
+		executeAsync(responseEntity, 0, msgType);
+		return responseEntity;
 	}
 
-	public ResponseEntity<Object> identityRequestThroughListner(IdentityRequest ir) {
+	public ResponseEntity<Object> identityRequestThroughListner(IdentityRequest ir, int msgType) {
 		try {
-			return processIdentityRequest(ir);
+			return processIdentityRequest(ir, msgType);
 		} catch (Exception ex) {
 			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), 2,
 					FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
@@ -145,7 +145,7 @@ public class ProxyAbisController {
 		}
 	}
 
-	private ResponseEntity<Object> processIdentityRequest(IdentityRequest ir) {
+	private ResponseEntity<Object> processIdentityRequest(IdentityRequest ir, int msgType) {
 		logger.info("Finding duplication for reference ID " + ir.getReferenceId());
 		int delayResponse = 0;
 		ResponseEntity<Object> responseEntity;
@@ -157,26 +157,14 @@ public class ProxyAbisController {
 			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), 2,
 					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
 							: exp.getReasonConstant().toString());
+			delayResponse = exp.getDelayResponse();
 			responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
-		ResponseEntity<Object> finalResponseEntity = responseEntity;
-		TimerTask task = new TimerTask() {
-			public void run() {
-				try {
-					listener.sendToQueue(finalResponseEntity, queueMsgType);
-					logger.info("Scheduled job completed: MsgType "+queueMsgType);
-				} catch (JsonProcessingException | UnsupportedEncodingException e) {
-					logger.error(e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		};
-		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
-		timer.schedule(task, delayResponse*1000);
+		executeAsync(responseEntity, delayResponse, msgType);
 		return responseEntity;
 	}
 
-	public ResponseEntity<Object> saveInsertRequestThroughListner(InsertRequestMO ie) {
+	public ResponseEntity<Object> saveInsertRequestThroughListner(InsertRequestMO ie, int msgType) {
 		logger.info("Saving Insert Request");
 		String validate = validateRequest(ie);
 		if (null != validate) {
@@ -184,7 +172,7 @@ public class ProxyAbisController {
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
 		try {
-			return processInsertRequest(ie);
+			return processInsertRequest(ie, msgType);
 		} catch (RequestException exp) {
 			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
 					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
@@ -193,7 +181,7 @@ public class ProxyAbisController {
 		}
 	}
 
-	public ResponseEntity<Object> processInsertRequest(InsertRequestMO ie) {
+	public ResponseEntity<Object> processInsertRequest(InsertRequestMO ie, int msgType) {
 		int delayResponse = 0;
 		ResponseEntity<Object> responseEntity;
 		try {
@@ -210,22 +198,10 @@ public class ProxyAbisController {
 			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
 					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
 							: exp.getReasonConstant().toString());
+			delayResponse = exp.getDelayResponse();
 			responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
-		ResponseEntity<Object> finalResponseEntity = responseEntity;
-		TimerTask task = new TimerTask() {
-			public void run() {
-				try {
-					listener.sendToQueue(finalResponseEntity, queueMsgType);
-					logger.info("Scheduled job completed: MsgType "+queueMsgType);
-				} catch (JsonProcessingException | UnsupportedEncodingException e) {
-					logger.error(e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		};
-		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
-		timer.schedule(task, delayResponse*1000);
+		executeAsync(responseEntity, delayResponse, msgType);
 		return responseEntity;
 	}
 
@@ -247,11 +223,19 @@ public class ProxyAbisController {
 
 	}
 
-	public int getQueueMsgType(){
-		return this.queueMsgType;
-	}
-
-	public void setQueueMsgType(int t){
-		this.queueMsgType = t;
+	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType){
+		TimerTask task = new TimerTask() {
+			public void run() {
+				try {
+					listener.sendToQueue(finalResponseEntity, msgType);
+					logger.info("Scheduled job completed: MsgType "+msgType);
+				} catch (JsonProcessingException | UnsupportedEncodingException e) {
+					logger.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		};
+		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
+		timer.schedule(task, delayResponse*1000);
 	}
 }
