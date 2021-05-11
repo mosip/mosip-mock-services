@@ -170,6 +170,7 @@ public class Listener {
 
 	public void sendToQueue(ResponseEntity<Object> obj, Integer textType) throws JsonProcessingException, UnsupportedEncodingException {
 		final ObjectMapper mapper = new ObjectMapper();
+		logger.info("Response: ", obj.getBody().toString());
 		if (textType == 2) {
 			send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
 					outBoundQueue);
