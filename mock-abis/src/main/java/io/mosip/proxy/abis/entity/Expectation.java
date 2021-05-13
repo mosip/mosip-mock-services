@@ -12,9 +12,16 @@ public class Expectation {
 
     private LocalDateTime requesttime;
 
+    /* Insert/ Identity*/
     private String actionToInterfere;
 
+    /* Error/ Duplicate/ Success (default)*/
     private String forcedResponse;
+
+    /* Failure response */
+    private String errorCode;
+
+    private String delayInExecution;
 
     private Gallery matchedGallery;
 
@@ -64,6 +71,22 @@ public class Expectation {
 
     public void setGallery(Gallery matchedGallery) {
         this.matchedGallery = matchedGallery;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String e) {
+        this.errorCode = e;
+    }
+
+    public String getDelayInExecution() {
+        return delayInExecution;
+    }
+
+    public void setDelayInExecution(String e) {
+        this.delayInExecution = e;
     }
 
     public Expectation() {

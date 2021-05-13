@@ -8,6 +8,8 @@ public class RequestException extends RuntimeException {
 	
 	public String reasonConstant=null;
 
+	public int delayResponse=0;
+
 	public RequestException() {
 		super();
 
@@ -19,9 +21,15 @@ public class RequestException extends RuntimeException {
 		this.reasonConstant=reasonConstant;
 	}
 
-	public RequestException(String invalidCbeffFormat) {
+	public RequestException(String reasonConstant) {
 		super();
 		this.reasonConstant=reasonConstant;
+	}
+
+	public RequestException(String reasonConstant, int d) {
+		super();
+		this.reasonConstant=reasonConstant;
+		this.delayResponse=d;
 	}
 
 	public RequestMO getEntity() {
@@ -38,6 +46,14 @@ public class RequestException extends RuntimeException {
 
 	public void setReasonConstant(String reasonConstant) {
 		this.reasonConstant = reasonConstant;
+	}
+
+	public int getDelayResponse() {
+		return delayResponse;
+	}
+
+	public void setDelayResponse(int d) {
+		this.delayResponse = d;
 	}
 	
 	

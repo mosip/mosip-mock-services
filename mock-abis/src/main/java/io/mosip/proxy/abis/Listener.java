@@ -2,6 +2,12 @@ package io.mosip.proxy.abis;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
@@ -99,13 +106,20 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
-	
+
+	/**
+	 * This flag is added for development & debugging locally registration-processor-abis-sample.json
+	 * If true then registration-processor-abis-sample.json will be picked from resources
+	 */
+	@Value("${local.development:false}")
+	private boolean localDevelopment;
 
 	@Autowired
 	ProxyAbisController proxycontroller;
 
-	public boolean consumeLogic(javax.jms.Message message, String abismiddlewareaddress) {
-		boolean isrequestAddedtoQueue = false;
+	public String outBoundQueue;
+
+	public void consumeLogic(javax.jms.Message message, String abismiddlewareaddress) {
 		Integer textType = 0;
 		String messageData = null;
 		logger.info("Received message " + message);
@@ -119,7 +133,7 @@ public class Listener {
 				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
 			} else {
 				logger.error("Received message is neither text nor byte");
-				return false;
+				return ;
 			}
 			logger.info("Message Data " + messageData);
 			Map map = new Gson().fromJson(messageData, Map.class);
@@ -129,50 +143,56 @@ public class Listener {
 
 			ResponseEntity<Object> obj = null;
 
+			logger.info("go on sleep {} ", delayResponse);
+			TimeUnit.SECONDS.sleep(delayResponse);
+
 			logger.info("Request type is " + map.get("id"));
 
 			switch (map.get(ID).toString()) {
-
 			case ABIS_INSERT:
 				final InsertRequestMO ie = mapper.convertValue(map, InsertRequestMO.class);
-				obj = proxycontroller.saveInsertRequestThroughListner(ie);
+				proxycontroller.saveInsertRequestThroughListner(ie, textType);
 				break;
 			case ABIS_IDENTIFY:
 				final IdentityRequest ir = mapper.convertValue(map, IdentityRequest.class);
-				obj = proxycontroller.identityRequestThroughListner(ir);
+				proxycontroller.identityRequestThroughListner(ir, textType);
 				break;
 			case ABIS_DELETE:
 				final RequestMO mo = mapper.convertValue(map, RequestMO.class);
-				obj = proxycontroller.deleteRequestThroughListner(mo);
+				proxycontroller.deleteRequestThroughListner(mo, textType);
 				break;
-			}
-			logger.info("go on sleep {} ", delayResponse);
-			TimeUnit.SECONDS.sleep(delayResponse);
-			logger.info("Response " , mapper.writeValueAsString(obj.getBody()));
-			if (textType == 2) {
-				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
-						abismiddlewareaddress);
-			} else if (textType == 1) {
-				isrequestAddedtoQueue = send(mapper.writeValueAsString(obj.getBody()), abismiddlewareaddress);
 			}
 		} catch (Exception e) {
 			logger.error("Issue while hitting mock abis API", e.getMessage());
 			e.printStackTrace();
 		}
-		logger.info("Is response sent=", isrequestAddedtoQueue);
-		return isrequestAddedtoQueue;
 	}
 
-	public static String getJson(String configServerFileStorageURL, String uri) {
-		RestTemplate restTemplate = new RestTemplate();
-		logger.info("Json URL ",configServerFileStorageURL,uri);
-		return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
+	public void sendToQueue(ResponseEntity<Object> obj, Integer textType) throws JsonProcessingException, UnsupportedEncodingException {
+		final ObjectMapper mapper = new ObjectMapper();
+		logger.info("Response: ", obj.getBody().toString());
+		if (textType == 2) {
+			send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
+					outBoundQueue);
+		} else if (textType == 1) {
+			send(mapper.writeValueAsString(obj.getBody()), outBoundQueue);
+		}
 	}
 
-	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() {
+	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf) throws IOException, URISyntaxException {
+		if (localAbisQueueConf) {
+			return readFileFromResources("registration-processor-abis.json");
+		} else {
+			RestTemplate restTemplate = new RestTemplate();
+			logger.info("Json URL ",configServerFileStorageURL,uri);
+			return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
+		}
+	}
+
+	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
 		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
-		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson);
+		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson, localDevelopment);
 		
 		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
@@ -246,12 +266,12 @@ public class Listener {
 
 				for (int i = 0; i < abisQueueDetails.size(); i++) {
 					String outBoundAddress = abisQueueDetails.get(i).getOutboundQueueName();
+					outBoundQueue = outBoundAddress;
 					QueueListener listener = new QueueListener() {
 
 						@Override
 						public void setListener(javax.jms.Message message) {
 							consumeLogic(message, outBoundAddress);
-
 						}
 					};
 					consume(abisQueueDetails.get(i).getInboundQueueName(), listener,
@@ -361,5 +381,13 @@ public class Listener {
 		}
 		setup();
 	}
+
+	public static String readFileFromResources(String filename) throws URISyntaxException, IOException {
+		URL resource = Listener.class.getClassLoader().getResource(filename);
+		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
+		return new String(bytes);
+	}
+
+
 
 }
