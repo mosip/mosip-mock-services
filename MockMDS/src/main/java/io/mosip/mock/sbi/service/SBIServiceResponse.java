@@ -135,15 +135,6 @@ public class SBIServiceResponse {
              List<DiscoverDto> infoList = new ArrayList<DiscoverDto> ();
              if (type == null || type.trim().length() == 0)
     		 {
-            	 /*
-            	 DiscoverDto discoverInfo = new DiscoverDto ();
-            	 Map<String, String> errorMap  = new HashMap<String, String>() {{
-            		    put("502",  SBIJsonInfo.getErrorDescription(lang, "502"));
-            		}};
-            	 discoverInfo.error = errorMap;
-            	 infoList.add(discoverInfo);
-            	 return objectMapper.writeValueAsString(infoList);
-            	 */
             	 return SBIJsonInfo.getErrorJson (lang, "502", "");
     		 }
              else if (!type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE).trim().toLowerCase())
@@ -151,15 +142,6 @@ public class SBIServiceResponse {
         		 && !type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE).trim().toLowerCase())
         		 && !type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS).trim().toLowerCase()))
              {
-            	 /*
-            	 DiscoverDto discoverInfo = new DiscoverDto ();
-            	 Map<String, String> errorMap  = new HashMap<String, String>() {{
-            		    put("502",  SBIJsonInfo.getErrorDescription(lang, "502"));
-            		}};
-            	 discoverInfo.error = errorMap;
-            	 infoList.add(discoverInfo);
-            	 return objectMapper.writeValueAsString(infoList);
-            	 */
             	 return SBIJsonInfo.getErrorJson (lang, "502", "");
              }             
              else
@@ -201,15 +183,6 @@ public class SBIServiceResponse {
 	        	 }
 	             else
 	             {
-	            	 /*
-	            	 DiscoverDto discoverInfo = new DiscoverDto ();
-	            	 Map<String, String> errorMap  = new HashMap<String, String>() {{
-	            		    put("503",  SBIJsonInfo.getErrorDescription(lang, "503"));
-	            		}};
-	            	 discoverInfo.error = errorMap;
-	            	 infoList.add(discoverInfo);
-	            	 return objectMapper.writeValueAsString(infoList);
-	            	 */
 	            	 return SBIJsonInfo.getErrorJson (lang, "503", "");
 	             }	 
              }
@@ -259,12 +232,6 @@ public class SBIServiceResponse {
         	 }
              else
              {
-            	 /*
-            	 deviceInfoDto = new DeviceInfoDto ();
-            	 deviceInfoDto.setError(new ErrorInfo ("503", SBIJsonInfo.getErrorDescription(lang, "503"))); 
-            	 infoList.add(deviceInfoDto);
-            	 return objectMapper.writeValueAsString(infoList);
-            	 */
             	 return SBIJsonInfo.getErrorJson (lang, "503", "");
              }	 
          }
@@ -441,7 +408,6 @@ public class SBIServiceResponse {
         {
             if (!mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_REGISTRATION)))
             {
-                //return SBIJsonInfo.getErrorJson (lang, "709", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "709", "", true);
             }
 
@@ -471,19 +437,16 @@ public class SBIServiceResponse {
             deviceHelper = getDeviceInfoForDeviceId (mockService, deviceId);
             if (deviceHelper.getDeviceInfo() == null)
             {
-                //return SBIJsonInfo.getErrorJson (lang, "705", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "705", "", true);
             }
             if (deviceHelper.getDeviceInfo() != null && !deviceHelper.getDeviceInfo().getPurpose().trim().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
             {
-                //return SBIJsonInfo.getErrorJson (lang, "706", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "706", "", true);
             }
             if (deviceHelper.getCaptureInfo() != null && 
             		(!deviceHelper.getDeviceId().trim().equalsIgnoreCase(deviceId) && 
     				 deviceHelper.getDeviceSubId() != deviceSubId))
             {
-                //return SBIJsonInfo.getErrorJson (lang, "702", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "702", "", true);
             }
 
@@ -497,7 +460,6 @@ public class SBIServiceResponse {
             else if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISUSED))
             {
             	if (deviceHelper.getCaptureInfo().isCaptureStarted())
-                    //return SBIJsonInfo.getErrorJson (lang, "703", "");
                 	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "703", "", true);
             }
             
@@ -646,7 +608,6 @@ public class SBIServiceResponse {
         {
             if (!mockService.getPurpose().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PURPOSE_AUTH)))
             {
-                //return SBIJsonInfo.getErrorJson (lang, "809", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "809", "", false);
             }
 
@@ -669,19 +630,16 @@ public class SBIServiceResponse {
 
             if (deviceId != null && deviceId.trim().length() == 0)
             {
-                //return SBIJsonInfo.getErrorJson (lang, "804", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "804", "", false);
             }
             
             deviceHelper = getDeviceInfoForDeviceId (mockService, deviceId);
             if (deviceHelper.getDeviceInfo() == null)
             {
-                //return SBIJsonInfo.getErrorJson (lang, "805", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "805", "", false);
             }
             if (deviceHelper.getDeviceInfo() != null && !deviceHelper.getDeviceInfo().getPurpose().trim().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
             {
-                //return SBIJsonInfo.getErrorJson (lang, "806", "");
                 return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "806", "", false);
             }
 
@@ -695,7 +653,6 @@ public class SBIServiceResponse {
             else if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISUSED))
             {
             	if (deviceHelper.getCaptureInfo().isCaptureStarted())
-                    //return SBIJsonInfo.getErrorJson (lang, "803", "");
                 	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "803", "", false);
             }
             

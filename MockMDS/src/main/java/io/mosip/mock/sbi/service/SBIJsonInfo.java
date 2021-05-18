@@ -31,9 +31,6 @@ public class SBIJsonInfo {
         ErrorInfo errorInfo = new ErrorInfo (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim());
         errorDto.error = errorInfo;
    		errorList.add(errorDto);
-   		//return mapper.writeValueAsString(errorList);
-   	 
-        //ErrorInfo errorInfo = new ErrorInfo (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim());
         try {
 			return mapper.writeValueAsString(errorList);
 		} catch (JsonGenerationException e) {
