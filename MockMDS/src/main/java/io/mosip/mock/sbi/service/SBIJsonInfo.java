@@ -2,7 +2,9 @@ package io.mosip.mock.sbi.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -12,12 +14,39 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDto;
+import io.mosip.registration.mdm.dto.DiscoverDto;
 import io.mosip.registration.mdm.dto.ErrorInfo;
 import io.mosip.registration.mdm.dto.RCaptureResponse;
+import lombok.Getter;
+import lombok.Setter;
 
 public class SBIJsonInfo {
-
 	public static String getErrorJson (String lang, String errorCode, String exceptionMessage)
+    {
+		List<ErrorDto> errorList = new ArrayList<ErrorDto> ();
+		StringBuilder sb = new StringBuilder ();
+        ObjectMapper mapper = new ObjectMapper ();	
+        
+        ErrorDto errorDto = new ErrorDto ();
+        ErrorInfo errorInfo = new ErrorInfo (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim());
+        errorDto.error = errorInfo;
+   		errorList.add(errorDto);
+        try {
+			return mapper.writeValueAsString(errorList);
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+    }
+	
+	public static String getStreamErrorJson (String lang, String errorCode, String exceptionMessage)
     {
         StringBuilder sb = new StringBuilder ();
         ObjectMapper mapper = new ObjectMapper ();	
@@ -36,7 +65,7 @@ public class SBIJsonInfo {
 		}
 		return null;
     }
-	
+
 	public static String getCaptureErrorJson (String specVersion, String lang, String errorCode, String exceptionMessage, boolean isRCapture)
     {
         StringBuilder sb = new StringBuilder ();
@@ -90,5 +119,11 @@ public class SBIJsonInfo {
         	errorDescription = "No Description available.";
         }
         return errorDescription;
-    }
+    }	
+}
+
+@Getter
+@Setter
+class ErrorDto {
+	public ErrorInfo error;
 }
