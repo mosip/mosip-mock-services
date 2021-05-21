@@ -42,6 +42,12 @@ public class CryptoUtility {
 	private static final String HASH_ALGO = "SHA-256";
 	private static final int asymmetricKeyLength = 2048;
 
+	/**
+	 * Default UTC pattern.
+	 */
+	private static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
+	
 	static {
 		provider = init();
 	}
@@ -66,7 +72,20 @@ public class CryptoUtility {
     }
 	
 	public static String getTimestamp() {
-    	return DateUtils.formatToISOString(DateUtils.getUTCCurrentDateTime());
+    	return formatToISOString(DateUtils.getUTCCurrentDateTime());
+	}
+	
+	/**
+	 * Formats java.time.LocalDateTime to UTC string in default ISO pattern -
+	 * <b>yyyy-MM-dd'T'HH:mm:ss'Z'</b> ignoring zone offset.
+	 * 
+	 * @param localDateTime java.time.LocalDateTime
+	 * 
+	 * @return a date String
+	 */
+
+	public static String formatToISOString(LocalDateTime localDateTime) {
+		return localDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
 	}
 	
 	public static Map<String, String>  encrypt(PublicKey publicKey, byte[] dataBytes, String transactionId) {

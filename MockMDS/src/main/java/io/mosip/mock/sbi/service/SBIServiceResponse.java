@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+import org.apache.commons.codec.binary.Hex;
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
 import org.codehaus.jackson.JsonGenerationException;
@@ -1737,7 +1738,9 @@ public class SBIServiceResponse {
 				biometricData.setBioValue(cryptoResult.containsKey("ENC_DATA") ? 
 						cryptoResult.get("ENC_DATA") : null);		
 				biometric.setSessionKey(cryptoResult.get("ENC_SESSION_KEY"));
-				biometric.setThumbprint(CryptoUtil.encodeBase64(JwtUtility.getCertificateThumbprint(certificate)));
+				String thumbPrint = toHex (JwtUtility.getCertificateThumbprint(certificate)).replace ("-", "").toUpperCase();
+				//System.out.println("ThumbPrint>>" + thumbPrint);
+				biometric.setThumbprint(thumbPrint);
 			} catch (Exception ex) {
                 LOGGER.error("getBiometricData :: encrypt :: ", ex);
 				// TODO Auto-generated catch block
@@ -1763,7 +1766,7 @@ public class SBIServiceResponse {
         String previousDataHashSHA256Hex = "";
         if (previousHash == null || previousHash.trim().length() == 0)
         {
-            byte [] previousDataByteArr = StringHelper.toUtf8ByteArray (previousHash);
+            byte [] previousDataByteArr = StringHelper.toUtf8ByteArray ("");
             previousDataHashSHA256Hex = HMACUtils.digestAsPlainText (HMACUtils.generateHash(previousDataByteArr));
         }
         else
@@ -1771,7 +1774,7 @@ public class SBIServiceResponse {
             previousDataHashSHA256Hex = previousHash;
         }
 
-        byte [] currentDataByteArr = StringHelper.toUtf8ByteArray (currentBioData);
+        byte [] currentDataByteArr = StringHelper.toUtf8ByteArray (bioValue);
         String currentDataHashSHA256Hex = HMACUtils.digestAsPlainText (HMACUtils.generateHash (currentDataByteArr));
 
         String finalDataHash = previousDataHashSHA256Hex + currentDataHashSHA256Hex;
@@ -1781,6 +1784,10 @@ public class SBIServiceResponse {
         return biometric;
     }
 
+	public String toHex(byte[] bytes) {
+        return Hex.encodeHexString(bytes);
+    }
+	
 	private BioMetricsDto getBiometricErrorData (String lang, String specVersion, boolean isForAuthenication)
 	{
 		String errorCode = "701"; 
