@@ -9,6 +9,9 @@ ENV spring_config_url_env=${spring_config_url}
 ENV is_glowroot_env=${is_glowroot}
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
+ARG container_user=mosip
+
+# can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_group=mosip
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
