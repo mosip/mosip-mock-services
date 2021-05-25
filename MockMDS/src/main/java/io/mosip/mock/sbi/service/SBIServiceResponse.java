@@ -5,6 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
@@ -793,7 +796,7 @@ public class SBIServiceResponse {
         return response;
 	}
 
-	private List<BioMetricsDto> getBioMetricsDtoList (String lang, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, int deviceSubId, boolean isForAuthenication) throws JsonGenerationException, JsonMappingException, IOException
+	private List<BioMetricsDto> getBioMetricsDtoList (String lang, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, int deviceSubId, boolean isForAuthenication) throws JsonGenerationException, JsonMappingException, IOException, NoSuchAlgorithmException, DecoderException
 	{
         List<BioMetricsDto> biometrics = new ArrayList<BioMetricsDto> ();
     	String specVersion = requestObject.getSpecVersion();
@@ -1220,12 +1223,12 @@ public class SBIServiceResponse {
     				HashMap<String, String> biometricData = captureInfo.getBiometricData();
     				if (biometricData != null && biometricData.size() > 0)
     				{
-    					int bioCounter = 1;
+    					int bioCounter = 0;
     					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
     						if (bioCounter > bioCount)
     							break;
     			            
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIndex() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIndex() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_INDEX))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1248,9 +1251,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
     	        			
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftMiddle() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftMiddle() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_MIDDLE))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1273,9 +1277,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
 
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftRing() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftRing() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_RING))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1298,9 +1303,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
     	        			
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftLittle() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftLittle() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_LITTLE))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1321,11 +1327,12 @@ public class SBIServiceResponse {
     	                            {
     	                            	biometrics.add (bioDto);
     	                                previousHash = bioDto.getHash();
+    	        	        			bioCounter ++;
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
 
-    	        			bioCounter ++;
     			        }
     				}
     				else
@@ -1343,12 +1350,12 @@ public class SBIServiceResponse {
     				HashMap<String, String> biometricData = captureInfo.getBiometricData();
     				if (biometricData != null && biometricData.size() > 0)
     				{
-    					int bioCounter = 1;
+    					int bioCounter = 0;
     					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
     						if (bioCounter > bioCount)
     							break;
     			            
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_INDEX))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1371,9 +1378,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
     	        			
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightMiddle() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightMiddle() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_MIDDLE))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1396,9 +1404,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
 
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightRing() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightRing() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_RING))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1421,9 +1430,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
     	        			
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightLittle() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightLittle() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_LITTLE))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1446,9 +1456,8 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
-
-    	        			bioCounter ++;
     			        }
     				}
     				else
@@ -1466,12 +1475,12 @@ public class SBIServiceResponse {
     				HashMap<String, String> biometricData = captureInfo.getBiometricData();
     				if (biometricData != null && biometricData.size() > 0)
     				{
-    					int bioCounter = 1;
+    					int bioCounter = 0;
     					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
     						if (bioCounter > bioCount)
     							break;
     			            
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftThumb() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftThumb() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_THUMB))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1494,9 +1503,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
     	        			
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightThumb() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightThumb() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_THUMB))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1519,9 +1529,8 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+        	        			bioCounter ++;
     	        			}
-    	        			
-    	        			bioCounter ++;
     			        }
     				}
     				else
@@ -1599,12 +1608,12 @@ public class SBIServiceResponse {
     				HashMap<String, String> biometricData = captureInfo.getBiometricData();
     				if (biometricData != null && biometricData.size() > 0)
     				{
-    					int bioCounter = 1;
+    					int bioCounter = 0;
     					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
     						if (bioCounter > bioCount)
     							break;
     			            
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_IRIS))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1627,9 +1636,10 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+    	        				bioCounter ++;
     	        			}
     	        			
-    	        			if ((bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked)
+    	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_IRIS))
     	        			{
     	            			String bioData = pair.getValue();
@@ -1652,9 +1662,8 @@ public class SBIServiceResponse {
     	                                previousHash = bioDto.getHash();
     	                            }
     	                        }
+    	        				bioCounter ++;
     	        			}
-
-    	        			bioCounter ++;
     			        }
     				}
     				else
@@ -1700,7 +1709,7 @@ public class SBIServiceResponse {
 	
 	private BioMetricsDto getBiometricData (String transactionId, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, 
 			String previousHash, String bioType, String bioSubType, String bioValue, 
-			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws JsonGenerationException, JsonMappingException, IOException
+			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws JsonGenerationException, JsonMappingException, IOException, NoSuchAlgorithmException, DecoderException
     {
 		DeviceInfo deviceInfo = deviceHelper.getDeviceInfo();
 		
@@ -1763,23 +1772,22 @@ public class SBIServiceResponse {
         String dataBlockSignBase64 = deviceHelper.getSignBioMetricsDataDto (deviceHelper.getDeviceType(), deviceHelper.getDeviceSubType(), currentBioData);
         biometric.setData (dataBlockSignBase64);
 
-        String previousDataHashSHA256Hex = "";
-        if (previousHash == null || previousHash.trim().length() == 0)
-        {
+        byte[] previousBioDataHash = null;
+        if (previousHash == null || previousHash.trim().length() == 0) {
             byte [] previousDataByteArr = StringHelper.toUtf8ByteArray ("");
-            previousDataHashSHA256Hex = HMACUtils.digestAsPlainText (HMACUtils.generateHash(previousDataByteArr));
+            previousBioDataHash = generateHash(previousDataByteArr);
+        } else {
+            previousBioDataHash = decodeHex(previousHash);
         }
-        else
-        {
-            previousDataHashSHA256Hex = previousHash;
-        }
-
-        byte [] currentDataByteArr = StringHelper.toUtf8ByteArray (bioValue);
-        String currentDataHashSHA256Hex = HMACUtils.digestAsPlainText (HMACUtils.generateHash (currentDataByteArr));
-
-        String finalDataHash = previousDataHashSHA256Hex + currentDataHashSHA256Hex;
-        byte [] finalDataByteArr = StringHelper.toUtf8ByteArray (finalDataHash);
-        biometric.setHash(HMACUtils.digestAsPlainText (HMACUtils.generateHash (finalDataByteArr)));
+        //instead of BioData, bioValue (before encrytion in case of Capture response) is used for computing the hash.
+        byte [] currentDataByteArr = java.util.Base64.getUrlDecoder().decode(bioValue);
+        // Here Byte Array
+        byte[] currentBioDataHash = generateHash (currentDataByteArr);
+        byte[] finalBioDataHash = new byte[currentBioDataHash.length + previousBioDataHash.length];
+        System.arraycopy (previousBioDataHash, 0, finalBioDataHash, 0, previousBioDataHash.length);
+        System.arraycopy (currentBioDataHash, 0, finalBioDataHash, previousBioDataHash.length, currentBioDataHash.length);
+        
+        biometric.setHash(toHex (generateHash (finalBioDataHash)));
 
         return biometric;
     }
@@ -1788,6 +1796,16 @@ public class SBIServiceResponse {
         return Hex.encodeHexString(bytes);
     }
 	
+	 private final String HASH_ALGORITHM_NAME = "SHA-256";
+	 public byte[] generateHash(final byte[] bytes) throws NoSuchAlgorithmException{
+	 	MessageDigest messageDigest = MessageDigest.getInstance(HASH_ALGORITHM_NAME);
+	    return messageDigest.digest(bytes);
+	 }
+	 
+	 public byte[] decodeHex(String hexData) throws DecoderException{
+	 	return Hex.decodeHex(hexData);
+	 }
+	    
 	private BioMetricsDto getBiometricErrorData (String lang, String specVersion, boolean isForAuthenication)
 	{
 		String errorCode = "701"; 
