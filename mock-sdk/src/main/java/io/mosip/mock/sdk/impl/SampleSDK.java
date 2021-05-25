@@ -106,7 +106,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateFingerprintQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		score.setScore(0);
+		score.setScore(getAvgQualityScore(segments));
 
 		// TODO actual quality evaluation here
 
@@ -117,7 +117,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateIrisQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		score.setScore(0);
+		score.setScore(getAvgQualityScore(segments));
 
 		// TODO actual quality evaluation here
 
@@ -128,7 +128,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateFaceQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		score.setScore(0);
+		score.setScore(getAvgQualityScore(segments));
 
 		// TODO actual quality evaluation here
 
@@ -468,6 +468,16 @@ public class SampleSDK implements IBioApi {
 			List<BiometricType> modalitiesToConvert) {
 		// TODO Auto-generated method stub
 		return sample;
+	}
+
+	private float getAvgQualityScore(List<BIR> segments) {
+		float qualityScore =0;
+		for(BIR bir : segments) {
+
+			qualityScore+=(bir.getBdbInfo().getQuality().getScore());
+		}
+
+		return qualityScore/segments.size();
 	}
 
 }
