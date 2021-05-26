@@ -69,7 +69,13 @@ jobs:
           
     - name: Log into registry
       run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
-        
+
+    - name: Publish the maven package
+      run: |
+        cd MockMDS && mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.RELEASE_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
+      env:
+        GPG_TTY: $(tty)
+
     - name: Push image
       run: |
           IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-abis
@@ -81,9 +87,3 @@ jobs:
           echo VERSION=$VERSION
           docker tag mock-abis $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          
-    - name: Publish the maven package
-      run: |
-        cd MockMDS && mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.RELEASE_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
-      env:
-        GPG_TTY: $(tty)
