@@ -12,7 +12,7 @@
 	
 	<groupId>org.biometric</groupId>
 	<artifactId>provider</artifactId>
-	<version>1.1.5-SNAPSHOT</version>
+	<version>1.1.5</version>
 	<name>mock-mds</name>
 	<description>A mock project for biometric provider</description>
 
