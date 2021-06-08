@@ -17,6 +17,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 import java.util.Properties;
@@ -57,6 +58,9 @@ public class CryptoCoreUtil {
 	private static String filePath;
 
 	private final static int THUMBPRINT_LENGTH = 32;
+	private final static int NONCE_SIZE = 12;
+	private final static int AAD_SIZE = 32;
+	public static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
@@ -121,6 +125,21 @@ public class CryptoCoreUtil {
 				Before 1.1.4 copied bytes does not prepended with certificate thumbprint, required to be used as encrypted random key.
 			*/
 			byte[] copiedBytes = copyOfRange(responseData, 0, keyDemiliterIndex);
+			byte[] encryptedCbeffData = copyOfRange(responseData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
+			/*
+				Added VERSION for the encrypted data along with AAD & Nonce for the AES-GCM encryption.
+				VER_R2 is prepended to the encrypted random session key before the thumbprint.  
+			*/
+			byte[] headerBytes = parseEncryptKeyHeader(copiedBytes);
+			if (Arrays.equals(headerBytes, VERSION_RSA_2048)) {
+				byte[] encryptedSymmetricKey = Arrays.copyOfRange(copiedBytes, THUMBPRINT_LENGTH + VERSION_RSA_2048.length, copiedBytes.length);	
+				byte[] aad = Arrays.copyOfRange(encryptedCbeffData, 0, AAD_SIZE);
+				byte[] nonce = Arrays.copyOfRange(aad, 0, NONCE_SIZE);
+				byte[] encCbeffData = Arrays.copyOfRange(encryptedCbeffData, AAD_SIZE, encryptedCbeffData.length);
+				byte[] decryptedSymmetricKey = decryptRandomSymKey(privateKey.getPrivateKey(), encryptedSymmetricKey);
+				SecretKey symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
+				return decryptCbeffData(symmetricKey, encCbeffData, nonce, aad);
+			} 
 			/*
 				To Handle both 1.1.4 and before, check the size of copiedBytes.
 				If copied bytes are more than 256, certificate is prepended to the encrypted random key 
@@ -134,8 +153,6 @@ public class CryptoCoreUtil {
 			} else {
 				encryptedSymmetricKey = copiedBytes;
 			}
-			
-			byte[] encryptedCbeffData = copyOfRange(responseData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
 			
 			byte[] certThumbprint = getCertificateThumbprint(privateKey.getCertificate());
 			/*
@@ -183,7 +200,7 @@ public class CryptoCoreUtil {
 	 * @throws InvalidAlgorithmParameterException
 	 * @throws InvalidKeyException
 	 */
-	private byte[] decryptRandomSymKey(PrivateKey privateKey, byte[] randomSymKey)
+	private byte[] decryptRandomSymKey(PrivateKey privateKey, byte[] encRandomSymKey)
 			throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, InvalidKeyException {
 
@@ -192,7 +209,7 @@ public class CryptoCoreUtil {
 			OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
 					PSpecified.DEFAULT);
 			cipher.init(Cipher.DECRYPT_MODE, privateKey, oaepParams);
-			return cipher.doFinal(randomSymKey);
+			return cipher.doFinal(encRandomSymKey);
 		} catch (java.security.NoSuchAlgorithmException e) {
 			throw new NoSuchAlgorithmException(e);
 		} catch (NoSuchPaddingException e) {
@@ -217,11 +234,36 @@ public class CryptoCoreUtil {
 		}
 	}
 
+	private byte[] decryptCbeffData(SecretKey key, byte[] data, byte[] nonce, byte[] aad)
+			throws Exception {
+		Cipher cipher;
+		try {
+			cipher = Cipher.getInstance("AES/GCM/PKCS5Padding");
+			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, nonce);
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
+			cipher.updateAAD(aad);
+			
+			return cipher.doFinal(data, 0, data.length);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			throw ex;
+		}
+	}
+
 	public byte[] getCertificateThumbprint(Certificate cert) throws CertificateEncodingException {
 		try {
 			return DigestUtils.sha256(cert.getEncoded());
 		} catch (CertificateEncodingException e) {
 			throw e;
 		}
+	}
+
+	private byte[] parseEncryptKeyHeader(byte[] encryptedKey) {
+		byte[] versionHeaderBytes = Arrays.copyOfRange(encryptedKey, 0, VERSION_RSA_2048.length);
+		if (!Arrays.equals(versionHeaderBytes, VERSION_RSA_2048)) {
+			return new byte[0];
+		}
+		return versionHeaderBytes;
 	}
 }
