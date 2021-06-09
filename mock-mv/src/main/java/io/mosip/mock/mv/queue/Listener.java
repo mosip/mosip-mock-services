@@ -54,6 +54,9 @@ public class Listener {
 	@Value("${mock.mv.decision:APPROVED}")
 	private String mockDecision;
 
+	@Value("${mock.mv.success:true}")
+	private boolean isSuccess;
+
 	/** The username. */
 	@Value("${registration.processor.queue.username}")
 	private String username;
@@ -114,7 +117,7 @@ public class Listener {
 			decisionDto.setId(env.getProperty(DECISION_SERVICE_ID));
 			decisionDto.setRequestId(requestDTO.getRequestId());
 			decisionDto.setResponsetime(OffsetDateTime.now().toInstant().toString());
-			decisionDto.setReturnValue(mockDecision.equalsIgnoreCase(APPROVED) ? 1 : 2);// logic needs to be implemented.
+			decisionDto.setReturnValue(isSuccess ? 1 : 2);// logic needs to be implemented.
 			
 			List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
 			CandidateList candidateList=new CandidateList();
