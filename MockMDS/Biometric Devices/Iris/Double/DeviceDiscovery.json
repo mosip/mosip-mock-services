@@ -12,9 +12,5 @@
    	"specVersion":[
    		"0.9.5"
 	],
-   	"purpose":"",
-   	"error":{
-      	"errorCode":"100",
-      	"errorInfo":"Success"
-   	}
+   	"purpose":""
 }

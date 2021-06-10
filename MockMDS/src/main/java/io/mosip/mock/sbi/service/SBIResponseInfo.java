@@ -24,6 +24,25 @@ public class SBIResponseInfo {
 		return httpResponse;
 	}
 	
+	public static String generateAdminApiErrorResponse (String lang, int port, String errorCode, String exceptionMessage)
+	{
+		String httpResponse = "";
+		String responseJSON = SBIJsonInfo.getAdminApiErrorJson (lang, errorCode, exceptionMessage);
+		httpResponse = "HTTP/1.1 405 OK\r\n";
+		httpResponse += getAccessControlAllowInfo ();
+		httpResponse += "CACHE-CONTROL:no-cache\r\n";
+		if (responseJSON != null)
+		{
+			httpResponse += "Content-Length: " + responseJSON.length () + "\r\n";
+		}
+		httpResponse += "Content-Type: application/json\r\n";
+		httpResponse += "LOCATION: HTTP://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + port + "/\r\n";
+		httpResponse += "Connection: close\r\n\r\n";
+		httpResponse += responseJSON + "\r\n\r\n";
+		
+		return httpResponse;
+	}
+
 	public static String generateResponse (String lang, int port, String response)
 	{
 		String httpResponse = "";

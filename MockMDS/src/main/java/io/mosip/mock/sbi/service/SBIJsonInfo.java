@@ -46,6 +46,26 @@ public class SBIJsonInfo {
 		return null;
     }
 	
+	public static String getAdminApiErrorJson (String lang, String errorCode, String exceptionMessage)
+    {
+        StringBuilder sb = new StringBuilder ();
+        ObjectMapper mapper = new ObjectMapper ();	
+        ErrorInfo errorInfo = new ErrorInfo (errorCode, (getErrorDescription (lang, errorCode) + " " + exceptionMessage).trim());
+        try {
+			return mapper.writeValueAsString(errorInfo);
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+    }
+
 	public static String getStreamErrorJson (String lang, String errorCode, String exceptionMessage)
     {
         StringBuilder sb = new StringBuilder ();
