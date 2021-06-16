@@ -12,5 +12,6 @@
    	"specVersion":[
    		"0.9.5"
 	],
-   	"purpose":""
+   	"purpose":"", 
+   	"error":null
 }
