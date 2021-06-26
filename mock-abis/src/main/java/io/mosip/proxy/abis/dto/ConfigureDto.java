@@ -1,4 +1,4 @@
-package io.mosip.proxy.abis.entity;
+package io.mosip.proxy.abis.dto;
 
 public class ConfigureDto {
     private Boolean findDuplicate;

@@ -1,7 +1,8 @@
 package io.mosip.proxy.abis.controller;
 
-import io.mosip.proxy.abis.entity.ConfigureDto;
-import io.mosip.proxy.abis.entity.Expectation;
+import io.mosip.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.dto.ConfigureDto;
+import io.mosip.proxy.abis.dto.Expectation;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 
@@ -88,6 +90,47 @@ public class ProxyAbisConfigController {
         logger.info("Configure Request");
         try {
             abisInsertService.setDuplicate(ie.getFindDuplicate());
+            logger.info("[Configuration updated] overrideFindDuplicate: "+abisInsertService.getDuplicate());
+            return new ResponseEntity<>("Successfully updated the configuration", HttpStatus.OK);
+        } catch (RuntimeException exp) {
+            logger.error("Exception in configure request: "+exp.getMessage());
+            throw exp;
+        }
+    }
+
+    @RequestMapping(value = "cache", method = RequestMethod.GET)
+    @ApiOperation(value = "Get cached biometrics")
+    public ResponseEntity<List<String>> getCache()
+            throws Exception {
+        logger.info("Get cached biometrics Request");
+        try {
+            return new ResponseEntity<>(abisInsertService.getCachedBiometrics(), HttpStatus.OK);
+        } catch (RuntimeException exp) {
+            logger.error("Exception in configure request: "+exp.getMessage());
+            throw exp;
+        }
+    }
+
+    @RequestMapping(value = "cache/{hash}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get cached biometrics by hash")
+    public ResponseEntity<List<String>> getCacheByHash(@PathVariable String hash)
+            throws Exception {
+        logger.info("Get cached biometrics by hash: "+hash);
+        try {
+            return new ResponseEntity<>(abisInsertService.getCachedBiometric(hash), HttpStatus.OK);
+        } catch (RuntimeException exp) {
+            logger.error("Exception in configure request: "+exp.getMessage());
+            throw exp;
+        }
+    }
+
+    @RequestMapping(value = "cache", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete cached biometrics")
+    public ResponseEntity<String> deleteCache()
+            throws Exception {
+        logger.info("Delete cached biometrics Request");
+        try {
+            abisInsertService.deleteAllCachedBiometrics();
             logger.info("[Configuration updated] overrideFindDuplicate: "+abisInsertService.getDuplicate());
             return new ResponseEntity<>("Successfully updated the configuration", HttpStatus.OK);
         } catch (RuntimeException exp) {

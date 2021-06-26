@@ -1,6 +1,6 @@
 package io.mosip.proxy.abis.service;
 
-import io.mosip.proxy.abis.entity.Expectation;
+import io.mosip.proxy.abis.dto.Expectation;
 
 import java.util.Map;
 

@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import io.mosip.kernel.core.exception.ExceptionUtils;
+import io.mosip.proxy.abis.dto.*;
 import io.mosip.proxy.abis.entity.*;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
@@ -36,7 +37,7 @@ import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
 import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
-import io.mosip.proxy.abis.entity.IdentityResponse.Modalities;
+import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
@@ -276,7 +277,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-                List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
+                List<String> bioValue = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
                 if(!bioValue.isEmpty()){
                     Expectation exp = expectationCache.get(bioValue.get(0));
 					if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
@@ -333,6 +334,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
 				}
+				cdl.setCount(cdl.getCandidates().size());
 				response.setCandidateList(cdl);
 				return response;
 			}
@@ -457,5 +459,16 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
     	expectationCache.delete(id);
 	}
 
+	public List<String> getCachedBiometrics(){
+    	return proxyAbisBioDataRepository.fetchAllBioData();
+	}
+
+	public List<String> getCachedBiometric(String hash){
+		return proxyAbisBioDataRepository.fetchByBioData(hash);
+	}
+
+	public void deleteAllCachedBiometrics(){
+		proxyAbisBioDataRepository.deleteAll();
+	}
 
 }

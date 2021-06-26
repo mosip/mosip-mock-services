@@ -1,6 +1,6 @@
 package io.mosip.proxy.abis.service.impl;
 
-import io.mosip.proxy.abis.entity.Expectation;
+import io.mosip.proxy.abis.dto.Expectation;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import org.springframework.stereotype.Component;
 

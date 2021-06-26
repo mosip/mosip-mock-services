@@ -4,7 +4,7 @@ import javax.validation.Valid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.mosip.proxy.abis.Listener;
-import io.mosip.proxy.abis.entity.*;
+import io.mosip.proxy.abis.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +99,7 @@ public class ProxyAbisController {
 
 	}
 
-	@RequestMapping(value = "identityrequest", method = RequestMethod.POST)
+	@RequestMapping(value = "identifyrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Checks duplication")
 	public ResponseEntity<Object> identityRequest(@RequestBody IdentityRequest ir) {
 		try {

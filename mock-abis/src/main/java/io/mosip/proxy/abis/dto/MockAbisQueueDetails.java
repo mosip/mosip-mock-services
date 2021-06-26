@@ -1,4 +1,4 @@
-package io.mosip.proxy.abis.entity;
+package io.mosip.proxy.abis.dto;
 
 import lombok.AllArgsConstructor;
 //import io.mosip.registration.processor.core.queue.factory.MosipQueue;

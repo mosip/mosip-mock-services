@@ -1,7 +1,5 @@
 package io.mosip.proxy.abis;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -43,10 +41,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 
 import io.mosip.proxy.abis.controller.ProxyAbisController;
-import io.mosip.proxy.abis.entity.IdentityRequest;
-import io.mosip.proxy.abis.entity.InsertRequestMO;
-import io.mosip.proxy.abis.entity.MockAbisQueueDetails;
-import io.mosip.proxy.abis.entity.RequestMO;
+import io.mosip.proxy.abis.dto.IdentityRequest;
+import io.mosip.proxy.abis.dto.InsertRequestMO;
+import io.mosip.proxy.abis.dto.MockAbisQueueDetails;
+import io.mosip.proxy.abis.dto.RequestMO;
 
 @Component
 public class Listener {
@@ -191,14 +189,14 @@ public class Listener {
 		}
 	}
 
-	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
-		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
+	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
+		List<MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson, localDevelopment);
 		
 		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
-		io.mosip.proxy.abis.entity.MockAbisQueueDetails abisQueueDetails = new io.mosip.proxy.abis.entity.MockAbisQueueDetails();
+		MockAbisQueueDetails abisQueueDetails = new MockAbisQueueDetails();
 		Gson g = new Gson();
 
 		try {

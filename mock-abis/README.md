@@ -127,6 +127,15 @@ Response:
 Successfully deleted expectation $expectation_id
 ```
 
+## Tips & tricks
+
+1) While setting the expectation the hash of iso image should be taken, directly taking bdb hash will not work.
+```text
+formula for hash: SHA256_hash(base64_decode(bdb))
+```
+
+2) Use get cached biometics to check whether the hashes are proper.
+
 ## Developer (tips and trick)
 This section is for the developers, for developing this modules fast & efficiently
 

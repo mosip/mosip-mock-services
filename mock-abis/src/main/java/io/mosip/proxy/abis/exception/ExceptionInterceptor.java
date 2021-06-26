@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import io.mosip.proxy.abis.entity.FailureResponse;
+import io.mosip.proxy.abis.dto.FailureResponse;
 
 @ControllerAdvice
 public class ExceptionInterceptor extends ResponseEntityExceptionHandler {
