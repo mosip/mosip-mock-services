@@ -29,7 +29,7 @@ import java.util.TimerTask;
 @CrossOrigin
 @RestController
 @Api(value = "Abis", description = "Provides API's for proxy Abis", tags = "Proxy Abis API")
-@RequestMapping("api/v0/proxyabis/")
+@RequestMapping("abis/")
 public class ProxyAbisController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisController.class);

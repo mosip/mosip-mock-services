@@ -22,7 +22,7 @@ import java.util.Map;
 @CrossOrigin
 @RestController
 @Api(value = "Abis", description = "Provides API's for configuring proxy Abis", tags = "Proxy Abis config API")
-@RequestMapping("api/v0/proxyabisconfig/")
+@RequestMapping("config/")
 public class ProxyAbisConfigController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyAbisConfigController.class);

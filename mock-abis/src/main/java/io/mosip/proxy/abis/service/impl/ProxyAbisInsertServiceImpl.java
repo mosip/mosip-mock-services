@@ -207,12 +207,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.info("Inserting biometric details to concerned table");
 
 			for (BIRType type : birType.getBIR()) {
-
 				BiometricData bd = new BiometricData();
 				bd.setType(type.getBDBInfo().getType().iterator().next().value());
 				if (type.getBDBInfo().getSubtype() != null && type.getBDBInfo().getSubtype().size() >0)
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
-				bd.setBioData(getSHA(new String(type.getBDB())));
+				String hash = getSHAFromBytes(type.getBDB());
+				bd.setBioData(hash);
 				bd.setInsertEntity(ie);
 				lst.add(bd);
 			}
@@ -246,6 +246,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		logger.info("Getting hash of string");
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		return bytesToHex(md.digest(cbeffStr.getBytes(StandardCharsets.UTF_8)));
+
+	}
+
+	private String getSHAFromBytes(byte[] b) throws NoSuchAlgorithmException {
+		logger.info("Getting hash of string");
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		return bytesToHex(md.digest(b));
 
 	}
 
@@ -469,6 +476,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	public void deleteAllCachedBiometrics(){
 		proxyAbisBioDataRepository.deleteAll();
+		proxyabis.deleteAll();
 	}
 
 }
