@@ -6,6 +6,7 @@ A module to mock  ABIS functionality for testing non-production MOSIP deployment
 * Partner certificate (in case of encryption is enabled)
 
 ## Setup
+In case of partner based encryption. Upload the certificate, by using swagger upload certificate request
 
 ### Server deployment (for sandbox deployment)
 Docker based
