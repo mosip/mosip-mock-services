@@ -3,6 +3,7 @@ package io.mosip.proxy.abis.service.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,11 +50,12 @@ import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
-	private static String UPLOAD_FOLDER = "src/main/resources/";
-	private static String UPLOAD_FOLDER_PROPERTIES = "src/main/resources/partner.properties";
+
+	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
+	private static String UPLOAD_FOLDER_PROPERTIES = UPLOAD_FOLDER+"/partner.properties";
 
 
-	
+
 	@Autowired
 	ProxyAbisInsertRepository proxyabis;
 
@@ -284,15 +286,17 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-                List<String> bioValue = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
-                if(!bioValue.isEmpty()){
-                    Expectation exp = expectationCache.get(bioValue.get(0));
-					if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
-						logger.info("Expectation found for " + exp.getId());
-						if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
-							delayResponse = Integer.parseInt(exp.getDelayInExecution());
+                List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
+                if(!bioValues.isEmpty()){
+                	for(String bioValue: bioValues){
+						Expectation exp = expectationCache.get(bioValue);
+						if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
+							logger.info("Expectation found for " + exp.getId());
+							if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
+								delayResponse = Integer.parseInt(exp.getDelayInExecution());
+							}
+							return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
 						}
-						return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
 					}
                 }
 				if (findDuplicate) {
@@ -417,18 +421,21 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	public  String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
 			String password, String keystore) {
 		try {
+			logger.info("Uploading certificate");
 			byte[] bytes = upoadedFile.getBytes();
-			Path path = Paths.get(UPLOAD_FOLDER + upoadedFile.getOriginalFilename());
+			Path path = Paths.get(UPLOAD_FOLDER + "/"+ upoadedFile.getOriginalFilename());
+			File keyFile = new File(path.toString());
+			keyFile.createNewFile();
 			Files.write(path, bytes);
 
 			FileWriter myWriter = new FileWriter(UPLOAD_FOLDER_PROPERTIES);
-			myWriter.write("cerificate.alias=" + alias + "\n" + "cerificate.password=" + password + "\n");
+			myWriter.write("certificate.alias=" + alias + "\n" + "certificate.password=" + password + "\n");
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
 					+ upoadedFile.getOriginalFilename());
 			myWriter.close();
 			CryptoCoreUtil.setCertificateValues(upoadedFile.getOriginalFilename(), keystore, password, alias);
 			
-			File dir = new File("src/main/resources");
+			File dir = new File(UPLOAD_FOLDER);
 			File[] fileList = dir.listFiles();
 			for (File file : fileList) {
 				if (!file.getName().equalsIgnoreCase(upoadedFile.getOriginalFilename())
@@ -438,6 +445,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					break;
 				}
 			}
+			logger.info("Successfully uploaded certificate");
 			return "Successfully uploaded file";
 		} catch (Exception ex) {
 			ex.printStackTrace();
