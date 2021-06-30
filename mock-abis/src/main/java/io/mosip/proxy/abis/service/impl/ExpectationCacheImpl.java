@@ -16,6 +16,10 @@ public class ExpectationCacheImpl implements ExpectationCache {
         return expectationMap.remove(id) != null;
     }
 
+    public void deleteAll(){
+        expectationMap = new ConcurrentHashMap<String, Expectation>();
+    }
+
     public void insert(Expectation expectation){
         expectationMap.put(expectation.getId(), expectation);
     }

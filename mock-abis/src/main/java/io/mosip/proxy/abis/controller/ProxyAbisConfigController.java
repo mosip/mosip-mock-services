@@ -63,7 +63,20 @@ public class ProxyAbisConfigController {
             abisInsertService.deleteExpectation(id);
             return new ResponseEntity<>("Successfully deleted expectation "+id, HttpStatus.OK);
         } catch (RuntimeException exp) {
-            logger.error("Exception while getting expectation: "+exp.getMessage());
+            logger.error("Exception while deleting expectation: "+exp.getMessage());
+            throw exp;
+        }
+    }
+
+    @RequestMapping(value = "expectation", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete expectations")
+    public ResponseEntity<String> deleteAllExpectations() {
+        logger.info("Delete all expectations");
+        try {
+            abisInsertService.deleteExpectations();
+            return new ResponseEntity<>("Successfully deleted expectations ", HttpStatus.OK);
+        } catch (RuntimeException exp) {
+            logger.error("Exception while deleting expectations: "+exp.getMessage());
             throw exp;
         }
     }
@@ -106,7 +119,7 @@ public class ProxyAbisConfigController {
         try {
             return new ResponseEntity<>(abisInsertService.getCachedBiometrics(), HttpStatus.OK);
         } catch (RuntimeException exp) {
-            logger.error("Exception in configure request: "+exp.getMessage());
+            logger.error("Exception in cache request: "+exp.getMessage());
             throw exp;
         }
     }
@@ -119,7 +132,7 @@ public class ProxyAbisConfigController {
         try {
             return new ResponseEntity<>(abisInsertService.getCachedBiometric(hash), HttpStatus.OK);
         } catch (RuntimeException exp) {
-            logger.error("Exception in configure request: "+exp.getMessage());
+            logger.error("Exception in cache request: "+exp.getMessage());
             throw exp;
         }
     }
@@ -132,9 +145,9 @@ public class ProxyAbisConfigController {
         try {
             abisInsertService.deleteAllCachedBiometrics();
             logger.info("[Configuration updated] overrideFindDuplicate: "+abisInsertService.getDuplicate());
-            return new ResponseEntity<>("Successfully updated the configuration", HttpStatus.OK);
+            return new ResponseEntity<>("Successfully deleted cached biometrics", HttpStatus.OK);
         } catch (RuntimeException exp) {
-            logger.error("Exception in configure request: "+exp.getMessage());
+            logger.error("Exception in cache request: "+exp.getMessage());
             throw exp;
         }
     }

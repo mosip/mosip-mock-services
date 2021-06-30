@@ -474,6 +474,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
     	expectationCache.delete(id);
 	}
 
+	public void deleteExpectations(){
+		expectationCache.deleteAll();
+	}
+
 	public List<String> getCachedBiometrics(){
     	return proxyAbisBioDataRepository.fetchAllBioData();
 	}

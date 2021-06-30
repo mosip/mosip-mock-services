@@ -54,7 +54,7 @@ public class ProxyAbisController {
 			throw new BindingException(re, bd);
 		}
 		try {
-			processInsertRequest(ie, 1);
+			return processInsertRequest(ie, 1);
 		} catch (RequestException exp) {
 			logger.error("Exception while saving insert request");
 			RequestMO re = new RequestMO(ie.getId(), ie.getVersion(), ie.getRequestId(), ie.getRequesttime(),
@@ -62,9 +62,8 @@ public class ProxyAbisController {
 			exp.setEntity(re);
 			if (null == exp.getReasonConstant())
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
-			throw exp;
+			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>("Success", HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "deleterequest", method = RequestMethod.DELETE)
@@ -77,7 +76,7 @@ public class ProxyAbisController {
 			exp.setEntity(ie);
 			if (null == exp.getReasonConstant())
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
-			throw exp;
+			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -111,7 +110,7 @@ public class ProxyAbisController {
 			exp.setEntity(re);
 			if (null == exp.getReasonConstant())
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
-			throw exp;
+			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

@@ -30,6 +30,8 @@ public interface ProxyAbisInsertService {
 
 	public void deleteExpectation(String id);
 
+	public void deleteExpectations();
+
 	public List<String> getCachedBiometrics();
 
 	public List<String> getCachedBiometric(String hash);
