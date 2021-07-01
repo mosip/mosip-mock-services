@@ -21,20 +21,4 @@ public interface ProxyAbisInsertService {
 	public String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
 			String password,String keystore) ;
 
-	public Boolean getDuplicate();
-	public void setDuplicate(Boolean d);
-
-	public Map<String, Expectation> getExpectations();
-
-	public void setExpectation(Expectation exp);
-
-	public void deleteExpectation(String id);
-
-	public void deleteExpectations();
-
-	public List<String> getCachedBiometrics();
-
-	public List<String> getCachedBiometric(String hash);
-
-	public void deleteAllCachedBiometrics();
 }

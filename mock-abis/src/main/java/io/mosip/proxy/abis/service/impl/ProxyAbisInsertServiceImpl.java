@@ -14,6 +14,7 @@ import java.util.*;
 import io.mosip.kernel.core.exception.ExceptionUtils;
 import io.mosip.proxy.abis.dto.*;
 import io.mosip.proxy.abis.entity.*;
+import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -63,6 +64,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	ProxyAbisBioDataRepository proxyAbisBioDataRepository;
 
 	@Autowired
+	ProxyAbisConfigService proxyAbisConfigService;
+
+	@Autowired
 	RestTemplate restTemplate;
 	
 	@Autowired
@@ -78,12 +82,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	
 	@Value("${secret_url}")
 	private String SECRET_URL ;
-
-	/**
-	 * set this flag to false then we will not check for duplicate we will always return unique biometric
-	 */
-	@Value("${abis.return.duplicate:true}")
-	private boolean findDuplicate;
 
     /**
      * This flag is added for fast-tracking core ABIS functionality testing without depending on working environment
@@ -299,7 +297,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
                 }
-				if (findDuplicate) {
+				if (proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 			}
@@ -453,42 +451,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		}
 		return "Could not upload file";
 
-	}
-
-	public Boolean getDuplicate(){
-		return findDuplicate;
-	}
-	public void setDuplicate(Boolean d){
-		findDuplicate = d;
-	}
-
-	public Map<String, Expectation> getExpectations(){
-    	return expectationCache.get();
-	}
-
-	public void setExpectation(Expectation exp){
-		expectationCache.insert(exp);
-	}
-
-	public void deleteExpectation(String id){
-    	expectationCache.delete(id);
-	}
-
-	public void deleteExpectations(){
-		expectationCache.deleteAll();
-	}
-
-	public List<String> getCachedBiometrics(){
-    	return proxyAbisBioDataRepository.fetchAllBioData();
-	}
-
-	public List<String> getCachedBiometric(String hash){
-		return proxyAbisBioDataRepository.fetchByBioData(hash);
-	}
-
-	public void deleteAllCachedBiometrics(){
-		proxyAbisBioDataRepository.deleteAll();
-		proxyabis.deleteAll();
 	}
 
 }

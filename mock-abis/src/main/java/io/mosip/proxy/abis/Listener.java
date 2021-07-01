@@ -1,6 +1,8 @@
 package io.mosip.proxy.abis;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -27,6 +29,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,7 +184,7 @@ public class Listener {
 
 	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf) throws IOException, URISyntaxException {
 		if (localAbisQueueConf) {
-			return readFileFromResources("registration-processor-abis.json");
+			return Helpers.readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
 			logger.info("Json URL ",configServerFileStorageURL,uri);
@@ -381,13 +384,5 @@ public class Listener {
 		}
 		setup();
 	}
-
-	public static String readFileFromResources(String filename) throws URISyntaxException, IOException {
-		URL resource = Listener.class.getClassLoader().getResource(filename);
-		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
-		return new String(bytes);
-	}
-
-
 
 }

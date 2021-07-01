@@ -59,12 +59,15 @@ public class CryptoCoreUtil {
 	private final static int THUMBPRINT_LENGTH = 32;
 
 	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
-	private static String UPLOAD_FOLDER_PROPERTIES = UPLOAD_FOLDER+"/partner.properties";
+
+	public CryptoCoreUtil(){
+		setPropertyValues();
+	}
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(new FileInputStream(UPLOAD_FOLDER_PROPERTIES));
+			prop.load(Helpers.readStreamFromResources("partner.properties"));
 			certiPassword = prop.getProperty("certificate.password");
 			alias = prop.getProperty("certificate.alias");
 			keystore = prop.getProperty("certificate.keystore");
@@ -74,7 +77,6 @@ public class CryptoCoreUtil {
 
 			e.printStackTrace();
 		}
-
 	}
 
 	public String decryptCbeff(String responseData) throws Exception {
