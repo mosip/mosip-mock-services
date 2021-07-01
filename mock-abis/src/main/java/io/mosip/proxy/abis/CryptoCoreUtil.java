@@ -60,9 +60,6 @@ public class CryptoCoreUtil {
 
 	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
 
-	public CryptoCoreUtil(){
-		setPropertyValues();
-	}
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
