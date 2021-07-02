@@ -100,6 +100,10 @@ public class SBIConstant {
 	public static final String Error_Code_113 = "mds_ERROR_113_msg_en";
 	public static final String Error_Code_114 = "mds_ERROR_114_msg_en";
 	public static final String Error_Code_115 = "mds_ERROR_115_msg_en";
+	public static final String Error_Code_116 = "mds_ERROR_116_msg_en";
+	public static final String Error_Code_117 = "mds_ERROR_117_msg_en";
+	public static final String Error_Code_118 = "mds_ERROR_118_msg_en";
+	public static final String Error_Code_119 = "mds_ERROR_119_msg_en";
 
 	public static final String Error_Code_500 = "mds_ERROR_500_msg_en";
 	public static final String Error_Code_501 = "mds_ERROR_501_msg_en";

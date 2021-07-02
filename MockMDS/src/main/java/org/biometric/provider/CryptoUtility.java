@@ -38,7 +38,9 @@ public class CryptoUtility {
 	private static final int GCM_TAG_LENGTH = 128;
 	private static final String RSA_ECB_NO_PADDING = "RSA/ECB/NoPadding";
 	
+	private static final int AES_KEY_LENGTH = 256;
 	private static final String MGF1 = "MGF1";
+	private static final String AES = "AES";
 	private static final String HASH_ALGO = "SHA-256";
 	private static final int asymmetricKeyLength = 2048;
 
@@ -166,9 +168,9 @@ public class CryptoUtility {
 	
 	
 	public static SecretKey getSymmetricKey() throws NoSuchAlgorithmException {
-		javax.crypto.KeyGenerator generator = KeyGenerator.getInstance("AES", provider);
+		javax.crypto.KeyGenerator generator = KeyGenerator.getInstance(AES, provider);
 		SecureRandom random = new SecureRandom();
-		generator.init(256, random);
+		generator.init(AES_KEY_LENGTH, random);
 		return generator.generateKey();
 	}
 	

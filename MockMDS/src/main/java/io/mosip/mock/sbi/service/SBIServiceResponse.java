@@ -11,6 +11,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -81,11 +82,17 @@ public class SBIServiceResponse {
      * Hashing Algorithm Used for encryption and decryption
      */
     private String algorithm = "SHA-256";
+    private String[] bioExceptionsArray = {"Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger", "Left Thumb", "Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger", "Right Thumb", "Left", "Right"};    
+    private List bioExceptionsList = Arrays.asList(bioExceptionsArray);
+    
+    private String[] bioSubtypesArray = {"Left IndexFinger", "Left MiddleFinger", "Left RingFinger", "Left LittleFinger", "Left Thumb", "Right IndexFinger", "Right MiddleFinger", "Right RingFinger", "Right LittleFinger", "Right Thumb", "Left", "Right", "UNKNOWN"};    
+    private List bioSubtypesList = Arrays.asList(bioSubtypesArray);
 
-	public SBIServiceResponse (int port)
+    public SBIServiceResponse (int port)
 	{
 		setPort (port);
 	}
+    
 	public String getServiceresponse (SBIMockService mockService, Socket socket, String strJsonRequest)
     {
 		String responseJson = "";
@@ -816,6 +823,55 @@ public class SBIServiceResponse {
             	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "110", "", true);
             }
                         
+            String bioType = mosipBioRequest.get(0).getType();
+            String [] bioException = mosipBioRequest.get(0).getException();// Bio exceptions
+            String [] bioSubtype = mosipBioRequest.get(0).getBioSubType();// Bio subtype
+            int count = mosipBioRequest.get(0).getCount();
+            int exceptionCount = (bioException != null ? bioException.length : 0);
+            int bioSubtypeCount = (bioSubtype != null ? bioSubtype.length : 0);
+
+            /*
+    		if (count <= 0)
+        		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            
+    		if (bioException != null && !isValidBioExceptionValues(bioException))
+        		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "117", "", true);
+
+    		if (bioSubtype != null && !isValidBioSubtypeValues(bioSubtype))
+        		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "119", "", true);
+
+    		if (bioType.equals(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)))
+            {
+    			if (count != 1)// Max Face Count = 1
+	            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            }
+            else if (bioType.equals(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)))
+            {
+            	//here max count can be 2 for deviceSubId = 3
+            	if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT && count != 1)
+            		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            	else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT && count != 1)
+            		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            	else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+            	{
+            		if (exceptionCount == 0 && count != 2)
+                		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            		else if (exceptionCount == 1 && count != 1)
+                		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            		else if (exceptionCount >= 2)
+                		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            	}
+            }
+            else if (bioType.equals(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)))
+            {
+            	if (!(finalCount <= 4) && deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT)
+            		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            	else if (!(finalCount <= 4) && deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT)
+            		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            	else if (!(finalCount <= 2) && deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
+            		return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "116", "", true);
+            }
+            */
             if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISREADY))
             {
                 deviceHelper.initDevice();
@@ -829,8 +885,6 @@ public class SBIServiceResponse {
                 	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "703", "", true);
             }
             
-            String bioType = mosipBioRequest.get(0).getType();
-            String [] bioException = mosipBioRequest.get(0).getException();// Bio exceptions
             int timeout = Integer.parseInt(requestObject.getTimeout()+ "");
             int requestScore = Integer.parseInt(mosipBioRequest.get(0).getRequestedScore() + "");
             
@@ -965,6 +1019,22 @@ public class SBIServiceResponse {
             }                    
         }
         return response;
+	}
+
+	private boolean isValidBioExceptionValues(String[] bioExceptions) {
+		if (bioExceptions != null)
+		{
+			return bioExceptionsList.containsAll(Arrays.asList(bioExceptions));
+		}
+		return false;
+	}
+
+	private boolean isValidBioSubtypeValues(String[] bioSubtypes) {
+		if (bioSubtypes != null)
+		{
+			return bioSubtypesList.containsAll(Arrays.asList(bioSubtypes));
+		}
+		return false;
 	}
 
 	private String processCaptureInfo(SBIMockService mockService) {
@@ -2153,6 +2223,7 @@ public class SBIServiceResponse {
         if (isUsedForAuthenication == false)
         {
             biometricData.setBioValue(bioValue);
+			biometricData.setTimestamp(CryptoUtility.getTimestamp());
         }
         else
         {
