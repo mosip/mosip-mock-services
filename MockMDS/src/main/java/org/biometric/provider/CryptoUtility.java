@@ -47,7 +47,7 @@ public class CryptoUtility {
 	/**
 	 * Default UTC pattern.
 	 */
-	private static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	private static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
 	
 	static {
