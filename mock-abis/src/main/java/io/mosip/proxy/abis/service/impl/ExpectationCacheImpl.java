@@ -1,6 +1,6 @@
 package io.mosip.proxy.abis.service.impl;
 
-import io.mosip.proxy.abis.entity.Expectation;
+import io.mosip.proxy.abis.dto.Expectation;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +14,10 @@ public class ExpectationCacheImpl implements ExpectationCache {
 
     public boolean delete(String id){
         return expectationMap.remove(id) != null;
+    }
+
+    public void deleteAll(){
+        expectationMap = new ConcurrentHashMap<String, Expectation>();
     }
 
     public void insert(Expectation expectation){

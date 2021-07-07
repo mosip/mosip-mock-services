@@ -1,8 +1,8 @@
 package io.mosip.proxy.abis;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,6 +29,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +44,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 
 import io.mosip.proxy.abis.controller.ProxyAbisController;
-import io.mosip.proxy.abis.entity.IdentityRequest;
-import io.mosip.proxy.abis.entity.InsertRequestMO;
-import io.mosip.proxy.abis.entity.MockAbisQueueDetails;
-import io.mosip.proxy.abis.entity.RequestMO;
+import io.mosip.proxy.abis.dto.IdentityRequest;
+import io.mosip.proxy.abis.dto.InsertRequestMO;
+import io.mosip.proxy.abis.dto.MockAbisQueueDetails;
+import io.mosip.proxy.abis.dto.RequestMO;
 
 @Component
 public class Listener {
@@ -183,7 +184,7 @@ public class Listener {
 
 	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf) throws IOException, URISyntaxException {
 		if (localAbisQueueConf) {
-			return readFileFromResources("registration-processor-abis.json");
+			return Helpers.readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
 			logger.info("Json URL ",configServerFileStorageURL,uri);
@@ -191,14 +192,14 @@ public class Listener {
 		}
 	}
 
-	public List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
-		List<io.mosip.proxy.abis.entity.MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
+	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
+		List<MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson, localDevelopment);
 		
 		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
-		io.mosip.proxy.abis.entity.MockAbisQueueDetails abisQueueDetails = new io.mosip.proxy.abis.entity.MockAbisQueueDetails();
+		MockAbisQueueDetails abisQueueDetails = new MockAbisQueueDetails();
 		Gson g = new Gson();
 
 		try {
@@ -383,13 +384,5 @@ public class Listener {
 		}
 		setup();
 	}
-
-	public static String readFileFromResources(String filename) throws URISyntaxException, IOException {
-		URL resource = Listener.class.getClassLoader().getResource(filename);
-		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
-		return new String(bytes);
-	}
-
-
 
 }

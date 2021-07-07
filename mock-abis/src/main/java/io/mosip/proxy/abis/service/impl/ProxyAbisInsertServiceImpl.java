@@ -3,6 +3,7 @@ package io.mosip.proxy.abis.service.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,7 +12,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import io.mosip.kernel.core.exception.ExceptionUtils;
+import io.mosip.proxy.abis.dto.*;
 import io.mosip.proxy.abis.entity.*;
+import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -36,7 +39,7 @@ import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
 import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
-import io.mosip.proxy.abis.entity.IdentityResponse.Modalities;
+import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
@@ -48,16 +51,20 @@ import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
-	private static String UPLOAD_FOLDER = "src/main/resources/";
-	private static String UPLOAD_FOLDER_PROPERTIES = "src/main/resources/partner.properties";
+
+	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
+	private static String UPLOAD_FOLDER_PROPERTIES = UPLOAD_FOLDER+"/partner.properties";
 
 
-	
+
 	@Autowired
 	ProxyAbisInsertRepository proxyabis;
 
 	@Autowired
 	ProxyAbisBioDataRepository proxyAbisBioDataRepository;
+
+	@Autowired
+	ProxyAbisConfigService proxyAbisConfigService;
 
 	@Autowired
 	RestTemplate restTemplate;
@@ -75,12 +82,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	
 	@Value("${secret_url}")
 	private String SECRET_URL ;
-
-	/**
-	 * set this flag to false then we will not check for duplicate we will always return unique biometric
-	 */
-	@Value("${abis.return.duplicate:true}")
-	private boolean findDuplicate;
 
     /**
      * This flag is added for fast-tracking core ABIS functionality testing without depending on working environment
@@ -206,12 +207,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.info("Inserting biometric details to concerned table");
 
 			for (BIRType type : birType.getBIR()) {
-
 				BiometricData bd = new BiometricData();
 				bd.setType(type.getBDBInfo().getType().iterator().next().value());
 				if (type.getBDBInfo().getSubtype() != null && type.getBDBInfo().getSubtype().size() >0)
 					bd.setSubtype(type.getBDBInfo().getSubtype().toString());
-				bd.setBioData(getSHA(new String(type.getBDB())));
+				String hash = getSHAFromBytes(type.getBDB());
+				bd.setBioData(hash);
 				bd.setInsertEntity(ie);
 				lst.add(bd);
 			}
@@ -248,6 +249,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	}
 
+	private String getSHAFromBytes(byte[] b) throws NoSuchAlgorithmException {
+		logger.info("Getting hash of string");
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		return bytesToHex(md.digest(b));
+
+	}
+
 	private static String bytesToHex(byte[] hash) {
 		StringBuffer hexString = new StringBuffer();
 		for (int i = 0; i < hash.length; i++) {
@@ -276,18 +284,20 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-                List<String> bioValue = proxyAbisBioDataRepository.fetchBiodata(refId);
-                if(!bioValue.isEmpty()){
-                    Expectation exp = expectationCache.get(bioValue.get(0));
-					if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
-						logger.info("Expectation found for " + exp.getId());
-						if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
-							delayResponse = Integer.parseInt(exp.getDelayInExecution());
+                List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
+                if(!bioValues.isEmpty()){
+                	for(String bioValue: bioValues){
+						Expectation exp = expectationCache.get(bioValue);
+						if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
+							logger.info("Expectation found for " + exp.getId());
+							if(exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()){
+								delayResponse = Integer.parseInt(exp.getDelayInExecution());
+							}
+							return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
 						}
-						return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
 					}
                 }
-				if (findDuplicate) {
+				if (proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 			}
@@ -333,6 +343,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
 				}
+				cdl.setCount(cdl.getCandidates().size());
 				response.setCandidateList(cdl);
 				return response;
 			}
@@ -408,18 +419,21 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	public  String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
 			String password, String keystore) {
 		try {
+			logger.info("Uploading certificate");
 			byte[] bytes = upoadedFile.getBytes();
-			Path path = Paths.get(UPLOAD_FOLDER + upoadedFile.getOriginalFilename());
+			Path path = Paths.get(UPLOAD_FOLDER + "/"+ upoadedFile.getOriginalFilename());
+			File keyFile = new File(path.toString());
+			keyFile.createNewFile();
 			Files.write(path, bytes);
 
 			FileWriter myWriter = new FileWriter(UPLOAD_FOLDER_PROPERTIES);
-			myWriter.write("cerificate.alias=" + alias + "\n" + "cerificate.password=" + password + "\n");
+			myWriter.write("certificate.alias=" + alias + "\n" + "certificate.password=" + password + "\n");
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
 					+ upoadedFile.getOriginalFilename());
 			myWriter.close();
 			CryptoCoreUtil.setCertificateValues(upoadedFile.getOriginalFilename(), keystore, password, alias);
 			
-			File dir = new File("src/main/resources");
+			File dir = new File(UPLOAD_FOLDER);
 			File[] fileList = dir.listFiles();
 			for (File file : fileList) {
 				if (!file.getName().equalsIgnoreCase(upoadedFile.getOriginalFilename())
@@ -429,6 +443,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					break;
 				}
 			}
+			logger.info("Successfully uploaded certificate");
 			return "Successfully uploaded file";
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -437,25 +452,5 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		return "Could not upload file";
 
 	}
-
-	public Boolean getDuplicate(){
-		return findDuplicate;
-	}
-	public void setDuplicate(Boolean d){
-		findDuplicate = d;
-	}
-
-	public Map<String, Expectation> getExpectations(){
-    	return expectationCache.get();
-	}
-
-	public void setExpectation(Expectation exp){
-		expectationCache.insert(exp);
-	}
-
-	public void deleteExpectation(String id){
-    	expectationCache.delete(id);
-	}
-
 
 }

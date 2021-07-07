@@ -2,6 +2,7 @@ package io.mosip.proxy.abis;
 
 import static java.util.Arrays.copyOfRange;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -38,7 +39,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:partner.properties")
 public class CryptoCoreUtil {
 
 	@Autowired
@@ -58,12 +58,15 @@ public class CryptoCoreUtil {
 
 	private final static int THUMBPRINT_LENGTH = 32;
 
+	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
+
+
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(CryptoCoreUtil.class.getClassLoader().getResourceAsStream("partner.properties"));
-			certiPassword = prop.getProperty("cerificate.password");
-			alias = prop.getProperty("cerificate.alias");
+			prop.load(Helpers.readStreamFromResources("partner.properties"));
+			certiPassword = prop.getProperty("certificate.password");
+			alias = prop.getProperty("certificate.alias");
 			keystore = prop.getProperty("certificate.keystore");
 			filePath = prop.getProperty("certificate.filename");
 
@@ -71,7 +74,6 @@ public class CryptoCoreUtil {
 
 			e.printStackTrace();
 		}
-
 	}
 
 	public String decryptCbeff(String responseData) throws Exception {
@@ -96,7 +98,7 @@ public class CryptoCoreUtil {
 			setPropertyValues();
 		}
 		KeyStore keyStore = KeyStore.getInstance(keystore);
-		InputStream is = getClass().getResourceAsStream("/" + env.getProperty("certificate.filename"));
+		InputStream is = new FileInputStream(UPLOAD_FOLDER+"/"+ filePath);
 		keyStore.load(is, certiPassword.toCharArray());
 		ProtectionParameter password = new PasswordProtection(certiPassword.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(alias, password);

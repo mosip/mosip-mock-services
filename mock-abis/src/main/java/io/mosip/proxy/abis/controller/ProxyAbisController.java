@@ -4,7 +4,7 @@ import javax.validation.Valid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.mosip.proxy.abis.Listener;
-import io.mosip.proxy.abis.entity.*;
+import io.mosip.proxy.abis.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import java.util.TimerTask;
 @CrossOrigin
 @RestController
 @Api(value = "Abis", description = "Provides API's for proxy Abis", tags = "Proxy Abis API")
-@RequestMapping("api/v0/proxyabis/")
+@RequestMapping("abis/")
 public class ProxyAbisController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisController.class);
@@ -54,7 +54,7 @@ public class ProxyAbisController {
 			throw new BindingException(re, bd);
 		}
 		try {
-			processInsertRequest(ie, 1);
+			return processInsertRequest(ie, 1);
 		} catch (RequestException exp) {
 			logger.error("Exception while saving insert request");
 			RequestMO re = new RequestMO(ie.getId(), ie.getVersion(), ie.getRequestId(), ie.getRequesttime(),
@@ -62,9 +62,8 @@ public class ProxyAbisController {
 			exp.setEntity(re);
 			if (null == exp.getReasonConstant())
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
-			throw exp;
+			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>("Success", HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "deleterequest", method = RequestMethod.DELETE)
@@ -77,7 +76,7 @@ public class ProxyAbisController {
 			exp.setEntity(ie);
 			if (null == exp.getReasonConstant())
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
-			throw exp;
+			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -99,7 +98,7 @@ public class ProxyAbisController {
 
 	}
 
-	@RequestMapping(value = "identityrequest", method = RequestMethod.POST)
+	@RequestMapping(value = "identifyrequest", method = RequestMethod.POST)
 	@ApiOperation(value = "Checks duplication")
 	public ResponseEntity<Object> identityRequest(@RequestBody IdentityRequest ir) {
 		try {
@@ -111,7 +110,7 @@ public class ProxyAbisController {
 			exp.setEntity(re);
 			if (null == exp.getReasonConstant())
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
-			throw exp;
+			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
