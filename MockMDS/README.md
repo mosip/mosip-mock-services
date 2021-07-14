@@ -26,4 +26,4 @@ target folder is created on successful build, run.sh / run.bat executable can be
 
 otherwise, we could simply run Main class
 
-> org.biometric.provider.ProviderApplication
+> io.mosip.mock.sbi.test.TestMockSBI
