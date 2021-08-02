@@ -1,0 +1,20 @@
+version: '3'
+services:
+  activemq:
+    image: rmohr/activemq:5.15.9-alpine
+    container_name: atk_activemq
+    hostname: atk-activemq
+    user: root
+    ports:
+      - '61616:61616'
+      - '8161:8161'
+    volumes:
+      - atk_activemq_conf:/mnt/conf
+      - atk_activemq_data:/mnt/data
+    restart: always
+
+volumes:
+  atk_activemq_conf:
+    driver: local
+  atk_activemq_data:
+    driver: local

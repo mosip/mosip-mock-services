@@ -38,10 +38,18 @@ public class CryptoUtility {
 	private static final int GCM_TAG_LENGTH = 128;
 	private static final String RSA_ECB_NO_PADDING = "RSA/ECB/NoPadding";
 	
+	private static final int AES_KEY_LENGTH = 256;
 	private static final String MGF1 = "MGF1";
+	private static final String AES = "AES";
 	private static final String HASH_ALGO = "SHA-256";
 	private static final int asymmetricKeyLength = 2048;
 
+	/**
+	 * Default UTC pattern.
+	 */
+	private static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
+	
 	static {
 		provider = init();
 	}
@@ -66,7 +74,20 @@ public class CryptoUtility {
     }
 	
 	public static String getTimestamp() {
-    	return DateUtils.formatToISOString(DateUtils.getUTCCurrentDateTime());
+    	return formatToISOString(DateUtils.getUTCCurrentDateTime());
+	}
+	
+	/**
+	 * Formats java.time.LocalDateTime to UTC string in default ISO pattern -
+	 * <b>yyyy-MM-dd'T'HH:mm:ss'Z'</b> ignoring zone offset.
+	 * 
+	 * @param localDateTime java.time.LocalDateTime
+	 * 
+	 * @return a date String
+	 */
+
+	public static String formatToISOString(LocalDateTime localDateTime) {
+		return localDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
 	}
 	
 	public static Map<String, String>  encrypt(PublicKey publicKey, byte[] dataBytes, String transactionId) {
@@ -147,9 +168,9 @@ public class CryptoUtility {
 	
 	
 	public static SecretKey getSymmetricKey() throws NoSuchAlgorithmException {
-		javax.crypto.KeyGenerator generator = KeyGenerator.getInstance("AES", provider);
+		javax.crypto.KeyGenerator generator = KeyGenerator.getInstance(AES, provider);
 		SecureRandom random = new SecureRandom();
-		generator.init(256, random);
+		generator.init(AES_KEY_LENGTH, random);
 		return generator.generateKey();
 	}
 	

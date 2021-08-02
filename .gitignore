@@ -1,0 +1,7 @@
+/.idea/
+*.iml
+*.log
+target
+*/target/
+/partner.properties
+/*.p12

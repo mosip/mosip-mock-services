@@ -59,6 +59,7 @@ public class JwtUtility {
 		
 		jws.setPayloadBytes(data);
 		jws.setAlgorithmHeaderValue(signAlgorithm);
+		jws.setHeader(org.jose4j.jwx.HeaderParameterNames.TYPE, "JWT");
 		jws.setKey(privateKey);
 		jws.setDoKeyValidation(false);
 		try {
