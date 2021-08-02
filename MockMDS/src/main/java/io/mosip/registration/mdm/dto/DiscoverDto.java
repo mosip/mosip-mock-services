@@ -16,7 +16,7 @@ public class DiscoverDto {
 	public String digitalId;
 	public String deviceCode;
 	public String purpose;
-	public Map<String, String> error;
+	public ErrorInfo error;
 	public String [] specVersion;
 	public String [] deviceSubId;
 }
