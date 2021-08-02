@@ -2,7 +2,7 @@ package io.mosip.proxy.abis.exception;
 
 import org.springframework.validation.BindingResult;
 
-import io.mosip.proxy.abis.entity.RequestMO;
+import io.mosip.proxy.abis.dto.RequestMO;
 
 public class BindingException extends Exception{
 

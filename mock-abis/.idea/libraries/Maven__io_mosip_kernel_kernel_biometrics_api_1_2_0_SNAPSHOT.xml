@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.mosip.kernel:kernel-biometrics-api:1.2.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../../M2_HOME/repository/io/mosip/kernel/kernel-biometrics-api/1.2.0-SNAPSHOT/kernel-biometrics-api-1.2.0-20210726.063117-279.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../../../M2_HOME/repository/io/mosip/kernel/kernel-biometrics-api/1.2.0-SNAPSHOT/kernel-biometrics-api-1.2.0-20210726.063117-279-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../../../M2_HOME/repository/io/mosip/kernel/kernel-biometrics-api/1.2.0-SNAPSHOT/kernel-biometrics-api-1.2.0-20210726.063117-279-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

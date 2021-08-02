@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.mosip.kernel:kernel-core:1.2.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../../M2_HOME/repository/io/mosip/kernel/kernel-core/1.2.0-SNAPSHOT/kernel-core-1.2.0-20210726.062908-371.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../../../M2_HOME/repository/io/mosip/kernel/kernel-core/1.2.0-SNAPSHOT/kernel-core-1.2.0-20210726.062908-371-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../../../M2_HOME/repository/io/mosip/kernel/kernel-core/1.2.0-SNAPSHOT/kernel-core-1.2.0-20210726.062908-371-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

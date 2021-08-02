@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 
 public class ProfileRequest {
+	public String type;
 	public String profileId;
 }
