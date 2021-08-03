@@ -1,1 +1,11 @@
+<<<<<<< HEAD
 /.idea/
+=======
+/.idea/
+*.iml
+*.log
+target
+*/target/
+/partner.properties
+/*.p12
+>>>>>>> 1ac4d676af406fbdcbf8e889ad001643495b78bb

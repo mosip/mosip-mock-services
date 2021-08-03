@@ -1,11 +1,15 @@
 package io.mosip.mock.sbi.devicehelper.face;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
+import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapCaptureInfo;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
+import io.mosip.mock.sbi.util.BioUtilHelper;
 import io.mosip.mock.sbi.util.StringHelper;
 
 public class SBIFaceHelper extends SBIDeviceHelper {
@@ -56,22 +60,39 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 	}
 
 	@Override
-	public int getBioCapture(boolean isUsedForAuthenication) {
-		byte [] isoImage = null;
+	public int getBioCapture(boolean isUsedForAuthenication) throws Exception {
+		byte [] isoData = null;
 
+		String seedName = "";
+		if (this.getProfileId().equalsIgnoreCase(SBIConstant.PROFILE_AUTOMATIC))
+		{
+			if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_FACE) != null)
+			{
+				int seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_FACE));
+				seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+			}
+		}
 		if (!isUsedForAuthenication)
 		{
-			isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_FACE);
-			if (isoImage != null && !((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureFace())
+			isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_FACE);
+			if (isoData != null && !((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureFace())
 			{
-				((SBIFaceCaptureInfo)getCaptureInfo ()).setBioValueFace(StringHelper.base64UrlEncode(isoImage));
+				((SBIFaceCaptureInfo)getCaptureInfo ()).setBioValueFace(StringHelper.base64UrlEncode(isoData));
+				if (isScoreFromIso())
+					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(BioUtilHelper.getFaceQualityScoreFromIso(getPurpose(), isoData));
+				else
+					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(getQualityScore());
 			}				
 			((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureFace(true);				
 			
-			isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_FACE_EXCEPTION);
-			if (isoImage != null && !((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureExceptionPhoto())
+			isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_FACE_EXCEPTION);
+			if (isoData != null && !((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureExceptionPhoto())
 			{
-				((SBIFaceCaptureInfo)getCaptureInfo ()).setBioValueExceptionPhoto(StringHelper.base64UrlEncode(isoImage));
+				((SBIFaceCaptureInfo)getCaptureInfo ()).setBioValueExceptionPhoto(StringHelper.base64UrlEncode(isoData));
+				if (isScoreFromIso())
+					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(BioUtilHelper.getFaceQualityScoreFromIso(getPurpose(), isoData));
+				else
+					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(getQualityScore());
 			}				
 			((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureExceptionPhoto(true);				
 
@@ -83,10 +104,14 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 		}
 		else
 		{
-			isoImage = getBiometricISOImage(SBIConstant.PROFILE_BIO_FILE_NAME_FACE);
-			if (isoImage != null && !((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureFace())
+			isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_FACE);
+			if (isoData != null && !((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureFace())
 			{
-				getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_UNKNOWN, StringHelper.base64UrlEncode(isoImage));
+				getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_UNKNOWN, StringHelper.base64UrlEncode(isoData));
+				if (isScoreFromIso())
+					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(BioUtilHelper.getFaceQualityScoreFromIso(getPurpose(), isoData));
+				else
+					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(getQualityScore());
 				((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureFace(true);				
 			}				
 			if (((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureFace())

@@ -21,7 +21,7 @@ public class SBIMockService implements Runnable {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIMockService.class);	
 
-	protected String profileId = "Default";
+	protected static String profileId = SBIConstant.PROFILE_DEFAULT;
 	protected String purpose;
 	protected String biometricType;
 	protected HashMap <String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
@@ -97,7 +97,7 @@ public class SBIMockService implements Runnable {
 		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
 				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)))
 		{
-		this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose ()));		
+			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose ()));		
 		}
 	}
 	

@@ -60,7 +60,8 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<QualityCheck> checkQuality(BiometricRecord sample, List<BiometricType> modalitiesToCheck, Map<String, String> flags) {
+	public Response<QualityCheck> checkQuality(BiometricRecord sample, List<BiometricType> modalitiesToCheck,
+			Map<String, String> flags) {
 		Response<QualityCheck> response = new Response<>();
 		if (sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
 			response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
@@ -106,7 +107,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateFingerprintQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		score.setScore(getAvgQualityScore(segments));
+		score.setScore(0);
 
 		// TODO actual quality evaluation here
 
@@ -117,7 +118,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateIrisQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		score.setScore(getAvgQualityScore(segments));
+		score.setScore(0);
 
 		// TODO actual quality evaluation here
 
@@ -128,7 +129,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateFaceQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		score.setScore(getAvgQualityScore(segments));
+		score.setScore(0);
 
 		// TODO actual quality evaluation here
 
@@ -138,6 +139,40 @@ public class SampleSDK implements IBioApi {
 
 	@Override
 	public Response<MatchDecision[]> match(BiometricRecord sample, BiometricRecord[] gallery,
+			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
+		if (true)
+			return doMatch(sample, gallery, modalitiesToMatch, flags);
+		MatchDecision matchingScore[] = new MatchDecision[gallery.length];
+		int count = 0;
+		Map<BiometricType, List<BIR>> sampleBioSegmentMap = getBioSegmentMap(sample, modalitiesToMatch);
+		for (BiometricRecord recorded : gallery) {
+			Map<BiometricType, List<BIR>> recordBioSegmentMap = getBioSegmentMap(recorded, modalitiesToMatch);
+			Map<BiometricType, Decision> decision = new HashMap<>();
+			matchingScore[count] = new MatchDecision(count);
+			matchingScore[count].setGalleryIndex(count);
+
+			/*
+			 * if (Objects.nonNull(recordedValue) && Objects.nonNull(recordedValue.getBdb())
+			 * && recordedValue.getBdb().length != 0 &&
+			 * Arrays.equals(recordedValue.getBdb(), sample.getBdb())) {
+			 * matchingScore[count].setDecisions(decisions); } else {
+			 * matchingScore[count].setMatch(false); }
+			 */
+			modalitiesToMatch.forEach(type -> {
+				Decision d = new Decision();
+				d.setMatch(Match.MATCHED);
+				decision.put(type, d);
+			});
+			matchingScore[count].setDecisions(decision);
+			count++;
+		}
+		Response<MatchDecision[]> response = new Response<>();
+		response.setStatusCode(200);
+		response.setResponse(matchingScore);
+		return response;
+	}
+
+	private Response<MatchDecision[]> doMatch(BiometricRecord sample, BiometricRecord[] gallery,
 			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
 		int index = 0;
 		MatchDecision matchDecision[] = new MatchDecision[gallery.length];
@@ -168,7 +203,6 @@ public class SampleSDK implements IBioApi {
 		}
 
 		response.setStatusCode(200);
-		response.setStatusMessage("Success");
 		response.setResponse(matchDecision);
 		return response;
 	}
@@ -213,18 +247,14 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if(sampleBIR.getBdbInfo().getSubtype().get(0) == null || sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()){
-				LOGGER.info("Modality: "+BiometricType.FINGER.value()+" -- biometric subtype is missing");
-				errors.add("Modality: "+BiometricType.FINGER.value()+" -- biometric subtype is missing");
-				decision.setErrors(errors);
-				decision.setMatch(Match.ERROR);
-				return decision;
-			}
-			if(!sampleBIR.getBdbInfo().getSubtype().get(0).equalsIgnoreCase("unknown")){
-				for (BIR galleryBIR: gallerySegments){
-					if(galleryBIR.getBdbInfo().getSubtype().get(0).equals(sampleBIR.getBdbInfo().getSubtype().get(0))){
-						if(Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())){
-							LOGGER.info("Modality: "+BiometricType.FINGER.value()+"; Subtype: "+sampleBIR.getBdbInfo().getSubtype().get(0)+" -- matched");
+			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
+				for (BIR galleryBIR : gallerySegments) {
+					if (galleryBIR.getBdbInfo().getSubtype().get(0)
+							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
+						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
+							LOGGER.info("Modality: " + BiometricType.FINGER.value() + "; Subtype: "
+									+ sampleBIR.getBdbInfo().getSubtype() + " -- matched");
 							matched.add(true);
 							bio_found = true;
 						} else {
@@ -291,18 +321,14 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if(sampleBIR.getBdbInfo().getSubtype().get(0) == null || sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()){
-				LOGGER.info("Modality: "+BiometricType.IRIS.value()+" -- biometric subtype is missing");
-				errors.add("Modality: "+BiometricType.IRIS.value()+" -- biometric subtype is missing");
-				decision.setErrors(errors);
-				decision.setMatch(Match.ERROR);
-				return decision;
-			}
-			if(!sampleBIR.getBdbInfo().getSubtype().get(0).equalsIgnoreCase("unknown")){
-				for (BIR galleryBIR: gallerySegments){
-					if(galleryBIR.getBdbInfo().getSubtype().get(0).equals(sampleBIR.getBdbInfo().getSubtype().get(0))){
-						if(Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())){
-							LOGGER.info("Modality: "+BiometricType.IRIS.value()+"; Subtype: "+galleryBIR.getBdbInfo().getSubtype().get(0)+" -- matched");
+			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
+				for (BIR galleryBIR : gallerySegments) {
+					if (galleryBIR.getBdbInfo().getSubtype().get(0)
+							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
+						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
+							LOGGER.info("Modality: " + BiometricType.IRIS.value() + "; Subtype: "
+									+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- matched");
 							matched.add(true);
 							bio_found = true;
 						} else {
@@ -448,17 +474,18 @@ public class SampleSDK implements IBioApi {
 			Map<String, String> flags) {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
-		response.setStatusMessage("Success");
 		response.setResponse(sample);
 		return response;
 	}
 
 	@Override
-	public Response<BiometricRecord> segment(BiometricRecord biometricRecord, List<BiometricType> modalitiesToSegment, Map<String, String> flags) {
+	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment,
+			Map<String, String> flags) {
+		BiometricRecord record = new BiometricRecord();
+		record.setSegments(null);
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
-		response.setStatusMessage("Success");
-		response.setResponse(biometricRecord);
+		response.setResponse(record);
 		return response;
 	}
 
@@ -468,16 +495,6 @@ public class SampleSDK implements IBioApi {
 			List<BiometricType> modalitiesToConvert) {
 		// TODO Auto-generated method stub
 		return sample;
-	}
-
-	private float getAvgQualityScore(List<BIR> segments) {
-		float qualityScore =0;
-		for(BIR bir : segments) {
-
-			qualityScore+=(bir.getBdbInfo().getQuality().getScore());
-		}
-
-		return qualityScore/segments.size();
 	}
 
 }

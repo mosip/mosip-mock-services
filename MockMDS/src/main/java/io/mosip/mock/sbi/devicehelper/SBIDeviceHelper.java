@@ -8,6 +8,7 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.Random;
 
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
@@ -43,13 +44,17 @@ public abstract class SBIDeviceHelper {
 	private DiscoverDto discoverDto;
 	private DeviceInfoDto deviceInfoDto;
     private HashMap<String, String> statusMap = new HashMap<> ();
+    private HashMap<String, Long> delayMap = new HashMap<> ();
+    protected int qualityScore;
+    protected boolean isQualityScoreSet;
+    private boolean scoreFromIso = false;
     private SBICaptureInfo captureInfo;
     
 	public abstract long initDevice ();
 	public abstract int deInitDevice ();
     public abstract int getLiveStream ();
-    public abstract int getBioCapture (boolean isUsedForAuthenication);
-	
+    public abstract int getBioCapture (boolean isUsedForAuthenication) throws Exception;
+			
 	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType) {
 		super();
 		setPort(port);
@@ -135,6 +140,26 @@ public abstract class SBIDeviceHelper {
 					discoverDto.setDeviceStatus(getDeviceStatus());
 					discoverDto.setPurpose(getPurpose ());
 					discoverDto.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
+
+					if (getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREADY))
+					{
+						discoverDto.setError(new ErrorInfo ("110", SBIJsonInfo.getErrorDescription("en", "110"))); 
+					}
+					else if (getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISBUSY))
+					{
+						discoverDto.setError(new ErrorInfo ("111", SBIJsonInfo.getErrorDescription("en", "111"))); 
+					}
+					else if (getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREGISTERED))
+					{
+						discoverDto.setDeviceId("");
+						discoverDto.setDeviceCode("");
+						discoverDto.setPurpose("");
+						discoverDto.setError(new ErrorInfo ("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
+					}
+					else
+					{
+						discoverDto.setError(new ErrorInfo ("0", SBIJsonInfo.getErrorDescription("en", "0"))); 
+					}
 				}
 				
 				return discoverDto;
@@ -153,30 +178,33 @@ public abstract class SBIDeviceHelper {
 		String keyPwd = null;
 		FileInputStream inputStream = null;
 		try {
+			String purpose = getPurpose ();
 			ObjectMapper objectMapper = new ObjectMapper();
 			if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
 					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
 			{
 				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FINGER_SLAP_DEVICEINFO_JSON);
-				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME);
-				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS);
-				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD);
+				keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME));
+				keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS));
+				keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD));
 			}
 			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) &&
 					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE)))
 			{
 				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FACE_DEVICEINFO_JSON);
-				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME);
-				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS);
-				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD);
+
+				keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME));
+				keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS));
+				keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD));
 			}
 			else if (deviceType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
 					deviceSubType.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
 			{
 				fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_IRIS_DOUBLE_DEVICEINFO_JSON);
-				keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME);
-				keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS);
-				keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD);
+
+				keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME));
+				keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS));
+				keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD));
 			}
 
 			if (FileHelper.exists(fileName) && FileHelper.exists(keyStoreFileName)) 
@@ -210,7 +238,16 @@ public abstract class SBIDeviceHelper {
 					deviceInfo.setDeviceStatus(getDeviceStatus());
 					deviceInfo.setPurpose(getPurpose ());
 					deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
-					deviceInfo.setDigitalId(getSignedDigitalId (deviceInfo.getDigitalId(), key, cert));
+					if (!getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREGISTERED))
+					{
+						deviceInfo.setDigitalId(getSignedDigitalId (deviceInfo.getDigitalId(), key, cert));
+					}
+					else
+					{
+						deviceInfo.setDeviceId("");
+						deviceInfo.setDeviceCode("");
+						deviceInfo.setPurpose("");
+					}
 				}
         		return deviceInfo;
 			}	
@@ -280,8 +317,26 @@ public abstract class SBIDeviceHelper {
 	            /* Here it prints the private key*/
 	            //LOGGER.Info("\nPrivate Key:");
 	            //LOGGER.Info(key);
-	            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
-           	 	deviceInfoDto.setError(new ErrorInfo ("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
+				if (getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREADY))
+				{
+		            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
+		            deviceInfoDto.setError(new ErrorInfo ("110", SBIJsonInfo.getErrorDescription("en", "110"))); 
+				}
+				else if (getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISBUSY))
+				{
+		            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
+		            deviceInfoDto.setError(new ErrorInfo ("111", SBIJsonInfo.getErrorDescription("en", "111"))); 
+				}
+				else if (getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREGISTERED))
+				{
+		            deviceInfoDto.setDeviceInfo(getUnsignedDeviceInfo (deviceInfo, true));
+		            deviceInfoDto.setError(new ErrorInfo ("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
+				}
+				else
+				{
+		            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
+		            deviceInfoDto.setError(new ErrorInfo ("0", SBIJsonInfo.getErrorDescription("en", "0"))); 
+				}
     		
         		return deviceInfoDto ;
 			}	
@@ -364,6 +419,24 @@ public abstract class SBIDeviceHelper {
 		}		
 		return null;
 	}
+
+	private String getUnsignedDeviceInfo (DeviceInfo deviceInfo, boolean isBase64URLEncoded)
+    {
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			if (isBase64URLEncoded)
+			{
+				return StringHelper.base64UrlEncode (objectMapper.writeValueAsString(deviceInfo));
+			}
+			else
+			{
+				return objectMapper.writeValueAsString(deviceInfo);
+			}
+		} catch (Exception ex) {
+        	LOGGER.error("getUnsignedDeviceInfo :: " , ex);
+		}
+		return null;
+    }
 
 	private String getUnsignedDigitalId (DigitalId digitalId, boolean isBase64URLEncoded)
     {
@@ -453,12 +526,13 @@ public abstract class SBIDeviceHelper {
 		return null;
 	}
 
-	protected byte[] getBiometricISOImage(String bioSubTypeFileName) {
+	protected byte[] getBiometricISOImage(String seedName, String bioSubTypeFileName) {
 		byte[] image = null;
 		String fileName = null;
 		boolean isFolderExist = true;
 		try {
 			fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PROFILE_FOLDER_PATH) + File.separator + getProfileId ();
+        	//LOGGER.error("getBiometricISOImage :: profileId::" + getProfileId() + " :: Not Set :: fileName :: " + fileName);
 			if (!FileHelper.directoryExists(fileName))	
 			{
 				isFolderExist = false;
@@ -469,8 +543,8 @@ public abstract class SBIDeviceHelper {
 			}
 			if (isFolderExist)
 			{
-				fileName = fileName + File.separator + bioSubTypeFileName;
-	            //LOGGER.info("getBiometricISOImage :: bioSubTypeFileName :: " + bioSubTypeFileName);
+				fileName = fileName + File.separator + seedName + bioSubTypeFileName;
+	            LOGGER.info("getBiometricISOImage :: bioSubTypeFileName :: " + bioSubTypeFileName + " :: fileName ::" + fileName);
 				if (FileHelper.exists(fileName))	
 				{
 					image = FileHelper.readAllBytes (fileName);
@@ -542,17 +616,26 @@ public abstract class SBIDeviceHelper {
 	public void setDeviceInfoDto(DeviceInfoDto deviceInfoDto) {
 		this.deviceInfoDto = deviceInfoDto;
 	}
-	public String getDeviceStatus() {
-		if (statusMap == null)
-            statusMap = new HashMap<> ();
 
-		if ((this.statusMap.containsKey(SBIConstant.DEVICE_STATUS) == false || SBIConstant.DEVICE_STATUS_ISREADY.equals (this.statusMap.get(SBIConstant.DEVICE_STATUS))))
+	public String getDeviceStatus() {
+		if (this.statusMap == null)
+			this.statusMap = new HashMap<> ();
+
+		if ((this.statusMap.containsKey(SBIConstant.DEVICE_STATUS) == false || SBIConstant.DEVICE_STATUS_ISREADY.equalsIgnoreCase (this.statusMap.get(SBIConstant.DEVICE_STATUS))))
         {
             return SBIConstant.DEVICE_STATUS_ISREADY;
         }
-        if (SBIConstant.DEVICE_STATUS_ISUSED.equals (this.statusMap.get(SBIConstant.DEVICE_STATUS)))
+        if (SBIConstant.DEVICE_STATUS_ISBUSY.equalsIgnoreCase (this.statusMap.get(SBIConstant.DEVICE_STATUS)))
         {
-            return SBIConstant.DEVICE_STATUS_ISUSED;
+            return SBIConstant.DEVICE_STATUS_ISBUSY;
+        }
+        else if (SBIConstant.DEVICE_STATUS_ISREADY.equalsIgnoreCase (this.statusMap.get(SBIConstant.DEVICE_STATUS)))
+        {
+            return SBIConstant.DEVICE_STATUS_ISREADY;
+        }
+        else if (SBIConstant.DEVICE_STATUS_NOTREGISTERED.equalsIgnoreCase (this.statusMap.get(SBIConstant.DEVICE_STATUS)))
+        {
+            return SBIConstant.DEVICE_STATUS_NOTREGISTERED;
         }
         else
         {
@@ -567,6 +650,44 @@ public abstract class SBIDeviceHelper {
         	this.statusMap.put(SBIConstant.DEVICE_STATUS, deviceStatus);
 	}
 	
+	public boolean isScoreFromIso() {
+		return scoreFromIso;
+	}
+	public void setScoreFromIso(boolean scoreFromIso) {
+		this.scoreFromIso = scoreFromIso;
+	}
+	
+	public long getDelayForMethod(String methodFor) {
+		if (this.delayMap != null)
+		{
+	        if (this.delayMap.containsKey(methodFor))
+	        	return this.delayMap.get(methodFor);
+		}
+		return 0;
+	}
+
+	public void setDelayForMethod(String[] methodFor, long delay) {
+		if (this.delayMap == null)
+			this.delayMap = new HashMap<> ();
+		
+		if (methodFor != null)
+		{
+			for (int index = 0; index < methodFor.length; index++) 
+			{
+				this.delayMap.putIfAbsent(methodFor[index], delay);
+			}
+		}
+	}
+	
+	public void resetDelayForMethod()
+	{
+		if (this.delayMap != null)
+		{
+			this.delayMap.clear();
+			this.delayMap = null;
+		}
+	}
+
 	public SBICaptureInfo getCaptureInfo() {
 		return captureInfo;
 	}
@@ -586,5 +707,31 @@ public abstract class SBIDeviceHelper {
 	}
 	public void setDeviceSubId(int deviceSubId) {
 		this.deviceSubId = deviceSubId;
-	}	
+	}
+	
+	public int getQualityScore() {
+		if (this.qualityScore <= 0 || this.qualityScore > 100)
+			this.qualityScore = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_MOCK_SBI_QUALITY_SCORE));
+		
+        return this.qualityScore;
+	}
+
+	public void setQualityScore(int qualityScore) {
+        this.qualityScore = qualityScore;
+	}
+
+	public boolean isQualityScoreSet() {
+		return isQualityScoreSet;
+	}
+	public void setQualityScoreSet(boolean isQualityScoreSet) {
+		this.isQualityScoreSet = isQualityScoreSet;
+	}		
+
+	public int getRandomNumberForSeed(int seed) {
+		int value = new Random().nextInt(seed);
+		if (value == 0)
+			value = 1;
+		
+		return value;
+	}		
 }

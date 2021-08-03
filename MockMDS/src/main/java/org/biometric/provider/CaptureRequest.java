@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
@@ -195,13 +198,15 @@ public class CaptureRequest extends HttpServlet {
 					if (!list.isEmpty()) {
 
 						for (BioMetricsDataDto dto : list) {
-							Map<String, String> result = CryptoUtility.encrypt(new JwtUtility().getPublicKeyToEncryptCaptureBioValue(),
-									dto.getBioValue(), captureRequestDto.transactionId);
+							X509Certificate certificate = new JwtUtility().getCertificateToEncryptCaptureBioValue();
+							PublicKey publicKey = certificate.getPublicKey();
+							Map<String, String> result = CryptoUtility.encrypt(publicKey,
+									java.util.Base64.getUrlDecoder().decode(dto.getBioValue()), captureRequestDto.transactionId);
 
 							NewBioAuthDto data = buildAuthNewBioDto(dto, bio.type, bio.requestedScore,
 									captureRequestDto.transactionId, result);
 							Map<String, Object> biometricData = getAuthMinimalResponse(captureRequestDto.specVersion,
-									data, previousHash, result);
+									data, previousHash, result, CryptoUtil.encodeBase64(JwtUtility.getCertificateThumbprint(certificate)));
 							listOfBiometric.add(biometricData);
 							previousHash = (String) biometricData.get(HASH);
 						}
@@ -461,7 +466,7 @@ public class CaptureRequest extends HttpServlet {
 	
 	
 	private Map<String, Object> getAuthMinimalResponse(String specVersion, NewBioAuthDto data, String previousHash, 
-			Map<String, String> cryptoResult) {
+			Map<String, String> cryptoResult, String thumbprint) {
 		Map<String, Object> biometricData = new LinkedHashMap<>();
 		try {
 			biometricData.put(SPEC_VERSION, specVersion);
@@ -471,7 +476,7 @@ public class CaptureRequest extends HttpServlet {
 			String finalHash = HMACUtils.digestAsPlainText(HMACUtils.generateHash(concatenatedHash.getBytes()));
 			biometricData.put(HASH, finalHash);
 			biometricData.put(SESSION_KEY, cryptoResult.get("ENC_SESSION_KEY"));
-			biometricData.put(THUMB_PRINT, new JwtUtility().getThumbprint());
+			biometricData.put(THUMB_PRINT, thumbprint);
 			biometricData.put(error, null);
 			String dataBlock = JwtUtility.getJwt(dataAsString.getBytes(StandardCharsets.UTF_8), JwtUtility.getPrivateKey(),
 					JwtUtility.getCertificate());
