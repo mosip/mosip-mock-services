@@ -247,32 +247,33 @@ public class SampleSDK implements IBioApi {
 		decision.setMatch(Match.ERROR);
 
 		if (sampleSegments == null && gallerySegments == null) {
-			LOGGER.info("Modality: " + BiometricType.FINGER.value() + " -- no biometrics found");
+			LOGGER.info("Modality: {} -- no biometrics found", BiometricType.FINGER.value());
 			decision.setMatch(Match.MATCHED);
 			return decision;
 		} else if (sampleSegments == null || gallerySegments == null) {
 			LOGGER.info(
-					"Modality: " + BiometricType.FINGER.value() + " -- biometric missing in either sample or recorded");
+					"Modality: {} -- biometric missing in either sample or recorded", BiometricType.FINGER.value());
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
+			if (sampleBIR.getBdbInfo().getSubtype() != null
+					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-							LOGGER.info("Modality: " + BiometricType.FINGER.value() + "; Subtype: "
-									+ sampleBIR.getBdbInfo().getSubtype() + " -- matched");
+							LOGGER.info("Modality: {}; Subtype: {}  -- matched", BiometricType.FINGER.value(),
+									galleryBIR.getBdbInfo().getSubtype());
 							matched.add(true);
 							bio_found = true;
 						} else {
-							LOGGER.info("Modality: " + BiometricType.FINGER.value() + "; Subtype: "
-									+ sampleBIR.getBdbInfo().getSubtype() + " -- not matched");
+							LOGGER.info("Modality: {}; Subtype: {}  -- not matched", BiometricType.FINGER.value(),
+									galleryBIR.getBdbInfo().getSubtype());
 							matched.add(false);
 							bio_found = true;
 						}
@@ -281,21 +282,21 @@ public class SampleSDK implements IBioApi {
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-						LOGGER.info("Modality: " + BiometricType.FINGER.value() + "; Subtype: "
-								+ sampleBIR.getBdbInfo().getSubtype().get(0) + " -- matched");
+						LOGGER.info("Modality: {}; Subtype: {}  -- matched", BiometricType.FINGER.value(),
+								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(true);
 						bio_found = true;
 					} else {
-						LOGGER.info("Modality: " + BiometricType.FINGER.value() + "; Subtype: "
-								+ sampleBIR.getBdbInfo().getSubtype().get(0) + " -- not matched");
+						LOGGER.info("Modality: {}; Subtype: {}  -- not matched", BiometricType.FINGER.value(),
+								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(false);
 						bio_found = true;
 					}
 				}
 			}
 			if (!bio_found) {
-				LOGGER.info("Modality: " + BiometricType.FINGER.value() + "; Subtype: "
-						+ sampleBIR.getBdbInfo().getSubtype().get(0) + " -- not found");
+				LOGGER.info("Modality: {}; Subtype: {} -- not found", BiometricType.FINGER.value(),
+						 sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
 		}
@@ -322,32 +323,33 @@ public class SampleSDK implements IBioApi {
 		decision.setMatch(Match.ERROR);
 
 		if (sampleSegments == null && gallerySegments == null) {
-			LOGGER.info("Modality: " + BiometricType.IRIS.value() + " -- no biometrics found");
+			LOGGER.info("Modality: {} -- no biometrics found", BiometricType.IRIS.value());
 			decision.setMatch(Match.MATCHED);
 			return decision;
 		} else if (sampleSegments == null || gallerySegments == null) {
 			LOGGER.info(
-					"Modality: " + BiometricType.IRIS.value() + " -- biometric missing in either sample or recorded");
+					"Modality: {} -- biometric missing in either sample or recorded", BiometricType.IRIS.value());
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
+			if (sampleBIR.getBdbInfo().getSubtype() != null
+					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-							LOGGER.info("Modality: " + BiometricType.IRIS.value() + "; Subtype: "
-									+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- matched");
+							LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.IRIS.value(),
+									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(true);
 							bio_found = true;
 						} else {
-							LOGGER.info("Modality: " + BiometricType.IRIS.value() + "; Subtype: "
-									+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- not matched");
+							LOGGER.info("Modality: {}; Subtype: {} -- not matched", BiometricType.IRIS.value(),
+									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(false);
 							bio_found = true;
 						}
@@ -356,21 +358,21 @@ public class SampleSDK implements IBioApi {
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-						LOGGER.info("Modality: " + BiometricType.IRIS.value() + "; Subtype: "
-								+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- matched");
+						LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.IRIS.value(),
+								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(true);
 						bio_found = true;
 					} else {
-						LOGGER.info("Modality: " + BiometricType.IRIS.value() + "; Subtype: "
-								+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- not matched");
+						LOGGER.info("Modality: {}; Subtype: {}-- not matched", BiometricType.IRIS.value(),
+										galleryBIR.getBdbInfo().getSubtype());
 						matched.add(false);
 						bio_found = true;
 					}
 				}
 			}
 			if (!bio_found) {
-				LOGGER.info("Modality: " + BiometricType.IRIS.value() + "; Subtype: "
-						+ sampleBIR.getBdbInfo().getSubtype().get(0) + " -- not found");
+				LOGGER.info("Modality: {} ; Subtype: {}  -- not found", BiometricType.IRIS.value(),
+						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
 		}
@@ -394,31 +396,31 @@ public class SampleSDK implements IBioApi {
 		decision.setMatch(Match.ERROR);
 
 		if (sampleSegments == null && gallerySegments == null) {
-			LOGGER.info("Modality: " + BiometricType.FACE.value() + " -- no biometrics found");
+			LOGGER.info("Modality: {} -- no biometrics found", BiometricType.FACE.value());
 			decision.setMatch(Match.MATCHED);
 			return decision;
 		} else if (sampleSegments == null || gallerySegments == null) {
-			LOGGER.info(
-					"Modality: " + BiometricType.FACE.value() + " -- biometric missing in either sample or recorded");
+			LOGGER.info("Modality: {} -- biometric missing in either sample or recorded", BiometricType.FACE.value());
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype().get(0) != null
+			if (sampleBIR.getBdbInfo().getSubtype() != null
+					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
 				for (BIR galleryBIR : gallerySegments) {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-							LOGGER.info("Modality: " + BiometricType.FACE.value() + "; Subtype: "
-									+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- matched");
+							LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.FACE.value() ,
+									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(true);
 							bio_found = true;
 						} else {
-							LOGGER.info("Modality: " + BiometricType.FACE.value() + "; Subtype: "
-									+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- not matched");
+							LOGGER.info("Modality: {}; Subtype: {} -- not matched" ,  BiometricType.FACE.value() ,
+									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(false);
 							bio_found = true;
 						}
@@ -427,21 +429,21 @@ public class SampleSDK implements IBioApi {
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-						LOGGER.info("Modality: " + BiometricType.FACE.value() + "; Subtype: "
-								+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- matched");
+						LOGGER.info("Modality: {}; Subtype: {} -- matched" , BiometricType.FACE.value(),
+								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(true);
 						bio_found = true;
 					} else {
-						LOGGER.info("Modality: " + BiometricType.FACE.value() + "; Subtype: "
-								+ galleryBIR.getBdbInfo().getSubtype().get(0) + " -- not matched");
+						LOGGER.info("Modality: {}; Subtype: {} -- not matched" ,  BiometricType.FACE.value() ,
+								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(false);
 						bio_found = true;
 					}
 				}
 			}
 			if (!bio_found) {
-				LOGGER.info("Modality: " + BiometricType.FACE.value() + "; Subtype: "
-						+ sampleBIR.getBdbInfo().getSubtype().get(0) + " -- not found");
+				LOGGER.info("Modality: {}; Subtype: {} -- not found" ,  BiometricType.FACE.value() ,
+						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
 		}
