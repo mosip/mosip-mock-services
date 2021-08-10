@@ -98,13 +98,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private boolean encryption;
 
 	/**
-	 * This flag is added for development & debugging locally registration-processor-abis-sample.json
-	 * If true then registration-processor-abis-sample.json will be picked from resources
-	 */
-	@Value("${local.development:false}")
-	private boolean localDevelopment;
-
-	/**
 	 * Mosip host
 	 */
 	@Value("${mosip_host:#{null}}")
@@ -191,10 +184,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
 						responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
-			}
-			if (localDevelopment){
-				/* It will replace the host in referenceUrl with the mosip host */
-				CBEFF_URL = CBEFF_URL.replace("http://datashare-service", mosipHost);
 			}
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);

@@ -35,7 +35,7 @@ Steps:
 * Run the jar: `java -jar -Dlocal.development=true -Dabis.bio.encryption=true -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> target/mockabis-service.jar`.
 
 Flags:
-* local.development (true: whenever running locally)
+* local.development (true: whenever running locally, this will take the registration-processor-abis.json from resources)
 * abis.bio.encryption (true: in case if partner based encryption)
 * mosip_host (hostname of the MOSIP server)
 
