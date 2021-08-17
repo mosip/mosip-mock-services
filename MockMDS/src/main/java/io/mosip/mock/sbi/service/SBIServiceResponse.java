@@ -2336,6 +2336,7 @@ public class SBIServiceResponse {
          String header =
              "HTTP/1.0 200 OK\r\n" +
              "Server: http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort () + "\r\n" +
+			 "Access-Control-Allow-Origin: *\r\n"+
              "Connection: close\r\n" +
              "Max-Age: 0\r\n" +
              "Expires: 0\r\n" +
