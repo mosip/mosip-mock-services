@@ -1,6 +1,5 @@
 package io.mosip.mock.sbi.devicehelper.iris.binacular;
 
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
-import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapCaptureInfo;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.mock.sbi.util.BioUtilHelper;
 import io.mosip.mock.sbi.util.StringHelper;
@@ -76,7 +74,7 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 
 		if (!isForAuthenication)
 		{
-			if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+			if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_LEFT)
 			{
 				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingLeftIris() == SBICheckState.Unchecked)
 				{
@@ -101,7 +99,7 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 					getCaptureInfo ().setCaptureCompleted(true);
 				}
 			}
-			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
+			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_RIGHT)
 			{
 				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingRightIris() == SBICheckState.Unchecked)
 				{
@@ -125,7 +123,7 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 					getCaptureInfo ().setCaptureCompleted(true);
 				}
 			}
-			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_BOTH)
 			{
 				if (((SBIIrisDoubleBioExceptionInfo)getCaptureInfo ().getBioExceptionInfo()).getChkMissingLeftIris() == SBICheckState.Unchecked)
 				{
@@ -172,7 +170,7 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 		}
 		else if (isForAuthenication)
 		{
-			if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+			if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_LEFT)
 			{
 				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_IRIS);
 				if (isoData != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
@@ -188,7 +186,7 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())
 					getCaptureInfo ().setCaptureCompleted(true);
 			}
-			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
+			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_RIGHT)
 			{
 				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_IRIS);
 				if (isoData != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
@@ -204,7 +202,7 @@ public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 				if (((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureRI())
 					getCaptureInfo ().setCaptureCompleted(true);
 			}
-			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+			else if (getDeviceSubId () == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_BOTH)
 			{
 				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_IRIS);
 				if (isoData != null && !((SBIIrisDoubleCaptureInfo)getCaptureInfo ()).isCaptureLI())

@@ -46,12 +46,17 @@ import io.mosip.mock.sbi.devicehelper.SBICheckState;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.mock.sbi.devicehelper.face.SBIFaceCaptureInfo;
 import io.mosip.mock.sbi.devicehelper.face.SBIFaceHelper;
+import io.mosip.mock.sbi.devicehelper.finger.single.SBIFingerSingleCaptureInfo;
+import io.mosip.mock.sbi.devicehelper.finger.single.SBIFingerSingleHelper;
 import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapCaptureInfo;
 import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapHelper;
 import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleCaptureInfo;
 import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleHelper;
+import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleBioExceptionInfo;
+import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleCaptureInfo;
+import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleHelper;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.mock.sbi.util.StringHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
@@ -175,17 +180,34 @@ public class SBIServiceResponse {
 				 if (type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE))
 						 || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)))
 			     {
-				 	SBIFingerSlapHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-				 	if (deviceHelper != null)
-				 	{
-				 		delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
-				 		delay(delay);
-				 		
-					 	deviceHelper.initDeviceDetails();			 		
-						DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
-						if (discoverInfo != null)
-							infoList.add(discoverInfo);
-				 	}
+					 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+					 {
+						 SBIFingerSlapHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
+						 if (deviceHelper != null)
+						 {
+						 	delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
+						 	delay(delay);
+						 		
+							deviceHelper.initDeviceDetails();			 		
+							DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
+							if (discoverInfo != null)
+								infoList.add(discoverInfo);
+						 }
+					 }
+					 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+					 {
+						 SBIFingerSingleHelper deviceHelper = (SBIFingerSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+						 if (deviceHelper != null)
+						 {
+						 	delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
+						 	delay(delay);
+						 		
+							deviceHelper.initDeviceDetails();			 		
+							DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
+							if (discoverInfo != null)
+								infoList.add(discoverInfo);
+						 }
+					 }
 			     }
 				 
 				 if (type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE))
@@ -206,16 +228,33 @@ public class SBIServiceResponse {
 				 if (type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE))
 					 || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)))
 				 {
-					 SBIIrisDoubleHelper deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-					 if (deviceHelper != null)
+					 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
 					 {
-						 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
-						 delay(delay);
-
-						 deviceHelper.initDeviceDetails();
-						 DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
-						 if (discoverInfo != null)
-							 infoList.add(discoverInfo);
+						 SBIIrisDoubleHelper deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+						 if (deviceHelper != null)
+						 {
+							 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
+							 delay(delay);
+	
+							 deviceHelper.initDeviceDetails();
+							 DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
+							 if (discoverInfo != null)
+								 infoList.add(discoverInfo);
+						 }
+					 }
+					 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+					 {
+						 SBIIrisSingleHelper deviceHelper = (SBIIrisSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+						 if (deviceHelper != null)
+						 {
+							 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
+							 delay(delay);
+	
+							 deviceHelper.initDeviceDetails();
+							 DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
+							 if (discoverInfo != null)
+								 infoList.add(discoverInfo);
+						 }
 					 }
 				 }
 
@@ -251,16 +290,34 @@ public class SBIServiceResponse {
 
              List<DeviceInfoDto> infoList = new ArrayList<DeviceInfoDto> ();
              DeviceInfoDto deviceInfoDto = null;
-             SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-			 if (deviceHelper != null)
+             SBIDeviceHelper deviceHelper = null;
+			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
 			 {
-				 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
-				 delay(delay);
-
-				 deviceHelper.initDeviceDetails();
-	             deviceInfoDto = deviceHelper.getDeviceInfoDto();	
-	             if (deviceInfoDto != null)
+             	deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
+				 if (deviceHelper != null)
+				 {
+					 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
+					 delay(delay);
+	
+					 deviceHelper.initDeviceDetails();
+		             deviceInfoDto = deviceHelper.getDeviceInfoDto();	
+		             if (deviceInfoDto != null)
+						infoList.add(deviceInfoDto);            	 
+				 }
+			 }
+			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+			 {
+				 deviceHelper = (SBIFingerSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+				 if (deviceHelper != null)
+				 {
+					 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
+					 delay(delay);
+		
+					 deviceHelper.initDeviceDetails();
+			         deviceInfoDto = deviceHelper.getDeviceInfoDto();	
+			         if (deviceInfoDto != null)
 					infoList.add(deviceInfoDto);            	 
+				 }
 			 }
 
 			 deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
@@ -275,16 +332,33 @@ public class SBIServiceResponse {
 					infoList.add(deviceInfoDto);            	 
 			 }
 
-			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-			 if (deviceHelper != null)
+			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
 			 {
-				 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
-				 delay(delay);
+				 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+				 if (deviceHelper != null)
+				 {
+					 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
+					 delay(delay);
 
-				 deviceHelper.initDeviceDetails();
-	             deviceInfoDto = deviceHelper.getDeviceInfoDto();
-	             if (deviceInfoDto != null)
-					infoList.add(deviceInfoDto);            	 
+					 deviceHelper.initDeviceDetails();
+					 deviceInfoDto = deviceHelper.getDeviceInfoDto();
+					 if (deviceInfoDto != null)
+						 infoList.add(deviceInfoDto);            	 
+				 }
+			 }
+			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+			 {
+				 deviceHelper = (SBIIrisSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+				 if (deviceHelper != null)
+				 {
+					 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
+					 delay(delay);
+
+					 deviceHelper.initDeviceDetails();
+					 deviceInfoDto = deviceHelper.getDeviceInfoDto();
+					 if (deviceInfoDto != null)
+						 infoList.add(deviceInfoDto);            	 
+				 }
 			 }
 
 			 if (infoList != null && infoList.size() > 0)
@@ -343,10 +417,22 @@ public class SBIServiceResponse {
              }             
              else
              {
-            	 SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-    			 if (deviceHelper != null)
+            	 SBIDeviceHelper deviceHelper = null;
+    			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
     			 {
-    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+    				 deviceHelper =  (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+	    			 }
+    			 }
+    			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+    			 {
+    				 deviceHelper =  (SBIFingerSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+	    			 }
     			 }
     			 
                  deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
@@ -355,10 +441,21 @@ public class SBIServiceResponse {
 	                 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
     			 }
 
-    			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-    			 if (deviceHelper != null)
+    			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
     			 {
-    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+	    			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+	    			 }
+    			 }
+    			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+    			 {
+	    			 deviceHelper = (SBIIrisSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+	    			 }
     			 }
              }
         	 
@@ -417,12 +514,27 @@ public class SBIServiceResponse {
              else
              {
             	 int defaultQualityScore = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_MOCK_SBI_QUALITY_SCORE));
-            	 SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-    			 if (deviceHelper != null)
+
+            	 SBIDeviceHelper deviceHelper = null;
+    			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
     			 {
-    				 deviceHelper.setScoreFromIso ((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? scoreFromIso : false);
-    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
-    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
+    				 deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setScoreFromIso ((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? scoreFromIso : false);
+	    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+	    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
+	    			 }
+    			 }
+    			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+    			 {
+    				 deviceHelper = (SBIFingerSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setScoreFromIso ((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? scoreFromIso : false);
+	    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+	    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
+	    			 }
     			 }
     			 
                  deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
@@ -433,13 +545,27 @@ public class SBIServiceResponse {
     				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
     			 }
 
-    			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-    			 if (deviceHelper != null)
+    			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
     			 {
-    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? scoreFromIso : false);
-    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
-    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
-    			 }        	 
+	    			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? scoreFromIso : false);
+	    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+	    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
+	    			 }        	 
+    			 }
+    			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+    			 {
+	    			 deviceHelper = (SBIIrisSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+	    			 if (deviceHelper != null)
+	    			 {
+	    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? scoreFromIso : false);
+	    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+	    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
+	    			 }        	 
+    			 }
+    			 
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "0", "");
              }
          }
@@ -514,11 +640,24 @@ public class SBIServiceResponse {
             	 }
             	 if (isValidMethod)	
             	 {
-                	 SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-        			 if (deviceHelper != null)
+            		 SBIDeviceHelper deviceHelper = null;            	 
+        			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
         			 {
-        				 deviceHelper.resetDelayForMethod();
-        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? method : null, Long.parseLong (delay));
+	                	 deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
+	        			 if (deviceHelper != null)
+	        			 {
+	        				 deviceHelper.resetDelayForMethod();
+	        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? method : null, Long.parseLong (delay));
+	        			 }
+        			 }
+        			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+        			 {
+	                	 deviceHelper = (SBIFingerSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+	        			 if (deviceHelper != null)
+	        			 {
+	        				 deviceHelper.resetDelayForMethod();
+	        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? method : null, Long.parseLong (delay));
+	        			 }
         			 }
         			 
                      deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
@@ -528,12 +667,24 @@ public class SBIServiceResponse {
     	                 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))) ? method : null, Long.parseLong (delay));
         			 }
 
-        			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-        			 if (deviceHelper != null)
+        			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
         			 {
-        				 deviceHelper.resetDelayForMethod();
-        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? method : null, Long.parseLong (delay));
-        			 }        	 
+	        			 deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+	        			 if (deviceHelper != null)
+	        			 {
+	        				 deviceHelper.resetDelayForMethod();
+	        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? method : null, Long.parseLong (delay));
+	        			 }        	 
+        			 }
+        			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+        			 {
+	        			 deviceHelper = (SBIIrisSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+	        			 if (deviceHelper != null)
+	        			 {
+	        				 deviceHelper.resetDelayForMethod();
+	        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? method : null, Long.parseLong (delay));
+	        			 }        	 
+        			 }
                      response = SBIJsonInfo.getAdminApiErrorJson (lang, "0", "");
             	 }
              }
@@ -1019,22 +1170,6 @@ public class SBIServiceResponse {
             }                    
         }
         return response;
-	}
-
-	private boolean isValidBioExceptionValues(String[] bioExceptions) {
-		if (bioExceptions != null)
-		{
-			return bioExceptionsList.containsAll(Arrays.asList(bioExceptions));
-		}
-		return false;
-	}
-
-	private boolean isValidBioSubtypeValues(String[] bioSubtypes) {
-		if (bioSubtypes != null)
-		{
-			return bioSubtypesList.containsAll(Arrays.asList(bioSubtypes));
-		}
-		return false;
 	}
 
 	private String processCaptureInfo(SBIMockService mockService) {
@@ -1543,7 +1678,7 @@ public class SBIServiceResponse {
         		SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo)deviceHelper.getCaptureInfo();
         		SBIIrisDoubleBioExceptionInfo bioExceptionInfo = (SBIIrisDoubleBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
 
-        		if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
+        		if (deviceSubId == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_LEFT)
     			{
         			if (bioExceptionInfo.getChkMissingLeftIris() == SBICheckState.Unchecked)
         			{
@@ -1568,7 +1703,7 @@ public class SBIServiceResponse {
                         }
         			}
     			}
-    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
+    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_RIGHT)
     			{
         			if (bioExceptionInfo.getChkMissingRightIris() == SBICheckState.Unchecked)
         			{
@@ -1593,7 +1728,7 @@ public class SBIServiceResponse {
                         }
         			}
     			}
-    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_BOTH)
     			{
         			if (bioExceptionInfo.getChkMissingLeftIris() == SBICheckState.Unchecked)
         			{
@@ -1702,12 +1837,12 @@ public class SBIServiceResponse {
     		SBIBioSubTypeInfo bioSubTypeInfo = new SBIBioSubTypeInfo ();
     		bioSubTypeInfo.initBioSubType(bioSubType);
     		
-        	// For Finger Slap
+        	// For Finger Single
         	if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) &&
-        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP)))
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE)))
         	{
-        		SBIFingerSlapCaptureInfo captureInfo = (SBIFingerSlapCaptureInfo)deviceHelper.getCaptureInfo();
-        		if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT)
+        		SBIFingerSingleCaptureInfo captureInfo = (SBIFingerSingleCaptureInfo)deviceHelper.getCaptureInfo();
+        		if (deviceSubId == SBIConstant.DEVICE_FINGER_SINGLE_SUB_TYPE_ID)
         		{
     				HashMap<String, String> biometricData = captureInfo.getBiometricData();
     				if (biometricData != null && biometricData.size() > 0)
@@ -1821,29 +1956,7 @@ public class SBIServiceResponse {
     	                        }
         	        			bioCounter ++;
     	        			}
-
-    			        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-        		}
-        		else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT)
-        		{
-    				HashMap<String, String> biometricData = captureInfo.getBiometricData();
-    				if (biometricData != null && biometricData.size() > 0)
-    				{
-    					int bioCounter = 0;
-    					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
-    						if (bioCounter > bioCount)
-    							break;
-    			            
+    			        
     	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_INDEX))
     	        			{
@@ -1947,28 +2060,7 @@ public class SBIServiceResponse {
     	                        }
         	        			bioCounter ++;
     	        			}
-    			        }
-    				}
-    				else
-    				{
-    					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
-                        if (bioDto != null)
-                        {
-                        	biometrics.add (bioDto);
-                            previousHash = bioDto.getHash();
-                        }
-                    }
-        		}
-        		else if (deviceSubId == SBIConstant.DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB)
-        		{
-    				HashMap<String, String> biometricData = captureInfo.getBiometricData();
-    				if (biometricData != null && biometricData.size() > 0)
-    				{
-    					int bioCounter = 0;
-    					for (Map.Entry<String, String> pair: biometricData.entrySet()) {
-    						if (bioCounter > bioCount)
-    							break;
-    			            
+    			        
     	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftThumb() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_THUMB))
     	        			{
@@ -2033,66 +2125,14 @@ public class SBIServiceResponse {
                     }
         		}
         	}
-        	// For IRIS DOUBLE
+        	// For IRIS SINGLE
         	else if (deviceHelper.getDigitalId().getType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) &&
-        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE)))
+        			deviceHelper.getDigitalId().getDeviceSubType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE)))
         	{
-        		SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo)deviceHelper.getCaptureInfo();
-        		SBIIrisDoubleBioExceptionInfo bioExceptionInfo = (SBIIrisDoubleBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
+        		SBIIrisSingleCaptureInfo captureInfo = (SBIIrisSingleCaptureInfo)deviceHelper.getCaptureInfo();
+        		SBIIrisSingleBioExceptionInfo bioExceptionInfo = (SBIIrisSingleBioExceptionInfo)deviceHelper.getCaptureInfo().getBioExceptionInfo();
 
-        		if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_LEFT)
-    			{        		
-        			if (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked)
-        			{
-            			String bioData = captureInfo.getBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_IRIS);
-        				if (bioData != null && bioData.length() > 0)
-        				{
-            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkLeftIris() == SBICheckState.Checked ? SBIConstant.BIO_NAME_LEFT_IRIS : SBIConstant.BIO_NAME_UNKNOWN),
-            						bioData, captureInfo.getCaptureScoreLI(), requestScore, "", "0", isForAuthenication);
-                            if (bioDto != null)
-                            {
-                            	biometrics.add(bioDto);
-                                previousHash = bioDto.getHash();
-                            }
-        				}
-        				else
-        				{
-        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
-                            if (bioDto != null)
-                            {
-                            	biometrics.add (bioDto);
-                                previousHash = bioDto.getHash();
-                            }
-                        }
-        			}
-    			}
-    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_RIGHT)
-    			{
-        			if (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked)
-        			{
-            			String bioData = captureInfo.getBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_IRIS);
-        				if (bioData != null && bioData.length() > 0)
-        				{
-            				BioMetricsDto bioDto = getBiometricData (transactionId, requestObject, deviceHelper, previousHash, bioType, (bioSubTypeInfo.getChkRightIris() == SBICheckState.Checked ? SBIConstant.BIO_NAME_RIGHT_IRIS : SBIConstant.BIO_NAME_UNKNOWN),
-            						bioData, captureInfo.getCaptureScoreRI(), requestScore, "", "0", isForAuthenication);
-                            if (bioDto != null)
-                            {
-                            	biometrics.add(bioDto);
-                                previousHash = bioDto.getHash();
-                            }
-        				}
-        				else
-        				{
-        					BioMetricsDto bioDto = getBiometricErrorData (lang, specVersion, isForAuthenication);
-                            if (bioDto != null)
-                            {
-                            	biometrics.add (bioDto);
-                                previousHash = bioDto.getHash();
-                            }
-                        }
-        			}
-    			}
-    			else if (deviceSubId == SBIConstant.DEVICE_IRIS_SUB_TYPE_ID_BOTH)
+    			if (deviceSubId == SBIConstant.DEVICE_IRIS_SINGLE_SUB_TYPE_ID)
     			{
     				HashMap<String, String> biometricData = captureInfo.getBiometricData();
     				if (biometricData != null && biometricData.size() > 0)
@@ -2336,6 +2376,7 @@ public class SBIServiceResponse {
          String header =
              "HTTP/1.0 200 OK\r\n" +
              "Server: http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort () + "\r\n" +
+             "Access-Control-Allow-Origin:*\r\n" + 
              "Connection: close\r\n" +
              "Max-Age: 0\r\n" +
              "Expires: 0\r\n" +
@@ -2377,6 +2418,7 @@ public class SBIServiceResponse {
 	{
          String header =
              "--BoundaryString\r\n" +
+    		 "Access-Control-Allow-Origin:*\r\n" +
              "Content-Type:image/jpeg\r\n" +
              "Content-Length:" + length + "\r\n\r\n"; // there are always 2 new line character before the actual data
 
@@ -2391,12 +2433,25 @@ public class SBIServiceResponse {
 	 
 	private SBIDeviceHelper getDeviceHelperForDeviceId(SBIMockService mockService, String deviceId) {
 		
-        SBIDeviceHelper deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
-        deviceHelper.initDeviceDetails();
-        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
-        {
-        	return deviceHelper; 
-        }
+        SBIDeviceHelper deviceHelper = null;
+        if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+		{
+	        deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
+	        deviceHelper.initDeviceDetails();
+	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
+	        {
+	        	return deviceHelper; 
+	        }
+		}
+        else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+		{
+	        deviceHelper = (SBIFingerSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+	        deviceHelper.initDeviceDetails();
+	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
+	        {
+	        	return deviceHelper; 
+	        }
+		}
         
         deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
         deviceHelper.initDeviceDetails();
@@ -2405,12 +2460,24 @@ public class SBIServiceResponse {
         	return deviceHelper; 
         }
 
-        deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
-        deviceHelper.initDeviceDetails();
-        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
-        {
-        	return deviceHelper; 
-        }
+        if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+		{
+	        deviceHelper = (SBIIrisDoubleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE));
+	        deviceHelper.initDeviceDetails();
+	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
+	        {
+	        	return deviceHelper; 
+	        }
+		}
+        else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+		{
+	        deviceHelper = (SBIIrisSingleHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+	        deviceHelper.initDeviceDetails();
+	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
+	        {
+	        	return deviceHelper; 
+	        }
+		}
 
         return null;
 	}
@@ -2549,4 +2616,19 @@ public class SBIServiceResponse {
 		}
 	}
 	
+	private boolean isValidBioExceptionValues(String[] bioExceptions) {
+		if (bioExceptions != null)
+		{
+			return bioExceptionsList.containsAll(Arrays.asList(bioExceptions));
+		}
+		return false;
+	}
+
+	private boolean isValidBioSubtypeValues(String[] bioSubtypes) {
+		if (bioSubtypes != null)
+		{
+			return bioSubtypesList.containsAll(Arrays.asList(bioSubtypes));
+		}
+		return false;
+	}
 }

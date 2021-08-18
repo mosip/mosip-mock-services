@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.mock.sbi.devicehelper.face.SBIFaceHelper;
+import io.mosip.mock.sbi.devicehelper.finger.single.SBIFingerSingleHelper;
 import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapHelper;
 import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleHelper;
+import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleHelper;
 import io.mosip.mock.sbi.exception.SBIException;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
@@ -87,17 +89,23 @@ public class SBIMockService implements Runnable {
 		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
 				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)))
 		{
-			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose ()));
+			if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+				this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP), SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose ()));
+			else if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+				this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE), SBIFingerSingleHelper.getInstance(getServerPort(), getPurpose ()));
+		}
+		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
+				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)))
+		{
+			if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+				this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose ()));		
+			else if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+				this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE), SBIIrisSingleHelper.getInstance(getServerPort(), getPurpose ()));		
 		}
 		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
 				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)))
 		{
 			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE), SBIFaceHelper.getInstance(getServerPort(), getPurpose ()));
-		}
-		if (getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) ||
-				getBiometricType().equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)))
-		{
-			this.deviceHelpers.put(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE), SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose ()));		
 		}
 	}
 	
