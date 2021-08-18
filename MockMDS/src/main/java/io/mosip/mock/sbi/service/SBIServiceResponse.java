@@ -187,8 +187,8 @@ public class SBIServiceResponse {
 						 {
 						 	delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
 						 	delay(delay);
-						 		
-							deviceHelper.initDeviceDetails();			 		
+
+							deviceHelper.initDeviceDetails();
 							DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 							if (discoverInfo != null)
 								infoList.add(discoverInfo);
@@ -201,8 +201,8 @@ public class SBIServiceResponse {
 						 {
 						 	delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
 						 	delay(delay);
-						 		
-							deviceHelper.initDeviceDetails();			 		
+
+							deviceHelper.initDeviceDetails();
 							DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 							if (discoverInfo != null)
 								infoList.add(discoverInfo);
@@ -235,7 +235,7 @@ public class SBIServiceResponse {
 						 {
 							 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
 							 delay(delay);
-	
+
 							 deviceHelper.initDeviceDetails();
 							 DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 							 if (discoverInfo != null)
@@ -249,7 +249,7 @@ public class SBIServiceResponse {
 						 {
 							 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDISC);
 							 delay(delay);
-	
+
 							 deviceHelper.initDeviceDetails();
 							 DiscoverDto discoverInfo = deviceHelper.getDiscoverDto();
 							 if (discoverInfo != null)
@@ -298,11 +298,11 @@ public class SBIServiceResponse {
 				 {
 					 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
 					 delay(delay);
-	
+
 					 deviceHelper.initDeviceDetails();
-		             deviceInfoDto = deviceHelper.getDeviceInfoDto();	
+		             deviceInfoDto = deviceHelper.getDeviceInfoDto();
 		             if (deviceInfoDto != null)
-						infoList.add(deviceInfoDto);            	 
+						infoList.add(deviceInfoDto);
 				 }
 			 }
 			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
@@ -312,11 +312,11 @@ public class SBIServiceResponse {
 				 {
 					 delay = deviceHelper.getDelayForMethod(SBIConstant.MOSIP_METHOD_MOSIPDINFO);
 					 delay(delay);
-		
+
 					 deviceHelper.initDeviceDetails();
-			         deviceInfoDto = deviceHelper.getDeviceInfoDto();	
+			         deviceInfoDto = deviceHelper.getDeviceInfoDto();
 			         if (deviceInfoDto != null)
-					infoList.add(deviceInfoDto);            	 
+					infoList.add(deviceInfoDto);
 				 }
 			 }
 
@@ -343,7 +343,7 @@ public class SBIServiceResponse {
 					 deviceHelper.initDeviceDetails();
 					 deviceInfoDto = deviceHelper.getDeviceInfoDto();
 					 if (deviceInfoDto != null)
-						 infoList.add(deviceInfoDto);            	 
+						 infoList.add(deviceInfoDto);
 				 }
 			 }
 			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
@@ -357,7 +357,7 @@ public class SBIServiceResponse {
 					 deviceHelper.initDeviceDetails();
 					 deviceInfoDto = deviceHelper.getDeviceInfoDto();
 					 if (deviceInfoDto != null)
-						 infoList.add(deviceInfoDto);            	 
+						 infoList.add(deviceInfoDto);
 				 }
 			 }
 
@@ -553,7 +553,7 @@ public class SBIServiceResponse {
 	    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? scoreFromIso : false);
 	    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
 	    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
-	    			 }        	 
+	    			 }
     			 }
     			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
     			 {
@@ -563,9 +563,9 @@ public class SBIServiceResponse {
 	    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? scoreFromIso : false);
 	    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? Integer.parseInt(qualityScore) : defaultQualityScore);
 	    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))) ? true : false);
-	    			 }        	 
+	    			 }
     			 }
-    			 
+
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "0", "");
              }
          }
@@ -640,7 +640,7 @@ public class SBIServiceResponse {
             	 }
             	 if (isValidMethod)	
             	 {
-            		 SBIDeviceHelper deviceHelper = null;            	 
+            		 SBIDeviceHelper deviceHelper = null;
         			 if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
         			 {
 	                	 deviceHelper = (SBIFingerSlapHelper) mockService.getDeviceHelper(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) + "_" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP));
@@ -674,7 +674,7 @@ public class SBIServiceResponse {
 	        			 {
 	        				 deviceHelper.resetDelayForMethod();
 	        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? method : null, Long.parseLong (delay));
-	        			 }        	 
+	        			 }
         			 }
         			 else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
         			 {
@@ -683,7 +683,7 @@ public class SBIServiceResponse {
 	        			 {
 	        				 deviceHelper.resetDelayForMethod();
 	        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)) || type.equalsIgnoreCase(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))) ? method : null, Long.parseLong (delay));
-	        			 }        	 
+	        			 }
         			 }
                      response = SBIJsonInfo.getAdminApiErrorJson (lang, "0", "");
             	 }
@@ -1956,7 +1956,7 @@ public class SBIServiceResponse {
     	                        }
         	        			bioCounter ++;
     	        			}
-    			        
+
     	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkRightIndex() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_RIGHT_INDEX))
     	        			{
@@ -2060,7 +2060,7 @@ public class SBIServiceResponse {
     	                        }
         	        			bioCounter ++;
     	        			}
-    			        
+
     	        			if ((bioCounter < bioCount) && (bioSubTypeInfo.getChkUnknown() == SBICheckState.Checked || bioSubTypeInfo.getChkLeftThumb() == SBICheckState.Checked)
     	        					&& pair.getKey().equalsIgnoreCase(SBIConstant.BIO_NAME_LEFT_THUMB))
     	        			{
@@ -2376,7 +2376,7 @@ public class SBIServiceResponse {
          String header =
              "HTTP/1.0 200 OK\r\n" +
              "Server: http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort () + "\r\n" +
-             "Access-Control-Allow-Origin:*\r\n" + 
+             "Access-Control-Allow-Origin:*\r\n" +
              "Connection: close\r\n" +
              "Max-Age: 0\r\n" +
              "Expires: 0\r\n" +
@@ -2440,7 +2440,7 @@ public class SBIServiceResponse {
 	        deviceHelper.initDeviceDetails();
 	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
 	        {
-	        	return deviceHelper; 
+	        	return deviceHelper;
 	        }
 		}
         else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
@@ -2449,7 +2449,7 @@ public class SBIServiceResponse {
 	        deviceHelper.initDeviceDetails();
 	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
 	        {
-	        	return deviceHelper; 
+	        	return deviceHelper;
 	        }
 		}
         
@@ -2466,7 +2466,7 @@ public class SBIServiceResponse {
 	        deviceHelper.initDeviceDetails();
 	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
 	        {
-	        	return deviceHelper; 
+	        	return deviceHelper;
 	        }
 		}
         else if (mockService.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
@@ -2475,7 +2475,7 @@ public class SBIServiceResponse {
 	        deviceHelper.initDeviceDetails();
 	        if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceId().trim().equals(deviceId.trim()))
 	        {
-	        	return deviceHelper; 
+	        	return deviceHelper;
 	        }
 		}
 
