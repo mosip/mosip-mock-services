@@ -29,58 +29,48 @@ public class SBIBioSubTypeInfo {
 		if (bioSubType != null && bioSubType.length > 0)
 		{
 			for (String tag : bioSubType){
-				if (tag.trim ().equals (SBIConstant.BIO_NAME_UNKNOWN))
-                {
-					setChkUnknown (SBICheckState.Checked);
-                }
-				else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_THUMB))
-                {
-					setChkRightThumb (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_INDEX))
-                {
-                	setChkRightIndex (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_MIDDLE))
-                {
-                	setChkRightMiddle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_RING))
-                {
-                	setChkRightRing (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_LITTLE))
-                {
-                	setChkRightLittle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_THUMB))
-                {
-                	setChkLeftThumb (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_INDEX))
-                {
-                	setChkLeftIndex (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_MIDDLE))
-                {
-                	setChkLeftMiddle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_RING))
-                {
-                	setChkLeftRing (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_LITTLE))
-                {
-                	setChkLeftLittle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_IRIS))
-                {
-                	setChkLeftIris (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_IRIS))
-                {
-                	setChkLeftIris (SBICheckState.Checked);
-                }
+				switch (tag.trim ())
+				{
+					case SBIConstant.BIO_NAME_UNKNOWN:
+						setChkUnknown (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_THUMB:
+	                	setChkRightThumb (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_INDEX:
+	                	setChkRightIndex (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_MIDDLE:
+	                	setChkRightMiddle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_RING:
+	                	setChkRightRing (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_LITTLE:
+	                	setChkRightLittle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_THUMB:
+	                	setChkLeftThumb (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_INDEX:
+	                	setChkLeftIndex (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_MIDDLE:
+	                	setChkLeftMiddle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_RING:
+	                	setChkLeftRing (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_LITTLE:
+	                	setChkLeftLittle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_IRIS:
+	                	setChkLeftIris (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_IRIS:
+	                	setChkRightIris (SBICheckState.Checked);
+						break;
+				}
 			}
 		}
 		else

@@ -17,7 +17,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 	  
 	private SBIFingerSingleHelper(int port, String purpose)  
 	{ 
-		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE));
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE);
 	} 
   
 	//synchronized method to control simultaneous access 

@@ -25,14 +25,15 @@ public class SBIIrisSingleBioExceptionInfo extends SBIBioExceptionInfo {
 		if (bioException != null && bioException.length > 0)
 		{
 			for (String tag : bioException){
-				if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_IRIS))
-                {
-					setChkMissingLeftIris (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_IRIS))
-                {
-                	setChkMissingRightIris (SBICheckState.Checked);
-                }
+				switch (tag.trim ())
+				{
+					case SBIConstant.BIO_NAME_LEFT_IRIS:
+						setChkMissingLeftIris (SBICheckState.Checked);
+					break;
+					case SBIConstant.BIO_NAME_RIGHT_IRIS:
+	                	setChkMissingRightIris (SBICheckState.Checked);
+					break;
+				}
 			}
 		}
 	}

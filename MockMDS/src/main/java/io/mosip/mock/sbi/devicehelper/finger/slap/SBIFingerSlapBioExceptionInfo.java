@@ -35,46 +35,39 @@ public class SBIFingerSlapBioExceptionInfo extends SBIBioExceptionInfo {
 		if (bioException != null && bioException.length > 0)
 		{
 			for (String tag : bioException){
-				if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_THUMB))
-                {
-					setChkMissingRightThumb (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_INDEX))
-                {
-                	setChkMissingRightIndex (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_MIDDLE))
-                {
-                	setChkMissingRightMiddle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_RING))
-                {
-                	setChkMissingRightRing (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_RIGHT_LITTLE))
-                {
-                	setChkMissingRightLittle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_THUMB))
-                {
-                	setChkMissingLeftThumb (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_INDEX))
-                {
-                	setChkMissingLeftIndex (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_MIDDLE))
-                {
-                	setChkMissingLeftMiddle (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_RING))
-                {
-                	setChkMissingLeftRing (SBICheckState.Checked);
-                }
-                else if (tag.trim ().equals (SBIConstant.BIO_NAME_LEFT_LITTLE))
-                {
-                	setChkMissingLeftLittle (SBICheckState.Checked);
-                }
+				switch (tag.trim ())
+				{
+					case SBIConstant.BIO_NAME_RIGHT_THUMB:
+						setChkMissingRightThumb (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_INDEX:
+	                	setChkMissingRightIndex (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_MIDDLE:
+	                	setChkMissingRightMiddle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_RING:
+	                	setChkMissingRightRing (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_RIGHT_LITTLE:
+	                	setChkMissingRightLittle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_THUMB:
+	                	setChkMissingLeftThumb (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_INDEX:
+	                	setChkMissingLeftIndex (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_MIDDLE:
+	                	setChkMissingLeftMiddle (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_RING:
+	                	setChkMissingLeftRing (SBICheckState.Checked);
+						break;
+	                case SBIConstant.BIO_NAME_LEFT_LITTLE:
+	                	setChkMissingLeftLittle (SBICheckState.Checked);
+						break;
+				}
 			}
 		}
 	}

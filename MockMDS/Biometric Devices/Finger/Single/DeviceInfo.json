@@ -1,7 +1,7 @@
 {
   	"deviceStatus": "Ready",
   	"deviceId": "4",
-  	"firmware": "MOSIP.SLAP.1.0.0.0",
+  	"firmware": "MOSIP.SINGLE.1.0.0.0",
   	"certification": "L0",
   	"serviceVersion": "0.9.5",
   	"deviceSubId":[

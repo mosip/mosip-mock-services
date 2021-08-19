@@ -17,7 +17,7 @@ public class SBIIrisSingleHelper extends SBIDeviceHelper {
 	  
 	private SBIIrisSingleHelper(int port, String purpose)  
 	{ 
-		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE));
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE);
 	} 
   
 	//synchronized method to control simultaneous access 

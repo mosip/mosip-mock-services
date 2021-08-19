@@ -26,41 +26,41 @@ public class SBIConstant {
     public static String ENVIRONMENT_PRODUCTION = "Production";
 
 	/** Purpose */
-    public static String PURPOSE_AUTH = "Auth";
-    public static String PURPOSE_REGISTRATION = "Registration";
+    public final static String PURPOSE_AUTH = "Auth";
+    public final static String PURPOSE_REGISTRATION = "Registration";
 
 	/** Device Status */
-    public static String DEVICE_STATUS					= "DEVICE_STATUS";
-    public static String DEVICE_STATUS_ISREADY        	= "Ready";
-    public static String DEVICE_STATUS_ISBUSY         	= "Busy";
-    public static String DEVICE_STATUS_NOTREADY    		= "Not Ready";
-    public static String DEVICE_STATUS_NOTREGISTERED  	= "Not Registered";
+    public final static String DEVICE_STATUS					= "DEVICE_STATUS";
+    public final static String DEVICE_STATUS_ISREADY        	= "Ready";
+    public final static String DEVICE_STATUS_ISBUSY         	= "Busy";
+    public final static String DEVICE_STATUS_NOTREADY    		= "Not Ready";
+    public final static String DEVICE_STATUS_NOTREGISTERED  	= "Not Registered";
 
 	/** Device SubType Id Value */
-    public static int DEVICE_IRIS_SINGLE_SUB_TYPE_ID		= 0;	// Single IMAGE
-    public static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_LEFT  	= 1;	// LEFT IRIS IMAGE
-    public static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_RIGHT 	= 2;	// RIGHT IRIS IMAGE
-    public static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_BOTH  	= 3;	// BOTH LEFT AND RIGHT IRIS IMAGE
-    public static int DEVICE_FINGER_SINGLE_SUB_TYPE_ID  	= 0;	// Single IMAGE
-    public static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT  	= 1;	// LEFT SLAP IMAGE
-    public static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT 	= 2;	// RIGHT SLAP IMAGE
-    public static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB  = 3;// TWO THUMB IMAGE
-    public static int DEVICE_FACE_SUB_TYPE_ID_FULLFACE  	= 0;    // TWO THUMB IMAGE
+    public final static int DEVICE_IRIS_SINGLE_SUB_TYPE_ID		= 0;	// Single IMAGE
+    public final static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_LEFT  	= 1;	// LEFT IRIS IMAGE
+    public final static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_RIGHT 	= 2;	// RIGHT IRIS IMAGE
+    public final static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_BOTH  	= 3;	// BOTH LEFT AND RIGHT IRIS IMAGE
+    public final static int DEVICE_FINGER_SINGLE_SUB_TYPE_ID  	= 0;	// Single IMAGE
+    public final static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT  	= 1;	// LEFT SLAP IMAGE
+    public final static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT 	= 2;	// RIGHT SLAP IMAGE
+    public final static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB  = 3;// TWO THUMB IMAGE
+    public final static int DEVICE_FACE_SUB_TYPE_ID_FULLFACE  	= 0;    // TWO THUMB IMAGE
     
 	/** Bio Exceptions/Bio Subtype Names */
-	public static String BIO_NAME_UNKNOWN = "UNKNOWN";
-	public static String BIO_NAME_RIGHT_THUMB = "Right Thumb";
-	public static String BIO_NAME_RIGHT_INDEX = "Right IndexFinger";
-	public static String BIO_NAME_RIGHT_MIDDLE = "Right MiddleFinger";
-	public static String BIO_NAME_RIGHT_RING = "Right RingFinger";
-	public static String BIO_NAME_RIGHT_LITTLE = "Right LittleFinger";
-	public static String BIO_NAME_LEFT_THUMB = "Left Thumb";
-	public static String BIO_NAME_LEFT_INDEX = "Left IndexFinger";
-	public static String BIO_NAME_LEFT_MIDDLE = "Left MiddleFinger";
-	public static String BIO_NAME_LEFT_RING = "Left RingFinger";
-	public static String BIO_NAME_LEFT_LITTLE = "Left LittleFinger";
-	public static String BIO_NAME_RIGHT_IRIS = "Right";
-	public static String BIO_NAME_LEFT_IRIS = "Left";
+	public final static String BIO_NAME_UNKNOWN = "UNKNOWN";
+	public final static String BIO_NAME_RIGHT_THUMB = "Right Thumb";
+	public final static String BIO_NAME_RIGHT_INDEX = "Right IndexFinger";
+	public final static String BIO_NAME_RIGHT_MIDDLE = "Right MiddleFinger";
+	public final static String BIO_NAME_RIGHT_RING = "Right RingFinger";
+	public final static String BIO_NAME_RIGHT_LITTLE = "Right LittleFinger";
+	public final static String BIO_NAME_LEFT_THUMB = "Left Thumb";
+	public final static String BIO_NAME_LEFT_INDEX = "Left IndexFinger";
+	public final static String BIO_NAME_LEFT_MIDDLE = "Left MiddleFinger";
+	public final static String BIO_NAME_LEFT_RING = "Left RingFinger";
+	public final static String BIO_NAME_LEFT_LITTLE = "Left LittleFinger";
+	public final static String BIO_NAME_RIGHT_IRIS = "Right";
+	public final static String BIO_NAME_LEFT_IRIS = "Left";
      
 	/** Profile Bio File Names */
 	public static String PROFILE_BIO_FILE_NAME_RIGHT_THUMB = "Right_Thumb.iso";
@@ -79,9 +79,9 @@ public class SBIConstant {
 	public static String PROFILE_BIO_FILE_NAME_FACE_EXCEPTION = "Exception_Photo.iso";
 
 	/** Profile Default. */
-	public static String PROFILE_DEFAULT = "Default";
+	public final static String PROFILE_DEFAULT = "Default";
 	/** Profile Automatic. */
-	public static String PROFILE_AUTOMATIC = "Automatic";
+	public final static String PROFILE_AUTOMATIC = "Automatic";
 
 	/** Errors */
 	public static final String Error_Code_0 = "mds_ERROR_0_msg_en";
@@ -180,18 +180,18 @@ public class SBIConstant {
 	public static String MOSIP_PURPOSE_AUTH = "mosip.mock.sbi.device.purpose.auth";
 
 	/** Biometric Types Names */
-	public static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "mosip.mock.sbi.biometric.type.biometricdevice";
-	public static String MOSIP_BIOMETRIC_TYPE_FINGER = "mosip.mock.sbi.biometric.type.finger";
-	public static String MOSIP_BIOMETRIC_TYPE_FACE = "mosip.mock.sbi.biometric.type.face";
-	public static String MOSIP_BIOMETRIC_TYPE_IRIS = "mosip.mock.sbi.biometric.type.iris";
+	public final static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "Biometric Device";
+	public final static String MOSIP_BIOMETRIC_TYPE_FINGER = "Finger";
+	public final static String MOSIP_BIOMETRIC_TYPE_FACE = "Face";
+	public final static String MOSIP_BIOMETRIC_TYPE_IRIS = "Iris";
 			
 	/** Biometric Sub Types Names */
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP = "mosip.mock.sbi.biometric.subtype.finger.slap";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE = "mosip.mock.sbi.biometric.subtype.finger.single";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_TOUCHLESS = "mosip.mock.sbi.biometric.subtype.finger.touchless";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FACE = "mosip.mock.sbi.biometric.subtype.face";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE = "mosip.mock.sbi.biometric.subtype.iris.single";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE = "mosip.mock.sbi.biometric.subtype.iris.double";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP = "Slap";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE = "Single";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_TOUCHLESS = "Touchless";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FACE = "Full face";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE = "Single";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE = "Double";
 
 	/** Biometric seed Names */
 	public static String MOSIP_BIOMETRIC_SEED_FINGER = "mosip.mock.sbi.biometric.seed.finger";
