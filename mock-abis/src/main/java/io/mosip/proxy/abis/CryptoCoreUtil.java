@@ -62,12 +62,12 @@ public class CryptoCoreUtil {
 	public static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
 
 	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
-	private static String PROPERTIES_FOLDER = UPLOAD_FOLDER+ "/partner.properties";
+	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/partner.properties";
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(new FileReader(PROPERTIES_FOLDER));
+			prop.load(new FileReader(PROPERTIES_FILE));
 			keystorePassword = prop.getProperty("keystore.password");
 			keystoreAlias = prop.getProperty("keystore.alias");
 			keystoreType = prop.getProperty("keystore.type");
@@ -101,7 +101,7 @@ public class CryptoCoreUtil {
 			setPropertyValues();
 		}
 		KeyStore keystoreInstance = KeyStore.getInstance(keystoreType);
-		InputStream is = new FileInputStream(PROPERTIES_FOLDER);
+		InputStream is = new FileInputStream(PROPERTIES_FILE);
 		keystoreInstance.load(is, keystorePassword.toCharArray());
 		ProtectionParameter password = new PasswordProtection(keystorePassword.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keystoreInstance.getEntry(keystoreAlias, password);
