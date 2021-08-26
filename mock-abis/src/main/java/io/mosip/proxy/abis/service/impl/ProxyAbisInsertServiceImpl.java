@@ -60,8 +60,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
-	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
-	private static String UPLOAD_FOLDER_PROPERTIES = UPLOAD_FOLDER+"/partner.properties";
+	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
+	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/partner.properties";
 
 
 
@@ -416,27 +416,31 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 	
 
-	public  String saveUploadedFileWithParameters(MultipartFile upoadedFile, String alias,
+	public  String saveUploadedFileWithParameters(MultipartFile uploadedFile, String alias,
 			String password, String keystore) {
 		try {
 			logger.info("Uploading certificate");
-			byte[] bytes = upoadedFile.getBytes();
-			Path path = Paths.get(UPLOAD_FOLDER + "/"+ upoadedFile.getOriginalFilename());
+			byte[] bytes = uploadedFile.getBytes();
+			Path path = Paths.get(UPLOAD_FOLDER + "/"+ uploadedFile.getOriginalFilename());
 			File keyFile = new File(path.toString());
+			File parent = keyFile.getParentFile();
+			if (parent != null && !parent.exists() && !parent.mkdirs()) {
+				throw new IllegalStateException("Couldn't create dir: " + parent);
+			}
 			keyFile.createNewFile();
 			Files.write(path, bytes);
 
-			FileWriter myWriter = new FileWriter(UPLOAD_FOLDER_PROPERTIES);
+			FileWriter myWriter = new FileWriter(PROPERTIES_FILE);
 			myWriter.write("certificate.alias=" + alias + "\n" + "certificate.password=" + password + "\n");
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
-					+ upoadedFile.getOriginalFilename());
+					+ uploadedFile.getOriginalFilename());
 			myWriter.close();
-			CryptoCoreUtil.setCertificateValues(upoadedFile.getOriginalFilename(), keystore, password, alias);
+			CryptoCoreUtil.setCertificateValues(uploadedFile.getOriginalFilename(), keystore, password, alias);
 			
 			File dir = new File(UPLOAD_FOLDER);
 			File[] fileList = dir.listFiles();
 			for (File file : fileList) {
-				if (!file.getName().equalsIgnoreCase(upoadedFile.getOriginalFilename())
+				if (!file.getName().equalsIgnoreCase(uploadedFile.getOriginalFilename())
 						&& file.getName().endsWith(".p12")) {
 					logger.info("Deleting file" + file.getName());
 					file.delete();

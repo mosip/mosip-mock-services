@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mock_abis:
+    build: .
+    image: mock-abis
+    container_name: mock-abis
+    ports:
+      - "8081:8081"
+    environment:
+      - active_profile_env=local
+      - spring_config_label_env=develop
+      - spring_config_url_env=localhost
+    volumes:
+      - "~/keystore:/home/${container_user}/keystore"
+    restart: always

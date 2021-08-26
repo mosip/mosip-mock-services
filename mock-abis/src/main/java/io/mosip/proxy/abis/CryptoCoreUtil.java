@@ -3,6 +3,7 @@ package io.mosip.proxy.abis;
 import static java.util.Arrays.copyOfRange;
 
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -18,7 +19,6 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 import java.util.Properties;
@@ -35,7 +35,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -49,30 +48,30 @@ public class CryptoCoreUtil {
 
 	private static final String KEY_SPLITTER = "#KEY_SPLITTER#";
 
-	private static String certiPassword;
+	private static String keystorePassword;
 
-	private static String alias;
+	private static String keystoreAlias;
 
-	private static String keystore;
+	private static String keystoreType;
 
-	private static String filePath;
+	private static String keystoreFilename;
 
 	private final static int THUMBPRINT_LENGTH = 32;
 	private final static int NONCE_SIZE = 12;
 	private final static int AAD_SIZE = 32;
 	public static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
 
-	private static String UPLOAD_FOLDER = System.getProperty("user.dir");
-
+	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
+	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/partner.properties";
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(Helpers.readStreamFromResources("partner.properties"));
-			certiPassword = prop.getProperty("certificate.password");
-			alias = prop.getProperty("certificate.alias");
-			keystore = prop.getProperty("certificate.keystore");
-			filePath = prop.getProperty("certificate.filename");
+			prop.load(new FileReader(PROPERTIES_FILE));
+			keystorePassword = prop.getProperty("keystore.password");
+			keystoreAlias = prop.getProperty("keystore.alias");
+			keystoreType = prop.getProperty("keystore.type");
+			keystoreFilename = prop.getProperty("keystore.filename");
 
 		} catch (IOException e) {
 
@@ -89,23 +88,23 @@ public class CryptoCoreUtil {
 
 	public static void setCertificateValues(String filePathVal, String keystoreVal, String passwordVal,
 											String aliasVal) {
-		alias = aliasVal;
-		filePath = filePathVal;
-		keystore = keystoreVal;
-		certiPassword = passwordVal;
+		keystoreAlias = aliasVal;
+		keystoreFilename = filePathVal;
+		keystoreType = keystoreVal;
+		keystorePassword = passwordVal;
 
 	}
 
 	private PrivateKeyEntry getPrivateKeyEntryFromP12() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			IOException, UnrecoverableEntryException {
-		if (null == certiPassword || certiPassword.isEmpty()) {
+		if (null == keystorePassword || keystorePassword.isEmpty()) {
 			setPropertyValues();
 		}
-		KeyStore keyStore = KeyStore.getInstance(keystore);
-		InputStream is = new FileInputStream(UPLOAD_FOLDER+"/"+ filePath);
-		keyStore.load(is, certiPassword.toCharArray());
-		ProtectionParameter password = new PasswordProtection(certiPassword.toCharArray());
-		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keyStore.getEntry(alias, password);
+		KeyStore keystoreInstance = KeyStore.getInstance(keystoreType);
+		InputStream is = new FileInputStream(PROPERTIES_FILE);
+		keystoreInstance.load(is, keystorePassword.toCharArray());
+		ProtectionParameter password = new PasswordProtection(keystorePassword.toCharArray());
+		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keystoreInstance.getEntry(keystoreAlias, password);
 
 		return privateKeyEntry;
 	}
@@ -193,7 +192,7 @@ public class CryptoCoreUtil {
 	/**
 	 *
 	 * @param privateKey
-	 * @param randomSymKey
+	 * @param encRandomSymKey
 	 * @return
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
