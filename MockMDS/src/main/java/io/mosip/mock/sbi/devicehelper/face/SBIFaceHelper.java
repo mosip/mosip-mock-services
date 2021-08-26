@@ -19,7 +19,7 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 	  
 	private SBIFaceHelper(int port, String purpose)  
 	{ 
-		super (port, purpose, ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE), ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE));
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE);
 	} 
   
 	//synchronized method to control simultaneous access 
@@ -72,6 +72,7 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 				seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
 			}
 		}
+
 		if (!isUsedForAuthenication)
 		{
 			isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_FACE);
@@ -113,7 +114,8 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 				else
 					((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureScoreFace(getQualityScore());
 				((SBIFaceCaptureInfo)getCaptureInfo ()).setCaptureFace(true);				
-			}				
+			}	
+			
 			if (((SBIFaceCaptureInfo)getCaptureInfo ()).isCaptureFace())
 				getCaptureInfo ().setCaptureCompleted(true);
 		}

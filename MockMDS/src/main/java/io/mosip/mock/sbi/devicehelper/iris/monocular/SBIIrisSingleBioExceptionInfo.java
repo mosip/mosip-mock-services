@@ -1,4 +1,4 @@
-package io.mosip.mock.sbi.devicehelper.iris.binacular;
+package io.mosip.mock.sbi.devicehelper.iris.monocular;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,13 +7,13 @@ import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 
-public class SBIIrisDoubleBioExceptionInfo extends SBIBioExceptionInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisDoubleBioExceptionInfo.class);	
+public class SBIIrisSingleBioExceptionInfo extends SBIBioExceptionInfo {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisSingleBioExceptionInfo.class);	
 	
 	private SBICheckState chkMissingLeftIris;
 	private SBICheckState chkMissingRightIris;
      
-	protected SBIIrisDoubleBioExceptionInfo()  
+	protected SBIIrisSingleBioExceptionInfo()  
 	{ 
 		super ();
 		deInitBioException();

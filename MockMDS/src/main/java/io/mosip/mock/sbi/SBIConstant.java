@@ -26,39 +26,41 @@ public class SBIConstant {
     public static String ENVIRONMENT_PRODUCTION = "Production";
 
 	/** Purpose */
-    public static String PURPOSE_AUTH = "Auth";
-    public static String PURPOSE_REGISTRATION = "Registration";
+    public final static String PURPOSE_AUTH = "Auth";
+    public final static String PURPOSE_REGISTRATION = "Registration";
 
 	/** Device Status */
-    public static String DEVICE_STATUS					= "DEVICE_STATUS";
-    public static String DEVICE_STATUS_ISREADY        	= "Ready";
-    public static String DEVICE_STATUS_ISBUSY         	= "Busy";
-    public static String DEVICE_STATUS_NOTREADY    		= "Not Ready";
-    public static String DEVICE_STATUS_NOTREGISTERED  	= "Not Registered";
+    public final static String DEVICE_STATUS					= "DEVICE_STATUS";
+    public final static String DEVICE_STATUS_ISREADY        	= "Ready";
+    public final static String DEVICE_STATUS_ISBUSY         	= "Busy";
+    public final static String DEVICE_STATUS_NOTREADY    		= "Not Ready";
+    public final static String DEVICE_STATUS_NOTREGISTERED  	= "Not Registered";
 
 	/** Device SubType Id Value */
-    public static int DEVICE_IRIS_SUB_TYPE_ID_LEFT  = 1;	// LEFT IRIS IMAGE
-    public static int DEVICE_IRIS_SUB_TYPE_ID_RIGHT = 2;	// RIGHT IRIS IMAGE
-    public static int DEVICE_IRIS_SUB_TYPE_ID_BOTH  = 3;	// BOTH LEFT AND RIGHT IRIS IMAGE
-    public static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT  = 1;	// LEFT SLAP IMAGE
-    public static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT = 2;	// RIGHT SLAP IMAGE
-    public static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB  = 3;// TWO THUMB IMAGE
-    public static int DEVICE_FACE_SUB_TYPE_ID_FULLFACE  = 0;    // TWO THUMB IMAGE
+    public final static int DEVICE_IRIS_SINGLE_SUB_TYPE_ID		= 0;	// Single IMAGE
+    public final static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_LEFT  	= 1;	// LEFT IRIS IMAGE
+    public final static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_RIGHT 	= 2;	// RIGHT IRIS IMAGE
+    public final static int DEVICE_IRIS_DOUBLE_SUB_TYPE_ID_BOTH  	= 3;	// BOTH LEFT AND RIGHT IRIS IMAGE
+    public final static int DEVICE_FINGER_SINGLE_SUB_TYPE_ID  	= 0;	// Single IMAGE
+    public final static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_LEFT  	= 1;	// LEFT SLAP IMAGE
+    public final static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_RIGHT 	= 2;	// RIGHT SLAP IMAGE
+    public final static int DEVICE_FINGER_SLAP_SUB_TYPE_ID_THUMB  = 3;// TWO THUMB IMAGE
+    public final static int DEVICE_FACE_SUB_TYPE_ID_FULLFACE  	= 0;    // TWO THUMB IMAGE
     
 	/** Bio Exceptions/Bio Subtype Names */
-	public static String BIO_NAME_UNKNOWN = "UNKNOWN";
-	public static String BIO_NAME_RIGHT_THUMB = "Right Thumb";
-	public static String BIO_NAME_RIGHT_INDEX = "Right IndexFinger";
-	public static String BIO_NAME_RIGHT_MIDDLE = "Right MiddleFinger";
-	public static String BIO_NAME_RIGHT_RING = "Right RingFinger";
-	public static String BIO_NAME_RIGHT_LITTLE = "Right LittleFinger";
-	public static String BIO_NAME_LEFT_THUMB = "Left Thumb";
-	public static String BIO_NAME_LEFT_INDEX = "Left IndexFinger";
-	public static String BIO_NAME_LEFT_MIDDLE = "Left MiddleFinger";
-	public static String BIO_NAME_LEFT_RING = "Left RingFinger";
-	public static String BIO_NAME_LEFT_LITTLE = "Left LittleFinger";
-	public static String BIO_NAME_RIGHT_IRIS = "Right";
-	public static String BIO_NAME_LEFT_IRIS = "Left";
+	public final static String BIO_NAME_UNKNOWN = "UNKNOWN";
+	public final static String BIO_NAME_RIGHT_THUMB = "Right Thumb";
+	public final static String BIO_NAME_RIGHT_INDEX = "Right IndexFinger";
+	public final static String BIO_NAME_RIGHT_MIDDLE = "Right MiddleFinger";
+	public final static String BIO_NAME_RIGHT_RING = "Right RingFinger";
+	public final static String BIO_NAME_RIGHT_LITTLE = "Right LittleFinger";
+	public final static String BIO_NAME_LEFT_THUMB = "Left Thumb";
+	public final static String BIO_NAME_LEFT_INDEX = "Left IndexFinger";
+	public final static String BIO_NAME_LEFT_MIDDLE = "Left MiddleFinger";
+	public final static String BIO_NAME_LEFT_RING = "Left RingFinger";
+	public final static String BIO_NAME_LEFT_LITTLE = "Left LittleFinger";
+	public final static String BIO_NAME_RIGHT_IRIS = "Right";
+	public final static String BIO_NAME_LEFT_IRIS = "Left";
      
 	/** Profile Bio File Names */
 	public static String PROFILE_BIO_FILE_NAME_RIGHT_THUMB = "Right_Thumb.iso";
@@ -77,9 +79,9 @@ public class SBIConstant {
 	public static String PROFILE_BIO_FILE_NAME_FACE_EXCEPTION = "Exception_Photo.iso";
 
 	/** Profile Default. */
-	public static String PROFILE_DEFAULT = "Default";
+	public final static String PROFILE_DEFAULT = "Default";
 	/** Profile Automatic. */
-	public static String PROFILE_AUTOMATIC = "Automatic";
+	public final static String PROFILE_AUTOMATIC = "Automatic";
 
 	/** Errors */
 	public static final String Error_Code_0 = "mds_ERROR_0_msg_en";
@@ -178,18 +180,18 @@ public class SBIConstant {
 	public static String MOSIP_PURPOSE_AUTH = "mosip.mock.sbi.device.purpose.auth";
 
 	/** Biometric Types Names */
-	public static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "mosip.mock.sbi.biometric.type.biometricdevice";
-	public static String MOSIP_BIOMETRIC_TYPE_FINGER = "mosip.mock.sbi.biometric.type.finger";
-	public static String MOSIP_BIOMETRIC_TYPE_FACE = "mosip.mock.sbi.biometric.type.face";
-	public static String MOSIP_BIOMETRIC_TYPE_IRIS = "mosip.mock.sbi.biometric.type.iris";
+	public final static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "Biometric Device";
+	public final static String MOSIP_BIOMETRIC_TYPE_FINGER = "Finger";
+	public final static String MOSIP_BIOMETRIC_TYPE_FACE = "Face";
+	public final static String MOSIP_BIOMETRIC_TYPE_IRIS = "Iris";
 			
 	/** Biometric Sub Types Names */
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP = "mosip.mock.sbi.biometric.subtype.finger.slap";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE = "mosip.mock.sbi.biometric.subtype.finger.single";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_TOUCHLESS = "mosip.mock.sbi.biometric.subtype.finger.touchless";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_FACE = "mosip.mock.sbi.biometric.subtype.face";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE = "mosip.mock.sbi.biometric.subtype.iris.single";
-	public static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE = "mosip.mock.sbi.biometric.subtype.iris.double";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP = "Slap";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE = "Single";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_TOUCHLESS = "Touchless";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_FACE = "Full face";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE = "Single";
+	public final static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE = "Double";
 
 	/** Biometric seed Names */
 	public static String MOSIP_BIOMETRIC_SEED_FINGER = "mosip.mock.sbi.biometric.seed.finger";
@@ -207,9 +209,8 @@ public class SBIConstant {
 	public static String MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME_FTM = "mosip.mock.sbi.file.face.keys.keystorefilename.ftm";
 	public static String MOSIP_STREAM_FACE_KEY_ALIAS_FTM = "mosip.mock.sbi.file.face.keys.keyalias.ftm";
 	public static String MOSIP_STREAM_FACE_KEYSTORE_PWD_FTM = "mosip.mock.sbi.file.face.keys.keystorepwd.ftm";
-	public static String MOSIP_STREAM_FACE_MOSIP_KEY = "mosip.mock.sbi.file.face.keys.encryption";
 	
-	/** Biometric Finger DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	/** Biometric Finger Slap DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
 	public static String MOSIP_FINGER_SLAP_DIGITALID_JSON = "mosip.mock.sbi.file.finger.slap.digitalid.json";
 	public static String MOSIP_FINGER_SLAP_DEVICEINFO_JSON = "mosip.mock.sbi.file.finger.slap.deviceinfo.json";
 	public static String MOSIP_FINGER_SLAP_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.finger.slap.devicediscovery.json";
@@ -222,9 +223,22 @@ public class SBIConstant {
 	public static String MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME_FTM = "mosip.mock.sbi.file.finger.slap.keys.keystorefilename.ftm";
 	public static String MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS_FTM = "mosip.mock.sbi.file.finger.slap.keys.keyalias.ftm";
 	public static String MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD_FTM = "mosip.mock.sbi.file.finger.slap.keys.keystorepwd.ftm";
-	public static String MOSIP_STREAM_FINGER_SLAP_MOSIP_KEY = "mosip.mock.sbi.file.finger.slap.keys.encryption";
 	
-	/** Biometric Iris DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	/** Biometric Finger Single/Auth only DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	public static String MOSIP_FINGER_SINGLE_DIGITALID_JSON = "mosip.mock.sbi.file.finger.single.digitalid.json";
+	public static String MOSIP_FINGER_SINGLE_DEVICEINFO_JSON = "mosip.mock.sbi.file.finger.single.deviceinfo.json";
+	public static String MOSIP_FINGER_SINGLE_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.finger.single.devicediscovery.json";
+	public static String MOSIP_STREAM_FINGER_SINGLE_SUBID_LEFT_HAND = "mosip.mock.sbi.file.finger.single.streamimage.left";
+	public static String MOSIP_STREAM_FINGER_SINGLE_SUBID_RIGHT_HAND = "mosip.mock.sbi.file.finger.single.streamimage.right";
+	public static String MOSIP_STREAM_FINGER_SINGLE_SUBID_THUMBS = "mosip.mock.sbi.file.finger.single.streamimage.thumb";
+	public static String MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME = "mosip.mock.sbi.file.finger.single.keys.keystorefilename";
+	public static String MOSIP_STREAM_FINGER_SINGLE_KEY_ALIAS = "mosip.mock.sbi.file.finger.single.keys.keyalias";
+	public static String MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_PWD = "mosip.mock.sbi.file.finger.single.keys.keystorepwd";
+	public static String MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME_FTM = "mosip.mock.sbi.file.finger.single.keys.keystorefilename.ftm";
+	public static String MOSIP_STREAM_FINGER_SINGLE_KEY_ALIAS_FTM = "mosip.mock.sbi.file.finger.single.keys.keyalias.ftm";
+	public static String MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_PWD_FTM = "mosip.mock.sbi.file.finger.single.keys.keystorepwd.ftm";
+
+	/** Biometric Iris Double DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
 	public static String MOSIP_IRIS_DOUBLE_DIGITALID_JSON = "mosip.mock.sbi.file.iris.double.digitalid.json";
 	public static String MOSIP_IRIS_DOUBLE_DEVICEINFO_JSON = "mosip.mock.sbi.file.iris.double.deviceinfo.json";
 	public static String MOSIP_IRIS_DOUBLE_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.iris.double.devicediscovery.json";
@@ -237,8 +251,21 @@ public class SBIConstant {
 	public static String MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME_FTM = "mosip.mock.sbi.file.iris.double.keys.keystorefilename.ftm";
 	public static String MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS_FTM = "mosip.mock.sbi.file.iris.double.keys.keyalias.ftm";
 	public static String MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD_FTM = "mosip.mock.sbi.file.iris.double.keys.keystorepwd.ftm";
-	public static String MOSIP_STREAM_IRIS_DOUBLE_MOSIP_KEY = "mosip.mock.sbi.file.iris.double.keys.encryption";	
 	
+	/** Biometric Iris Single/Auth only DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
+	public static String MOSIP_IRIS_SINGLE_DIGITALID_JSON = "mosip.mock.sbi.file.iris.single.digitalid.json";
+	public static String MOSIP_IRIS_SINGLE_DEVICEINFO_JSON = "mosip.mock.sbi.file.iris.single.deviceinfo.json";
+	public static String MOSIP_IRIS_SINGLE_DEVICEDEISCOVERYINFO_JSON = "mosip.mock.sbi.file.iris.single.devicediscovery.json";
+	public static String MOSIP_STREAM_IRIS_SINGLE_SUBID_BOTH = "mosip.mock.sbi.file.iris.single.streamimage.both";
+	public static String MOSIP_STREAM_IRIS_SINGLE_SUBID_LEFT = "mosip.mock.sbi.file.iris.single.streamimage.left";
+	public static String MOSIP_STREAM_IRIS_SINGLE_SUBID_RIGHT = "mosip.mock.sbi.file.iris.single.streamimage.right";
+	public static String MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME = "mosip.mock.sbi.file.iris.single.keys.keystorefilename";
+	public static String MOSIP_STREAM_IRIS_SINGLE_KEY_ALIAS = "mosip.mock.sbi.file.iris.single.keys.keyalias";
+	public static String MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_PWD = "mosip.mock.sbi.file.iris.single.keys.keystorepwd";
+	public static String MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME_FTM = "mosip.mock.sbi.file.iris.single.keys.keystorefilename.ftm";
+	public static String MOSIP_STREAM_IRIS_SINGLE_KEY_ALIAS_FTM = "mosip.mock.sbi.file.iris.single.keys.keyalias.ftm";
+	public static String MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_PWD_FTM = "mosip.mock.sbi.file.iris.single.keys.keystorepwd.ftm";
+
 	public static String MOSIP_PROFILE_FOLDER_PATH = "mosip.mock.sbi.folder.profile";
 	public static String MOSIP_PROFILE_DEFAULT_FOLDER_PATH = "mosip.mock.sbi.file.folder.default";		
 }

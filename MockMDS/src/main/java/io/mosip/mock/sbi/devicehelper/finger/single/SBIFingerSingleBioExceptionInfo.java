@@ -1,4 +1,4 @@
-package io.mosip.mock.sbi.devicehelper.finger.slap;
+package io.mosip.mock.sbi.devicehelper.finger.single;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,8 +7,8 @@ import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 
-public class SBIFingerSlapBioExceptionInfo extends SBIBioExceptionInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSlapBioExceptionInfo.class);	
+public class SBIFingerSingleBioExceptionInfo extends SBIBioExceptionInfo {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSingleBioExceptionInfo.class);	
 	
 	private SBICheckState chkMissingLeftIndex;
 	private SBICheckState chkMissingLeftMiddle;
@@ -23,7 +23,7 @@ public class SBIFingerSlapBioExceptionInfo extends SBIBioExceptionInfo {
 	private SBICheckState chkMissingRightThumb;
 	private SBICheckState chkMissingLeftThumb;
      
-	protected SBIFingerSlapBioExceptionInfo()  
+	protected SBIFingerSingleBioExceptionInfo()  
 	{ 
 		super ();
 		deInitBioException();
@@ -166,7 +166,5 @@ public class SBIFingerSlapBioExceptionInfo extends SBIBioExceptionInfo {
 
 	public void setChkMissingLeftThumb(SBICheckState chkMissingLeftThumb) {
 		this.chkMissingLeftThumb = chkMissingLeftThumb;
-	} 
-  
-	
+	} 	
 }
