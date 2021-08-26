@@ -11,5 +11,5 @@ services:
       - spring_config_label_env=develop
       - spring_config_url_env=localhost
     volumes:
-      - "~/keystore:/keystore"
+      - "~/keystore:/home/${container_user}/keystore"
     restart: always
