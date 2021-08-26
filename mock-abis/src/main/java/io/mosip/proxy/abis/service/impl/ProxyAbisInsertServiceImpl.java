@@ -61,7 +61,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
 	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
-	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/sample_partner.properties";
+	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/partner.properties";
 
 
 

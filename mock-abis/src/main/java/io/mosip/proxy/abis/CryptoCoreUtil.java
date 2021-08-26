@@ -62,7 +62,7 @@ public class CryptoCoreUtil {
 	public static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
 
 	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
-	private static String PROPERTIES_FOLDER = UPLOAD_FOLDER+ "/sample_partner.properties";
+	private static String PROPERTIES_FOLDER = UPLOAD_FOLDER+ "/partner.properties";
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
