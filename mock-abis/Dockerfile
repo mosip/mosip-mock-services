@@ -45,7 +45,7 @@ RUN echo "Build application"
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
 # select container user for all tasks
-USER ${container_user_uid}:${container_user_gid}
+#USER ${container_user_uid}:${container_user_gid}
 
 EXPOSE 8081
 
