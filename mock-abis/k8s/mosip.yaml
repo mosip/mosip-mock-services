@@ -15,7 +15,7 @@ spec:
       #securityContext:
       #  runAsUser: 1001
       #  runAsGroup: 1001
-      
+      serviceAccountName: mosip_service
       volumes:
       - name: sec-ctx-vol
         persistentVolumeClaim:
@@ -70,14 +70,6 @@ spec:
         #command: ["/bin/sh", "-c", "sleep 300s"]
         command: ["/bin/sh", "-c", "java -jar -Dspring.cloud.config.label=${spring_config_label_env} -Dspring.profiles.active=${active_profile_env}  -Dspring.cloud.config.uri=${spring_config_url_env} mockabis-service.jar"]
         #command: ["java -jar -Dspring.cloud.config.label=develop -Dspring.profiles.active=local  -Dspring.cloud.config.uri=localhost mockabis-service.jar"]
-
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
 
         lifecycle:
          postStart:
