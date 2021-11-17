@@ -58,27 +58,46 @@ public class Listener {
 	private boolean isSuccess;
 
 	/** The username. */
-	@Value("${registration.processor.queue.username}")
-	private String username;
+	@Value("${registration.processor.manual.adjudication.queue.username}")
+	private String mausername;
 
 	/** The password. */
-	@Value("${registration.processor.queue.password}")
-	private String password;
+	@Value("${registration.processor.manual.adjudication.queue.password}")
+	private String mapassword;
 
-	@Value("${registration.processor.queue.url}")
-	private String brokerUrl;
+	@Value("${registration.processor.manual.adjudication.queue.url}")
+	private String mabrokerUrl;
+
+	/** The username. */
+	@Value("${registration.processor.verification.queue.username}")
+	private String vusername;
+
+	/** The password. */
+	@Value("${registration.processor.verification.queue.password}")
+	private String vpassword;
+
+	@Value("${registration.processor.verification.queue.url}")
+	private String vbrokerUrl;
 
 	/** The type of queue. */
 	@Value("${registration.processor.queue.typeOfQueue}")
 	private String typeOfQueue;
 
 	/** The address. */
-	@Value("${registration.processor.queue.manualverification.response:mv-to-mosip}")
+	@Value("${registration.processor.queue.manual.adjudication.response:adjudication-to-mosip}")
 	private String mvResponseAddress;
 
 	/** The address. */
-	@Value("${registration.processor.queue.manualverification.request:mosip-to-mv}")
+	@Value("${registration.processor.queue.manual.adjudication.request:mosip-to-adjudication}")
 	private String mvRequestAddress;
+
+	/** The address. */
+	@Value("${registration.processor.queue.verification.response:verification-to-mosip}")
+	private String verificationResponseAddress;
+
+	/** The address. */
+	@Value("${registration.processor.queue.verification.request:mosip-to-verification}")
+	private String verificationRequestAddress;
 
 
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
@@ -118,37 +137,39 @@ public class Listener {
 			decisionDto.setRequestId(requestDTO.getRequestId());
 			decisionDto.setResponsetime(OffsetDateTime.now().toInstant().toString());
 			decisionDto.setReturnValue(isSuccess ? 1 : 2);// logic needs to be implemented.
-			
-			List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
-			CandidateList candidateList=new CandidateList();
-			if (mockDecision.equalsIgnoreCase(REJECTED)) {
-				List<Candidate> candidates = new ArrayList<>();
-				for(ReferenceIds refId : refIds) {
-					Candidate candidate=new Candidate();
-					candidate.setReferenceId(refId.getReferenceId());
-					Map<String,String> analytics=new HashMap<>();
-					AnalyticsDTO analyticsDTO=new AnalyticsDTO();
-					analyticsDTO.setPrimaryOperatorID("110006");
-					analyticsDTO.setPrimaryOperatorComments("abcd");
-					analyticsDTO.setSecondaryOperatorComments("asbd");
-					analyticsDTO.setSecondaryOperatorID("110005");
-					analyticsDTO.setAnalytics(analytics);
-					candidate.setAnalytics(analyticsDTO);
-					candidates.add(candidate);
-					candidateList.setCandidates(candidates);
-				}
-			} else
-				candidateList.setCandidates(null);
+			if (mvAddress != verificationResponseAddress) {
+				List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
+				CandidateList candidateList=new CandidateList();
+				if (mockDecision.equalsIgnoreCase(REJECTED)) {
+					List<Candidate> candidates = new ArrayList<>();
+					for(ReferenceIds refId : refIds) {
+						Candidate candidate=new Candidate();
+						candidate.setReferenceId(refId.getReferenceId());
+						Map<String,String> analytics=new HashMap<>();
+						AnalyticsDTO analyticsDTO=new AnalyticsDTO();
+						analyticsDTO.setPrimaryOperatorID("110006");
+						analyticsDTO.setPrimaryOperatorComments("abcd");
+						analyticsDTO.setSecondaryOperatorComments("asbd");
+						analyticsDTO.setSecondaryOperatorID("110005");
+						analyticsDTO.setAnalytics(analytics);
+						candidate.setAnalytics(analyticsDTO);
+						candidates.add(candidate);
+						candidateList.setCandidates(candidates);
+					}
+				} else
+					candidateList.setCandidates(null);
 
 
-			candidateList.setCount(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
-			Map<String,String> analytics=new HashMap<>();
-			analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
-			analytics.put("primaryOperatorComments", "abcd");
-			candidateList.setAnalytics(analytics);
-			decisionDto.setCandidateList(candidateList);
+				Map<String,String> analytics=new HashMap<>();
+				analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
+				analytics.put("primaryOperatorComments", "abcd");
+				candidateList.setCount(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
+				candidateList.setAnalytics(analytics);
+				decisionDto.setCandidateList(candidateList);
+
+			}
+
 			String response = javaObjectToJsonString(decisionDto);
-			
 
 			logger.info("Request type is " + response);
 
@@ -184,7 +205,7 @@ public class Listener {
 		logger.info("Setup Completed.");
 	}
 
-	public void runMvQueue() {
+	public void runAdjudicationQueue() {
 		try {
 			QueueListener listener = new QueueListener() {
 
@@ -194,7 +215,7 @@ public class Listener {
 
 				}
 			};
-			consume(mvRequestAddress, listener);
+			consume(mvRequestAddress, listener, mabrokerUrl, mausername, mapassword);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -203,7 +224,26 @@ public class Listener {
 
 	}
 
-	public byte[] consume(String address, QueueListener object) throws Exception {
+	public void runVerificationQueue() {
+		try {
+			QueueListener listener = new QueueListener() {
+
+				@Override
+				public void setListener(javax.jms.Message message) {
+					consumeLogic(message, verificationResponseAddress);
+
+				}
+			};
+			consume(verificationRequestAddress, listener, vbrokerUrl, vusername, vpassword);
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+
+	}
+
+	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password) throws Exception {
 
 		if (activeMQConnectionFactory == null) {
 			logger.info("Creating new connection.");
