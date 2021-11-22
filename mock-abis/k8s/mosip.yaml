@@ -79,5 +79,12 @@ spec:
              #command: ["/bin/sh", "-c", "mkdir -p additional_jars"]
              #command: ["/bin/sh", "-c", "pwd > ${loader_path_env}/test"]
 
+        
+        livenessProbe:
+          exec:
+            command: ["/bin/sh", "-c", "ps cax | grep java"]
+          periodSeconds: 5
+        
+             
         ports:
         - containerPort: 8081
