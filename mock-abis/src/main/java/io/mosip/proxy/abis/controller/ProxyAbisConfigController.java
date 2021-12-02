@@ -1,12 +1,14 @@
 package io.mosip.proxy.abis.controller;
 
-import io.mosip.proxy.abis.entity.BiometricData;
 import io.mosip.proxy.abis.dto.ConfigureDto;
 import io.mosip.proxy.abis.dto.Expectation;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
-import io.mosip.proxy.abis.service.ProxyAbisInsertService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ import java.util.Map;
 
 @CrossOrigin
 @RestController
-@Api(value = "Abis", description = "Provides API's for configuring proxy Abis", tags = "Proxy Abis config API")
+@Tag(name = "Proxy Abis config API", description = "Provides API's for configuring proxy Abis")
 @RequestMapping("config/")
 public class ProxyAbisConfigController {
 
@@ -32,7 +34,12 @@ public class ProxyAbisConfigController {
     ProxyAbisConfigService proxyAbisConfigService;
 
     @RequestMapping(value = "expectation", method = RequestMethod.POST)
-    @ApiOperation(value = "Sets expectation")
+    @Operation(summary = "Sets expectation", description = "Sets expectation", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
         logger.info("Setting expectation" + expectation.getId());
         try {
@@ -45,7 +52,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "expectation", method = RequestMethod.GET)
-    @ApiOperation(value = "Gets expectation")
+    @Operation(summary = "Gets expectation", description = "Gets expectation", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<Map<String, Expectation>> getExpectation() throws Exception {
         logger.info("Getting expectation");
         try {
@@ -57,7 +69,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "expectation/{id}", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Delete expectation")
+    @Operation(summary = "Delete expectation", description = "Delete expectation", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
         logger.info("Delete expectation: "+id);
         try {
@@ -70,7 +87,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "expectation", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Delete expectations")
+    @Operation(summary = "Delete expectations", description = "Delete expectations", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<String> deleteAllExpectations() {
         logger.info("Delete all expectations");
         try {
@@ -83,7 +105,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "configure", method = RequestMethod.GET)
-    @ApiOperation(value = "Configure Request")
+    @Operation(summary = "Configure Request", description = "Configure Request", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<ConfigureDto> checkConfiguration()
             throws Exception {
         logger.info("Configure Request");
@@ -98,7 +125,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "configure", method = RequestMethod.POST)
-    @ApiOperation(value = "Configure Request")
+    @Operation(summary = "Configure Request", description = "Configure Request", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<String> configure(@Valid @RequestBody ConfigureDto ie, BindingResult bd)
             throws Exception {
         logger.info("Configure Request");
@@ -113,7 +145,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "cache", method = RequestMethod.GET)
-    @ApiOperation(value = "Get cached biometrics")
+    @Operation(summary = "Get cached biometrics", description = "Get cached biometrics", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<List<String>> getCache()
             throws Exception {
         logger.info("Get cached biometrics Request");
@@ -126,7 +163,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "cache/{hash}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get cached biometrics by hash")
+    @Operation(summary = "Get cached biometrics by hash", description = "Get cached biometrics by hash", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<List<String>> getCacheByHash(@PathVariable String hash)
             throws Exception {
         logger.info("Get cached biometrics by hash: "+hash);
@@ -139,7 +181,12 @@ public class ProxyAbisConfigController {
     }
 
     @RequestMapping(value = "cache", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Delete cached biometrics")
+    @Operation(summary = "Delete cached biometrics", description = "Delete cached biometrics", tags = { "Proxy Abis config API" })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
     public ResponseEntity<String> deleteCache()
             throws Exception {
         logger.info("Delete cached biometrics Request");
