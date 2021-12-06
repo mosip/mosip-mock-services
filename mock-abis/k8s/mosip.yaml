@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mosip-mock-services
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: "docker/default" 
 spec:
   selector:
     matchLabels:
@@ -15,6 +17,10 @@ spec:
       #securityContext:
       #  runAsUser: 1001
       #  runAsGroup: 1001
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+          
       serviceAccountName: mosip-service
       volumes:
       - name: sec-ctx-vol
@@ -25,12 +31,14 @@ spec:
       - name: permissions
         image: busybox
 
+        #serviceAccountName: mosip-service
         volumeMounts:
         - name: sec-ctx-vol
           mountPath: /home/mosip/volume
 
         securityContext:
           runAsUser: 0
+
 
         command: ["/bin/sh","-c"]
         args: ["chown -R 1001:1001 /home/mosip/volume"]
@@ -40,10 +48,12 @@ spec:
         image: sushranthhebbar/mock-service:latest
         #workingDir: /home/mosip/
 
+
         securityContext:
           runAsUser: 1001
           runAsGroup: 1001
           
+        #serviceAccountName: mosip-service
         volumeMounts:
         - name: sec-ctx-vol
           mountPath: /home/mosip/volume
