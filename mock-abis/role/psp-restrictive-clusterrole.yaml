@@ -5,5 +5,5 @@ metadata:
 rules:
 - apiGroups: ["extensions"]
   resources: ["podsecuritypolicies"]
-  resourceNames: ["restrictive"] 
+  resourceNames: ["restricted"] 
   verbs: ["use"]
