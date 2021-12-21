@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.http.MediaType;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.util.Timer;
@@ -93,14 +93,14 @@ public class ProxyAbisController {
 
 	}
 
-	@RequestMapping(value = "upload", method = RequestMethod.POST)
+	@RequestMapping(value = "upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Upload certificate Request", description = "Upload certificate Request", tags = { "Proxy Abis API" })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
 			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
-	public ResponseEntity<String> uploadcertificate(@RequestParam("file") MultipartFile uploadfile,
+	public ResponseEntity<String> uploadcertificate(@RequestBody MultipartFile uploadfile,
 			@RequestParam("password") String password, @RequestParam("alias") String alias,@RequestParam("keystore") String keystore) {
 		if (uploadfile.isEmpty())
 			return new ResponseEntity("Please select a file", HttpStatus.NO_CONTENT);
