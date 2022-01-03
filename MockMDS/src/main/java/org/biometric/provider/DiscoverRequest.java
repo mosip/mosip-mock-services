@@ -219,7 +219,7 @@ public class DiscoverRequest extends HttpServlet {
 		digitalMap.put("model", digitalIdMap.get("model"));
 		digitalMap.put("deviceSubType", digitalIdMap.get("deviceSubType"));
 		digitalMap.put("type", digitalIdMap.get("type"));
-		return Base64.getUrlEncoder().encodeToString(oB.writeValueAsBytes(digitalMap));
+		return io.mosip.mock.sbi.util.StringHelper.base64UrlEncode(oB.writeValueAsBytes(digitalMap));
 	}
 
 	private String getTimeStamp() {

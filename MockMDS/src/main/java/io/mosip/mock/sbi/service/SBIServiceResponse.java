@@ -2213,7 +2213,7 @@ public class SBIServiceResponse {
 				X509Certificate certificate = new JwtUtility().getCertificateToEncryptCaptureBioValue();
 				PublicKey publicKey = certificate.getPublicKey();
 				Map<String, String> cryptoResult = CryptoUtility.encrypt(publicKey,
-						java.util.Base64.getUrlDecoder().decode(bioValue), transactionId);
+						io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(bioValue), transactionId);
 				
 				biometricData.setTimestamp(cryptoResult.get("TIMESTAMP"));
 				biometricData.setBioValue(cryptoResult.containsKey("ENC_DATA") ? 
@@ -2252,7 +2252,7 @@ public class SBIServiceResponse {
             previousBioDataHash = decodeHex(previousHash);
         }
         //instead of BioData, bioValue (before encrytion in case of Capture response) is used for computing the hash.
-        byte [] currentDataByteArr = java.util.Base64.getUrlDecoder().decode(bioValue);
+        byte [] currentDataByteArr = io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(bioValue);
         // Here Byte Array
         byte[] currentBioDataHash = generateHash (currentDataByteArr);
         byte[] finalBioDataHash = new byte[currentBioDataHash.length + previousBioDataHash.length];
