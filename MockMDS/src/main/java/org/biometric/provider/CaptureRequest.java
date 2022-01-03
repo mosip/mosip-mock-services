@@ -201,7 +201,7 @@ public class CaptureRequest extends HttpServlet {
 							X509Certificate certificate = new JwtUtility().getCertificateToEncryptCaptureBioValue();
 							PublicKey publicKey = certificate.getPublicKey();
 							Map<String, String> result = CryptoUtility.encrypt(publicKey,
-									java.util.Base64.getUrlDecoder().decode(dto.getBioValue()), captureRequestDto.transactionId);
+									io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(dto.getBioValue()), captureRequestDto.transactionId);
 
 							NewBioAuthDto data = buildAuthNewBioDto(dto, bio.type, bio.requestedScore,
 									captureRequestDto.transactionId, result);
