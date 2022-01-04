@@ -3,7 +3,6 @@ package io.mosip.proxy.abis;
 import static java.util.Arrays.copyOfRange;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -62,16 +61,15 @@ public class CryptoCoreUtil {
 	public static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
 
 	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
-	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/partner.properties";
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(new FileReader(PROPERTIES_FILE));
-			keystorePassword = prop.getProperty("keystore.password");
-			keystoreAlias = prop.getProperty("keystore.alias");
-			keystoreType = prop.getProperty("keystore.type");
-			keystoreFilename = prop.getProperty("keystore.filename");
+			prop.load(Helpers.readStreamFromResources("partner.properties"));
+			keystorePassword = prop.getProperty("certificate.password");
+			keystoreAlias = prop.getProperty("certificate.alias");
+			keystoreType = prop.getProperty("certificate.keystore");
+			keystoreFilename = prop.getProperty("certificate.filename");
 
 		} catch (IOException e) {
 
@@ -101,7 +99,7 @@ public class CryptoCoreUtil {
 			setPropertyValues();
 		}
 		KeyStore keystoreInstance = KeyStore.getInstance(keystoreType);
-		InputStream is = new FileInputStream(PROPERTIES_FILE);
+		InputStream is = new FileInputStream(UPLOAD_FOLDER+"/"+ keystoreFilename);
 		keystoreInstance.load(is, keystorePassword.toCharArray());
 		ProtectionParameter password = new PasswordProtection(keystorePassword.toCharArray());
 		PrivateKeyEntry privateKeyEntry = (PrivateKeyEntry) keystoreInstance.getEntry(keystoreAlias, password);

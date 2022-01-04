@@ -1,6 +1,7 @@
 package io.mosip.proxy.abis.service.impl;
 
-import io.mosip.kernel.biometrics.commons.CbeffValidator;
+import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
+import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import io.mosip.kernel.core.exception.ExceptionUtils;
@@ -60,10 +61,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
-	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"/keystore";
-	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "/partner.properties";
-
-
+	private static String UPLOAD_FOLDER = System.getProperty("user.dir")+"\\keystore";
+	private static String PROPERTIES_FILE = UPLOAD_FOLDER+ "\\partner.properties";
 
 	@Autowired
 	ProxyAbisInsertRepository proxyabis;
@@ -193,9 +192,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				cbeff = cryptoUtil.decryptCbeff(cbeff);
 			}
 			
-			BIR birs = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			logger.info("Validating CBEFF data");
-			if (CbeffValidator.validateXML(birs)) {
+			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
 				throw new CbeffException("Invalid CBEFF");
 			}
@@ -203,13 +202,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.info("Valid CBEFF data");
 			logger.info("Inserting biometric details to concerned table");
 
-			for (BIR bir : birs.getBirs()) {
-				if (bir.getBdb() != null && bir.getBdb().length > 0) {
+			for (BIRType bir : birType.getBIR()) {
+				if (bir.getBDB() != null && bir.getBDB().length > 0) {
 					BiometricData bd = new BiometricData();
-					bd.setType(bir.getBdbInfo().getType().iterator().next().value());
-					if (bir.getBdbInfo().getSubtype() != null && bir.getBdbInfo().getSubtype().size() >0)
-					bd.setSubtype(bir.getBdbInfo().getSubtype().toString());
-					String hash = getSHAFromBytes(bir.getBdb());
+					bd.setType(bir.getBDBInfo().getType().iterator().next().value());
+					if (bir.getBDBInfo().getSubtype() != null && bir.getBDBInfo().getSubtype().size() >0)
+					bd.setSubtype(bir.getBDBInfo().getSubtype().toString());
+					String hash = getSHAFromBytes(bir.getBDB());
 					bd.setBioData(hash);
 					bd.setInsertEntity(ie);
 
