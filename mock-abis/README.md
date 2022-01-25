@@ -6,6 +6,7 @@ A module to mock  ABIS functionality for testing non-production MOSIP deployment
 * Partner certificate (in case of encryption is enabled)
 
 ## Setup
+Important and Mandatory
 In case of partner based encryption. Upload the certificate, by using swagger upload certificate request
 
 ### Server deployment (for sandbox deployment)
@@ -68,6 +69,26 @@ Flags:
 * mosip_host (hostname of the MOSIP server)
 
 Swagger url: `http://localhost:8081/v1/mock-abis-service/swagger-ui.html#/`
+
+Upload API is mandatory each time when application is started.This will used for configuring application.
+### Upload API
+
+Url: http://{host}/v1/mock-abis-service/abis/upload
+
+Method: POST
+
+Request:
+		password: password
+		alias: cbeff
+		keystore: PKCS12
+		
+		and upload cbeff.p12 file
+		
+Response:
+```text
+"Successfully uploaded file"
+```
+
 
 ## APIs for configuration and expectation setting
 [Sample expectations](./docs/sampleExpectations.md)
