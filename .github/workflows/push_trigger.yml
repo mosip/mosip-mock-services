@@ -110,12 +110,6 @@ jobs:
           docker tag mock-mv $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
           
-    - name: Publish the maven package
-      run: |
-        cd mock-sdk
-        mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
-      env:
-        GPG_TTY: $(tty)
         
   publish-to-nexus:
 
