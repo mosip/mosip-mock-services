@@ -170,9 +170,30 @@ jobs:
         cd mock-mv
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
           
-    - name: Publish the maven package
+    - name: Publish the maven package for mock-sdk
       run: |
         cd mock-sdk
+        mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.RELEASE_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
+      env:
+        GPG_TTY: $(tty)
+        
+    - name: Publish the maven package for mock-MDS
+      run: |
+        cd MockMDS
+        mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.RELEASE_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
+      env:
+        GPG_TTY: $(tty)
+        
+    - name: Publish the maven package for mock-abis
+      run: |
+        cd mock-abis
+        mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.RELEASE_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
+      env:
+        GPG_TTY: $(tty)
+        
+    - name: Publish the maven package for mock-mv
+      run: |
+        cd mock-mv
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.RELEASE_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GPG_TTY: $(tty)
