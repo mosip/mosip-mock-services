@@ -1,8 +1,10 @@
 # Mock ABIS
-A module to mock  ABIS functionality for testing non-production MOSIP deployments
+
+## About
+* A module to mock  ABIS functionality for testing non-production MOSIP deployments.
+* This module also provides swagger API to test only INSERT/IDENTIFY functionality.
 
 ## Requirements
-* Java 11
 * Partner certificate (in case of encryption is enabled)
 
 ## Setup
