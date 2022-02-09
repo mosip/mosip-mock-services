@@ -1,9 +1,3 @@
+[![Maven Package upon a push](https://github.com/mosip/mosip-mock-services/actions/workflows/push_trigger.yml/badge.svg)](https://github.com/mosip/mosip-mock-services/actions/workflows/push_trigger.yml)
+
 # mosip-mock-services
-## Overview 
-This repo contains code for all the mock services used in MOSIP:
-  * Mock MDS
-  * Mock ABIS
-  * Mock MV
-  * Mock SDK
-  * Mock SDK JPEG Extractor
-  * Softhsm
