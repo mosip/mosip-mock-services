@@ -1,4 +1,4 @@
-# Mock MV
+# Mock Manual Verification (MV)
 
 ## About
 * This service reads request from queue and mocks response for external "manual adjudication" and "verification" systems.
