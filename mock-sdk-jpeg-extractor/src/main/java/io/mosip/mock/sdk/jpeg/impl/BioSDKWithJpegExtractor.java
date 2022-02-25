@@ -53,7 +53,7 @@ public class BioSDKWithJpegExtractor extends SampleSDK {
 		convertRequestDto.setVersion(format);
 		convertRequestDto.setInputBytes(bir.getBdb());
 		try {
-			BufferedImage bufferedImage = isoToBufferdImageConverter.convertFaceISOToBufferedImage(convertRequestDto);
+			BufferedImage bufferedImage = isoToBufferdImageConverter.converte(convertRequestDto);
 			byte[] convertJP2ToJPEGBytes = CommonUtil.convertJP2ToJPEGBytes(bufferedImage);
 			bir.setBdb(convertJP2ToJPEGBytes);
 		} catch (Exception e) {

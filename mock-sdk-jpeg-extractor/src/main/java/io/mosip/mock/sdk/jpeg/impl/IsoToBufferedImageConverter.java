@@ -7,6 +7,6 @@ import io.mosip.biometrics.util.ConvertRequestDto;
 @FunctionalInterface
 public interface IsoToBufferedImageConverter {
 	
-	BufferedImage convertFaceISOToBufferedImage(ConvertRequestDto convertRequestDto) throws Exception;
+	BufferedImage converte(ConvertRequestDto convertRequestDto) throws Exception;
 
 }
