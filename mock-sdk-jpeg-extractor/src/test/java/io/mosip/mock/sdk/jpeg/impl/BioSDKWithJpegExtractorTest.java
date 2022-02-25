@@ -15,6 +15,7 @@ import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BIR.BIRBuilder;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 
+@Ignore
 public class BioSDKWithJpegExtractorTest {
 	
 	@Test
