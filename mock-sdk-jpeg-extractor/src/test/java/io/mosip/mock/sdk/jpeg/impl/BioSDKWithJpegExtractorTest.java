@@ -17,9 +17,8 @@ import io.mosip.kernel.biometrics.entities.BiometricRecord;
 
 public class BioSDKWithJpegExtractorTest {
 	
-	@Ignore
 	@Test
-	public void testIsoToJpegConversion() throws IOException {
+	public void testFaceIsoToJpegConversion() throws IOException {
 		BioSDKWithJpegExtractor bioSDKWithJpegExtractor = new BioSDKWithJpegExtractor();
 		
 		BiometricRecord bioRecord = new BiometricRecord();
@@ -30,6 +29,38 @@ public class BioSDKWithJpegExtractorTest {
 		List<BiometricType> bioType = List.of(BiometricType.FACE);
 		bioSDKWithJpegExtractor.extractTemplate(bioRecord, bioType, Map.of());
 		String targetPath = "C:\\OneDrive - Mindtree Limited\\MOSIP\\IDA\\DOCS\\MockMDS\\Profile\\Default\\Face.jpeg";
+		Files.write(new File(targetPath ).toPath(), bioRecord.getSegments().get(0).getBdb(), StandardOpenOption.CREATE);
+		
+	}
+	
+	@Test
+	public void testFingerIsoToJpegConversion() throws IOException {
+		BioSDKWithJpegExtractor bioSDKWithJpegExtractor = new BioSDKWithJpegExtractor();
+		
+		BiometricRecord bioRecord = new BiometricRecord();
+		String srcPath = "C:\\OneDrive - Mindtree Limited\\MOSIP\\IDA\\DOCS\\MockMDS\\Profile\\Default\\Left_Thumb.iso";
+		byte[] bdb = Files.readAllBytes(new File(srcPath ).toPath());
+		BIR bir = new BIRBuilder().withBdb(bdb).build();
+		bioRecord.setSegments(List.of(bir));
+		List<BiometricType> bioType = List.of(BiometricType.FINGER);
+		bioSDKWithJpegExtractor.extractTemplate(bioRecord, bioType, Map.of());
+		String targetPath = "C:\\OneDrive - Mindtree Limited\\MOSIP\\IDA\\DOCS\\MockMDS\\Profile\\Default\\Left_Thumb.jpeg";
+		Files.write(new File(targetPath ).toPath(), bioRecord.getSegments().get(0).getBdb(), StandardOpenOption.CREATE);
+		
+	}
+	
+	@Test
+	public void testIrisIsoToJpegConversion() throws IOException {
+		BioSDKWithJpegExtractor bioSDKWithJpegExtractor = new BioSDKWithJpegExtractor();
+		
+		BiometricRecord bioRecord = new BiometricRecord();
+		String srcPath = "C:\\OneDrive - Mindtree Limited\\MOSIP\\IDA\\DOCS\\MockMDS\\Profile\\Default\\Left_Iris.iso";
+		byte[] bdb = Files.readAllBytes(new File(srcPath ).toPath());
+		BIR bir = new BIRBuilder().withBdb(bdb).build();
+		bioRecord.setSegments(List.of(bir));
+		List<BiometricType> bioType = List.of(BiometricType.IRIS);
+		bioSDKWithJpegExtractor.extractTemplate(bioRecord, bioType, Map.of());
+		String targetPath = "C:\\OneDrive - Mindtree Limited\\MOSIP\\IDA\\DOCS\\MockMDS\\Profile\\Default\\Left_Iris.jpeg";
 		Files.write(new File(targetPath ).toPath(), bioRecord.getSegments().get(0).getBdb(), StandardOpenOption.CREATE);
 		
 	}
