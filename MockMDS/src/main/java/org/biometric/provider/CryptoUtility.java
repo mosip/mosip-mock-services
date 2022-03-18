@@ -104,8 +104,8 @@ public class CryptoUtility {
 			final byte[] encryptedData = symmetricEncrypt(secretKey, dataBytes, ivBytes, aadBytes);			
 			final byte[] encryptedSymmetricKey =  asymmetricEncrypt(publicKey, secretKey.getEncoded());
 					
-			result.put("ENC_SESSION_KEY", java.util.Base64.getUrlEncoder().encodeToString(encryptedSymmetricKey));
-			result.put("ENC_DATA", java.util.Base64.getUrlEncoder().encodeToString(encryptedData));
+			result.put("ENC_SESSION_KEY", io.mosip.mock.sbi.util.StringHelper.base64UrlEncode(encryptedSymmetricKey));
+			result.put("ENC_DATA", io.mosip.mock.sbi.util.StringHelper.base64UrlEncode(encryptedData));
 			result.put("TIMESTAMP", timestamp);
 			
 		} catch(Exception ex) {
@@ -123,11 +123,11 @@ public class CryptoUtility {
 			byte[] aadBytes = getLastBytes(xorResult, 16);
 			byte[] ivBytes = getLastBytes(xorResult, 12);
 			
-			byte[] decodedSessionKey =  java.util.Base64.getUrlDecoder().decode(sessionKey);		
+			byte[] decodedSessionKey =  io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(sessionKey);		
 			final byte[] symmetricKey = asymmetricDecrypt(privateKey, decodedSessionKey);		
 			SecretKeySpec secretKeySpec = new SecretKeySpec(symmetricKey, "AES");
 			
-			byte[] decodedData =  java.util.Base64.getUrlDecoder().decode(data);
+			byte[] decodedData =  io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(data);
 			final byte[] decryptedData = symmetricDecrypt(secretKeySpec, decodedData, ivBytes, aadBytes);
 			return new String(decryptedData);
 			
@@ -279,14 +279,14 @@ public class CryptoUtility {
 		final byte[] encryptedData = symmetricEncrypt(secretKey, dataBytes, ivBytes, aadBytes);			
 		final byte[] encryptedSymmetricKey =  asymmetricEncrypt(pair.getPublic(), secretKey.getEncoded());
 		
-		String bioValue = java.util.Base64.getUrlEncoder().encodeToString(encryptedData);
-		String sessionKey = java.util.Base64.getUrlEncoder().encodeToString(encryptedSymmetricKey);
+		String bioValue = io.mosip.mock.sbi.util.StringHelper.base64UrlEncode(encryptedData);
+		String sessionKey = io.mosip.mock.sbi.util.StringHelper.base64UrlEncode(encryptedSymmetricKey);
 				
-		byte[] decodedSessionKey =  java.util.Base64.getUrlDecoder().decode(sessionKey);		
+		byte[] decodedSessionKey =  io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(sessionKey);		
 		final byte[] symmetricKey = asymmetricDecrypt(pair.getPrivate(), decodedSessionKey);		
 		SecretKeySpec secretKeySpec = new SecretKeySpec(symmetricKey, "AES");
 		
-		byte[] decodedBioValue =  java.util.Base64.getUrlDecoder().decode(bioValue);
+		byte[] decodedBioValue =  io.mosip.mock.sbi.util.StringHelper.base64UrlDecode(bioValue);
 		final byte[] decryptedData = symmetricDecrypt(secretKeySpec, decodedBioValue, ivBytes, aadBytes);
 		System.out.println(new String(decryptedData));
 	}

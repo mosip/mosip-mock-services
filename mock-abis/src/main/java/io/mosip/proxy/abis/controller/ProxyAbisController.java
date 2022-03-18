@@ -1,10 +1,18 @@
 package io.mosip.proxy.abis.controller;
 
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.mosip.proxy.abis.Listener;
 import io.mosip.proxy.abis.dto.*;
+import io.mosip.proxy.abis.exception.BindingException;
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
+import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.ProxyAbisInsertService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.mosip.proxy.abis.exception.BindingException;
-import io.mosip.proxy.abis.exception.FailureReasonsConstants;
-import io.mosip.proxy.abis.exception.RequestException;
-import io.mosip.proxy.abis.service.ProxyAbisInsertService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-
+import org.springframework.http.MediaType;
+import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,7 +30,7 @@ import java.util.TimerTask;
 
 @CrossOrigin
 @RestController
-@Api(value = "Abis", description = "Provides API's for proxy Abis", tags = "Proxy Abis API")
+@Tag(name = "Proxy Abis API", description = "Provides API's for proxy Abis")
 @RequestMapping("abis/")
 public class ProxyAbisController {
 
@@ -43,7 +45,12 @@ public class ProxyAbisController {
 	private Timer timer = new Timer();
 
 	@RequestMapping(value = "insertrequest", method = RequestMethod.POST)
-	@ApiOperation(value = "Save Insert Request")
+	@Operation(summary = "Save Insert Request", description = "Save Insert Request", tags = { "Proxy Abis API" })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	public ResponseEntity<Object> saveInsertRequest(@Valid @RequestBody InsertRequestMO ie, BindingResult bd)
 			throws Exception {
 		logger.info("Saving Insert Request");
@@ -67,7 +74,12 @@ public class ProxyAbisController {
 	}
 
 	@RequestMapping(value = "deleterequest", method = RequestMethod.DELETE)
-	@ApiOperation(value = "Delete Request")
+	@Operation(summary = "Delete Request", description = "Delete Request", tags = { "Proxy Abis API" })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	public ResponseEntity<Object> deleteRequest(@RequestBody RequestMO ie) {
 		try {
 			return processDeleteRequest(ie, 1);
@@ -81,9 +93,14 @@ public class ProxyAbisController {
 
 	}
 
-	@RequestMapping(value = "upload", method = RequestMethod.POST)
-	@ApiOperation(value = "Upload certificate Request")
-	public ResponseEntity<String> uploadcertificate(@RequestParam("file") MultipartFile uploadfile,
+	@RequestMapping(value = "upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "Upload certificate Request", description = "Upload certificate Request", tags = { "Proxy Abis API" })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
+	public ResponseEntity<String> uploadcertificate(@RequestBody MultipartFile uploadfile,
 			@RequestParam("password") String password, @RequestParam("alias") String alias,@RequestParam("keystore") String keystore) {
 		if (uploadfile.isEmpty())
 			return new ResponseEntity("Please select a file", HttpStatus.NO_CONTENT);
@@ -99,7 +116,12 @@ public class ProxyAbisController {
 	}
 
 	@RequestMapping(value = "identifyrequest", method = RequestMethod.POST)
-	@ApiOperation(value = "Checks duplication")
+	@Operation(summary = "Checks duplication", description = "Checks duplication", tags = { "Proxy Abis API" })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	public ResponseEntity<Object> identityRequest(@RequestBody IdentityRequest ir) {
 		try {
 			return processIdentityRequest(ir, 1);
