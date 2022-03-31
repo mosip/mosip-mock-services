@@ -50,21 +50,6 @@ jobs:
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
 
-    - name: Build SDK with Maven
-      run: |
-        cd mock-sdk
-        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
-    - name: Build Mock-SDK-with-jpeg-extractor with Maven
-      run: |
-        cd mock-sdk-jpeg-extractor
-        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
-    - name: Build SBI with Maven
-      run: |
-        cd MockMDS
-        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-
     - name: Build abis with Maven
       run: |
         cd mock-abis
@@ -94,6 +79,21 @@ jobs:
           echo VERSION=$VERSION
           docker tag mock-abis $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+   
+    - name: Build SDK with Maven
+      run: |
+        cd mock-sdk
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+        
+    - name: Build Mock-SDK-with-jpeg-extractor with Maven
+      run: |
+        cd mock-sdk-jpeg-extractor
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+        
+    - name: Build SBI with Maven
+      run: |
+        cd MockMDS
+        mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build MockMV with Maven
       run: |
