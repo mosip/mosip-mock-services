@@ -274,6 +274,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			String refId = ir.getReferenceId();
             logger.info("Checking for duplication of reference ID " + refId);
 			List<BiometricData> lst = null;
+			logger.info("return duplicate property set to "+proxyAbisConfigService.getDuplicate());
 			if (null != ir.getGallery() && ir.getGallery().getReferenceIds().size() > 0
 					&& null != ir.getGallery().getReferenceIds().get(0).getReferenceId()
 					&& !ir.getGallery().getReferenceIds().get(0).getReferenceId().isEmpty()) {
