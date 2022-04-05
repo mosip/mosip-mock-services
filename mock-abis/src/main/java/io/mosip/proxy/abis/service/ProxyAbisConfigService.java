@@ -7,20 +7,25 @@ import java.util.Map;
 
 public interface ProxyAbisConfigService {
 
-    public Boolean getDuplicate();
-    public void setDuplicate(Boolean d);
+	public Boolean getDuplicate();
 
-    public Map<String, Expectation> getExpectations();
+	public void setDuplicate(Boolean d);
 
-    public void setExpectation(Expectation exp);
+	public Boolean getNewDuplicate();
 
-    public void deleteExpectation(String id);
+	public void setNewDuplicate(Boolean d);
 
-    public void deleteExpectations();
+	public Map<String, Expectation> getExpectations();
 
-    public List<String> getCachedBiometrics();
+	public void setExpectation(Expectation exp);
 
-    public List<String> getCachedBiometric(String hash);
+	public void deleteExpectation(String id);
 
-    public void deleteAllCachedBiometrics();
+	public void deleteExpectations();
+
+	public List<String> getCachedBiometrics();
+
+	public List<String> getCachedBiometric(String hash);
+
+	public void deleteAllCachedBiometrics();
 }

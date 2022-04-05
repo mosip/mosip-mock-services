@@ -15,54 +15,67 @@ import java.util.Map;
 @Service
 public class ProxyAbisConfigServiceImpl implements ProxyAbisConfigService {
 
-    @Autowired
-    ProxyAbisInsertRepository proxyabis;
+	@Autowired
+	ProxyAbisInsertRepository proxyabis;
 
-    @Autowired
-    ProxyAbisBioDataRepository proxyAbisBioDataRepository;
+	@Autowired
+	ProxyAbisBioDataRepository proxyAbisBioDataRepository;
 
-    @Autowired
-    private ExpectationCache expectationCache;
+	@Autowired
+	private ExpectationCache expectationCache;
 
-    /**
-     * set this flag to false then we will not check for duplicate we will always return unique biometric
-     */
-    @Value("${abis.return.duplicate:true}")
-    private boolean findDuplicate;
+	/**
+	 * set this flag to false then we will not check for duplicate we will always
+	 * return unique biometric
+	 */
+	@Value("${abis.return.duplicate:true}")
+	private boolean findDuplicate;
 
-    public Boolean getDuplicate(){
-        return findDuplicate;
-    }
-    public void setDuplicate(Boolean d){
-        findDuplicate = d;
-    }
+	private boolean newDuplicate;
 
-    public Map<String, Expectation> getExpectations(){
-        return expectationCache.get();
-    }
+	public Boolean getDuplicate() {
+		return findDuplicate;
+	}
 
-    public void setExpectation(Expectation exp){
-        expectationCache.insert(exp);
-    }
+	public void setDuplicate(Boolean d) {
+		findDuplicate = d;
+	}
 
-    public void deleteExpectation(String id){
-        expectationCache.delete(id);
-    }
+	public Boolean getNewDuplicate() {
+		return this.newDuplicate;
+	}
 
-    public void deleteExpectations(){
-        expectationCache.deleteAll();
-    }
+	public void setNewDuplicate(Boolean d) {
+		this.newDuplicate = d;
 
-    public List<String> getCachedBiometrics(){
-        return proxyAbisBioDataRepository.fetchAllBioData();
-    }
+	}
 
-    public List<String> getCachedBiometric(String hash){
-        return proxyAbisBioDataRepository.fetchByBioData(hash);
-    }
+	public Map<String, Expectation> getExpectations() {
+		return expectationCache.get();
+	}
 
-    public void deleteAllCachedBiometrics(){
-        proxyAbisBioDataRepository.deleteAll();
-        proxyabis.deleteAll();
-    }
+	public void setExpectation(Expectation exp) {
+		expectationCache.insert(exp);
+	}
+
+	public void deleteExpectation(String id) {
+		expectationCache.delete(id);
+	}
+
+	public void deleteExpectations() {
+		expectationCache.deleteAll();
+	}
+
+	public List<String> getCachedBiometrics() {
+		return proxyAbisBioDataRepository.fetchAllBioData();
+	}
+
+	public List<String> getCachedBiometric(String hash) {
+		return proxyAbisBioDataRepository.fetchByBioData(hash);
+	}
+
+	public void deleteAllCachedBiometrics() {
+		proxyAbisBioDataRepository.deleteAll();
+		proxyabis.deleteAll();
+	}
 }
