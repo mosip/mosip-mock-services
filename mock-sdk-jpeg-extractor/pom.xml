@@ -142,7 +142,7 @@
         <dependency>
         	<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
