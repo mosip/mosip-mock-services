@@ -297,7 +297,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
                 }
-				if (proxyAbisConfigService.getDuplicate()) {
+				if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 			}

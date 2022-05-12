@@ -30,11 +30,18 @@ public class ProxyAbisConfigServiceImpl implements ProxyAbisConfigService {
     @Value("${abis.return.duplicate:true}")
     private boolean findDuplicate;
 
+    @Value("${abis.force.return.duplicate:false}")
+    private boolean forceDuplicate;
+
     public Boolean getDuplicate(){
         return findDuplicate;
     }
     public void setDuplicate(Boolean d){
         findDuplicate = d;
+    }
+
+    public Boolean isForceDuplicate() {
+        return forceDuplicate;
     }
 
     public Map<String, Expectation> getExpectations(){
