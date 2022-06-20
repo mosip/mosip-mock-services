@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Configuration
@@ -193,6 +194,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			}
 			
 			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			birType.setBir(birType.getBIR().stream().filter(b -> b.getBDB() != null).collect(Collectors.toList()));
 			logger.info("Validating CBEFF data");
 			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
