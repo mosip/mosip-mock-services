@@ -5,7 +5,7 @@
 
 	<artifactId>mock-sdk-jpeg-extractor</artifactId>
 	<groupId>io.mosip.mock.sdk</groupId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.0.1-SNAPSHOT</version>
 	<name>mock-sdk-jpeg-extractor</name>
 	<description>Sample implementation of biometrics SDK-containing jpeg extraction</description>
 	<packaging>jar</packaging>
@@ -142,7 +142,7 @@
         <dependency>
         	<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>1.2.0.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
