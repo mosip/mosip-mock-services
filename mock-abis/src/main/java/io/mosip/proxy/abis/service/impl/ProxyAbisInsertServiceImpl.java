@@ -277,7 +277,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
             logger.info("Checking for duplication of reference ID " + refId);
 			List<BiometricData> lst = null;
 			logger.info("find duplicate property set to " + proxyAbisConfigService.getDuplicate());
-			logger.info("force duplicate property set to " + proxyAbisConfigService.isForceDuplicate());
+		//	logger.info("force duplicate property set to " + proxyAbisConfigService.isForceDuplicate());
 			if (null != ir.getGallery() && ir.getGallery().getReferenceIds().size() > 0
 					&& null != ir.getGallery().getReferenceIds().get(0).getReferenceId()
 					&& !ir.getGallery().getReferenceIds().get(0).getReferenceId().isEmpty()) {
@@ -300,7 +300,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
                 }
-				if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
+				//if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
+				if (proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 			}

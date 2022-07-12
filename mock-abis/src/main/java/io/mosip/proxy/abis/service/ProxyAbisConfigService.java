@@ -10,7 +10,7 @@ public interface ProxyAbisConfigService {
     public Boolean getDuplicate();
     public void setDuplicate(Boolean d);
 
-    public Boolean isForceDuplicate();
+  //  public Boolean isForceDuplicate();
 
     public Map<String, Expectation> getExpectations();
 
