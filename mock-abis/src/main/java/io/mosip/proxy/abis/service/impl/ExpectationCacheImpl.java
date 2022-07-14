@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ExpectationCacheImpl implements ExpectationCache {
 
-   static  Map<String, Expectation> expectationMap = new ConcurrentHashMap<String, Expectation>();
+    Map<String, Expectation> expectationMap = new ConcurrentHashMap<String, Expectation>();
 
     public boolean delete(String id){
         return expectationMap.remove(id) != null;
