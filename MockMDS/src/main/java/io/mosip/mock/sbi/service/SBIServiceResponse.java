@@ -356,7 +356,7 @@ public class SBIServiceResponse {
         		 type = requestObject.getType().toString ().trim().toLowerCase();
 
         	 if (requestObject != null && requestObject.getDeviceStatus() != null && requestObject.getDeviceStatus().length() > 0)
-        		 status = requestObject.getDeviceStatus().toString ().trim().toLowerCase();
+        		 status = requestObject.getDeviceStatus().toString ().trim();
 
         	 LOGGER.info("processSetStatus :: Type :: " + type + " :: Status :: " + status);
 
