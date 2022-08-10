@@ -325,7 +325,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		response.setId(ir.getId());
 		response.setRequestId(ir.getRequestId());
 		response.setResponsetime(ir.getRequesttime());
-
+		logger.info("expectation.getForcedResponse()==" +expectation.getForcedResponse());
+		logger.info("expectation=>"+expectation);
 		if(expectation.getForcedResponse().equals("Error")){
 			throw new RequestException(expectation.getErrorCode());
 		} else if(expectation.getForcedResponse().equals("Duplicate")) {
@@ -348,6 +349,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				cdl.setCount(cdl.getCandidates().size());
 				response.setCandidateList(cdl);
+				logger.info("response==" +response);
 				return response;
 			}
 		}
