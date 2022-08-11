@@ -1,26 +1,20 @@
 package io.mosip.proxy.abis.service.impl;
 
-import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
-import io.mosip.kernel.biometrics.entities.BIR;
-import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
-import io.mosip.kernel.core.exception.ExceptionUtils;
-import io.mosip.proxy.abis.CryptoCoreUtil;
-import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
-import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
-import io.mosip.proxy.abis.dto.Expectation;
-import io.mosip.proxy.abis.dto.IdentifyDelayResponse;
-import io.mosip.proxy.abis.dto.IdentityRequest;
-import io.mosip.proxy.abis.dto.IdentityResponse;
-import io.mosip.proxy.abis.dto.InsertRequestMO;
-import io.mosip.proxy.abis.dto.RequestMO;
-import io.mosip.proxy.abis.entity.BiometricData;
-import io.mosip.proxy.abis.entity.InsertEntity;
-import io.mosip.proxy.abis.exception.FailureReasonsConstants;
-import io.mosip.proxy.abis.exception.RequestException;
-import io.mosip.proxy.abis.service.ExpectationCache;
-import io.mosip.proxy.abis.service.ProxyAbisConfigService;
-import io.mosip.proxy.abis.service.ProxyAbisInsertService;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -38,22 +32,29 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import io.mosip.kernel.biometrics.commons.CbeffValidator;
+//import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
+import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
+import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
+import io.mosip.kernel.core.exception.ExceptionUtils;
+import io.mosip.proxy.abis.CryptoCoreUtil;
+import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
+import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
+import io.mosip.proxy.abis.dto.Expectation;
+import io.mosip.proxy.abis.dto.IdentifyDelayResponse;
+import io.mosip.proxy.abis.dto.IdentityRequest;
+import io.mosip.proxy.abis.dto.IdentityResponse;
+import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
+import io.mosip.proxy.abis.dto.InsertRequestMO;
+import io.mosip.proxy.abis.dto.RequestMO;
+import io.mosip.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.entity.InsertEntity;
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
+import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.ExpectationCache;
+import io.mosip.proxy.abis.service.ProxyAbisConfigService;
+import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 
 @Service
 @Configuration
@@ -193,10 +194,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				cbeff = cryptoUtil.decryptCbeff(cbeff);
 			}
 			
-			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			BIRType birType = io.mosip.kernel.core.cbeffutil.common.CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
 			birType.setBir(birType.getBIR().stream().filter(b -> b.getBDB() != null).collect(Collectors.toList()));
 			logger.info("Validating CBEFF data");
-			if (CbeffValidator.validateXML(birType)) {
+			if (io.mosip.kernel.core.cbeffutil.common.CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
 				throw new CbeffException("Invalid CBEFF");
 			}
@@ -337,10 +338,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			modalitiesList.add(new Modalities("FACE", getAnalytics()));
 			modalitiesList.add(new Modalities("FINGER", getAnalytics()));
 			modalitiesList.add(new Modalities("IRIS", getAnalytics()));
-
+			logger.info("expectation.getGallery()=>"+expectation.getGallery());
 			if(expectation.getGallery() != null && expectation.getGallery().getReferenceIds().size() > 0){
 				for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
+					System.out.println("rd.getReferenceId()"+rd.getReferenceId());
 					List<String> refIds = proxyAbisBioDataRepository.fetchReferenceId(rd.getReferenceId());
+					logger.info("expectation.refIds=>"+refIds);
 					if(refIds.size() > 0){
 						for(String refId: refIds){
 							cdl.getCandidates().add(new IdentityResponse.Candidates(refId, getAnalytics(), modalitiesList));
@@ -349,6 +352,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				cdl.setCount(cdl.getCandidates().size());
 				response.setCandidateList(cdl);
+				System.out.println("cdl.getCandidates().size()="+cdl.getCandidates().size());
 				logger.info("response==" +response);
 				return response;
 			}
