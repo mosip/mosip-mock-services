@@ -193,6 +193,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			}
 			
 			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			birType.setBir(birType.getBIR().stream().filter(b -> b.getBDB() != null).collect(Collectors.toList()));
 			logger.info("Validating CBEFF data");
 			if (CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
@@ -274,6 +275,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			String refId = ir.getReferenceId();
             logger.info("Checking for duplication of reference ID " + refId);
 			List<BiometricData> lst = null;
+			logger.info("find duplicate property set to " + proxyAbisConfigService.getDuplicate());
+			logger.info("force duplicate property set to " + proxyAbisConfigService.isForceDuplicate());
 			if (null != ir.getGallery() && ir.getGallery().getReferenceIds().size() > 0
 					&& null != ir.getGallery().getReferenceIds().get(0).getReferenceId()
 					&& !ir.getGallery().getReferenceIds().get(0).getReferenceId().isEmpty()) {
@@ -296,7 +299,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
                 }
-				if (proxyAbisConfigService.getDuplicate()) {
+				if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
 			}
@@ -321,7 +324,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		response.setId(ir.getId());
 		response.setRequestId(ir.getRequestId());
 		response.setResponsetime(ir.getRequesttime());
-
+		logger.info("expectation.getForcedResponse()==" +expectation.getForcedResponse());
+		logger.info("expectation=>"+expectation);
 		if(expectation.getForcedResponse().equals("Error")){
 			throw new RequestException(expectation.getErrorCode());
 		} else if(expectation.getForcedResponse().equals("Duplicate")) {
@@ -332,10 +336,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			modalitiesList.add(new Modalities("FACE", getAnalytics()));
 			modalitiesList.add(new Modalities("FINGER", getAnalytics()));
 			modalitiesList.add(new Modalities("IRIS", getAnalytics()));
-
+			logger.info("expectation.getGallery()=>"+expectation.getGallery());
 			if(expectation.getGallery() != null && expectation.getGallery().getReferenceIds().size() > 0){
 				for(Expectation.ReferenceIds rd: expectation.getGallery().getReferenceIds()){
+					System.out.println("rd.getReferenceId()"+rd.getReferenceId());
 					List<String> refIds = proxyAbisBioDataRepository.fetchReferenceId(rd.getReferenceId());
+					logger.info("expectation.refIds=>"+refIds);
 					if(refIds.size() > 0){
 						for(String refId: refIds){
 							cdl.getCandidates().add(new IdentityResponse.Candidates(refId, getAnalytics(), modalitiesList));
@@ -344,6 +350,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				cdl.setCount(cdl.getCandidates().size());
 				response.setCandidateList(cdl);
+				logger.info("response==" +response);
 				return response;
 			}
 		}

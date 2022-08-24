@@ -54,12 +54,12 @@ jobs:
       run: |
         cd mock-sdk
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Build Mock-SDK-with-jpeg-extractor with Maven
       run: |
         cd mock-sdk-jpeg-extractor
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Build SBI with Maven
       run: |
         cd MockMDS
