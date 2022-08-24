@@ -163,7 +163,7 @@ public class Listener {
 				Map<String,String> analytics=new HashMap<>();
 				analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
 				analytics.put("primaryOperatorComments", "abcd");
-				candidateList.setCount(requestDTO.getGallery().getReferenceIds().size());// logic needs to be implemented.
+				candidateList.setCount(candidateList.getCandidates()!=null?candidateList.getCandidates().size():0);// logic needs to be implemented.
 				candidateList.setAnalytics(analytics);
 				decisionDto.setCandidateList(candidateList);
 
