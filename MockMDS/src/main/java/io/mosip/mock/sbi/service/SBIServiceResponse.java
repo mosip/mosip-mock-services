@@ -155,7 +155,7 @@ public class SBIServiceResponse {
         	 DeviceDiscoveryRequestDetail requestObject = (DeviceDiscoveryRequestDetail) getRequestJson (SBIConstant.MOSIP_DISC_VERB);
         	 String type = null;
         	 if (requestObject != null && requestObject.getType() != null && requestObject.getType().length() > 0)
-        		 type = requestObject.getType().toString ().trim();
+        		 type = requestObject.getType().toString ().trim().toLowerCase();
 
              LOGGER.info("processDeviceDicoveryInfo :: type :: "+ type);
 
@@ -356,7 +356,7 @@ public class SBIServiceResponse {
         		 type = requestObject.getType().toString ().trim().toLowerCase();
 
         	 if (requestObject != null && requestObject.getDeviceStatus() != null && requestObject.getDeviceStatus().length() > 0)
-        		 status = requestObject.getDeviceStatus().toString ().trim().toLowerCase();
+        		 status = requestObject.getDeviceStatus().toString ().trim();
 
         	 LOGGER.info("processSetStatus :: Type :: " + type + " :: Status :: " + status);
 
