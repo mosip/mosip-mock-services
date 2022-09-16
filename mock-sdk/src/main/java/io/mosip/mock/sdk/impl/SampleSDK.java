@@ -17,8 +17,11 @@ import org.springframework.stereotype.Component;
 import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Match;
+import io.mosip.kernel.biometrics.constant.ProcessedLevelType;
+import io.mosip.kernel.biometrics.entities.BDBInfo;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
+import io.mosip.kernel.biometrics.entities.RegistryIDType;
 import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.model.MatchDecision;
 import io.mosip.kernel.biometrics.model.QualityCheck;
@@ -41,6 +44,10 @@ public class SampleSDK implements IBioApi {
 	Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
 
 	private static final String API_VERSION = "0.9";
+	
+	public static final long FORMAT_TYPE_FINGER = 7;
+
+	public static final long FORMAT_TYPE_FINGER_MINUTIAE = 2;
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
@@ -489,6 +496,23 @@ public class SampleSDK implements IBioApi {
 		Response<BiometricRecord> response = new Response<>();
 		response.setStatusCode(200);
 		response.setResponse(sample);
+		if (sample.getSegments() != null) {
+			sample.getSegments().stream().forEach(bir -> {
+				BDBInfo bdbInfo = bir.getBdbInfo();
+				if (bdbInfo != null) {
+					//Update the level to processed
+					bdbInfo.setLevel(ProcessedLevelType.PROCESSED);
+					RegistryIDType format = bir.getBdbInfo().getFormat();
+					if (format != null) {
+						String type = format.getType();
+						//Update the fingerprint image to fingerprint minutiae type
+						if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
+							format.setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
+						}
+					}
+				}
+			});
+		}
 		return response;
 	}
 
