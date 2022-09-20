@@ -27,10 +27,17 @@ public class CentralizedMockSBI {
         return localStore.get(context).getServerPort();
     }
 
-    public static void stopSBI(String context) throws IOException {
-        if(localStore.containsKey(context)) {
-            localStore.get(context).setStopped(true);
-            localStore.get(context).stop();
+    public static void stopSBI(String context) {
+        try {
+            if(localStore.containsKey(context)) {
+                localStore.get(context).setStopped(true);
+                localStore.get(context).stop();
+                localStore.remove(context);
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Error while stopping {} SBI", context, t);
+        } finally {
+            localStore.remove(context);
         }
     }
 
@@ -38,10 +45,13 @@ public class CentralizedMockSBI {
         for(String context : localStore.keySet()) {
             try {
                 localStore.get(context).setStopped(true);
+                localStore.get(context).stop();
+                localStore.remove(context);
             } catch (Throwable t) {
                 LOGGER.error("Error while stopping {} SBI", context, t);
+            } finally {
+                localStore.remove(context);
             }
         }
     }
-
 }
