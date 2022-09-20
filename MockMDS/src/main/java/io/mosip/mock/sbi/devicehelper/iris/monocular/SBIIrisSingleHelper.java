@@ -13,22 +13,24 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIIrisSingleHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisSingleHelper.class);	
 
-	private static SBIIrisSingleHelper instance; 
+	//private static SBIIrisSingleHelper instance;
 	  
-	private SBIIrisSingleHelper(int port, String purpose)  
+	private SBIIrisSingleHelper(int port, String purpose, String keystoreFilePath)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE,
+				keystoreFilePath);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIIrisSingleHelper getInstance(int port, String purpose)  
+	synchronized public static SBIIrisSingleHelper getInstance(int port, String purpose, String keystoreFilePath)
 	{ 
-		if (instance == null)  
+		/*if (instance == null)
 		{ 
 			// if instance is null, initialize 
 			instance = new SBIIrisSingleHelper(port, purpose); 
 		} 
-		return instance; 
+		return instance; */
+		return new SBIIrisSingleHelper(port, purpose, keystoreFilePath);
 	}
 
 	@Override

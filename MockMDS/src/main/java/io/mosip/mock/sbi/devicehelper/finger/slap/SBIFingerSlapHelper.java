@@ -16,22 +16,23 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIFingerSlapHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSlapHelper.class);	
 
-	private static SBIFingerSlapHelper instance; 
+	//private static SBIFingerSlapHelper instance;
 	  
-	private SBIFingerSlapHelper(int port, String purpose)  
+	private SBIFingerSlapHelper(int port, String purpose, String keystorePath)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP, keystorePath);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFingerSlapHelper getInstance(int port, String purpose)  
+	synchronized public static SBIFingerSlapHelper getInstance(int port, String purpose, String keystorePath)
 	{ 
-		if (instance == null)  
-		{ 
+		/*if (instance == null)
+		{
 			// if instance is null, initialize 
-			instance = new SBIFingerSlapHelper(port, purpose); 
-		} 
-		return instance; 
+			instance = new SBIFingerSlapHelper(port, purpose);
+		}
+		return instance; */
+		return new SBIFingerSlapHelper(port, purpose, keystorePath);
 	}
 
 	@Override

@@ -15,22 +15,23 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIFaceHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFaceHelper.class);	
 
-	private static SBIFaceHelper instance; 
+	//private static SBIFaceHelper instance;
 	  
-	private SBIFaceHelper(int port, String purpose)  
+	private SBIFaceHelper(int port, String purpose, String keystoreFilePath)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE, keystoreFilePath);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFaceHelper getInstance(int port, String purpose)  
+	synchronized public static SBIFaceHelper getInstance(int port, String purpose, String keystoreFilePath)
 	{ 
-		if (instance == null)  
+		/*if (instance == null)
 		{ 
 			// if instance is null, initialize 
-			instance = new SBIFaceHelper(port, purpose); 
+			instance = new SBIFaceHelper(port, purpose);
 		} 
-		return instance; 
+		return instance;*/
+		return new SBIFaceHelper(port, purpose, keystoreFilePath);
 	}
 
 	@Override
