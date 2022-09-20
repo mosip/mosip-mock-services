@@ -4,7 +4,6 @@ import io.mosip.mock.sbi.service.SBIMockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +14,16 @@ public class CentralizedMockSBI {
     private static Map<String, SBIMockService> localStore = new HashMap<>();
 
 
+    /**
+     * Starts MOCK SBI on any available port from 4501-4600
+     * If SBI already started for the given context, returns the port number of the same socket.
+     *
+     * @param context server base URL / Unique identifier for the environment
+     * @param purpose Registration / Auth
+     * @param biometricType Biometric Device or Finger or Face or Iris
+     * @param keystorePath Folder path where the keystore file, refer application.properties for default keystore filename.
+     * @return port number on which SBI is started.
+     */
     public static int startSBI(String context, String purpose, String biometricType, String keystorePath) {
         if(!localStore.containsKey(context)) {
             SBIMockService mockService = new SBIMockService (purpose, biometricType, keystorePath);
@@ -27,6 +36,11 @@ public class CentralizedMockSBI {
         return localStore.get(context).getServerPort();
     }
 
+    /**
+     * Invoke this method after completing executing the test suite for the given context.
+     *
+     * @param context server base URL / Unique identifier for the environment
+     */
     public static void stopSBI(String context) {
         try {
             if(localStore.containsKey(context)) {
