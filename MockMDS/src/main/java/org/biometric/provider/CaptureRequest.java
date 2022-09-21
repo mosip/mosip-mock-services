@@ -288,7 +288,7 @@ public class CaptureRequest extends HttpServlet {
 		}
 
 		// TODO - validate requested Score, if deviceSubId is 3 then take the average of
-		if (segmentsToCapture.size() == bio.getCount()) {
+		if (segmentsToCapture.size() == Integer.parseInt(bio.getCount())) {
 			for (String segment : segmentsToCapture) {
 				BioMetricsDataDto bioMetricsData = oB.readValue(
 						Base64.getDecoder()
@@ -335,7 +335,7 @@ public class CaptureRequest extends HttpServlet {
 			// Throw exception
 		}
 
-		if (segmentsToCapture.size() == bio.getCount()) {
+		if (segmentsToCapture.size() == Integer.parseInt(bio.getCount())) {
 			// TODO - validate requested Score, if deviceSubId is 3 then take the average of
 
 			for (String segment : segmentsToCapture) {

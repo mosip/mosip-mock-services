@@ -918,7 +918,7 @@ public class SBIServiceResponse {
             String bioType = mosipBioRequest.get(0).getType();
             String [] bioException = mosipBioRequest.get(0).getException();// Bio exceptions
             String [] bioSubtype = mosipBioRequest.get(0).getBioSubType();// Bio subtype
-            int count = mosipBioRequest.get(0).getCount();
+            int count = Integer.parseInt(mosipBioRequest.get(0).getCount());
             int exceptionCount = (bioException != null ? bioException.length : 0);
             int bioSubtypeCount = (bioSubtype != null ? bioSubtype.length : 0);
 			int finalCount = count + exceptionCount;
@@ -1383,7 +1383,7 @@ public class SBIServiceResponse {
     	String transactionId = requestObject.getTransactionId();
     	int captureScore = deviceHelper.getQualityScore(); // SET MANUALLY
     	int requestScore = requestObject.getBio().get(0).getRequestedScore();
-    	int bioCount = requestObject.getBio().get(0).getCount();
+    	int bioCount = Integer.parseInt(requestObject.getBio().get(0).getCount());
     	String bioType = requestObject.getBio().get(0).getType();
         String [] bioExceptions = requestObject.getBio().get(0).getException();// Bio exceptions
         String [] bioSubType = requestObject.getBio().get(0).getBioSubType();// Bio SubTypes
