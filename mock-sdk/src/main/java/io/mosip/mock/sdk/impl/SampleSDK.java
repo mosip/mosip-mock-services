@@ -46,7 +46,7 @@ public class SampleSDK implements IBioApi {
 
 	Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
 
-	private static final String API_VERSION = "1.2.1";
+	private static final String API_VERSION = "0.9";
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
