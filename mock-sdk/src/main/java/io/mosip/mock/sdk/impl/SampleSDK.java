@@ -1,19 +1,24 @@
 package io.mosip.mock.sdk.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.mosip.mock.sdk.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Component;
 
+import io.mosip.kernel.bio.converter.constant.ConverterErrorCode;
+import io.mosip.kernel.bio.converter.exception.ConversionException;
+import io.mosip.kernel.bio.converter.service.impl.ConverterServiceImpl;
 import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Match;
@@ -36,11 +41,12 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
  * 
  */
 @Component
+@EnableAutoConfiguration
 public class SampleSDK implements IBioApi {
 
 	Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
 
-	private static final String API_VERSION = "0.9";
+	private static final String API_VERSION = "1.2.1";
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
@@ -260,7 +266,6 @@ public class SampleSDK implements IBioApi {
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype() != null
-					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
@@ -337,7 +342,6 @@ public class SampleSDK implements IBioApi {
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype() != null
-					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
@@ -410,7 +414,6 @@ public class SampleSDK implements IBioApi {
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype() != null
-					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
 				for (BIR galleryBIR : gallerySegments) {
@@ -496,9 +499,120 @@ public class SampleSDK implements IBioApi {
 		response.setResponse(sample);
 		return response;
 	}
-
+	
 	@Override
-	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment,
+	public Response<BiometricRecord> convertFormat(BiometricRecord record, String sourceFormat, String targetFormat,
+			Map<String, String> sourceParams, Map<String, String> targetParams,
+			List<BiometricType> modalitiesToConvert) {
+		Response<BiometricRecord> response = new Response<>();
+		Map<String, String> values = new HashMap<>();
+		for (BIR segment : record.getSegments()) {
+			BiometricType bioType = segment.getBdbInfo().getType().get(0);
+			List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
+			String bioSubType = "";
+			if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
+				bioSubType = bioSubTypeList.get(0);
+
+			String key = bioType + "_" + bioSubType;
+			// ignore modalities that are not to be matched
+			if (!isValidBiometricType (bioType, sourceFormat))
+				continue;
+
+			if (!values.containsKey(key)) {
+				values.put(key, encodeToURLSafeBase64 (segment.getBdb()));
+			}
+		}
+
+		Map<String, String> responseValues = null;
+		try
+		{			
+			responseValues = new ConverterServiceImpl().convert(values, sourceFormat, targetFormat, sourceParams, targetParams);
+			List<BIR> birList = record.getSegments(); 
+			for (int index = 0; index < birList.size(); index++) {
+				BIR segment = birList.get(index);
+				BiometricType bioType = segment.getBdbInfo().getType().get(0);
+				List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
+				String bioSubType = "";
+				if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
+					bioSubType = bioSubTypeList.get(0);
+
+				String key = bioType + "_" + bioSubType;
+				// ignore modalities that are not to be matched
+				if (!isValidBiometricType (bioType, sourceFormat))
+					continue;
+
+				if (responseValues != null && responseValues.containsKey(key)) {
+					segment.getBirInfo().setPayload(segment.getBdb());
+					segment.setBdb(decodeURLSafeBase64(responseValues.get(key)));
+				}
+				birList.set(index, segment);
+			}
+			record.setSegments(birList);
+			response.setStatusCode(200);
+			response.setResponse(record);
+		}
+		catch (ConversionException ex)
+		{
+			LOGGER.error("convertFormat -- error", ex);
+			if (ex.getErrorCode().equals(ConverterErrorCode.INPUT_SOURCE_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.INVALID_REQUEST_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.INVALID_SOURCE_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.INVALID_TARGET_EXCEPTION))
+			{
+				response.setStatusCode(401);
+				response.setResponse(null);
+			}
+			else if (ex.getErrorCode().equals(ConverterErrorCode.SOURCE_CAN_NOT_BE_EMPTY_OR_NULL_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.SOURCE_NOT_VALID_BASE64URLENCODED_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.COULD_NOT_READ_ISO_IMAGE_DATA_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.SOURCE_NOT_VALID_FINGER_ISO_FORMAT_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.SOURCE_NOT_VALID_FACE_ISO_FORMAT_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.SOURCE_NOT_VALID_IRIS_ISO_FORMAT_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.TARGET_FORMAT_EXCEPTION) ||
+				ex.getErrorCode().equals(ConverterErrorCode.NOT_SUPPORTED_COMPRESSION_TYPE))
+			{
+				response.setStatusCode(404);
+				response.setResponse(null);
+			}
+			else
+			{
+				response.setStatusCode(500);
+				response.setResponse(null);
+			}
+		}
+		catch (Exception ex)
+		{
+			LOGGER.error("convertFormat -- error", ex);
+			response.setStatusCode(500);
+			response.setResponse(null);
+		}
+				
+		return response;
+	}
+
+	private boolean isValidBiometricType(BiometricType bioType, String sourceFormat)
+	{
+		boolean isValid = false;
+		switch(sourceFormat)
+		{
+			case "ISO19794_4_2011":
+				if (bioType == BiometricType.FINGER)
+					isValid = true;
+				break;
+			case "ISO19794_5_2011":
+				if (bioType == BiometricType.FACE)
+					isValid = true;
+				break;
+			case "ISO19794_6_2011":
+				if (bioType == BiometricType.IRIS)
+					isValid = true;
+				break;
+		}
+		return isValid;
+	}
+	
+	@Override
+	public Response<BiometricRecord> segment(BiometricRecord sample, List<BiometricType> modalitiesToSegment,
 			Map<String, String> flags) {
 		BiometricRecord record = new BiometricRecord();
 		record.setSegments(null);
@@ -507,13 +621,37 @@ public class SampleSDK implements IBioApi {
 		response.setResponse(record);
 		return response;
 	}
-
-	@Override
-	public BiometricRecord convertFormat(BiometricRecord sample, String sourceFormat, String targetFormat,
-			Map<String, String> sourceParams, Map<String, String> targetParams,
-			List<BiometricType> modalitiesToConvert) {
-		// TODO Auto-generated method stub
-		return sample;
+	
+	private static Encoder urlSafeEncoder;
+	
+	static {
+		urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
+	}	
+    public static String encodeToURLSafeBase64(byte[] data) {
+		if (isNullEmpty(data)) {
+			return null;
+		}
+		return urlSafeEncoder.encodeToString(data);
 	}
 
+    public static String encodeToURLSafeBase64(String data) {
+		if (isNullEmpty(data)) {
+			return null;
+		}
+		return urlSafeEncoder.encodeToString(data.getBytes(StandardCharsets.UTF_8));
+	}
+
+    public static byte[] decodeURLSafeBase64(String data) {
+		if (isNullEmpty(data)) {
+			return null;
+		}
+		return Base64.getUrlDecoder().decode(data);
+	}
+    
+    public static boolean isNullEmpty(byte[] array) {
+		return array == null || array.length == 0;
+	}
+	public static boolean isNullEmpty(String str) {
+		return str == null || str.trim().length() == 0;
+	}
 }
