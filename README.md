@@ -1,7 +1,5 @@
 # mosip-mock-services
-
 ## Overview 
-
 This repo contains code for all the mock services used in MOSIP:
   * Mock MDS
   * Mock ABIS
