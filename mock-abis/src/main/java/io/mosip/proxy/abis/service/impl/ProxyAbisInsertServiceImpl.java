@@ -1,6 +1,6 @@
 package io.mosip.proxy.abis.service.impl;
 
-import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
+import io.mosip.kernel.biometrics.commons.CbeffValidator;
 import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
@@ -21,6 +21,7 @@ import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -76,10 +77,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	@Autowired
 	RestTemplate restTemplate;
-	
+
 	@Autowired
 	CryptoCoreUtil cryptoUtil;
-	
+
 	@Autowired
     private Environment env;
 
@@ -87,7 +88,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
     private ExpectationCache expectationCache;
 
 	private static String CBEFF_URL = null;
-	
+
 	@Value("${secret_url}")
 	private String SECRET_URL ;
 
@@ -192,11 +193,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			if(encryption) {
 				cbeff = cryptoUtil.decryptCbeff(cbeff);
 			}
-			
-			BIRType birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
-			birType.setBir(birType.getBIR().stream().filter(b -> b.getBDB() != null).collect(Collectors.toList()));
+
+			BIR birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+			birType.setBirs(birType.getBirs().stream().filter(b -> b.getBdb() != null).collect(Collectors.toList()));
 			logger.info("Validating CBEFF data");
-			if (CbeffValidator.validateXML(birType)) {
+			if (!CbeffValidator.validateXML(birType)) {
 				logger.info("Error while validating CBEFF");
 				throw new CbeffException("Invalid CBEFF");
 			}
@@ -204,13 +205,13 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.info("Valid CBEFF data");
 			logger.info("Inserting biometric details to concerned table");
 
-			for (BIRType bir : birType.getBIR()) {
-				if (bir.getBDB() != null && bir.getBDB().length > 0) {
+			for (BIR bir : birType.getBirs()) {
+				if (bir.getBdb() != null && bir.getBdb().length > 0) {
 					BiometricData bd = new BiometricData();
-					bd.setType(bir.getBDBInfo().getType().iterator().next().value());
-					if (bir.getBDBInfo().getSubtype() != null && bir.getBDBInfo().getSubtype().size() >0)
-					bd.setSubtype(bir.getBDBInfo().getSubtype().toString());
-					String hash = getSHAFromBytes(bir.getBDB());
+					bd.setType(bir.getBdbInfo().getType().iterator().next().value());
+					if (bir.getBdbInfo().getSubtype() != null && bir.getBdbInfo().getSubtype().size() >0)
+					bd.setSubtype(bir.getBdbInfo().getSubtype().toString());
+					String hash = getSHAFromBytes(bir.getBdb());
 					bd.setBioData(hash);
 					bd.setInsertEntity(ie);
 
@@ -270,11 +271,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 
 	@Override
-    public IdentifyDelayResponse findDuplication(IdentityRequest ir) {
+	public IdentifyDelayResponse findDuplication(IdentityRequest ir) {
 		int delayResponse = 0;
 		try {
 			String refId = ir.getReferenceId();
-            logger.info("Checking for duplication of reference ID " + refId);
+			logger.info("Checking for duplication of reference ID " + refId);
 			List<BiometricData> lst = null;
 			logger.info("find duplicate property set to " + proxyAbisConfigService.getDuplicate());
 			logger.info("force duplicate property set to " + proxyAbisConfigService.isForceDuplicate());
@@ -287,9 +288,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
-                List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
-                if(!bioValues.isEmpty()){
-                	for(String bioValue: bioValues){
+				List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
+				if(!bioValues.isEmpty()){
+					for(String bioValue: bioValues){
 						Expectation exp = expectationCache.get(bioValue);
 						if(exp.getId() != null && !exp.getId().isEmpty() && exp.getActionToInterfere().equals("Identify")){
 							logger.info("Expectation found for " + exp.getId());
@@ -299,7 +300,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
 						}
 					}
-                }
+				}
 				if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(refId);
 				}
@@ -319,7 +320,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 * @param expectation
 	 * @return
 	 */
-    private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation){
+	private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation){
 		logger.info("processExpectation" + ir.getReferenceId());
 		IdentityResponse response = new IdentityResponse();
 		response.setId(ir.getId());
@@ -356,7 +357,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			}
 		}
 		return constructIdentityResponse(ir, null);
-    }
+	}
 
 	private IdentityResponse constructIdentityResponse(IdentityRequest ir, List<BiometricData> lst) {
 		IdentityResponse response = new IdentityResponse();
@@ -421,10 +422,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		a.setKey2(env.getProperty("analytics.key2"));
 		return a;
 	}
-	
+
 
 	public  String saveUploadedFileWithParameters(MultipartFile uploadedFile, String alias,
-			String password, String keystore) {
+												  String password, String keystore) {
 		try {
 			logger.info("Uploading certificate");
 			byte[] bytes = uploadedFile.getBytes();
@@ -443,7 +444,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					+ uploadedFile.getOriginalFilename());
 			myWriter.close();
 			CryptoCoreUtil.setCertificateValues(uploadedFile.getOriginalFilename(), keystore, password, alias);
-			
+
 			File dir = new File(UPLOAD_FOLDER);
 			File[] fileList = dir.listFiles();
 			for (File file : fileList) {
