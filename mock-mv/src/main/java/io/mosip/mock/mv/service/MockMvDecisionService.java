@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MockMvDecisionService {
 	
-	@Value("${mock.mv.decision}")
+	@Value("${mock.mv.default.decision}")
 	private String mockMvDecision;
 
 	public String getMockMvDecision() {
