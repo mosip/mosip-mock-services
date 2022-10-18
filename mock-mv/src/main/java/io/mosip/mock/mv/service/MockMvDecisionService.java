@@ -1,20 +1,24 @@
 package io.mosip.mock.mv.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import java.util.Map;
 
-@Service
-public class MockMvDecisionService {
+import io.mosip.mock.mv.dto.Expectation;
+
+public interface MockMvDecisionService {
 	
-	@Value("${mock.mv.default.decision}")
-	private String mockMvDecision;
+	public String getMockMvDecision();
+	
+	public void setMockMvDecision(String mockMvDecision); 
+	
+	public Map<String, Expectation> getExpectations();
+	
+	public Expectation getExpectation(String rid);
 
-	public String getMockMvDecision() {
-		return mockMvDecision;
-	}
 
-	public void setMockMvDecision(String mockMvDecision) {
-		this.mockMvDecision = mockMvDecision;
-	}
+    public void setExpectation(Expectation exp);
+
+    public void deleteExpectation(String rid);
+
+    public void deleteExpectations();
 
 }
