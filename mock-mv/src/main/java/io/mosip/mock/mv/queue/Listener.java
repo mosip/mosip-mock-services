@@ -151,42 +151,14 @@ public class Listener {
 				Expectation expectation = expectationCache.get(requestDTO.getReferenceId());
 				if(expectation.getMockMvDecision()!=null&&!expectation.getMockMvDecision().isEmpty()) {
 					if (expectation.getMockMvDecision().equalsIgnoreCase(REJECTED)) {
-						List<Candidate> candidates = new ArrayList<>();
-						for(ReferenceIds refId : refIds) {
-							Candidate candidate=new Candidate();
-							candidate.setReferenceId(refId.getReferenceId());
-							Map<String,String> analytics=new HashMap<>();
-							AnalyticsDTO analyticsDTO=new AnalyticsDTO();
-							analyticsDTO.setPrimaryOperatorID("110006");
-							analyticsDTO.setPrimaryOperatorComments("abcd");
-							analyticsDTO.setSecondaryOperatorComments("asbd");
-							analyticsDTO.setSecondaryOperatorID("110005");
-							analyticsDTO.setAnalytics(analytics);
-							candidate.setAnalytics(analyticsDTO);
-							candidates.add(candidate);
-							candidateList.setCandidates(candidates);
-						}
+						candidateList = populatesCandidateList(refIds);
 					} else {
 						candidateList.setCandidates(null);
 					}
 				}
 				else {
 				if (mockDecision.equalsIgnoreCase(REJECTED)) {
-					List<Candidate> candidates = new ArrayList<>();
-					for(ReferenceIds refId : refIds) {
-						Candidate candidate=new Candidate();
-						candidate.setReferenceId(refId.getReferenceId());
-						Map<String,String> analytics=new HashMap<>();
-						AnalyticsDTO analyticsDTO=new AnalyticsDTO();
-						analyticsDTO.setPrimaryOperatorID("110006");
-						analyticsDTO.setPrimaryOperatorComments("abcd");
-						analyticsDTO.setSecondaryOperatorComments("asbd");
-						analyticsDTO.setSecondaryOperatorID("110005");
-						analyticsDTO.setAnalytics(analytics);
-						candidate.setAnalytics(analyticsDTO);
-						candidates.add(candidate);
-						candidateList.setCandidates(candidates);
-					}
+					candidateList=populatesCandidateList(refIds);
 				} else
 					candidateList.setCandidates(null);
 				}
@@ -252,6 +224,7 @@ public class Listener {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
+		
 	}
 
 	public void runVerificationQueue() {
@@ -374,6 +347,26 @@ public class Listener {
 		String outputJson = null;
 		outputJson = objectMapper.writeValueAsString(className);
 		return outputJson;
+	}
+	
+	private CandidateList populatesCandidateList(List<ReferenceIds> refIds) {
+		List<Candidate> candidates = new ArrayList<>();
+		CandidateList candidateList=new CandidateList();
+		for(ReferenceIds refId : refIds) {
+			Candidate candidate=new Candidate();
+			candidate.setReferenceId(refId.getReferenceId());
+			Map<String,String> analytics=new HashMap<>();
+			AnalyticsDTO analyticsDTO=new AnalyticsDTO();
+			analyticsDTO.setPrimaryOperatorID("110006");
+			analyticsDTO.setPrimaryOperatorComments("abcd");
+			analyticsDTO.setSecondaryOperatorComments("asbd");
+			analyticsDTO.setSecondaryOperatorID("110005");
+			analyticsDTO.setAnalytics(analytics);
+			candidate.setAnalytics(analyticsDTO);
+			candidates.add(candidate);
+			candidateList.setCandidates(candidates);
+		}
+		return candidateList;
 	}
 
 }
