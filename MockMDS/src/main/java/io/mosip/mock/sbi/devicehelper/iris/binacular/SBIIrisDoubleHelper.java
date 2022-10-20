@@ -15,22 +15,23 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisDoubleHelper.class);	
 
-	private static SBIIrisDoubleHelper instance; 
+	//private static SBIIrisDoubleHelper instance;
 	  
-	private SBIIrisDoubleHelper(int port, String purpose)  
+	private SBIIrisDoubleHelper(int port, String purpose, String keystoreFilePath)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE, keystoreFilePath);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose)  
+	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose, String keystoreFilePath)
 	{ 
-		if (instance == null)  
+		/*if (instance == null)
 		{ 
 			// if instance is null, initialize 
 			instance = new SBIIrisDoubleHelper(port, purpose); 
 		} 
-		return instance; 
+		return instance; */
+		return new SBIIrisDoubleHelper(port, purpose, keystoreFilePath);
 	}
 
 	@Override

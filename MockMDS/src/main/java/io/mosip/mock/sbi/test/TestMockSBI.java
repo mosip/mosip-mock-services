@@ -36,7 +36,7 @@ public class TestMockSBI {
 			//Check Purpose and BiometricType values
 			if (isValidPurpose (purpose) && isValidBiometricType(biometricType))
 			{
-				SBIMockService mockService = new SBIMockService (purpose, biometricType);
+				SBIMockService mockService = new SBIMockService (purpose, biometricType, null);
 				mockService.run();
 			}
 			else

@@ -1,19 +1,24 @@
 package io.mosip.mock.sdk.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.mosip.mock.sdk.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Component;
 
+import io.mosip.kernel.bio.converter.constant.ConverterErrorCode;
+import io.mosip.kernel.bio.converter.exception.ConversionException;
+import io.mosip.kernel.bio.converter.service.impl.ConverterServiceImpl;
 import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Match;
@@ -36,6 +41,7 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
  * 
  */
 @Component
+@EnableAutoConfiguration
 public class SampleSDK implements IBioApi {
 
 	Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
@@ -107,8 +113,7 @@ public class SampleSDK implements IBioApi {
 	private QualityScore evaluateFingerprintQuality(List<BIR> segments) {
 		QualityScore score = new QualityScore();
 		List<String> errors = new ArrayList<>();
-		
-		
+
 		score.setScore(getAvgQualityScore(segments));
 
 		// TODO actual quality evaluation here
@@ -118,13 +123,13 @@ public class SampleSDK implements IBioApi {
 	}
 
 	private float getAvgQualityScore(List<BIR> segments) {
-		float qualityScore =0;
-		for(BIR bir : segments) {
-			
-			qualityScore+=(bir.getBdbInfo().getQuality().getScore());
+		float qualityScore = 0;
+		for (BIR bir : segments) {
+
+			qualityScore += (bir.getBdbInfo().getQuality().getScore());
 		}
-		
-		return qualityScore/segments.size();
+
+		return qualityScore / segments.size();
 	}
 
 	private QualityScore evaluateIrisQuality(List<BIR> segments) {
@@ -251,8 +256,7 @@ public class SampleSDK implements IBioApi {
 			decision.setMatch(Match.MATCHED);
 			return decision;
 		} else if (sampleSegments == null || gallerySegments == null) {
-			LOGGER.info(
-					"Modality: {} -- biometric missing in either sample or recorded", BiometricType.FINGER.value());
+			LOGGER.info("Modality: {} -- biometric missing in either sample or recorded", BiometricType.FINGER.value());
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
@@ -297,7 +301,7 @@ public class SampleSDK implements IBioApi {
 			}
 			if (!bio_found) {
 				LOGGER.info("Modality: {}; Subtype: {} -- not found", BiometricType.FINGER.value(),
-						 sampleBIR.getBdbInfo().getSubtype());
+						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
 		}
@@ -328,8 +332,7 @@ public class SampleSDK implements IBioApi {
 			decision.setMatch(Match.MATCHED);
 			return decision;
 		} else if (sampleSegments == null || gallerySegments == null) {
-			LOGGER.info(
-					"Modality: {} -- biometric missing in either sample or recorded", BiometricType.IRIS.value());
+			LOGGER.info("Modality: {} -- biometric missing in either sample or recorded", BiometricType.IRIS.value());
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
@@ -366,7 +369,7 @@ public class SampleSDK implements IBioApi {
 						bio_found = true;
 					} else {
 						LOGGER.info("Modality: {}; Subtype: {}-- not matched", BiometricType.IRIS.value(),
-										galleryBIR.getBdbInfo().getSubtype());
+								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(false);
 						bio_found = true;
 					}
@@ -417,12 +420,12 @@ public class SampleSDK implements IBioApi {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-							LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.FACE.value() ,
+							LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.FACE.value(),
 									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(true);
 							bio_found = true;
 						} else {
-							LOGGER.info("Modality: {}; Subtype: {} -- not matched" ,  BiometricType.FACE.value() ,
+							LOGGER.info("Modality: {}; Subtype: {} -- not matched", BiometricType.FACE.value(),
 									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(false);
 							bio_found = true;
@@ -432,12 +435,12 @@ public class SampleSDK implements IBioApi {
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
-						LOGGER.info("Modality: {}; Subtype: {} -- matched" , BiometricType.FACE.value(),
+						LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.FACE.value(),
 								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(true);
 						bio_found = true;
 					} else {
-						LOGGER.info("Modality: {}; Subtype: {} -- not matched" ,  BiometricType.FACE.value() ,
+						LOGGER.info("Modality: {}; Subtype: {} -- not matched", BiometricType.FACE.value(),
 								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(false);
 						bio_found = true;
@@ -445,7 +448,7 @@ public class SampleSDK implements IBioApi {
 				}
 			}
 			if (!bio_found) {
-				LOGGER.info("Modality: {}; Subtype: {} -- not found" ,  BiometricType.FACE.value() ,
+				LOGGER.info("Modality: {}; Subtype: {} -- not found", BiometricType.FACE.value(),
 						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
@@ -498,7 +501,113 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> segment(BIR sample, List<BiometricType> modalitiesToSegment,
+	public Response<BiometricRecord> convertFormat(BiometricRecord record, String sourceFormat, String targetFormat,
+			Map<String, String> sourceParams, Map<String, String> targetParams,
+			List<BiometricType> modalitiesToConvert) {
+		Response<BiometricRecord> response = new Response<>();
+		Map<String, String> values = new HashMap<>();
+		for (BIR segment : record.getSegments()) {
+			BiometricType bioType = segment.getBdbInfo().getType().get(0);
+			List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
+			String bioSubType = "";
+			if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
+				bioSubType = bioSubTypeList.get(0);
+
+			String key = bioType + "_" + bioSubType;
+			// ignore modalities that are not to be matched
+			if (!isValidBiometricType(bioType, sourceFormat))
+				continue;
+
+			if (!values.containsKey(key)) {
+				values.put(key, encodeToURLSafeBase64(segment.getBdb()));
+			}
+		}
+
+		Map<String, String> responseValues = null;
+		try {
+			responseValues = new ConverterServiceImpl().convert(values, sourceFormat, targetFormat, sourceParams,
+					targetParams);
+			List<BIR> birList = record.getSegments();
+			for (int index = 0; index < birList.size(); index++) {
+				BIR segment = birList.get(index);
+				BiometricType bioType = segment.getBdbInfo().getType().get(0);
+				List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
+				String bioSubType = "";
+				if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
+					bioSubType = bioSubTypeList.get(0);
+
+				String key = bioType + "_" + bioSubType;
+				// ignore modalities that are not to be matched
+				if (!isValidBiometricType(bioType, sourceFormat))
+					continue;
+
+				if (responseValues != null && responseValues.containsKey(key)) {
+					segment.getBirInfo().setPayload(segment.getBdb());
+					segment.setBdb(decodeURLSafeBase64(responseValues.get(key)));
+				}
+				birList.set(index, segment);
+			}
+			record.setSegments(birList);
+			response.setStatusCode(200);
+			response.setResponse(record);
+		} catch (ConversionException ex) {
+			LOGGER.error("convertFormat -- error", ex);
+			switch (ConverterErrorCode.fromErrorCode(ex.getErrorCode())) {
+			case INPUT_SOURCE_EXCEPTION:
+			case INVALID_REQUEST_EXCEPTION:
+			case INVALID_SOURCE_EXCEPTION:
+			case INVALID_TARGET_EXCEPTION:
+			case SOURCE_NOT_VALID_FINGER_ISO_FORMAT_EXCEPTION:
+			case SOURCE_NOT_VALID_FACE_ISO_FORMAT_EXCEPTION:
+			case SOURCE_NOT_VALID_IRIS_ISO_FORMAT_EXCEPTION:
+			case SOURCE_NOT_VALID_BASE64URLENCODED_EXCEPTION:
+			case COULD_NOT_READ_ISO_IMAGE_DATA_EXCEPTION:
+			case TARGET_FORMAT_EXCEPTION:
+			case NOT_SUPPORTED_COMPRESSION_TYPE:
+				response.setStatusCode(401);
+				response.setResponse(null);
+				break;
+
+			case SOURCE_CAN_NOT_BE_EMPTY_OR_NULL_EXCEPTION:
+				response.setStatusCode(404);
+				response.setResponse(null);
+				break;
+
+			default:
+				response.setStatusCode(500);
+				response.setResponse(null);
+				break;
+			}
+		} catch (Exception ex) {
+			LOGGER.error("convertFormat -- error", ex);
+			response.setStatusCode(500);
+			response.setResponse(null);
+		}
+
+		return response;
+	}
+
+	private boolean isValidBiometricType(BiometricType bioType, String sourceFormat) {
+		boolean isValid = false;
+		switch (sourceFormat) {
+		case "ISO19794_4_2011":
+			if (bioType == BiometricType.FINGER)
+				isValid = true;
+			break;
+		case "ISO19794_5_2011":
+			if (bioType == BiometricType.FACE)
+				isValid = true;
+			break;
+		case "ISO19794_6_2011":
+			if (bioType == BiometricType.IRIS)
+				isValid = true;
+			break;
+		}
+		return isValid;
+	}
+
+	@Override
+	public Response<BiometricRecord> segment(BiometricRecord sample, List<BiometricType> modalitiesToSegment,
 			Map<String, String> flags) {
 		BiometricRecord record = new BiometricRecord();
 		record.setSegments(null);
@@ -508,12 +617,38 @@ public class SampleSDK implements IBioApi {
 		return response;
 	}
 
-	@Override
-	public BiometricRecord convertFormat(BiometricRecord sample, String sourceFormat, String targetFormat,
-			Map<String, String> sourceParams, Map<String, String> targetParams,
-			List<BiometricType> modalitiesToConvert) {
-		// TODO Auto-generated method stub
-		return sample;
+	private static Encoder urlSafeEncoder;
+
+	static {
+		urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
 	}
 
+	public static String encodeToURLSafeBase64(byte[] data) {
+		if (isNullEmpty(data)) {
+			return null;
+		}
+		return urlSafeEncoder.encodeToString(data);
+	}
+
+	public static String encodeToURLSafeBase64(String data) {
+		if (isNullEmpty(data)) {
+			return null;
+		}
+		return urlSafeEncoder.encodeToString(data.getBytes(StandardCharsets.UTF_8));
+	}
+
+	public static byte[] decodeURLSafeBase64(String data) {
+		if (isNullEmpty(data)) {
+			return null;
+		}
+		return Base64.getUrlDecoder().decode(data);
+	}
+
+	public static boolean isNullEmpty(byte[] array) {
+		return array == null || array.length == 0;
+	}
+
+	public static boolean isNullEmpty(String str) {
+		return str == null || str.trim().length() == 0;
+	}
 }

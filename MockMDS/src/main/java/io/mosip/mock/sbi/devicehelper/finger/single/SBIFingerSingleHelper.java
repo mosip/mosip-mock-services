@@ -13,22 +13,23 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIFingerSingleHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSingleHelper.class);	
 
-	private static SBIFingerSingleHelper instance; 
+	//private static SBIFingerSingleHelper instance;
 	  
-	private SBIFingerSingleHelper(int port, String purpose)  
+	private SBIFingerSingleHelper(int port, String purpose, String keystoreFilePath)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE, keystoreFilePath);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFingerSingleHelper getInstance(int port, String purpose)  
+	synchronized public static SBIFingerSingleHelper getInstance(int port, String purpose, String keystoreFilePath)
 	{ 
-		if (instance == null)  
+		/*if (instance == null)
 		{ 
 			// if instance is null, initialize 
 			instance = new SBIFingerSingleHelper(port, purpose); 
 		} 
-		return instance; 
+		return instance; */
+		return  new SBIFingerSingleHelper(port, purpose, keystoreFilePath);
 	}
 
 	@Override

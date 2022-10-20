@@ -9,7 +9,7 @@ public class CaptureRequestDeviceDetailDto {
 
 	public String type;
 	//public String[] bioSubType;
-	public int count;
+	public String count;
 	public String[] exception;
 	public String[] bioSubType;
 	public int requestedScore;
