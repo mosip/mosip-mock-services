@@ -213,13 +213,14 @@ public class Listener {
 				String userName = validateAbisQueueJsonAndReturnValue(json, USERNAME);
 				String password = validateAbisQueueJsonAndReturnValue(json, PASSWORD);
 				String brokerUrl = validateAbisQueueJsonAndReturnValue(json, BROKERURL);
-				String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
+				String broker = brokerUrl.split("\\?")[0];
+				String failOverBrokerUrl = FAIL_OVER + broker + "," + broker + RANDOMIZE_FALSE;
 				String typeOfQueue = validateAbisQueueJsonAndReturnValue(json, TYPEOFQUEUE);
 				String inboundQueueName = validateAbisQueueJsonAndReturnValue(json, INBOUNDQUEUENAME);
 				String outboundQueueName = validateAbisQueueJsonAndReturnValue(json, OUTBOUNDQUEUENAME);
 				String queueName = validateAbisQueueJsonAndReturnValue(json, NAME);
 
-				this.activeMQConnectionFactory = new ActiveMQConnectionFactory(userName, password, brokerUrl);
+				this.activeMQConnectionFactory = new ActiveMQConnectionFactory(userName, password, failOverBrokerUrl);
 
 				abisQueueDetails.setTypeOfQueue(typeOfQueue);
 				abisQueueDetails.setInboundQueueName(inboundQueueName);

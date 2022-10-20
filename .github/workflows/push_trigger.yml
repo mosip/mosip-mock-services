@@ -1,5 +1,5 @@
 
-name: Maven Package upon a push 
+name: Maven Package upon a push
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - master
       - 1.*
       - develop
-  
+
 jobs:
   build:
 
@@ -24,7 +24,7 @@ jobs:
         server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Setup branch and GPG public key 
+    - name: Setup branch and GPG public key
       run: |
         # Strip git ref prefix from version
         echo "BRANCH_NAME=$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
@@ -32,21 +32,21 @@ jobs:
         echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
         echo ${{ env.GPG_TTY }}
         sudo apt-get --yes install gnupg2
-        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
-        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg 
-     
+        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg
+        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg
+
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
-    
+
     - name: Install xmllint
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils
-        
+
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
 
@@ -54,20 +54,20 @@ jobs:
       run: |
         cd mock-abis
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-    
+
     - name: Build image
       run: |
           cd mock-abis
           ls -ltr ./target
           docker build . --file Dockerfile --tag mock-abis
-          
+
     - name: Log into registry
       run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
 
     - name: Push image
       run: |
           IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-abis
-          
+
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           if [[ $BRANCH_NAME == master ]]; then
@@ -79,25 +79,25 @@ jobs:
           echo VERSION=$VERSION
           docker tag mock-abis $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          
+
     - name: Build MockMV with Maven
       run: |
         cd mock-mv
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-    
+
     - name: Build image
       run: |
           cd mock-mv
           ls -ltr ./target
           docker build . --file Dockerfile --tag mock-mv
-          
+
     - name: Log into registry
       run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
-        
+
     - name: Push image
       run: |
           IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-mv
-          
+
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           if [[ $BRANCH_NAME == master ]]; then
@@ -109,22 +109,22 @@ jobs:
           echo VERSION=$VERSION
           docker tag mock-mv $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-   
+
     - name: Build SDK with Maven
       run: |
         cd mock-sdk
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Build Mock-SDK-with-jpeg-extractor with Maven
       run: |
         cd mock-sdk-jpeg-extractor
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Build SBI with Maven
       run: |
         cd MockMDS
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-          
+
   publish_to_nexus_mock-sdk:
     runs-on: ubuntu-latest
     steps:
@@ -137,34 +137,34 @@ jobs:
         server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Setup branch and GPG public key 
+    - name: Setup branch and GPG public key
       run: |
         # Strip git ref prefix from version
         echo ${{ env.BRANCH_NAME }}
         echo ${{ env.GPG_TTY }}
         sudo apt-get --yes install gnupg2
-        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
-        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg 
-     
+        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg
+        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg
+
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
-          
+
     - name: Install xmllint
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
-    
+
     - name: Build with Maven
       run: |
         cd mock-sdk
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Publish the maven package
       run: |
         cd mock-sdk
@@ -172,7 +172,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         GPG_TTY: $(tty)
-        
+
   # - uses: 8398a7/action-slack@v3
     # with:
     #   status: ${{ job.status }}
@@ -180,7 +180,7 @@ jobs:
     # env:
     #   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
     # if: failure() # Pick up events even if the job fails or is canceled.
-          
+
   publish_to_nexus_mock-sdk-with-jpeg-extractor:
     runs-on: ubuntu-latest
     steps:
@@ -193,34 +193,34 @@ jobs:
         server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Setup branch and GPG public key 
+    - name: Setup branch and GPG public key
       run: |
         # Strip git ref prefix from version
         echo ${{ env.BRANCH_NAME }}
         echo ${{ env.GPG_TTY }}
         sudo apt-get --yes install gnupg2
-        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
-        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg 
-     
+        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg
+        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg
+
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
-          
+
     - name: Install xmllint
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
-    
+
     - name: Build with Maven
       run: |
         cd mock-sdk-jpeg-extractor
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Publish the maven package
       run: |
         cd mock-sdk-jpeg-extractor
@@ -228,7 +228,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         GPG_TTY: $(tty)
-        
+
     - uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
@@ -250,34 +250,34 @@ jobs:
         server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Setup branch and GPG public key 
+    - name: Setup branch and GPG public key
       run: |
         # Strip git ref prefix from version
         echo ${{ env.BRANCH_NAME }}
         echo ${{ env.GPG_TTY }}
         sudo apt-get --yes install gnupg2
-        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
-        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg 
-     
+        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg
+        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg
+
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
-          
+
     - name: Install xmllint
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
-    
+
     - name: Build with Maven
       run: |
         cd mock-mv
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Publish the maven package
       run: |
         cd mock-mv
@@ -285,7 +285,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         GPG_TTY: $(tty)
-        
+
   # - uses: 8398a7/action-slack@v3
     # with:
     #   status: ${{ job.status }}
@@ -307,34 +307,34 @@ jobs:
         server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Setup branch and GPG public key 
+    - name: Setup branch and GPG public key
       run: |
         # Strip git ref prefix from version
         echo ${{ env.BRANCH_NAME }}
         echo ${{ env.GPG_TTY }}
         sudo apt-get --yes install gnupg2
-        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
-        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg 
-     
+        gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg
+        gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg
+
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
-          
+
     - name: Install xmllint
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
-    
+
     - name: Build with Maven
       run: |
         cd MockMDS
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
-        
+
     - name: Publish the maven package
       run: |
         cd MockMDS
@@ -342,7 +342,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         GPG_TTY: $(tty)
-        
+
   # - uses: 8398a7/action-slack@v3
     # with:
     #   status: ${{ job.status }}
