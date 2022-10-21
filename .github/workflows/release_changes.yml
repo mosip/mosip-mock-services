@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       message:
-        description: 'Triggered for release or pe-release'     
+        description: 'Triggered for release or pe-release'
         required: false
         default: 'Release Preparation'
       releaseTags:
@@ -30,7 +30,7 @@ jobs:
     - name: Mannualy changing the pom versions
       run: find . -type f -name "*pom.xml" -print0 | xargs -0 sed -i "s/${{ github.event.inputs.snapshotTags }}/${{ github.event.inputs.releaseTags }}/g"
 
-    - name: Updating the Release URL in POM 
+    - name: Updating the Release URL in POM
       run: |
           cd .github/workflows
           sed -i 's/OSSRH_SNAPSHOT_URL/RELEASE_URL/g' push_trigger.yml
@@ -43,7 +43,7 @@ jobs:
 
 #    - name: removing --Dgpg.skip
 #      run: find . -type f -name "*push_trigger.yml" -print0 | xargs -0 sed -i "s/"-Dgpg.skip"//g"
-      
+
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:

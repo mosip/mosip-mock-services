@@ -263,7 +263,9 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype() != null && sampleBIR.getBdbInfo().getSubtype().get(0) != null
+			if (sampleBIR.getBdbInfo().getSubtype() != null
+					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
+					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
@@ -337,7 +339,9 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype() != null && sampleBIR.getBdbInfo().getSubtype().get(0) != null
+			if (sampleBIR.getBdbInfo().getSubtype() != null
+					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
+					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
@@ -408,7 +412,9 @@ public class SampleSDK implements IBioApi {
 
 		for (BIR sampleBIR : sampleSegments) {
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype() != null && sampleBIR.getBdbInfo().getSubtype().get(0) != null
+			if (sampleBIR.getBdbInfo().getSubtype() != null
+					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
+					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
 				for (BIR galleryBIR : gallerySegments) {
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
