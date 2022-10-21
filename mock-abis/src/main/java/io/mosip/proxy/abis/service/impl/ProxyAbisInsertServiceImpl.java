@@ -34,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.kernel.biometrics.commons.CbeffValidator;
+import io.mosip.kernel.biometrics.entities.BIR;
 //import io.mosip.kernel.core.cbeffutil.common.CbeffValidator;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
