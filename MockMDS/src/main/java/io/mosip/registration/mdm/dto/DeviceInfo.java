@@ -21,6 +21,6 @@ public class DeviceInfo {
 	public String deviceStatus;
 	public String firmware;
 	public String certification;
-	public int[] deviceSubId;
+	public String[] deviceSubId;
 	public String callbackId;
 }
