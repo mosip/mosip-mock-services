@@ -33,6 +33,7 @@ public abstract class SDKService {
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord record,
 			List<BiometricType> modalitiesToMatch) {
 		Boolean noFilter = false;
+		
 		// if the modalities to match is not passed, assume that all modalities have to
 		// be matched.
 		if (modalitiesToMatch == null || modalitiesToMatch.isEmpty())
@@ -55,6 +56,28 @@ public abstract class SDKService {
 		return bioSegmentMap;
 	}
 	
+	protected boolean isValidBirData(BIR bir) {
+		BiometricType biometricType = bir.getBdbInfo().getType().get(0);
+		PurposeType purposeType = bir.getBdbInfo().getPurpose();
+		List<String> bioSubTypeList = bir.getBdbInfo().getSubtype();
+
+		String bioSubType = null;
+		if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
+		{
+			bioSubType = bioSubTypeList.get(0).trim();
+			if (bioSubTypeList.size() >= 2)
+				bioSubType += " " + bioSubTypeList.get(1).trim();					
+		}
+
+		if (!isValidBIRParams(bir, biometricType, bioSubType))
+			return false;
+
+		if (!isValidBDBData(purposeType, biometricType, bioSubType, bir.getBdb()))
+			return false;
+
+		return true;
+	}
+
 	protected boolean isValidBIRParams(BIR segment, BiometricType bioType, String bioSubType) {
 		ResponseStatus responseStatus = null;
 		switch (bioType)

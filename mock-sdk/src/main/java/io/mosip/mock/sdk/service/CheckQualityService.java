@@ -45,6 +45,11 @@ public class CheckQualityService extends SDKService{
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 			
+			for (BIR segment : sample.getSegments()) {
+				if (!isValidBirData(segment))
+					break;
+			}			
+
 			scores = new HashMap<>();
 			Map<BiometricType, List<BIR>> segmentMap = getBioSegmentMap(sample, modalitiesToCheck);
 			for (BiometricType modality : segmentMap.keySet()) {
@@ -52,25 +57,6 @@ public class CheckQualityService extends SDKService{
 				scores.put(modality, qualityScore);
 			}
 			
-			for (BIR segment : sample.getSegments()) {
-				BiometricType biometricType = segment.getBdbInfo().getType().get(0);
-				PurposeType purposeType = segment.getBdbInfo().getPurpose();
-				List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
-				
-				String bioSubType = null;
-				if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
-				{
-					bioSubType = bioSubTypeList.get(0).trim();
-					if (bioSubTypeList.size() >= 2)
-						bioSubType += " " + bioSubTypeList.get(1).trim();					
-				}
-
-				if (!isValidBIRParams(segment, biometricType, bioSubType))
-					break;
-
-				if (!isValidBDBData(purposeType, biometricType, bioSubType, segment.getBdb()))
-					break;
-			}			
 		}
 		catch (SDKException ex)
 		{

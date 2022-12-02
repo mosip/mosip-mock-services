@@ -48,8 +48,10 @@ public class ConvertFormatService extends SDKService{
 			Map<String, String> values = new HashMap<>();
 			for (BIR segment : sample.getSegments()) {
 				
+				if (!isValidBirData(segment))
+					break;
+
 				BiometricType bioType = segment.getBdbInfo().getType().get(0);
-				PurposeType purposeType = segment.getBdbInfo().getPurpose();
 				List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
 				
 				String bioSubType = null;
@@ -59,13 +61,6 @@ public class ConvertFormatService extends SDKService{
 					if (bioSubTypeList.size() >= 2)
 						bioSubType += " " + bioSubTypeList.get(1).trim();					
 				}
-				LOGGER.info("bioType -- "+ bioType + " bioSubType -- "+ bioSubType + " bioSubTypeList.size --" + bioSubTypeList.size());
-
-				if (!isValidBIRParams(segment, bioType, bioSubType))
-					break;
-
-				if (!isValidBDBData(purposeType, bioType, bioSubType, segment.getBdb()))
-					break;
 				
 				String key = bioType + "_" + bioSubType;
 				// ignore modalities that are not to be matched

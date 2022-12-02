@@ -17,8 +17,6 @@ import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.model.MatchDecision;
-import io.mosip.kernel.biometrics.model.QualityCheck;
-import io.mosip.kernel.biometrics.model.QualityScore;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
@@ -173,13 +171,20 @@ public class MatchService extends SDKService{
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
+
+			if (!isValidBirData(sampleBIR))
+				break;
+			
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype() != null
 					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
-					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("Unknown")) {
 				for (BIR galleryBIR : gallerySegments) {
+					//need to check isValidBIRParams and isValidBDBData too
+					//if (!isValidBirData(galleryBIR))
+					//break;
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
@@ -197,11 +202,16 @@ public class MatchService extends SDKService{
 				}
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
+					//need to check isValidBIRParams and isValidBDBData too
+					//if (!isValidBirData(galleryBIR))
+					//break;
+
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 						LOGGER.info("Modality: {}; Subtype: {}  -- matched", BiometricType.FINGER.value(),
 								galleryBIR.getBdbInfo().getSubtype());
 						matched.add(true);
 						bio_found = true;
+						break;
 					} else {
 						LOGGER.info("Modality: {}; Subtype: {}  -- not matched", BiometricType.FINGER.value(),
 								galleryBIR.getBdbInfo().getSubtype());
@@ -217,6 +227,17 @@ public class MatchService extends SDKService{
 			}
 		}
 
+		if (matched.size() > 0) {
+			if (matched.contains(true)) {
+				decision.setMatch(Match.MATCHED);
+			} else {
+				decision.setMatch(Match.NOT_MATCHED);
+			}
+		} else {
+			// TODO check the condition: what if no similar type and subtype found
+			decision.setMatch(Match.ERROR);
+		}
+		/* 
 		int trueMatchCount = matched.stream().filter(val -> val == true).collect(Collectors.toList()).size();
 		if (matched.size() > 0) {
 			if (trueMatchCount == sampleSegments.size()) {
@@ -228,12 +249,15 @@ public class MatchService extends SDKService{
 			// TODO check the condition: what if no similar type and subtype found
 			decision.setMatch(Match.ERROR);
 		}
+		*/
 		return decision;
 	}
 	
 	private Decision compareIrises(List<BIR> sampleSegments, List<BIR> gallerySegments)
 			throws NoSuchAlgorithmException {
-		List<String> errors = new ArrayList<>();
+
+		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
+
 		List<Boolean> matched = new ArrayList<>();
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
@@ -249,13 +273,20 @@ public class MatchService extends SDKService{
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
-			Boolean bio_found = false;
+			
+			if (!isValidBirData(sampleBIR))
+				break;
+			
+			Boolean bio_found = false;			
 			if (sampleBIR.getBdbInfo().getSubtype() != null
 					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
-					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("Unknown")) {
 				for (BIR galleryBIR : gallerySegments) {
+					//need to check isValidBIRParams and isValidBDBData too
+					//if (!isValidBirData(galleryBIR))
+					//break;
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
@@ -273,6 +304,9 @@ public class MatchService extends SDKService{
 				}
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
+					//need to check isValidBIRParams and isValidBDBData too
+					//if (!isValidBirData(galleryBIR))
+					//break;
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 						LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.IRIS.value(),
 								galleryBIR.getBdbInfo().getSubtype());
@@ -291,7 +325,12 @@ public class MatchService extends SDKService{
 						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
+			else
+			{
+				break;
+			}
 		}
+		
 		if (matched.size() > 0) {
 			if (matched.contains(true)) {
 				decision.setMatch(Match.MATCHED);
@@ -322,25 +361,19 @@ public class MatchService extends SDKService{
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
-			BiometricType biometricType = sampleBIR.getBdbInfo().getType().get(0);
-			PurposeType purposeType = sampleBIR.getBdbInfo().getPurpose();
-			List<String> bioSubTypeList = sampleBIR.getBdbInfo().getSubtype();
+
+			if (!isValidBirData(sampleBIR))
+				break;
 			
-			String bioSubType = "";
-			if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
-				bioSubType = bioSubTypeList.get(0);
-
-			if (!isValidBIRParams(sampleBIR, biometricType, bioSubType))
-				break;
-
-			if (!isValidBDBData(purposeType, biometricType, bioSubType, sampleBIR.getBdb()))
-				break;
 			Boolean bio_found = false;
 			if (sampleBIR.getBdbInfo().getSubtype() != null
 					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
 				for (BIR galleryBIR : gallerySegments) {
+					//need to check isValidBIRParams and isValidBDBData too
+					//if (!isValidBirData(galleryBIR))
+					//break;
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
@@ -348,6 +381,7 @@ public class MatchService extends SDKService{
 									galleryBIR.getBdbInfo().getSubtype().get(0));
 							matched.add(true);
 							bio_found = true;
+							break;
 						} else {
 							LOGGER.info("Modality: {}; Subtype: {} -- not matched", BiometricType.FACE.value(),
 									galleryBIR.getBdbInfo().getSubtype().get(0));
@@ -376,6 +410,11 @@ public class MatchService extends SDKService{
 						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
 			}
+			else
+			{
+				break;
+			}
+			
 		}
 		if (matched.size() > 0) {
 			if (!matched.contains(false)) {
