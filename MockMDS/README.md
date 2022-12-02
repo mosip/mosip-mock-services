@@ -1,29 +1,18 @@
 # MockMDS
 
-This module contains Mock MOSIP Device service implementation as per defined [SPEC](https://docs.mosip.io/platform/biometrics/mosip-device-service-specification) 
+## Overview
+This module contains Mock MOSIP Device service implementation as per defined [SBI specification](https://docs.mosip.io/1.2.0/biometrics/secure-biometric-interface).  Biometric data for capture is available at `files/MockMDS/` 
 
-Biometric data for registration capture is from files/MockMDS/registration
-
-Biometric data for auth capture is from files/MockMDS/auth
-
-Java 11 is a prerequisite
-
-### Supported SPEC versions
-
-0.9.5
-
-### Defaults
-
+## Defaults
 server.port=4501
 
-### Build and run
+## Build and run
 
-Execute the below command to build module
+Execute the below command to build module:
 
-> mvn clean install
+```sh
+mvn clean install
+```
 
-target folder is created on successful build, run.sh / run.bat executable can be found under target folder.
+`run.sh / run.bat` executable can be found under target folder.  Or run Main class `io.mosip.mock.sbi.test.TestMockSBI` directly.
 
-otherwise, we could simply run Main class
-
-> io.mosip.mock.sbi.test.TestMockSBI

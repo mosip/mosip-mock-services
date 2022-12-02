@@ -1,14 +1,11 @@
 package io.mosip.mock.sdk.utils;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Util {
-
     public static boolean compareHash(byte[] s1, byte[] s2) throws NoSuchAlgorithmException {
         String checksum1 = computeFingerPrint(s1, null).toLowerCase();
         String checksum2 = computeFingerPrint(s2, null).toLowerCase();
