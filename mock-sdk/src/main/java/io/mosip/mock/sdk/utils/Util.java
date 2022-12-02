@@ -6,7 +6,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.security.NoSuchAlgorithmException;
 
 public class Util {
-
     public static boolean compareHash(byte[] s1, byte[] s2) throws NoSuchAlgorithmException {
         String checksum1 = computeFingerPrint(s1, null).toLowerCase();
         String checksum2 = computeFingerPrint(s2, null).toLowerCase();

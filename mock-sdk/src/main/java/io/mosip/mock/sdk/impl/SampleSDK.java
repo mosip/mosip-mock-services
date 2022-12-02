@@ -1,37 +1,20 @@
 package io.mosip.mock.sdk.impl;
 
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Base64.Encoder;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import io.mosip.mock.sdk.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Component;
 
-import io.mosip.kernel.bio.converter.constant.ConverterErrorCode;
-import io.mosip.kernel.bio.converter.exception.ConversionException;
-import io.mosip.kernel.bio.converter.service.impl.ConverterServiceImpl;
-import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
-import io.mosip.kernel.biometrics.constant.Match;
-import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
-import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.model.MatchDecision;
 import io.mosip.kernel.biometrics.model.QualityCheck;
-import io.mosip.kernel.biometrics.model.QualityScore;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.kernel.biometrics.model.SDKInfo;
 import io.mosip.kernel.biometrics.spi.IBioApi;
-import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.service.CheckQualityService;
 import io.mosip.mock.sdk.service.ConvertFormatService;
 import io.mosip.mock.sdk.service.ExtractTemplateService;

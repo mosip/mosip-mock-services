@@ -11,7 +11,6 @@ import io.mosip.kernel.bio.converter.constant.ConverterErrorCode;
 import io.mosip.kernel.bio.converter.exception.ConversionException;
 import io.mosip.kernel.bio.converter.service.impl.ConverterServiceImpl;
 import io.mosip.kernel.biometrics.constant.BiometricType;
-import io.mosip.kernel.biometrics.constant.PurposeType;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.model.Response;
