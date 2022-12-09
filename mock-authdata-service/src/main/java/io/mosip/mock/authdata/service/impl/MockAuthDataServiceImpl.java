@@ -1,5 +1,7 @@
 package io.mosip.mock.authdata.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +53,12 @@ public class MockAuthDataServiceImpl implements MockAuthDataService {
 	}
 
 	@Override
-	public void getIdentity() {
-		// TODO Auto-generated method stub
-		
+	public String getIdentity(String individualId) {
+		Optional<MockIdentity> mockIdentity = mockIdentityRepository.findById(individualId);
+		if (!mockIdentity.isPresent()) {
+			//
+		}
+		return mockIdentity.get().getIdentityJson();
 	}
 
 }
