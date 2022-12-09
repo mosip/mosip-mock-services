@@ -6,6 +6,6 @@ public interface MockAuthDataService {
 
 	public void saveIdentity(MockAuthDataRequest mockAuthDataRequest) throws Exception;
 	
-	public void getIdentity();
+	public String getIdentity(String individualId);
 	
 }
