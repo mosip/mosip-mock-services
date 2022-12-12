@@ -95,7 +95,7 @@
 		<logback.version>1.2.3</logback.version>
 		<h2-database-engine.version>1.4.200</h2-database-engine.version>
 
-		<springdoc.version>1.5.10</springdoc.version>
+		<springdoc.version>1.6.9</springdoc.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
   </properties>
  <dependencies>
@@ -140,19 +140,14 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${swagger.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${swagger.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>${springdoc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.27.0-GA</version>
 		</dependency>
   </dependencies>
   <build>

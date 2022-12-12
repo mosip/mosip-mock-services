@@ -22,7 +22,7 @@ import io.mosip.mock.authentication.exception.MockAuthenticationException;
 import io.mosip.mock.authentication.service.MockAuthenticationService;
 import io.mosip.mock.authentication.util.MockAuthenticationUtil;
 
-@CrossOrigin
+
 @RestController
 @RequestMapping("/")
 public class MockAuthenticationController {
