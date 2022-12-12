@@ -37,7 +37,7 @@ RUN mkdir -p ${loader_path}
 
 ENV loader_path_env=${loader_path}
 
-COPY ./target/mock-authdata-service.jar  mock-authentication-service.jar
+COPY ./target/mock-authentication-service.jar  mock-authentication-service.jar
 
 RUN echo "Build application"
 
@@ -48,4 +48,4 @@ RUN chown -R ${container_user}:${container_user} /home/${container_user}
 USER ${container_user_uid}:${container_user_gid}
 
 EXPOSE 8081
-CMD java -jar -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}"  -Dspring.cloud.config.uri="${spring_config_url_env}" mock-authdata-service.jar;
+CMD java -jar -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}"  -Dspring.cloud.config.uri="${spring_config_url_env}" mock-authentication-service.jar;

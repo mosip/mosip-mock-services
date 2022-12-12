@@ -12,9 +12,9 @@ import org.springframework.jms.annotation.EnableJms;
 @EnableAutoConfiguration
 @EnableJpaRepositories(basePackages = { "io.mosip.proxy.abis.dao" })
 @EnableJms
-public class MockAuthDataServiceApplication 
+public class MockAuthenticationServiceApplication 
 {
 	public static void main(String[] args) {
-		SpringApplication.run(MockAuthDataServiceApplication.class, args);
+		SpringApplication.run(MockAuthenticationServiceApplication.class, args);
 	}
 }

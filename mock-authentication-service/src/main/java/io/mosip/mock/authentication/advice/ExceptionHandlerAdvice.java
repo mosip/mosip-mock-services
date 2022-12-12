@@ -31,8 +31,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import io.mosip.mock.authentication.dto.Error;
 import io.mosip.mock.authentication.dto.ResponseWrapper;
-import io.mosip.mock.authentication.exception.MockAuthDataException;
-import io.mosip.mock.authentication.util.MockAuthDataUtil;
+import io.mosip.mock.authentication.exception.MockAuthenticationException;
+import io.mosip.mock.authentication.util.MockAuthenticationUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -105,8 +105,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_REQUEST, ex.getMessage()),
                     HttpStatus.OK);
         }
-		if (ex instanceof MockAuthDataException) {
-			String errorCode = ((MockAuthDataException) ex).getErrorCode();
+		if (ex instanceof MockAuthenticationException) {
+			String errorCode = ((MockAuthenticationException) ex).getErrorCode();
 			return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode, getMessage(errorCode)),
 					HttpStatus.OK);
 		}
@@ -122,7 +122,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     private ResponseWrapper getResponseWrapper(List<Error> errors) {
         ResponseWrapper responseWrapper = new ResponseWrapper<>();
-		responseWrapper.setResponseTime(MockAuthDataUtil.getUTCDateTime());
+		responseWrapper.setResponseTime(MockAuthenticationUtil.getUTCDateTime());
         responseWrapper.setErrors(errors);
         return responseWrapper;
     }

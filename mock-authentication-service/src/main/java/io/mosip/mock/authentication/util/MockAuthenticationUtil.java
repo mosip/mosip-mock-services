@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MockAuthDataUtil {
+public class MockAuthenticationUtil {
 
 	/**
 	 * Output format : 2022-12-01T03:22:46.720Z
