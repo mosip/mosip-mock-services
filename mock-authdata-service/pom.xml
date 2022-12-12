@@ -2,13 +2,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.mosip.mock.authdata</groupId>
-  <artifactId>mock-authdata-service</artifactId>
+  <groupId>io.mosip.mock.authentication</groupId>
+  <artifactId>mock-authentication-service</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>mock-authdata-service</name>
-  <description>Proxy mock authdata service project</description>
+  <name>mock-authentication-service</name>
+  <description>Proxy mock authentication service project</description>
   <url>https://github.com/mosip/mosip-ref-impl</url>
   <parent>
 		<groupId>org.springframework.boot</groupId>
