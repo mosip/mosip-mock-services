@@ -1,6 +1,8 @@
 package io.mosip.mock.authdata.controller;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +49,17 @@ public class MockAuthDataController {
 	@GetMapping(value = "getIdentity")
 	public ResponseEntity<Resource> getIdentity(@RequestParam("individualId") String individualId) throws IOException {
 		String jsonContent = mockAuthDataService.getIdentity(individualId);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(jsonContent.getBytes());
-		InputStreamResource resource = new InputStreamResource(inputStream);
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Disposition", "attachment; filename=\"" + resource.getFilename() + "\"");
+		
+		File file = new File(individualId + ".json");
+		try (FileWriter fileWriter = new FileWriter(file)) {
+			fileWriter.write(jsonContent);
+		}
+		
+		InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+		
+		final HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-Disposition", "attachment; filename=\"" + resource.getFilename() + "\"");
+	    
 	    return ResponseEntity.ok()
 	            .headers(headers)
 	            .contentLength(resource.contentLength())
