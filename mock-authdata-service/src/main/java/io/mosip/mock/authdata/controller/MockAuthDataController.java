@@ -45,7 +45,7 @@ public class MockAuthDataController {
 	}
 	
 	@GetMapping(value = "mock-identity")
-	public ResponseWrapper<MockAuthData> getMockIdentity(@PathVariable("virtual-id") String virtualId) throws IOException {
+	public ResponseWrapper<MockAuthData> getMockIdentity(@PathVariable("virtual-id") String virtualId) throws MockAuthDataException {
 		ResponseWrapper<MockAuthData> response = new ResponseWrapper<>();
 		response.setResponse(mockAuthDataService.getIdentity(virtualId));
 		response.setResponseTime(MockAuthDataUtil.getUTCDateTime());
