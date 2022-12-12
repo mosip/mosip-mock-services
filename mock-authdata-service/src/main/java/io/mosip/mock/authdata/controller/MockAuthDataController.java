@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -21,7 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.mock.authdata.dto.MockAuthDataRequest;
 import io.mosip.mock.authdata.dto.MockAuthDataResponse;
+import io.mosip.mock.authdata.dto.RequestWrapper;
+import io.mosip.mock.authdata.dto.ResponseWrapper;
+import io.mosip.mock.authdata.exception.MockAuthDataException;
 import io.mosip.mock.authdata.service.MockAuthDataService;
+import io.mosip.mock.authdata.util.MockAuthDataUtil;
 
 @CrossOrigin
 @RestController
@@ -31,19 +37,18 @@ public class MockAuthDataController {
 	@Autowired
 	private MockAuthDataService mockAuthDataService;
 
-	@PostMapping(value = "createAuthdata", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@PostMapping(value = "mock-identity", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public MockAuthDataResponse createMockAuthData(
-			@RequestBody MockAuthDataRequest mockAuthDataRequest) {
-		MockAuthDataResponse mockAuthDataResponse = new MockAuthDataResponse();
-		try {
-			mockAuthDataService.saveIdentity(mockAuthDataRequest);
-			mockAuthDataResponse.setStatus("mock auth data created successfully");
-		} catch (Exception e) {
-			mockAuthDataResponse.setStatus("Error in creating  mock authdata" + e.getMessage());
-		}
+	public ResponseWrapper<MockAuthDataResponse> createMockIdentity
+	(@Valid @RequestBody RequestWrapper<MockAuthDataRequest> requestWrapper) throws MockAuthDataException {
 
-		return mockAuthDataResponse;
+		ResponseWrapper response = new ResponseWrapper<MockAuthDataResponse>();
+		MockAuthDataResponse mockAuthDataResponse = new MockAuthDataResponse();
+		mockAuthDataService.saveIdentity(requestWrapper.getRequest());
+		mockAuthDataResponse.setStatus("mock auth data created successfully");
+		response.setResponse(mockAuthDataResponse);
+		response.setResponseTime(MockAuthDataUtil.getUTCDateTime());
+		return response;
 	}
 	
 	@GetMapping(value = "getIdentity")

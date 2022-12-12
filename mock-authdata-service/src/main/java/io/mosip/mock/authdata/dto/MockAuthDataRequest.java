@@ -8,20 +8,19 @@ import lombok.Data;
 @Data
 public class MockAuthDataRequest {
 	
-	String individualId;
+	String virtualId;
 	String pin;
 	List<Values> fullName;
+	List<Values> gender;
 	String dateOfBirth;
+	List<Values> streetAddress;
+	List<Values> locality;
+	List<Values> region;
+	String postalCode;
+	List<Values> country;
+	String encodedPhoto;
+	BiometricProperties individualBiometrics;
 	String email;
 	String phone;
-	List<Values> gender;
-	List<Values> addressLine1;
-	List<Values> addressLine2;
-	List<Values> addressLine3;
-	List<Values> province;
-	List<Values> region;
-	List<Values> zone;
-	String postal_code;
-	String encodedPhoto;
 
 }
