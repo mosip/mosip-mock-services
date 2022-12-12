@@ -1,5 +1,5 @@
-CREATE SCHEMA "MOCKAUTHDATA";
+create schema "mockauthdata";
 
-CREATE TABLE "MOCKAUTHDATA"."MOCK_IDENTITY" ("INDIVIDUAL_ID" VARCHAR(36) NOT NULL, "IDENTITY_JSON" VARCHAR(2048) NOT NULL);
+create table "mockauthdata"."mock_identity" ("individual_id" varchar(36) not null, "identity_json" varchar(2048) not null);
 
-ALTER TABLE "MOCKAUTHDATA"."MOCK_IDENTITY" ADD CONSTRAINT "PK_MOCK_ID_CODE" PRIMARY KEY ("INDIVIDUAL_ID");
+alter table "mockauthdata"."mock_identity" add constraint "pk_mock_id_code" primary key ("individual_id");

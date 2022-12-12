@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class MockAuthDataRequest {
+public class MockAuthData {
 	
 	String virtualId;
 	String pin;
