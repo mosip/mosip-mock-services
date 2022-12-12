@@ -37,7 +37,7 @@ RUN mkdir -p ${loader_path}
 
 ENV loader_path_env=${loader_path}
 
-COPY ./target/mock-authdata-service.jar  mock-authdata-service.jar
+COPY ./target/mock-authdata-service.jar  mock-authentication-service.jar
 
 RUN echo "Build application"
 

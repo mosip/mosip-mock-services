@@ -1,4 +1,4 @@
-# Mock authData service ()
+# Mock Authentication Service ()
 
 ## About
 
