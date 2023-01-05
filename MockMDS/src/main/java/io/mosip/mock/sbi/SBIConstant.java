@@ -193,11 +193,16 @@ public class SBIConstant {
 	public final static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE = "Single";
 	public final static String MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE = "Double";
 
-	/** Biometric seed Names */
-	public static String MOSIP_BIOMETRIC_SEED_FINGER = "mosip.mock.sbi.biometric.seed.finger";
-	public static String MOSIP_BIOMETRIC_SEED_FACE = "mosip.mock.sbi.biometric.seed.face";
-	public static String MOSIP_BIOMETRIC_SEED_IRIS = "mosip.mock.sbi.biometric.seed.iris";
+	/** Biometric Auth seed Names */
+	public static String MOSIP_BIOMETRIC_AUTH_SEED_FINGER = "mosip.mock.sbi.biometric.auth.seed.finger";
+	public static String MOSIP_BIOMETRIC_AUTH_SEED_FACE = "mosip.mock.sbi.biometric.auth.seed.face";
+	public static String MOSIP_BIOMETRIC_AUTH_SEED_IRIS = "mosip.mock.sbi.biometric.auth.seed.iris";
 
+	/** Biometric Registration seed Names */
+	public static String MOSIP_BIOMETRIC_REGISTRATION_SEED_FINGER = "mosip.mock.sbi.biometric.registration.seed.finger";
+	public static String MOSIP_BIOMETRIC_REGISTRATION_SEED_FACE = "mosip.mock.sbi.biometric.registration.seed.face";
+	public static String MOSIP_BIOMETRIC_REGISTRATION_SEED_IRIS = "mosip.mock.sbi.biometric.registration.seed.iris";
+	
 	/** Biometric Face DeviceDigitalId, DeviceDiscover, DeviceInfo Json and Stream Images, Device Keys, Mosip Public Key Info */
 	public static String MOSIP_FACE_DIGITALID_JSON = "mosip.mock.sbi.file.face.digitalid.json";
 	public static String MOSIP_FACE_DEVICEINFO_JSON = "mosip.mock.sbi.file.face.deviceinfo.json";

@@ -66,10 +66,22 @@ public class SBIIrisSingleHelper extends SBIDeviceHelper {
 		String seedName = "";
 		if (this.getProfileId().equalsIgnoreCase(SBIConstant.PROFILE_AUTOMATIC))
 		{
-			if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_IRIS) != null)
+			int seedValue = -1;
+			if (this.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
 			{
-				int seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_IRIS));
-				seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_AUTH_SEED_IRIS) != null)
+				{
+					seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_AUTH_SEED_IRIS));
+					seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				}
+			}
+			else if (this.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+			{
+				if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_REGISTRATION_SEED_IRIS) != null)
+				{
+					seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_REGISTRATION_SEED_IRIS));
+					seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				}
 			}
 		}
 

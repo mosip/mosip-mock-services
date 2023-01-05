@@ -1,1 +1,1 @@
-java -cp provider-0.0.1-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI "mosip.mock.sbi.device.purpose=Auth" "mosip.mock.sbi.biometric.type=Biometric Device"
+java -cp mock-mds-1.2.1-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI "mosip.mock.sbi.device.purpose=Auth" "mosip.mock.sbi.biometric.type=Biometric Device"

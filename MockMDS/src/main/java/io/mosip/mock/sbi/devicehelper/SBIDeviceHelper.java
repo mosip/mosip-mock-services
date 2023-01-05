@@ -644,7 +644,7 @@ public abstract class SBIDeviceHelper {
 		String fileName = null;
 		boolean isFolderExist = true;
 		try {
-			fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PROFILE_FOLDER_PATH) + File.separator + getProfileId ();
+			fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PROFILE_FOLDER_PATH) + File.separator + getProfileId () + File.separator + getPurpose();
         	//LOGGER.error("getBiometricISOImage :: profileId::" + getProfileId() + " :: Not Set :: fileName :: " + fileName);
 			if (!FileHelper.directoryExists(fileName))	
 			{
