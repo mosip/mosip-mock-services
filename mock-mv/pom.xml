@@ -72,6 +72,7 @@
 		<maven.compiler.target>11</maven.compiler.target>
 	    <swagger.version>2.9.2</swagger.version>
 		<springdoc.version>1.5.10</springdoc.version>
+		<io.micrometer.prometheus.version>1.4.2</io.micrometer.prometheus.version>
 	</properties>
 
 	<dependencies>
@@ -161,6 +162,16 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>${springdoc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+			<version>${io.micrometer.prometheus.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>${io.micrometer.prometheus.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
