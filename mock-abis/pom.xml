@@ -94,6 +94,7 @@
 
 		<springdoc.version>1.5.10</springdoc.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+		<io.micrometer.prometheus.version>1.5.5</io.micrometer.prometheus.version>
 	</properties>
 
 	<parent>
@@ -203,6 +204,16 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>${springdoc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+			<version>${io.micrometer.prometheus.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>${io.micrometer.prometheus.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
