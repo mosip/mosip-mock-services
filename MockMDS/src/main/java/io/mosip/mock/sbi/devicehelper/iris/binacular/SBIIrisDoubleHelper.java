@@ -7,31 +7,22 @@ import org.slf4j.LoggerFactory;
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
-import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapCaptureInfo;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.mock.sbi.util.BioUtilHelper;
 import io.mosip.mock.sbi.util.StringHelper;
 
 public class SBIIrisDoubleHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisDoubleHelper.class);	
-
-	//private static SBIIrisDoubleHelper instance;
 	  
-	private SBIIrisDoubleHelper(int port, String purpose, String keystoreFilePath)
+	private SBIIrisDoubleHelper(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE, keystoreFilePath);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE, keystoreFilePath, biometricImageType);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose, String keystoreFilePath)
+	synchronized public static SBIIrisDoubleHelper getInstance(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		/*if (instance == null)
-		{ 
-			// if instance is null, initialize 
-			instance = new SBIIrisDoubleHelper(port, purpose); 
-		} 
-		return instance; */
-		return new SBIIrisDoubleHelper(port, purpose, keystoreFilePath);
+		return new SBIIrisDoubleHelper(port, purpose, keystoreFilePath, biometricImageType);
 	}
 
 	@Override

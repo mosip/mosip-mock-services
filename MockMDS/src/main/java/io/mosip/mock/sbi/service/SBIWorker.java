@@ -19,17 +19,15 @@ public class SBIWorker implements Runnable {
 	private SBIMockService mockService;
 	private Socket clientSocket;
 	private int serverPort;
-	private String biometricType;
-	
+
 	/**
 	 * Constructor SBIWroker 
 	 */
-	public SBIWorker(SBIMockService mockService, Socket clientSocket, int serverPort, String biometricType) {
+	public SBIWorker(SBIMockService mockService, Socket clientSocket, int serverPort) {
 		super();
 		setMockService(mockService);
 		setClientSocket(clientSocket);
 		setServerPort(serverPort);
-		setBiometricType(biometricType);
 	}
 
 	@Override
@@ -177,13 +175,4 @@ public class SBIWorker implements Runnable {
 	public void setServerPort(int serverPort) {
 		this.serverPort = serverPort;
 	}
-
-	public String getBiometricType() {
-		return biometricType;
-	}
-	public void setBiometricType(String biometricType) {
-		this.biometricType = biometricType;
-	}	
-	
-	
 }

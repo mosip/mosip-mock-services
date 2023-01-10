@@ -28,6 +28,7 @@ public class SBIMockService implements Runnable {
 	protected String keystoreFilePath;
 	protected String purpose;
 	protected String biometricType;
+	protected String biometricImageType;
 	protected HashMap <String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
 	
 	protected Thread runningThread = null;
@@ -38,11 +39,12 @@ public class SBIMockService implements Runnable {
 	/**
 	 * Set Purpose and biometricType
 	 */
-	public SBIMockService(String purpose, String biometricType, String keystoreFilePath) {
+	public SBIMockService(String purpose, String biometricType, String keystoreFilePath, String biometricImageType) {
 		super();
 		setPurpose (purpose);
 		setBiometricType (biometricType);
 		setKeystoreFilePath(keystoreFilePath);
+		setBiometricImageType (biometricImageType);
 	}
 
 	@Override
@@ -73,7 +75,7 @@ public class SBIMockService implements Runnable {
 					}
 					throw new SBIException (ex.hashCode() + "", "SBI Mock Service Error Accepting Client Connection", new Throwable (ex.getLocalizedMessage()));
 				}
-				new Thread (new SBIWorker (this, clientSocket, getServerPort(), getBiometricType ())).start ();
+				new Thread (new SBIWorker (this, clientSocket, getServerPort())).start ();
 			}			
 		}
 		catch (SBIException ex)
@@ -90,33 +92,33 @@ public class SBIMockService implements Runnable {
 
 	
 	private void initDeviceHelpers() {
-		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) ||
+		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) ||
 				getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
 		{
 			if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
 				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP, SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath()));
+						getKeystoreFilePath(), getBiometricImageType()));
 			else if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
 				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE, SBIFingerSingleHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath()));
+						getKeystoreFilePath(), getBiometricImageType()));
 		}
 		
-		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) ||
+		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) ||
 				getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
 		{
 			if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
 				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE, SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath()));
+						getKeystoreFilePath(), getBiometricImageType()));
 			else if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
 				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE, SBIIrisSingleHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath()));
+						getKeystoreFilePath(), getBiometricImageType()));
 		}
 		
-		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) ||
+		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) ||
 				getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
 		{
 			this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE, SBIFaceHelper.getInstance(getServerPort(), getPurpose (),
-					getKeystoreFilePath()));
+					getKeystoreFilePath(), getBiometricImageType()));
 		}
 	}
 	
@@ -189,6 +191,14 @@ public class SBIMockService implements Runnable {
 
 	public void setBiometricType(String biometricType) {
 		this.biometricType = biometricType;
+	}
+
+	public String getBiometricImageType() {
+		return biometricImageType;
+	}
+
+	public void setBiometricImageType(String biometricImageType) {
+		this.biometricImageType = biometricImageType;
 	}
 
 	public String getPurpose() {

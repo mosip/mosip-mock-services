@@ -73,6 +73,17 @@ public class SBIConstant {
 	public static String PROFILE_BIO_FILE_NAME_LEFT_MIDDLE = "Left_Middle.iso";
 	public static String PROFILE_BIO_FILE_NAME_LEFT_RING = "Left_Ring.iso";
 	public static String PROFILE_BIO_FILE_NAME_LEFT_LITTLE = "Left_Little.iso";
+	public static String PROFILE_BIO_FILE_NAME_RIGHT_THUMB_WSQ = "Right_Thumb_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_RIGHT_INDEX_WSQ = "Right_Index_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_RIGHT_MIDDLE_WSQ = "Right_Middle_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_RIGHT_RING_WSQ = "Right_Ring_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_RIGHT_LITTLE_WSQ = "Right_Little_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_LEFT_THUMB_WSQ = "Left_Thumb_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_LEFT_INDEX_WSQ = "Left_Index_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_LEFT_MIDDLE_WSQ = "Left_Middle_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_LEFT_RING_WSQ = "Left_Ring_wsq.iso";
+	public static String PROFILE_BIO_FILE_NAME_LEFT_LITTLE_WSQ = "Left_Little_wsq.iso";
+
 	public static String PROFILE_BIO_FILE_NAME_RIGHT_IRIS = "Right_Iris.iso";
 	public static String PROFILE_BIO_FILE_NAME_LEFT_IRIS = "Left_Iris.iso";
 	public static String PROFILE_BIO_FILE_NAME_FACE = "Face.iso";
@@ -174,17 +185,22 @@ public class SBIConstant {
 	/** Command Line Arguments Names */
 	public static String MOSIP_PURPOSE = "mosip.mock.sbi.device.purpose";
 	public static String MOSIP_BIOMETRIC_TYPE = "mosip.mock.sbi.biometric.type";
+	public static String MOSIP_BIOMETRIC_IMAGE_TYPE = "mosip.mock.sbi.biometric.image.type";
 
 	/** Device Purpose Names */
 	public static String MOSIP_PURPOSE_REGISTRATION = "mosip.mock.sbi.device.purpose.registration";
 	public static String MOSIP_PURPOSE_AUTH = "mosip.mock.sbi.device.purpose.auth";
 
 	/** Biometric Types Names */
-	public final static String MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE = "Biometric Device";
+	public final static String MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE = "Biometric Device";
 	public final static String MOSIP_BIOMETRIC_TYPE_FINGER = "Finger";
 	public final static String MOSIP_BIOMETRIC_TYPE_FACE = "Face";
 	public final static String MOSIP_BIOMETRIC_TYPE_IRIS = "Iris";
 			
+	/** Biometric Image Types Names For AUTH Finger [jp2000 or wsq][Iris and Face jp2000 only]*/
+	public final static String MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000 = "JP2000";
+	public final static String MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ = "WSQ";
+
 	/** Biometric Sub Types Names */
 	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP = "Slap";
 	public final static String MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE = "Single";

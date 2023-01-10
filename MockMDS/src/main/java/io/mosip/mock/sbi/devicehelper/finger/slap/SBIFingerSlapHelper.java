@@ -1,12 +1,9 @@
 package io.mosip.mock.sbi.devicehelper.finger.slap;
 
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.mock.sbi.SBIConstant;
-import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
@@ -16,23 +13,15 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIFingerSlapHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSlapHelper.class);	
 
-	//private static SBIFingerSlapHelper instance;
-	  
-	private SBIFingerSlapHelper(int port, String purpose, String keystorePath)
+	private SBIFingerSlapHelper(int port, String purpose, String keystorePath, String biometricImageType)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP, keystorePath);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP, keystorePath, biometricImageType);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFingerSlapHelper getInstance(int port, String purpose, String keystorePath)
+	synchronized public static SBIFingerSlapHelper getInstance(int port, String purpose, String keystorePath, String biometricImageType)
 	{ 
-		/*if (instance == null)
-		{
-			// if instance is null, initialize 
-			instance = new SBIFingerSlapHelper(port, purpose);
-		}
-		return instance; */
-		return new SBIFingerSlapHelper(port, purpose, keystorePath);
+		return new SBIFingerSlapHelper(port, purpose, keystorePath, biometricImageType);
 	}
 
 	@Override

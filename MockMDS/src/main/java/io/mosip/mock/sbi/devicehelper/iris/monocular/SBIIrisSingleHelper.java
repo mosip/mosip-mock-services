@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.mock.sbi.SBIConstant;
-import io.mosip.mock.sbi.devicehelper.SBICheckState;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.mock.sbi.util.BioUtilHelper;
@@ -13,24 +12,16 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIIrisSingleHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisSingleHelper.class);	
 
-	//private static SBIIrisSingleHelper instance;
-	  
-	private SBIIrisSingleHelper(int port, String purpose, String keystoreFilePath)
+	private SBIIrisSingleHelper(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
 		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE,
-				keystoreFilePath);
+				keystoreFilePath, biometricImageType);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIIrisSingleHelper getInstance(int port, String purpose, String keystoreFilePath)
+	synchronized public static SBIIrisSingleHelper getInstance(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		/*if (instance == null)
-		{ 
-			// if instance is null, initialize 
-			instance = new SBIIrisSingleHelper(port, purpose); 
-		} 
-		return instance; */
-		return new SBIIrisSingleHelper(port, purpose, keystoreFilePath);
+		return new SBIIrisSingleHelper(port, purpose, keystoreFilePath, biometricImageType);
 	}
 
 	@Override

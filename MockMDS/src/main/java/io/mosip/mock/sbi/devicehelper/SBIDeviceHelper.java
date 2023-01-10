@@ -30,6 +30,7 @@ import io.mosip.registration.mdm.dto.ErrorInfo;
 public abstract class SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIDeviceHelper.class);	
 
+	private String biometricImageType;
 	private String purpose;
 	private String profileId;
 	private int port;
@@ -57,7 +58,7 @@ public abstract class SBIDeviceHelper {
     public abstract int getLiveStream ();
     public abstract int getBioCapture (boolean isUsedForAuthenication) throws Exception;
 			
-	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType, String keystoreFilePath) {
+	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType, String keystoreFilePath, String biometricImageType) {
 		super();
 		setKeystoreFilePath(keystoreFilePath);
 		setPort(port);
@@ -65,6 +66,7 @@ public abstract class SBIDeviceHelper {
 		setDeviceType (deviceType);
 		setDeviceSubType (deviceSubType);
 		setDeviceStatus (SBIConstant.DEVICE_STATUS_ISREADY);
+		setBiometricImageType (biometricImageType);
 		initDeviceDetails();
 	}
 
@@ -668,6 +670,14 @@ public abstract class SBIDeviceHelper {
         	LOGGER.error("getBiometricISOImage :: profileId::" + getProfileId() + " :: bioSubTypeFileName::" + bioSubTypeFileName, ex);
 		}
 		return null;
+	}
+	
+	public String getBiometricImageType() {
+		return biometricImageType;
+	}
+
+	public void setBiometricImageType(String biometricImageType) {
+		this.biometricImageType = biometricImageType;
 	}
 	
 	public String getPurpose() {

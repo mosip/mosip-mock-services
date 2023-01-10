@@ -164,7 +164,7 @@ public class SBIServiceResponse {
     		 {
             	 return SBIJsonInfo.getErrorJson (lang, "502", "");
     		 }
-             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
@@ -175,7 +175,7 @@ public class SBIServiceResponse {
              {
             	 long delay = 0;
 				 SBIDeviceHelper deviceHelper = null;
-				 if (type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+				 if (type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
 						 || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
 			     {
 	            	 switch (mockService.getPurpose())
@@ -199,7 +199,7 @@ public class SBIServiceResponse {
 					}
 			     }
 				 
-				 if (type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+				 if (type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
 					 || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
 				 {
 					 deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE);
@@ -214,7 +214,7 @@ public class SBIServiceResponse {
 					 }
 				 }
 				
-				 if (type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+				 if (type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
 					 || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
 				 {
 	            	 switch (mockService.getPurpose())
@@ -364,7 +364,7 @@ public class SBIServiceResponse {
     		 {
             	 return SBIJsonInfo.getAdminApiErrorJson (lang, "502", "");
     		 }
-             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
@@ -392,13 +392,13 @@ public class SBIServiceResponse {
             	 }
     			 if (deviceHelper != null)
     			 {
-    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
     			 }
     			 
                  deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE);
     			 if (deviceHelper != null)
     			 {
-	                 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+	                 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
     			 }
 
             	 switch (mockService.getPurpose())
@@ -412,7 +412,7 @@ public class SBIServiceResponse {
             	 }
     			 if (deviceHelper != null)
     			 {
-    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
+    				 deviceHelper.setDeviceStatus((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS) ? status : SBIConstant.DEVICE_STATUS_ISREADY));
     			 }
              }
         	 
@@ -453,7 +453,7 @@ public class SBIServiceResponse {
     		 {
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "502", "");
     		 }
-             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
@@ -484,17 +484,17 @@ public class SBIServiceResponse {
             	 }
     			 if (deviceHelper != null)
     			 {
-    				 deviceHelper.setScoreFromIso ((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? scoreFromIso : false);
-    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
-    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? true : false);
+    				 deviceHelper.setScoreFromIso ((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? scoreFromIso : false);
+    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? true : false);
     			 }
     			 
                  deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE);
     			 if (deviceHelper != null)
     			 {
-	                 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? scoreFromIso : false);
-	                 deviceHelper.setQualityScore((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
-    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? true : false);
+	                 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? scoreFromIso : false);
+	                 deviceHelper.setQualityScore((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? true : false);
     			 }
 
             	 switch (mockService.getPurpose())
@@ -508,9 +508,9 @@ public class SBIServiceResponse {
             	 }
     			 if (deviceHelper != null)
     			 {
-    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? scoreFromIso : false);
-    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
-    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? true : false);
+    				 deviceHelper.setScoreFromIso((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? scoreFromIso : false);
+    				 deviceHelper.setQualityScore((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+    				 deviceHelper.setQualityScoreSet((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? true : false);
     			 }
 
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "0", "");
@@ -550,7 +550,7 @@ public class SBIServiceResponse {
     		 {
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "502", "");
     		 }
-             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE)
+             else if (!type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)
         		 && !type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
@@ -601,14 +601,14 @@ public class SBIServiceResponse {
         			 if (deviceHelper != null)
         			 {
         				 deviceHelper.resetDelayForMethod();
-        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? method : null, Long.parseLong (delay));
+        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? method : null, Long.parseLong (delay));
         			 }
         			 
                      deviceHelper = (SBIFaceHelper) mockService.getDeviceHelper(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE);
         			 if (deviceHelper != null)
         			 {
         				 deviceHelper.resetDelayForMethod();
-    	                 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? method : null, Long.parseLong (delay));
+    	                 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? method : null, Long.parseLong (delay));
         			 }
 
                 	 switch (mockService.getPurpose())
@@ -623,7 +623,7 @@ public class SBIServiceResponse {
         			 if (deviceHelper != null)
         			 {
         				 deviceHelper.resetDelayForMethod();
-        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMTRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? method : null, Long.parseLong (delay));
+        				 deviceHelper.setDelayForMethod((type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? method : null, Long.parseLong (delay));
         			 }
 
         			 response = SBIJsonInfo.getAdminApiErrorJson (lang, "0", "");
