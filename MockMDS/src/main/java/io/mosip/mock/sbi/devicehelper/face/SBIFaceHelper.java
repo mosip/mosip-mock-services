@@ -1,13 +1,11 @@
 package io.mosip.mock.sbi.devicehelper.face;
 
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIDeviceHelper;
-import io.mosip.mock.sbi.devicehelper.finger.slap.SBIFingerSlapCaptureInfo;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.mock.sbi.util.BioUtilHelper;
 import io.mosip.mock.sbi.util.StringHelper;
@@ -15,23 +13,15 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIFaceHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFaceHelper.class);	
 
-	//private static SBIFaceHelper instance;
-	  
-	private SBIFaceHelper(int port, String purpose, String keystoreFilePath)
+	private SBIFaceHelper(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE, keystoreFilePath);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE, keystoreFilePath, biometricImageType);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFaceHelper getInstance(int port, String purpose, String keystoreFilePath)
+	synchronized public static SBIFaceHelper getInstance(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		/*if (instance == null)
-		{ 
-			// if instance is null, initialize 
-			instance = new SBIFaceHelper(port, purpose);
-		} 
-		return instance;*/
-		return new SBIFaceHelper(port, purpose, keystoreFilePath);
+		return new SBIFaceHelper(port, purpose, keystoreFilePath, biometricImageType);
 	}
 
 	@Override
@@ -67,10 +57,22 @@ public class SBIFaceHelper extends SBIDeviceHelper {
 		String seedName = "";
 		if (this.getProfileId().equalsIgnoreCase(SBIConstant.PROFILE_AUTOMATIC))
 		{
-			if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_FACE) != null)
+			int seedValue = -1;
+			if (this.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
 			{
-				int seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_FACE));
-				seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_AUTH_SEED_FACE) != null)
+				{
+					seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_AUTH_SEED_FACE));
+					seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				}
+			}
+			else if (this.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+			{
+				if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_REGISTRATION_SEED_FACE) != null)
+				{
+					seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_REGISTRATION_SEED_FACE));
+					seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				}
 			}
 		}
 

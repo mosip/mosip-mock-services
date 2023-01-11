@@ -1,5 +1,6 @@
 package io.mosip.mock.sbi.test;
 
+import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.service.SBIMockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class CentralizedMockSBI {
      */
     public static int startSBI(String context, String purpose, String biometricType, String keystorePath) {
         if(!localStore.containsKey(context)) {
-            SBIMockService mockService = new SBIMockService (purpose, biometricType, keystorePath);
+            SBIMockService mockService = new SBIMockService (purpose, biometricType, keystorePath, SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000);
             new Thread(mockService).start();
             localStore.put(context, mockService);
         }

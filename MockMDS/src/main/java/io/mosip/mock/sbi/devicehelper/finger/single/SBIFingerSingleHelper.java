@@ -13,23 +13,15 @@ import io.mosip.mock.sbi.util.StringHelper;
 public class SBIFingerSingleHelper extends SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSingleHelper.class);	
 
-	//private static SBIFingerSingleHelper instance;
-	  
-	private SBIFingerSingleHelper(int port, String purpose, String keystoreFilePath)
+	private SBIFingerSingleHelper(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE, keystoreFilePath);
+		super (port, purpose, SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE, keystoreFilePath, biometricImageType);
 	} 
   
 	//synchronized method to control simultaneous access 
-	synchronized public static SBIFingerSingleHelper getInstance(int port, String purpose, String keystoreFilePath)
+	synchronized public static SBIFingerSingleHelper getInstance(int port, String purpose, String keystoreFilePath, String biometricImageType)
 	{ 
-		/*if (instance == null)
-		{ 
-			// if instance is null, initialize 
-			instance = new SBIFingerSingleHelper(port, purpose); 
-		} 
-		return instance; */
-		return  new SBIFingerSingleHelper(port, purpose, keystoreFilePath);
+		return new SBIFingerSingleHelper(port, purpose, keystoreFilePath, biometricImageType);
 	}
 
 	@Override
@@ -65,10 +57,22 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 		String seedName = "";
 		if (this.getProfileId().equalsIgnoreCase(SBIConstant.PROFILE_AUTOMATIC))
 		{
-			if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_FINGER) != null)
+			int seedValue = -1;
+			if (this.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
 			{
-				int seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_SEED_FINGER));
-				seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_AUTH_SEED_FINGER) != null)
+				{
+					seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_AUTH_SEED_FINGER));
+					seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				}
+			}
+			else if (this.getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+			{
+				if (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_REGISTRATION_SEED_FINGER) != null)
+				{
+					seedValue = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_REGISTRATION_SEED_FINGER));
+					seedName = String.format("%04d", getRandomNumberForSeed(seedValue)).trim();
+				}
 			}
 		}
 
@@ -76,7 +80,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 		{
 			if (getDeviceSubId () == SBIConstant.DEVICE_FINGER_SINGLE_SUB_TYPE_ID)
 			{
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_INDEX);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_INDEX_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_INDEX);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureLI())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_INDEX, StringHelper.base64UrlEncode(isoData));
@@ -87,7 +91,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureLI(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_MIDDLE);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_MIDDLE_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_MIDDLE);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureLM())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_MIDDLE, StringHelper.base64UrlEncode(isoData));
@@ -98,7 +102,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureLM(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_RING);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_RING_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_RING);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureLR())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_RING, StringHelper.base64UrlEncode(isoData));
@@ -109,7 +113,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureLR(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_LITTLE);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_LITTLE_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_LITTLE);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureLL())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_LITTLE, StringHelper.base64UrlEncode(isoData));
@@ -120,7 +124,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureLL(true);
 				}				
 
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_INDEX);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_INDEX_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_INDEX);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureRI())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_INDEX, StringHelper.base64UrlEncode(isoData));
@@ -131,7 +135,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureRI(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_MIDDLE);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_MIDDLE_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_MIDDLE);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureRM())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_MIDDLE, StringHelper.base64UrlEncode(isoData));
@@ -142,7 +146,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureRM(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_RING);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_RING_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_RING);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureRR())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_RING, StringHelper.base64UrlEncode(isoData));
@@ -153,7 +157,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureRR(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_LITTLE);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_LITTLE_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_LITTLE);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureRL())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_LITTLE, StringHelper.base64UrlEncode(isoData));
@@ -164,7 +168,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureRL(true);
 				}				
 
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_THUMB);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_THUMB_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_LEFT_THUMB);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureLT())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_LEFT_THUMB, StringHelper.base64UrlEncode(isoData));
@@ -175,7 +179,7 @@ public class SBIFingerSingleHelper extends SBIDeviceHelper {
 					((SBIFingerSingleCaptureInfo)getCaptureInfo ()).setCaptureLT(true);
 				}				
 				
-				isoData = getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_THUMB);
+				isoData = getBiometricImageType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ) ? getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_THUMB_WSQ) : getBiometricISOImage(seedName, SBIConstant.PROFILE_BIO_FILE_NAME_RIGHT_THUMB);
 				if (isoData != null && !((SBIFingerSingleCaptureInfo)getCaptureInfo ()).isCaptureRT())
 				{
 					getCaptureInfo ().addBiometricForBioSubType(SBIConstant.BIO_NAME_RIGHT_THUMB, StringHelper.base64UrlEncode(isoData));
