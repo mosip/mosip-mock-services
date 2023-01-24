@@ -118,7 +118,6 @@ public abstract class SDKService {
 		{
 			return isValidBiometericData(purposeType, bioType, bioSubType, encodeToURLSafeBase64 (bdbData));
 		}
-		LOGGER.error("isValidBDBData>>bdbData==null#");
 		responseStatus = ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF;
 		throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());		
 	}
@@ -134,7 +133,6 @@ public abstract class SDKService {
 			case IRIS:
 				return isValidIrisBdb(purposeType, bioSubType, bdbData);
 		}
-		LOGGER.error("isValidBiometericData>>BiometricType==#" + bioType + ">>biometricSubType#" + bioSubType);
 		responseStatus = ResponseStatus.INVALID_INPUT;
 		throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 	}
@@ -151,7 +149,7 @@ public abstract class SDKService {
 			FingerBDIR bdir;
 			bdir = FingerDecoder.getFingerBDIR(requestDto);
 			
-			FingerPosition fingerPosition = bdir.getRepresentation().getRepresentationHeader().getFingerPosition();				
+			int fingerPosition = bdir.getFingerPosition();				
 			//Check the ISO FingerPosition with BDB biometricSubType
 			if (!isValidFingerPosition(fingerPosition, biometricSubType))
 			{
@@ -170,7 +168,7 @@ public abstract class SDKService {
 		return true;
 	}
 	
-	protected boolean isValidFingerPosition(FingerPosition fingerPosition, String biometricSubType) {
+	protected boolean isValidFingerPosition(int fingerPosition, String biometricSubType) {
 		boolean isValid = false;
 		switch (biometricSubType)
 		{
@@ -235,7 +233,7 @@ public abstract class SDKService {
 
 			IrisBDIR bdir = IrisDecoder.getIrisBDIR(requestDto);
 
-			EyeLabel eyeLabel = bdir.getRepresentation().getRepresentationHeader().getImageInformation().getEyeLabel();
+			int eyeLabel = bdir.getEyeLabel();
 			if (!isValidEyeLabel(eyeLabel, biometricSubType))
 			{
 				LOGGER.info("eyeLabel InValid>>" + eyeLabel + "<<biometricSubType>>" + biometricSubType);
@@ -253,7 +251,7 @@ public abstract class SDKService {
 		return true;
 	}
 	
-	protected boolean isValidEyeLabel(EyeLabel eyeLabel, String biometricSubType) {
+	protected boolean isValidEyeLabel(int eyeLabel, String biometricSubType) {
 		boolean isValid = false;		
 		switch (biometricSubType)
 		{
