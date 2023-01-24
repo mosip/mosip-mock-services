@@ -54,8 +54,7 @@ public class CheckQualityService extends SDKService{
 			for (BiometricType modality : segmentMap.keySet()) {
 				QualityScore qualityScore = evaluateQuality(modality, segmentMap.get(modality));
 				scores.put(modality, qualityScore);
-			}
-			
+			}			
 		}
 		catch (SDKException ex)
 		{
