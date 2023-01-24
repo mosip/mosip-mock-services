@@ -13,25 +13,25 @@
 
 	<licenses>
           <license>
-                <name>MPL 2.0</name>
-                <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+            <name>MPL 2.0</name>
+            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
           </license>
         </licenses>
 
         <scm>
-                <connection>scm:git:git://github.com/mosip/mosip-mock-services.git</connection>
-                <developerConnection>scm:git:ssh://github.com:mosip/mosip-mock-services.git</developerConnection>
-                <url>https://github.com/mosip/mosip-mock-services</url>
-                <tag>HEAD</tag>
+            <connection>scm:git:git://github.com/mosip/mosip-mock-services.git</connection>
+            <developerConnection>scm:git:ssh://github.com:mosip/mosip-mock-services.git</developerConnection>
+            <url>https://github.com/mosip/mosip-mock-services</url>
+            <tag>HEAD</tag>
         </scm>
 
-	<developers>
-                <developer>
-                  <name>Mosip</name>
-                  <email>mosip.emailnotifier@gmail.com</email>
-                  <organization>io.mosip</organization>
-                  <organizationUrl>https://github.com/mosip/mosip-mock-services</organizationUrl>
-                </developer>
+		<developers>
+            <developer>
+              <name>Mosip</name>
+              <email>mosip.emailnotifier@gmail.com</email>
+              <organization>io.mosip</organization>
+              <organizationUrl>https://github.com/mosip/mosip-mock-services</organizationUrl>
+        	</developer>
         </developers>	
 
         <repositories>
@@ -75,11 +75,11 @@
 		<maven.assembly.version>3.3.0</maven.assembly.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
-		<kernel.biometricsdk.version>0.9</kernel.biometricsdk.version>
+		<kernel.biometricsdk.version>1.2.1-SNAPSHOT</kernel.biometricsdk.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
         <lombok.version>1.18.8</lombok.version>
-
+		<jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
 	</properties>
 	
 	<dependencies>
@@ -142,7 +142,7 @@
         <dependency>
         	<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
@@ -152,6 +152,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.maven.plugin.version}</version>
 				<configuration>
 					<append>true</append>
 				</configuration>
