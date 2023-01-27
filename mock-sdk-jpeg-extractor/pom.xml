@@ -60,7 +60,7 @@
 
 	<properties>
 	
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- maven -->
 		<maven.compiler.source>11</maven.compiler.source>
@@ -76,17 +76,21 @@
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
 		<kernel.biometricsdk.version>1.2.1-SNAPSHOT</kernel.biometricsdk.version>
+		<mosip.mock.version>1.2.1-SNAPSHOT</mosip.mock.version>
+		<mosip.bioutil.version>1.2.1-SNAPSHOT</mosip.bioutil.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
         <lombok.version>1.18.8</lombok.version>
 		<jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
+        <logging.slf4j.version>1.7.25</logging.slf4j.version>
+		
 	</properties>
 	
 	<dependencies>
 		<dependency>
 			<artifactId>mock-sdk</artifactId>
 			<groupId>io.mosip.mock.sdk</groupId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>${mosip.mock.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -103,48 +107,42 @@
 			<artifactId>kernel-biometrics-api</artifactId>
 			<version>${kernel.biometricsdk.version}</version>
 		</dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.11.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.11</version>
         </dependency>
-
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.25</version>
+			<version>${logging.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.25</version>
+			<version>${logging.slf4j.version}</version>
         </dependency>
         <dependency>
         	<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>${mosip.bioutil.version}</version>
         </dependency>
-
     </dependencies>
 
 	<build>
