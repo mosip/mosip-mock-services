@@ -16,6 +16,7 @@ import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
+import io.mosip.mock.sdk.utils.Util;
 
 public class ConvertFormatService extends SDKService{
 	private BiometricRecord sample;
@@ -67,7 +68,7 @@ public class ConvertFormatService extends SDKService{
 					continue;
 
 				if (!values.containsKey(key)) {
-					values.put(key, encodeToURLSafeBase64(segment.getBdb()));
+					values.put(key, Util.encodeToURLSafeBase64(segment.getBdb()));
 				}
 			}
 
@@ -93,7 +94,7 @@ public class ConvertFormatService extends SDKService{
 
 				if (responseValues != null && responseValues.containsKey(key)) {
 					segment.getBirInfo().setPayload(segment.getBdb());
-					segment.setBdb(decodeURLSafeBase64(responseValues.get(key)));
+					segment.setBdb(Util.decodeURLSafeBase64(responseValues.get(key)));
 				}
 				birList.set(index, segment);
 			}
