@@ -20,84 +20,78 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
 import io.mosip.mock.sdk.utils.Util;
 
-public class MatchService extends SDKService{
+public class MatchService extends SDKService {
 	private BiometricRecord sample;
 	private BiometricRecord[] gallery;
 	private List<BiometricType> modalitiesToMatch;
 	private Map<String, String> flags;
-	
+
 	Logger LOGGER = LoggerFactory.getLogger(MatchService.class);
 
 	public MatchService(BiometricRecord sample, BiometricRecord[] gallery, List<BiometricType> modalitiesToMatch,
-		Map<String, String> flags)
-	{
+			Map<String, String> flags) {
 		this.sample = sample;
 		this.gallery = gallery;
 		this.modalitiesToMatch = modalitiesToMatch;
-		this.flags = flags; 
+		this.flags = flags;
 	}
-	
-	public Response<MatchDecision[]> getMatchDecisionInfo()
-	{
+
+	public Response<MatchDecision[]> getMatchDecisionInfo() {
 		Response<MatchDecision[]> response = new Response<>();
-		try
-		{
+		try {
 			return doMatch(sample, gallery, modalitiesToMatch, flags);
-		}
-		catch (SDKException ex)
-		{
+		} catch (SDKException ex) {
 			LOGGER.error("match -- error", ex);
-			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode())))
-			{
-				case INVALID_INPUT:
-					response.setStatusCode(ResponseStatus.INVALID_INPUT.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.INVALID_INPUT.getStatusMessage() + " sample"));
-					response.setResponse(null);
-					return response;
-				case MISSING_INPUT:
-					response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.MISSING_INPUT.getStatusMessage() + " sample"));
-					response.setResponse(null);
-					return response;
-				case QUALITY_CHECK_FAILED:
-					response.setStatusCode(ResponseStatus.QUALITY_CHECK_FAILED.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.QUALITY_CHECK_FAILED.getStatusMessage() + ""));
-					response.setResponse(null);
-					return response;
-				case BIOMETRIC_NOT_FOUND_IN_CBEFF:
-					response.setStatusCode(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusMessage() + ""));
-					response.setResponse(null);
-					return response;
-				case MATCHING_OF_BIOMETRIC_DATA_FAILED:
-					response.setStatusCode(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusMessage() + ""));
-					response.setResponse(null);
-					return response;
-				case POOR_DATA_QUALITY:
-					response.setStatusCode(ResponseStatus.POOR_DATA_QUALITY.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.POOR_DATA_QUALITY.getStatusMessage() + ""));
-					response.setResponse(null);
-					return response;
-				default:
-					response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
-					response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage() + ""));
-					response.setResponse(null);
-					return response;
+			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {
+			case INVALID_INPUT:
+				response.setStatusCode(ResponseStatus.INVALID_INPUT.getStatusCode());
+				response.setStatusMessage(String.format(ResponseStatus.INVALID_INPUT.getStatusMessage() + " sample"));
+				response.setResponse(null);
+				return response;
+			case MISSING_INPUT:
+				response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
+				response.setStatusMessage(String.format(ResponseStatus.MISSING_INPUT.getStatusMessage() + " sample"));
+				response.setResponse(null);
+				return response;
+			case QUALITY_CHECK_FAILED:
+				response.setStatusCode(ResponseStatus.QUALITY_CHECK_FAILED.getStatusCode());
+				response.setStatusMessage(String.format(ResponseStatus.QUALITY_CHECK_FAILED.getStatusMessage() + ""));
+				response.setResponse(null);
+				return response;
+			case BIOMETRIC_NOT_FOUND_IN_CBEFF:
+				response.setStatusCode(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusCode());
+				response.setStatusMessage(
+						String.format(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusMessage() + ""));
+				response.setResponse(null);
+				return response;
+			case MATCHING_OF_BIOMETRIC_DATA_FAILED:
+				response.setStatusCode(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusCode());
+				response.setStatusMessage(
+						String.format(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusMessage() + ""));
+				response.setResponse(null);
+				return response;
+			case POOR_DATA_QUALITY:
+				response.setStatusCode(ResponseStatus.POOR_DATA_QUALITY.getStatusCode());
+				response.setStatusMessage(String.format(ResponseStatus.POOR_DATA_QUALITY.getStatusMessage() + ""));
+				response.setResponse(null);
+				return response;
+			default:
+				response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
+				response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage() + ""));
+				response.setResponse(null);
+				return response;
 			}
-		}
-		catch (Exception ex)
-		{
+		} catch (Exception ex) {
 			LOGGER.error("match -- error", ex);
 			response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
-			response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage() +  ""));
+			response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage() + ""));
 			response.setResponse(null);
 			return response;
-		}		
+		}
 	}
-	
+
 	private Response<MatchDecision[]> doMatch(BiometricRecord sample, BiometricRecord[] gallery,
-			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
+			List<BiometricType> modalitiesToMatch, Map<String, String> flags) throws Exception {
 		int index = 0;
 		MatchDecision matchDecision[] = new MatchDecision[gallery.length];
 		Response<MatchDecision[]> response = new Response<>();
@@ -130,9 +124,9 @@ public class MatchService extends SDKService{
 		response.setResponse(matchDecision);
 		return response;
 	}
-	
+
 	private Decision compareModality(BiometricType modality, List<BIR> sampleSegments, List<BIR> gallerySegments)
-			throws NoSuchAlgorithmException {
+			throws Exception {
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
 		switch (modality) {
@@ -150,9 +144,8 @@ public class MatchService extends SDKService{
 		}
 		return decision;
 	}
-	
-	private Decision compareFingerprints(List<BIR> sampleSegments, List<BIR> gallerySegments)
-			throws NoSuchAlgorithmException {
+
+	private Decision compareFingerprints(List<BIR> sampleSegments, List<BIR> gallerySegments) throws Exception {
 		List<String> errors = new ArrayList<>();
 		List<Boolean> matched = new ArrayList<>();
 		Decision decision = new Decision();
@@ -172,17 +165,16 @@ public class MatchService extends SDKService{
 
 			if (!isValidBirData(sampleBIR))
 				break;
-			
+
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype() != null
-					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
+			if (sampleBIR.getBdbInfo().getSubtype() != null && !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("Unknown")) {
 				for (BIR galleryBIR : gallerySegments) {
-					//need to check isValidBIRParams and isValidBDBData too
-					//if (!isValidBirData(galleryBIR))
-					//break;
+					// need to check isValidBIRParams and isValidBDBData too
+					// if (!isValidBirData(galleryBIR))
+					// break;
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
@@ -200,9 +192,9 @@ public class MatchService extends SDKService{
 				}
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
-					//need to check isValidBIRParams and isValidBDBData too
-					//if (!isValidBirData(galleryBIR))
-					//break;
+					// need to check isValidBIRParams and isValidBDBData too
+					// if (!isValidBirData(galleryBIR))
+					// break;
 
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 						LOGGER.info("Modality: {}; Subtype: {}  -- matched", BiometricType.FINGER.value(),
@@ -235,24 +227,18 @@ public class MatchService extends SDKService{
 			// TODO check the condition: what if no similar type and subtype found
 			decision.setMatch(Match.ERROR);
 		}
-		/* 
-		int trueMatchCount = matched.stream().filter(val -> val == true).collect(Collectors.toList()).size();
-		if (matched.size() > 0) {
-			if (trueMatchCount == sampleSegments.size()) {
-				decision.setMatch(Match.MATCHED);
-			} else {
-				decision.setMatch(Match.NOT_MATCHED);
-			}
-		} else {
-			// TODO check the condition: what if no similar type and subtype found
-			decision.setMatch(Match.ERROR);
-		}
-		*/
+		/*
+		 * int trueMatchCount = matched.stream().filter(val -> val ==
+		 * true).collect(Collectors.toList()).size(); if (matched.size() > 0) { if
+		 * (trueMatchCount == sampleSegments.size()) { decision.setMatch(Match.MATCHED);
+		 * } else { decision.setMatch(Match.NOT_MATCHED); } } else { // TODO check the
+		 * condition: what if no similar type and subtype found
+		 * decision.setMatch(Match.ERROR); }
+		 */
 		return decision;
 	}
-	
-	private Decision compareIrises(List<BIR> sampleSegments, List<BIR> gallerySegments)
-			throws NoSuchAlgorithmException {
+
+	private Decision compareIrises(List<BIR> sampleSegments, List<BIR> gallerySegments) throws Exception {
 
 		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
 
@@ -271,20 +257,19 @@ public class MatchService extends SDKService{
 		}
 
 		for (BIR sampleBIR : sampleSegments) {
-			
+
 			if (!isValidBirData(sampleBIR))
 				break;
-			
-			Boolean bio_found = false;			
-			if (sampleBIR.getBdbInfo().getSubtype() != null
-					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
+
+			Boolean bio_found = false;
+			if (sampleBIR.getBdbInfo().getSubtype() != null && !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("Unknown")) {
 				for (BIR galleryBIR : gallerySegments) {
-					//need to check isValidBIRParams and isValidBDBData too
-					//if (!isValidBirData(galleryBIR))
-					//break;
+					// need to check isValidBIRParams and isValidBDBData too
+					// if (!isValidBirData(galleryBIR))
+					// break;
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
@@ -302,9 +287,9 @@ public class MatchService extends SDKService{
 				}
 			} else {
 				for (BIR galleryBIR : gallerySegments) {
-					//need to check isValidBIRParams and isValidBDBData too
-					//if (!isValidBirData(galleryBIR))
-					//break;
+					// need to check isValidBIRParams and isValidBDBData too
+					// if (!isValidBirData(galleryBIR))
+					// break;
 					if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 						LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.IRIS.value(),
 								galleryBIR.getBdbInfo().getSubtype());
@@ -322,13 +307,11 @@ public class MatchService extends SDKService{
 				LOGGER.info("Modality: {} ; Subtype: {}  -- not found", BiometricType.IRIS.value(),
 						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
-			}
-			else
-			{
+			} else {
 				break;
 			}
 		}
-		
+
 		if (matched.size() > 0) {
 			if (matched.contains(true)) {
 				decision.setMatch(Match.MATCHED);
@@ -341,8 +324,8 @@ public class MatchService extends SDKService{
 		}
 		return decision;
 	}
-	
-	private Decision compareFaces(List<BIR> sampleSegments, List<BIR> gallerySegments) throws NoSuchAlgorithmException {
+
+	private Decision compareFaces(List<BIR> sampleSegments, List<BIR> gallerySegments) throws Exception {
 		List<String> errors = new ArrayList<>();
 		List<Boolean> matched = new ArrayList<>();
 		Decision decision = new Decision();
@@ -362,16 +345,15 @@ public class MatchService extends SDKService{
 
 			if (!isValidBirData(sampleBIR))
 				break;
-			
+
 			Boolean bio_found = false;
-			if (sampleBIR.getBdbInfo().getSubtype() != null
-					&& !sampleBIR.getBdbInfo().getSubtype().isEmpty()
+			if (sampleBIR.getBdbInfo().getSubtype() != null && !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
 				for (BIR galleryBIR : gallerySegments) {
-					//need to check isValidBIRParams and isValidBDBData too
-					//if (!isValidBirData(galleryBIR))
-					//break;
+					// need to check isValidBIRParams and isValidBDBData too
+					// if (!isValidBirData(galleryBIR))
+					// break;
 					if (galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
@@ -407,12 +389,10 @@ public class MatchService extends SDKService{
 				LOGGER.info("Modality: {}; Subtype: {} -- not found", BiometricType.FACE.value(),
 						sampleBIR.getBdbInfo().getSubtype());
 				matched.add(false);
-			}
-			else
-			{
+			} else {
 				break;
 			}
-			
+
 		}
 		if (matched.size() > 0) {
 			if (!matched.contains(false)) {
