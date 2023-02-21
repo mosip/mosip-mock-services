@@ -94,7 +94,7 @@ public abstract class SDKService {
 		case FACE:
 			break;
 		case FINGER:
-			if (!(bioSubType.equals("Unknown") || bioSubType.equals("Left IndexFinger")
+			if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left IndexFinger")
 					|| bioSubType.equals("Left RingFinger") || bioSubType.equals("Left MiddleFinger")
 					|| bioSubType.equals("Left LittleFinger") || bioSubType.equals("Left Thumb")
 					|| bioSubType.equals("Right IndexFinger") || bioSubType.equals("Right RingFinger")
@@ -106,7 +106,7 @@ public abstract class SDKService {
 			}
 			break;
 		case IRIS:
-			if (!(bioSubType.equals("Unknown") || bioSubType.equals("Left") || bioSubType.equals("Right"))) {
+			if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left") || bioSubType.equals("Right"))) {
 				LOGGER.error("isValidBIRParams>>BiometricType#" + bioType + ">>BioSubType#" + bioSubType);
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
@@ -434,7 +434,7 @@ public abstract class SDKService {
 	protected boolean isValidFingerPosition(int fingerPosition, String biometricSubType) {
 		boolean isValid = false;
 		switch (biometricSubType) {
-		case "Unknown":
+		case "UNKNOWN":
 			isValid = true;
 			break;
 		case "Left IndexFinger":
@@ -788,7 +788,7 @@ public abstract class SDKService {
 	protected boolean isValidEyeLabel(int eyeLabel, String biometricSubType) {
 		boolean isValid = false;
 		switch (biometricSubType) {
-		case "Unknown":
+		case "UNKNOWN":
 			isValid = true;
 			break;
 		case "Left":
