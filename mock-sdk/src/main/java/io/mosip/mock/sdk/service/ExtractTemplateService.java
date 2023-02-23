@@ -66,8 +66,6 @@ public class ExtractTemplateService extends SDKService{
 				}
 				//do actual extraction
 			}
-			
-		
 		}
 		catch (SDKException ex)
 		{
