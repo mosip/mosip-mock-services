@@ -2,6 +2,7 @@ package io.mosip.mock.sdk.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,6 @@ import io.mosip.kernel.biometrics.constant.ProcessedLevelType;
 import io.mosip.kernel.biometrics.entities.BDBInfo;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
-import io.mosip.kernel.biometrics.entities.RegistryIDType;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
@@ -26,6 +26,8 @@ public class ExtractTemplateService extends SDKService{
 	public static final long FORMAT_TYPE_FINGER_MINUTIAE = 2;
 	
 	Logger LOGGER = LoggerFactory.getLogger(ExtractTemplateService.class);
+	
+	private ProcessedLevelType[] types = new ProcessedLevelType[] {ProcessedLevelType.INTERMEDIATE, ProcessedLevelType.PROCESSED};
 
 	public ExtractTemplateService(BiometricRecord sample, List<BiometricType> modalitiesToExtract,
 		Map<String, String> flags)
@@ -53,14 +55,13 @@ public class ExtractTemplateService extends SDKService{
 				segment.getBirInfo().setPayload(segment.getBdb());
 				BDBInfo bdbInfo = segment.getBdbInfo();
 				if (bdbInfo != null) {
-					//Update the level to processed
-					bdbInfo.setLevel(ProcessedLevelType.PROCESSED);
-					RegistryIDType format = segment.getBdbInfo().getFormat();
-					if (format != null) {
-						String type = format.getType();
-						//Update the fingerprint image to fingerprint minutiae type
+					// Update the level to processed
+					bdbInfo.setLevel(getRandomLevelType());
+					// Update the fingerprint image to fingerprint minutiae type
+					if (segment.getBdbInfo().getFormat() != null) {
+						String type = segment.getBdbInfo().getFormat().getType();
 						if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
-							format.setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
+							segment.getBdbInfo().getFormat().setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
 						}
 					}
 				}
@@ -120,5 +121,9 @@ public class ExtractTemplateService extends SDKService{
 		response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
 		response.setResponse(sample);
 		return response;
+	}
+	public ProcessedLevelType getRandomLevelType() {
+	    int rnd = new Random().nextInt(types.length);
+	    return types[rnd];
 	}
 }
