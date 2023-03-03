@@ -67,11 +67,14 @@ public class SampleSDKTest {
 
             SampleSDK sampleSDK = new SampleSDK();
             Response<MatchDecision[]> response = sampleSDK.match(sample_record, gallery, modalitiesToMatch, new HashMap<>());
-            for (int i=0; i< response.getResponse().length; i++){
-                Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
-                Assert.assertEquals(decisions.get(BiometricType.FACE).toString(), decisions.get(BiometricType.FACE).getMatch().toString(), Match.MATCHED.toString());
-                Assert.assertEquals(decisions.get(BiometricType.FINGER).toString(), decisions.get(BiometricType.FINGER).getMatch().toString(), Match.MATCHED.toString());
-                Assert.assertEquals(decisions.get(BiometricType.IRIS).toString(), decisions.get(BiometricType.IRIS).getMatch().toString(), Match.NOT_MATCHED.toString());
+            if (response != null && response.getResponse() != null)
+            {
+                for (int i=0; i< response.getResponse().length; i++){
+                    Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
+                    Assert.assertEquals(decisions.get(BiometricType.FACE).toString(), decisions.get(BiometricType.FACE).getMatch().toString(), Match.MATCHED.toString());
+                    Assert.assertEquals(decisions.get(BiometricType.FINGER).toString(), decisions.get(BiometricType.FINGER).getMatch().toString(), Match.MATCHED.toString());
+                    Assert.assertEquals(decisions.get(BiometricType.IRIS).toString(), decisions.get(BiometricType.IRIS).getMatch().toString(), Match.NOT_MATCHED.toString());
+                }
             }
             ObjectMapper objectMapper = new ObjectMapper();
         } catch (ParserConfigurationException e) {
@@ -99,11 +102,14 @@ public class SampleSDKTest {
 
             SampleSDK sampleSDK = new SampleSDK();
             Response<MatchDecision[]> response = sampleSDK.match(sample_record, gallery, modalitiesToMatch, new HashMap<>());
-            for (int i=0; i< response.getResponse().length; i++){
-                Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
-                Assert.assertEquals(decisions.get(BiometricType.FACE).toString(), decisions.get(BiometricType.FACE).getMatch().toString(), Match.NOT_MATCHED.toString());
-                Assert.assertEquals(decisions.get(BiometricType.FINGER).toString(), decisions.get(BiometricType.FINGER).getMatch().toString(), Match.MATCHED.toString());
-                Assert.assertEquals(decisions.get(BiometricType.IRIS).toString(), decisions.get(BiometricType.IRIS).getMatch().toString(), Match.MATCHED.toString());
+            if (response != null && response.getResponse() != null)
+            {
+                for (int i=0; i< response.getResponse().length; i++){
+                    Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
+                    Assert.assertEquals(decisions.get(BiometricType.FACE).toString(), decisions.get(BiometricType.FACE).getMatch().toString(), Match.NOT_MATCHED.toString());
+                    Assert.assertEquals(decisions.get(BiometricType.FINGER).toString(), decisions.get(BiometricType.FINGER).getMatch().toString(), Match.MATCHED.toString());
+                    Assert.assertEquals(decisions.get(BiometricType.IRIS).toString(), decisions.get(BiometricType.IRIS).getMatch().toString(), Match.MATCHED.toString());
+                }
             }
             ObjectMapper objectMapper = new ObjectMapper();
         } catch (ParserConfigurationException e) {

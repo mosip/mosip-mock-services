@@ -1,15 +1,23 @@
 package io.mosip.mock.mv.queue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import io.mosip.mock.mv.dto.AnalyticsDTO;
-import io.mosip.mock.mv.dto.Candidate;
-import io.mosip.mock.mv.dto.CandidateList;
-import io.mosip.mock.mv.dto.ManualAdjudicationRequestDTO;
-import io.mosip.mock.mv.dto.ManualAdjudicationResponseDTO;
-import io.mosip.mock.mv.dto.ReferenceIds;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageNotWriteableException;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
@@ -22,22 +30,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import io.mosip.mock.mv.dto.AnalyticsDTO;
+import io.mosip.mock.mv.dto.Candidate;
+import io.mosip.mock.mv.dto.CandidateList;
+import io.mosip.mock.mv.dto.Expectation;
+import io.mosip.mock.mv.dto.ManualAdjudicationRequestDTO;
+import io.mosip.mock.mv.dto.ManualAdjudicationResponseDTO;
+import io.mosip.mock.mv.dto.ReferenceIds;
+import io.mosip.mock.mv.service.ExpectationCache;
 
 @Component
 public class Listener {
@@ -51,7 +56,7 @@ public class Listener {
 	private Environment env;
 
 	/** The username. */
-	@Value("${mock.mv.decision:APPROVED}")
+	@Value("${mock.mv.default.decision}")
 	private String mockDecision;
 
 	@Value("${mock.mv.success:true}")
@@ -98,6 +103,9 @@ public class Listener {
 	/** The address. */
 	@Value("${registration.processor.queue.verification.request:mosip-to-verification}")
 	private String verificationRequestAddress;
+	
+	@Autowired
+	private ExpectationCache expectationCache;
 
 
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
@@ -140,25 +148,20 @@ public class Listener {
 			if (mvAddress != verificationResponseAddress) {
 				List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
 				CandidateList candidateList=new CandidateList();
-				if (mockDecision.equalsIgnoreCase(REJECTED)) {
-					List<Candidate> candidates = new ArrayList<>();
-					for(ReferenceIds refId : refIds) {
-						Candidate candidate=new Candidate();
-						candidate.setReferenceId(refId.getReferenceId());
-						Map<String,String> analytics=new HashMap<>();
-						AnalyticsDTO analyticsDTO=new AnalyticsDTO();
-						analyticsDTO.setPrimaryOperatorID("110006");
-						analyticsDTO.setPrimaryOperatorComments("abcd");
-						analyticsDTO.setSecondaryOperatorComments("asbd");
-						analyticsDTO.setSecondaryOperatorID("110005");
-						analyticsDTO.setAnalytics(analytics);
-						candidate.setAnalytics(analyticsDTO);
-						candidates.add(candidate);
-						candidateList.setCandidates(candidates);
+				Expectation expectation = expectationCache.get(requestDTO.getReferenceId());
+				if(expectation.getMockMvDecision()!=null&&!expectation.getMockMvDecision().isEmpty()) {
+					if (expectation.getMockMvDecision().equalsIgnoreCase(REJECTED)) {
+						candidateList = populatesCandidateList(refIds);
+					} else {
+						candidateList.setCandidates(null);
 					}
+				}
+				else {
+				if (mockDecision.equalsIgnoreCase(REJECTED)) {
+					candidateList=populatesCandidateList(refIds);
 				} else
 					candidateList.setCandidates(null);
-
+				}
 
 				Map<String,String> analytics=new HashMap<>();
 				analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
@@ -221,7 +224,7 @@ public class Listener {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
-
+		
 	}
 
 	public void runVerificationQueue() {
@@ -344,6 +347,26 @@ public class Listener {
 		String outputJson = null;
 		outputJson = objectMapper.writeValueAsString(className);
 		return outputJson;
+	}
+	
+	private CandidateList populatesCandidateList(List<ReferenceIds> refIds) {
+		List<Candidate> candidates = new ArrayList<>();
+		CandidateList candidateList=new CandidateList();
+		for(ReferenceIds refId : refIds) {
+			Candidate candidate=new Candidate();
+			candidate.setReferenceId(refId.getReferenceId());
+			Map<String,String> analytics=new HashMap<>();
+			AnalyticsDTO analyticsDTO=new AnalyticsDTO();
+			analyticsDTO.setPrimaryOperatorID("110006");
+			analyticsDTO.setPrimaryOperatorComments("abcd");
+			analyticsDTO.setSecondaryOperatorComments("asbd");
+			analyticsDTO.setSecondaryOperatorID("110005");
+			analyticsDTO.setAnalytics(analytics);
+			candidate.setAnalytics(analyticsDTO);
+			candidates.add(candidate);
+			candidateList.setCandidates(candidates);
+		}
+		return candidateList;
 	}
 
 }

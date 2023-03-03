@@ -30,6 +30,7 @@ import io.mosip.registration.mdm.dto.ErrorInfo;
 public abstract class SBIDeviceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SBIDeviceHelper.class);	
 
+	private String biometricImageType;
 	private String purpose;
 	private String profileId;
 	private int port;
@@ -49,19 +50,23 @@ public abstract class SBIDeviceHelper {
     protected boolean isQualityScoreSet;
     private boolean scoreFromIso = false;
     private SBICaptureInfo captureInfo;
+
+	private String keystoreFilePath;
     
 	public abstract long initDevice ();
 	public abstract int deInitDevice ();
     public abstract int getLiveStream ();
     public abstract int getBioCapture (boolean isUsedForAuthenication) throws Exception;
 			
-	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType) {
+	public SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType, String keystoreFilePath, String biometricImageType) {
 		super();
+		setKeystoreFilePath(keystoreFilePath);
 		setPort(port);
 		setPurpose (purpose);
 		setDeviceType (deviceType);
 		setDeviceSubType (deviceSubType);
 		setDeviceStatus (SBIConstant.DEVICE_STATUS_ISREADY);
+		setBiometricImageType (biometricImageType);
 		initDeviceDetails();
 	}
 
@@ -215,13 +220,13 @@ public abstract class SBIDeviceHelper {
 					{
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP:
 							fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FINGER_SLAP_DEVICEINFO_JSON);
-							keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME));
+							keyStoreFileName = getKeystoreFilePath() + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME));
 							keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS));
 							keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD));
 							break;
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE:
 							fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FINGER_SINGLE_DEVICEINFO_JSON);
-							keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME));
+							keyStoreFileName = getKeystoreFilePath() + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME));
 							keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEY_ALIAS));
 							keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_PWD));
 							break;
@@ -231,7 +236,7 @@ public abstract class SBIDeviceHelper {
 					if (deviceSubType.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE))
 					{
 						fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_FACE_DEVICEINFO_JSON);
-						keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME));
+						keyStoreFileName = getKeystoreFilePath() + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME));
 						keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS));
 						keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD));
 					}
@@ -241,13 +246,13 @@ public abstract class SBIDeviceHelper {
 					{
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE:
 							fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_IRIS_DOUBLE_DEVICEINFO_JSON);
-							keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME));
+							keyStoreFileName = getKeystoreFilePath() + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME));
 							keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS));
 							keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD));
 							break;
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE:
 							fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_IRIS_SINGLE_DEVICEINFO_JSON);
-							keyStoreFileName = FileHelper.getCanonicalPath () + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME));
+							keyStoreFileName = getKeystoreFilePath() + (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME));
 							keyAlias = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEY_ALIAS_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEY_ALIAS));
 							keyPwd = (purpose.equalsIgnoreCase(SBIConstant.PURPOSE_AUTH) ? ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_PWD_FTM) : ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_PWD));
 							break;
@@ -326,12 +331,12 @@ public abstract class SBIDeviceHelper {
 					switch (deviceSubType)
 					{
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD);
 							break;
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_PWD);
 							break;
@@ -340,7 +345,7 @@ public abstract class SBIDeviceHelper {
 				case SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE:
 					if (deviceSubType.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE))
 					{
-						keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME);
+						keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME);
 						keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS);
 						keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD);
 					}
@@ -349,12 +354,12 @@ public abstract class SBIDeviceHelper {
 					switch (deviceSubType)
 					{
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD);
 							break;
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_PWD);
 							break;
@@ -433,12 +438,12 @@ public abstract class SBIDeviceHelper {
 					switch (deviceSubType)
 					{
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SLAP_KEYSTORE_PWD);
 							break;
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FINGER_SINGLE_KEYSTORE_PWD);
 							break;
@@ -447,7 +452,7 @@ public abstract class SBIDeviceHelper {
 				case SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE:
 					if (deviceSubType.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE))
 					{
-						keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME);
+						keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_FILE_NAME);
 						keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEY_ALIAS);
 						keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_FACE_KEYSTORE_PWD);
 					}
@@ -456,12 +461,12 @@ public abstract class SBIDeviceHelper {
 					switch (deviceSubType)
 					{
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_DOUBLE_KEYSTORE_PWD);
 							break;
 						case SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE:
-							keyStoreFileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME);
+							keyStoreFileName = getKeystoreFilePath() + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_FILE_NAME);
 							keyAlias = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEY_ALIAS);
 							keyPwd = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_STREAM_IRIS_SINGLE_KEYSTORE_PWD);
 							break;
@@ -641,7 +646,7 @@ public abstract class SBIDeviceHelper {
 		String fileName = null;
 		boolean isFolderExist = true;
 		try {
-			fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PROFILE_FOLDER_PATH) + File.separator + getProfileId ();
+			fileName = FileHelper.getCanonicalPath () + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_PROFILE_FOLDER_PATH) + File.separator + getProfileId () + File.separator + getPurpose();
         	//LOGGER.error("getBiometricISOImage :: profileId::" + getProfileId() + " :: Not Set :: fileName :: " + fileName);
 			if (!FileHelper.directoryExists(fileName))	
 			{
@@ -667,6 +672,14 @@ public abstract class SBIDeviceHelper {
 		return null;
 	}
 	
+	public String getBiometricImageType() {
+		return biometricImageType;
+	}
+
+	public void setBiometricImageType(String biometricImageType) {
+		this.biometricImageType = biometricImageType;
+	}
+	
 	public String getPurpose() {
 		return purpose;
 	}
@@ -678,6 +691,17 @@ public abstract class SBIDeviceHelper {
 	}
 	public void setProfileId(String profileId) {
 		this.profileId = profileId;
+	}
+
+	public String getKeystoreFilePath() {
+		return keystoreFilePath;
+	}
+	public void setKeystoreFilePath(String keystoreFilePath) {
+		try {
+			this.keystoreFilePath = keystoreFilePath != null ? keystoreFilePath : FileHelper.getCanonicalPath();
+		} catch (IOException ex) {
+			LOGGER.error("setKeystoreFilePath :: " + keystoreFilePath , ex);
+		}
 	}
 
 	public int getPort() {
