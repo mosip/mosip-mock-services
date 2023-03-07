@@ -85,6 +85,6 @@ public class SampleSDK implements IBioApiV2 {
 	public BiometricRecord convertFormat(BiometricRecord sample, String sourceFormat, String targetFormat,
 			Map<String, String> sourceParams, Map<String, String> targetParams,
 			List<BiometricType> modalitiesToConvert) {
-		return null;
+		return sample;
 	}
 }
