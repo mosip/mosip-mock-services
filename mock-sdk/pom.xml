@@ -74,7 +74,7 @@
 		<maven.javadoc.version>3.0.1</maven.javadoc.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
-		<kernel.biometricsdk.version>1.2.0.1-B1</kernel.biometricsdk.version>
+		<kernel.biometrics.api.version>1.2.0.1-B2-SNAPSHOT</kernel.biometrics.api.version>
 		<kernel.bioconverter.version>1.2.0.1-B1-SNAPSHOT</kernel.bioconverter.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
@@ -86,7 +86,7 @@
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-biometrics-api</artifactId>
-			<version>${kernel.biometricsdk.version}</version>
+			<version>${kernel.biometrics.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip</groupId>
