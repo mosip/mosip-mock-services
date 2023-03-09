@@ -14,7 +14,7 @@ import io.mosip.kernel.biometrics.model.MatchDecision;
 import io.mosip.kernel.biometrics.model.QualityCheck;
 import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.kernel.biometrics.model.SDKInfo;
-import io.mosip.kernel.biometrics.spi.IBioApi;
+import io.mosip.kernel.biometrics.spi.IBioApiV2;
 import io.mosip.mock.sdk.service.CheckQualityService;
 import io.mosip.mock.sdk.service.ConvertFormatService;
 import io.mosip.mock.sdk.service.ExtractTemplateService;
@@ -31,7 +31,7 @@ import io.mosip.mock.sdk.service.SegmentService;
  */
 @Component
 @EnableAutoConfiguration
-public class SampleSDK implements IBioApi {
+public class SampleSDK implements IBioApiV2 {
 
 	Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
 
@@ -66,7 +66,7 @@ public class SampleSDK implements IBioApi {
 	}
 
 	@Override
-	public Response<BiometricRecord> convertFormat(BiometricRecord record, String sourceFormat, String targetFormat,
+	public Response<BiometricRecord> convertFormatV2(BiometricRecord record, String sourceFormat, String targetFormat,
 			Map<String, String> sourceParams, Map<String, String> targetParams,
 			List<BiometricType> modalitiesToConvert) {
 		ConvertFormatService service = new ConvertFormatService(record, sourceFormat, targetFormat, sourceParams, targetParams, modalitiesToConvert);
@@ -78,5 +78,13 @@ public class SampleSDK implements IBioApi {
 			Map<String, String> flags) {
 		SegmentService service = new SegmentService(sample, modalitiesToSegment, flags);
 		return service.getSegmentInfo();
+	}
+
+	@Override
+	@Deprecated
+	public BiometricRecord convertFormat(BiometricRecord sample, String sourceFormat, String targetFormat,
+			Map<String, String> sourceParams, Map<String, String> targetParams,
+			List<BiometricType> modalitiesToConvert) {
+		return sample;
 	}
 }
