@@ -160,9 +160,20 @@ public class MatchService extends SDKService {
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
+		
+		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
+		if ((sampleSegments != null && sampleSegments.isEmpty())) {
+			LOGGER.info("Modality: {} -- biometric list empty in sample", BiometricType.FINGER.value());
+			decision.setMatch(Match.NOT_MATCHED);
+			return decision;
+		}
+		if ((gallerySegments != null && gallerySegments.isEmpty())) {
+			LOGGER.info("Modality: {} -- biometric list empty in gallery", BiometricType.FINGER.value());
+			decision.setMatch(Match.NOT_MATCHED);
+			return decision;
+		}
 
 		for (BIR sampleBIR : sampleSegments) {
-
 			if (!isValidBirData(sampleBIR))
 				break;
 
@@ -170,13 +181,13 @@ public class MatchService extends SDKService {
 			if (sampleBIR.getBdbInfo().getSubtype() != null && !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
-					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("Unknown")) {
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
+					LOGGER.info("Finger Modality: {}; Subtype: {}  Check ", galleryBIR.getBdbInfo().getSubtype().get(0), sampleBIR.getBdbInfo().getSubtype().get(0));
 					// need to check isValidBIRParams and isValidBDBData too
 					// if (!isValidBirData(galleryBIR))
 					// break;
-					if (galleryBIR.getBdbInfo().getSubtype().get(0)
-							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
+					if (galleryBIR.getBdbInfo().getSubtype().get(0).equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 							LOGGER.info("Modality: {}; Subtype: {}  -- matched", BiometricType.FINGER.value(),
 									galleryBIR.getBdbInfo().getSubtype());
@@ -240,8 +251,6 @@ public class MatchService extends SDKService {
 
 	private Decision compareIrises(List<BIR> sampleSegments, List<BIR> gallerySegments) throws Exception {
 
-		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
-
 		List<Boolean> matched = new ArrayList<>();
 		Decision decision = new Decision();
 		decision.setMatch(Match.ERROR);
@@ -255,7 +264,19 @@ public class MatchService extends SDKService {
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
-
+		
+		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
+		if ((sampleSegments != null && sampleSegments.isEmpty())) {
+			LOGGER.info("Modality: {} -- biometric list empty in sample", BiometricType.IRIS.value());
+			decision.setMatch(Match.NOT_MATCHED);
+			return decision;
+		}
+		if ((gallerySegments != null && gallerySegments.isEmpty())) {
+			LOGGER.info("Modality: {} -- biometric list empty in gallery", BiometricType.IRIS.value());
+			decision.setMatch(Match.NOT_MATCHED);
+			return decision;
+		}
+		
 		for (BIR sampleBIR : sampleSegments) {
 
 			if (!isValidBirData(sampleBIR))
@@ -265,8 +286,9 @@ public class MatchService extends SDKService {
 			if (sampleBIR.getBdbInfo().getSubtype() != null && !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
-					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("Unknown")) {
+					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
+					LOGGER.info("Iris Modality: {}; Subtype: {}  Check ", galleryBIR.getBdbInfo().getSubtype().get(0), sampleBIR.getBdbInfo().getSubtype().get(0));
 					// need to check isValidBIRParams and isValidBDBData too
 					// if (!isValidBirData(galleryBIR))
 					// break;
@@ -341,8 +363,19 @@ public class MatchService extends SDKService {
 			return decision;
 		}
 
-		for (BIR sampleBIR : sampleSegments) {
+		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
+		if ((sampleSegments != null && sampleSegments.isEmpty())) {
+			LOGGER.info("Modality: {} -- biometric list empty in sample", BiometricType.FACE.value());
+			decision.setMatch(Match.NOT_MATCHED);
+			return decision;
+		}
+		if ((gallerySegments != null && gallerySegments.isEmpty())) {
+			LOGGER.info("Modality: {} -- biometric list empty in gallery", BiometricType.FACE.value());
+			decision.setMatch(Match.NOT_MATCHED);
+			return decision;
+		}
 
+		for (BIR sampleBIR : sampleSegments) {
 			if (!isValidBirData(sampleBIR))
 				break;
 
