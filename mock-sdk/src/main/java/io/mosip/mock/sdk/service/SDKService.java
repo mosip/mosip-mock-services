@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public abstract class SDKService {
 
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord record,
 			List<BiometricType> modalitiesToMatch) {
+		LOGGER.info("getBioSegmentMap>>" +  modalitiesToMatch.toString());
 		Boolean noFilter = false;
 
 		// if the modalities to match is not passed, assume that all modalities have to
@@ -54,6 +56,7 @@ public abstract class SDKService {
 		for (BIR segment : record.getSegments()) {
 			BiometricType bioType = segment.getBdbInfo().getType().get(0);
 
+			LOGGER.info("getBioSegmentMap>>bioType >> " +  bioType.toString());
 			// ignore modalities that are not to be matched
 			if (noFilter == false && !modalitiesToMatch.contains(bioType))
 				continue;
@@ -123,9 +126,11 @@ public abstract class SDKService {
 	protected boolean isValidBDBData(PurposeType purposeType, BiometricType bioType, String bioSubType,
 			byte[] bdbData) {
 		ResponseStatus responseStatus = null;
+		
 		if (bdbData != null && bdbData.length != 0) {
 			return isValidBiometericData(purposeType, bioType, bioSubType, Util.encodeToURLSafeBase64(bdbData));
-		}
+		}			
+
 		responseStatus = ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF;
 		throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 	}
