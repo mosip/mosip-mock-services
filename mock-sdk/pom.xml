@@ -89,7 +89,7 @@
 			<version>${kernel.biometrics.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.mosip</groupId>
+			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-bio-converter</artifactId>
 			<version>${kernel.bioconverter.version}</version>
 			<classifier>lib</classifier>
