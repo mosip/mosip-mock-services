@@ -43,11 +43,14 @@ public class CentralizedMockSBI {
      * @param context server base URL / Unique identifier for the environment
      */
     public static void stopSBI(String context) {
+        
         try {
             if(localStore.containsKey(context)) {
-                localStore.get(context).setStopped(true);
-                localStore.get(context).stop();
+                    	
+            	SBIMockService sbiMockService=localStore.get(context);
+            	sbiMockService.setStopped(true);
                 localStore.remove(context);
+            	sbiMockService.stop();
             }
         } catch (Throwable t) {
             LOGGER.error("Error while stopping {} SBI", context, t);
