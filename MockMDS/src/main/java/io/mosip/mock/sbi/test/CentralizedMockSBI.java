@@ -46,8 +46,9 @@ public class CentralizedMockSBI {
         try {
             if(localStore.containsKey(context)) {
                 localStore.get(context).setStopped(true);
+                 localStore.remove(context);
                 localStore.get(context).stop();
-                localStore.remove(context);
+               
             }
         } catch (Throwable t) {
             LOGGER.error("Error while stopping {} SBI", context, t);
@@ -60,8 +61,9 @@ public class CentralizedMockSBI {
         for(String context : localStore.keySet()) {
             try {
                 localStore.get(context).setStopped(true);
+                 localStore.remove(context);
                 localStore.get(context).stop();
-                localStore.remove(context);
+               
             } catch (Throwable t) {
                 LOGGER.error("Error while stopping {} SBI", context, t);
             } finally {
