@@ -135,21 +135,39 @@ public class SBIMockService implements Runnable {
         return null;
     }
 
-	public void createServerSocket () throws SBIException
+public  synchronized void createServerSocket () throws SBIException
 	{
-		try
-		{
-			this.serverPort = getAvailabilePort ();
-			InetAddress addr = InetAddress.getByName (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
-			this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
 
-			LOGGER.info ("SBI Proxy Service started on port " + this.serverPort);
+		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
+		InetAddress addr;
+		try {
+			addr = InetAddress.getByName(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
+
+
+			for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
+			{
+				try {
+
+					this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
+					return;
+				}
+				catch(Exception e){
+					//Do nothing
+
+				}
+			}
+			throw new IOException("No port available");
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		catch (IOException ex)
+		catch(Exception e)
 		{
-			throw new SBIException (ex.hashCode() + "", "SBI Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
+			e.printStackTrace();
 		}
+
 	}
+
 
 	private int getAvailabilePort ()
 	{
