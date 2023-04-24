@@ -164,7 +164,7 @@ public class SBIMockService implements Runnable {
 		return port;
 	}
 
-	private  boolean checkHostAvailability (int port)
+	private static synchronized boolean checkHostAvailability (int port)
 	{
 		try
 		{
