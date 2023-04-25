@@ -136,9 +136,8 @@ public class SBIMockService implements Runnable {
         return null;
     }
 
-public  synchronized void createServerSocket () throws SBIException
+public synchronized  void createServerSocket () throws SBIException
 	{
-
 		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
 		InetAddress addr;
 		try {
@@ -148,13 +147,15 @@ public  synchronized void createServerSocket () throws SBIException
 			for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
 			{
 				try {
-
+					
+					this.serverPort = port;
 					this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
+					
 					return;
 				}
 				catch(Exception e){
 					//Do nothing
-
+					e.printStackTrace();
 				}
 			}
 			throw new IOException("No port available");
