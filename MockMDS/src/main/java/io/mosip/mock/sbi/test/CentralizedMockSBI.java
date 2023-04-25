@@ -39,7 +39,11 @@ public class CentralizedMockSBI {
         if(localStore.get(context).isStopped())
         {
         throw new Exception("Failed to start SBI or no port available to start SBI");
+        
         }
+        
+        LOGGER.info("{} context - Started the socket on this port {} -> ", context, localStore.get(context).getServerPort());
+       
         return localStore.get(context).getServerPort();
     }
 
