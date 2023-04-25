@@ -86,6 +86,8 @@ public class SBIMockService implements Runnable {
 		catch (Exception ex)
 		{
 			LOGGER.error("SBI Mock Service Error", ex);			
+		}finally {
+			setStopped(true);
 		}
 		
 		LOGGER.info ("SBI Mock Service Stopped.");
@@ -171,17 +173,39 @@ public synchronized  void createServerSocket () throws SBIException
 	}
 
 
-	private int getAvailabilePort ()
+	
+//	public void createServerSocket () throws SBIException
+//	{
+//		try
+//		{
+//			LOGGER.info ("SBI Proxy Service Check port " + this.serverPort);
+//			this.serverPort = getAvailabilePort ();
+//			InetAddress addr = InetAddress.getByName (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
+//			this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
+//
+//			LOGGER.info ("SBI Proxy Service started on port " + this.serverPort);
+//		}
+//		catch (IOException ex)
+//		{
+//			throw new SBIException (ex.hashCode() + "", "SBI Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
+//		}
+//	}
+	
+	
+	private int getAvailabilePort () throws IOException
 	{
 		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
 		for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
 		{
 			if (!checkHostAvailability (port))
 			{
-				break;
+				LOGGER.info ("SBI currently not running on port " + this.serverPort);
+				
+				return port;
 			}
 		}
-		return port;
+		throw new IOException("no port available");
+		
 	}
 
 	private static boolean checkHostAvailability (int port)
@@ -193,6 +217,7 @@ public synchronized  void createServerSocket () throws SBIException
 		}
 		catch (Exception ex)
 		{
+			LOGGER.error("Socket Not available {}" , port , ex);
 		}
 		return false;
 	}
