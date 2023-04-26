@@ -34,7 +34,7 @@ public class CentralizedMockSBI {
             
         }
         while(localStore.get(context).getServerPort() == 0 && !localStore.get(context).isStopped()) {
-            //LOGGER.info("{} context - Waiting for the socket to start ...... ", context);
+            LOGGER.info("{} context - Waiting for the socket to start ...... ", context);
         }
         if(localStore.get(context).isStopped())
         {
