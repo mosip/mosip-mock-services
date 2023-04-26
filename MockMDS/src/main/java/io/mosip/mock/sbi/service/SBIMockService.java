@@ -200,7 +200,7 @@ public synchronized  void createServerSocket () throws SBIException
 		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
 		for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
 		{
-			if (!checkHostAvailability (port))
+			if (isPortInUse (port)==false) 
 			{
 				LOGGER.info ("SBI currently not running on port " + this.serverPort);
 				
@@ -210,8 +210,13 @@ public synchronized  void createServerSocket () throws SBIException
 		throw new IOException("no port available");
 		
 	}
-
-	private static synchronized boolean checkHostAvailability (int port)
+	
+	
+/*
+ * checkHostAvailability : Verifies As a client socket to check if provoded port is listening with loopback. 
+ * 
+ */
+	private static synchronized boolean isPortInUse (int port)
 	{
 		try
 		{
