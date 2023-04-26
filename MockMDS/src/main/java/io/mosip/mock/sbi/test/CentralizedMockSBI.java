@@ -33,7 +33,7 @@ public class CentralizedMockSBI {
             localStore.put(context, mockService);
             
         }
-        while(localStore.get(context).getServerPort() == 0 && !localStore.get(context).isStopped()) {
+        while(!localStore.get(context).isStopped() && localStore.get(context).getServerPort() == 0 ) {
             LOGGER.info("{} context - Waiting for the socket to start ...... ", context);
         }
         if(localStore.get(context).isStopped())
