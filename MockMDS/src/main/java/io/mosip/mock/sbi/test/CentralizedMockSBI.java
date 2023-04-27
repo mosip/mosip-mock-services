@@ -24,16 +24,26 @@ public class CentralizedMockSBI {
      * @param biometricType Biometric Device or Finger or Face or Iris
      * @param keystorePath Folder path where the keystore file, refer application.properties for default keystore filename.
      * @return port number on which SBI is started.
+     * @throws Exception 
      */
-    public static int startSBI(String context, String purpose, String biometricType, String keystorePath) {
+    public static int startSBI(String context, String purpose, String biometricType, String keystorePath) throws Exception {
         if(!localStore.containsKey(context)) {
             SBIMockService mockService = new SBIMockService (purpose, biometricType, keystorePath, SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000);
             new Thread(mockService).start();
             localStore.put(context, mockService);
+            
         }
-        while(localStore.get(context).getServerPort() == 0) {
+        while(!localStore.get(context).isStopped() && localStore.get(context).getServerPort() == 0 ) {
             LOGGER.info("{} context - Waiting for the socket to start ...... ", context);
         }
+        if(localStore.get(context).isStopped())
+        {
+        throw new Exception("Failed to start SBI or no port available to start SBI");
+        
+        }
+        
+        LOGGER.info("{} context - Started the socket on this port {} -> ", context, localStore.get(context).getServerPort());
+       
         return localStore.get(context).getServerPort();
     }
 

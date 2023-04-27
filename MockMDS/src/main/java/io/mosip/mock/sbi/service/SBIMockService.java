@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import io.mosip.mock.sbi.util.FileHelper;
@@ -86,6 +87,8 @@ public class SBIMockService implements Runnable {
 		catch (Exception ex)
 		{
 			LOGGER.error("SBI Mock Service Error", ex);			
+		}finally {
+			setStopped(true);
 		}
 		
 		LOGGER.info ("SBI Mock Service Stopped.");
@@ -136,9 +139,10 @@ public class SBIMockService implements Runnable {
         return null;
     }
 
-public  synchronized void createServerSocket () throws SBIException
+	/*
+	 *
+public synchronized  void createServerSocket () throws SBIException
 	{
-
 		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
 		InetAddress addr;
 		try {
@@ -148,13 +152,15 @@ public  synchronized void createServerSocket () throws SBIException
 			for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
 			{
 				try {
-
+					
+					this.serverPort = port;
 					this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
+					
 					return;
 				}
 				catch(Exception e){
 					//Do nothing
-
+					e.printStackTrace();
 				}
 			}
 			throw new IOException("No port available");
@@ -169,21 +175,48 @@ public  synchronized void createServerSocket () throws SBIException
 
 	}
 
+*/
+	
+	public  void createServerSocket () throws SBIException
+	{
+		try
+		{
+			LOGGER.info ("SBI Proxy Service Check port " + this.serverPort);
+			this.serverPort = getAvailabilePort ();
+			InetAddress addr = InetAddress.getByName (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
+			this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
 
-	private int getAvailabilePort ()
+			LOGGER.info ("SBI Proxy Service started on port " + this.serverPort);
+		}
+		catch (IOException ex)
+		{
+			throw new SBIException (ex.hashCode() + "", "SBI Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
+		}
+	}
+	
+	
+	private int getAvailabilePort () throws IOException
 	{
 		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
 		for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
 		{
-			if (!checkHostAvailability (port))
+			if (isPortInUse (port)==false) 
 			{
-				break;
+				LOGGER.info ("SBI currently not running on port " + this.serverPort);
+				
+				return port;
 			}
 		}
-		return port;
+		throw new IOException("no port available");
+		
 	}
-
-	private static boolean checkHostAvailability (int port)
+	
+	
+/*
+ * checkHostAvailability : Verifies As a client socket to check if provoded port is listening with loopback. 
+ * 
+ */
+	private static synchronized boolean isPortInUse (int port)
 	{
 		try
 		{
@@ -192,6 +225,7 @@ public  synchronized void createServerSocket () throws SBIException
 		}
 		catch (Exception ex)
 		{
+			LOGGER.error("Socket Not available {}" , port , ex);
 		}
 		return false;
 	}
