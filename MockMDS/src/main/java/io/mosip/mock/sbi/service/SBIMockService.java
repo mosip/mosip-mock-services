@@ -226,7 +226,7 @@ public synchronized  void createServerSocket () throws SBIException
 		}
 		catch (Exception ex)
 		{
-			LOGGER.info("Socket Not available {}" , port , ex);
+			LOGGER.error("Socket Not available {}" , port , ex);
 		}
 		return false;
 	}
