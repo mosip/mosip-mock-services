@@ -181,8 +181,9 @@ public synchronized  void createServerSocket () throws SBIException
 	{
 		try
 		{
-			LOGGER.info ("SBI Proxy Service Check port " + this.serverPort);
+			
 			this.serverPort = getAvailabilePort ();
+			LOGGER.info ("SBI Proxy Service Check port " + this.serverPort);
 			InetAddress addr = InetAddress.getByName (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
 			this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
 
@@ -202,7 +203,7 @@ public synchronized  void createServerSocket () throws SBIException
 		{
 			if (isPortInUse (port)==false) 
 			{
-				LOGGER.info ("SBI currently not running on port " + this.serverPort);
+				LOGGER.info ("SBI currently not running on port " + port);
 				
 				return port;
 			}
@@ -225,7 +226,7 @@ public synchronized  void createServerSocket () throws SBIException
 		}
 		catch (Exception ex)
 		{
-			LOGGER.error("Socket Not available {}" , port , ex);
+			LOGGER.info("Socket Not available {}" , port , ex);
 		}
 		return false;
 	}
