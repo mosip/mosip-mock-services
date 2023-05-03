@@ -197,7 +197,7 @@ public abstract class SDKService {
 					bdir.getRecordLength())) {
 				message.append(
 						"<BR>Invalid Record Length for Finger Modality, expected values between[0x00000039 and 0xFFFFFFFF], but received input value["
-								+ String.format("0x%08X", (bioData != null ? bioData.length : 0) + "]"));
+								+ String.format("0x%08X", (bioData != null ? bioData.length : 0)) + "]");
 				isValid = false;
 			}
 
@@ -537,7 +537,7 @@ public abstract class SDKService {
 					bdir.getRecordLength())) {
 				message.append(
 						"<BR>Invalid Record Length for Iris Modality, expected values between[0x00000045 and 0xFFFFFFFF], but received input value["
-								+ String.format("0x%08X", (bioData != null ? bioData.length : 0) + "]"));
+								+ String.format("0x%08X", (bioData != null ? bioData.length : 0)) + "] Or Data Length mismatch["+ bioData.length +"!= " + bdir.getRecordLength() +"]");
 				isValid = false;
 			}
 
@@ -856,7 +856,7 @@ public abstract class SDKService {
 					bdir.getRecordLength())) {
 				message.append(
 						"<BR>Invalid Record Length for Face Modality, expected values between[0x00000001 and 0xFFFFFFFF], but received input value["
-								+ String.format("0x%08X", (bioData != null ? bioData.length : 0) + "]"));
+								+ String.format("0x%08X", (bioData != null ? bioData.length : 0)) + "]");				
 				isValid = false;
 			}
 
