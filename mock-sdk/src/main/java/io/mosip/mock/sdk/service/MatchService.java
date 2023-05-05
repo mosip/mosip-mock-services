@@ -388,7 +388,7 @@ public class MatchService extends SDKService {
 					// need to check isValidBIRParams and isValidBDBData too
 					// if (!isValidBirData(galleryBIR))
 					// break;
-					LOGGER.info("SampleBIR Value check",galleryBIR.getBdbInfo().getSubtype());
+					LOGGER.info("GalleryBIR Value check",galleryBIR.getBdbInfo().getSubtype());
 					if (galleryBIR.getBdbInfo().getSubtype() == null || galleryBIR.getBdbInfo().getSubtype().isEmpty() || galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
