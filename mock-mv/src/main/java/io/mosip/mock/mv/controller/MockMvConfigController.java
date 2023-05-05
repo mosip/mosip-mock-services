@@ -86,7 +86,8 @@ public class MockMvConfigController {
 	            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 	            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	    public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
-	        logger.info("Setting expectation" + expectation.getRId());
+	        logger.info("Setting expectation " + expectation.getRId());
+			logger.info("setting Delay of "+expectation.getDelayInResponse()+ " Seconds");
 	        try {
 	        	mockMvDecisionService.setExpectation(expectation);
 	            return new ResponseEntity<>("Successfully inserted expectation "+expectation.getRId(), HttpStatus.OK);

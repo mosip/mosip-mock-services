@@ -1,10 +1,7 @@
 package io.mosip.mock.mv.queue;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -119,11 +116,13 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
+	private Timer timer = new Timer();
 
 	public boolean consumeLogic(javax.jms.Message message, String mvAddress) {
 		boolean isrequestAddedtoQueue = false;
 		Integer textType = 0;
 		String messageData = null;
+		Integer delayInRsponse=0;
 		try {
 			if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
 				textType = 1;
@@ -155,6 +154,8 @@ public class Listener {
 					} else {
 						candidateList.setCandidates(null);
 					}
+					delayInRsponse= expectation.getDelayInResponse();
+
 				}
 				else {
 				if (mockDecision.equalsIgnoreCase(REJECTED)) {
@@ -176,11 +177,9 @@ public class Listener {
 
 			logger.info("Request type is " + response);
 
-			if (textType == 2) {
-				isrequestAddedtoQueue = send(response.getBytes(), mvAddress);
-			} else if (textType == 1) {
-				isrequestAddedtoQueue = send(response, mvAddress);
-			}
+			isrequestAddedtoQueue=executeAsync(response,delayInRsponse,textType,mvAddress);
+
+
 		} catch (Exception e) {
 			logger.error("Could not process mv request", ExceptionUtils.getStackTrace(e));
 		}
@@ -367,6 +366,29 @@ public class Listener {
 			candidateList.setCandidates(candidates);
 		}
 		return candidateList;
+	}
+
+	public boolean executeAsync(String response, int delayResponse, Integer textType,String mvAddress ){
+		TimerTask task = new TimerTask() {
+			public void run() {
+				try {
+					if (textType == 2) {
+
+						send(response.getBytes(), mvAddress);
+					} else if (textType == 1) {
+
+						send(response, mvAddress);
+					}
+					logger.info("Scheduled job completed: MsgType "+textType);
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		};
+		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
+		timer.schedule(task, delayResponse*1000);
+		return true;
 	}
 
 }
