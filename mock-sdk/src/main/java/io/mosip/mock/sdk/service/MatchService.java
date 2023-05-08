@@ -393,13 +393,13 @@ public class MatchService extends SDKService {
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 							LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.FACE.value(),
-									galleryBIR.getBdbInfo().getSubtype().get(0));
+									galleryBIR.getBdbInfo().getSubtype());
 							matched.add(true);
 							bio_found = true;
 							break;
 						} else {
 							LOGGER.info("Modality: {}; Subtype: {} -- not matched", BiometricType.FACE.value(),
-									galleryBIR.getBdbInfo().getSubtype().get(0));
+									galleryBIR.getBdbInfo().getSubtype());
 							matched.add(false);
 							bio_found = true;
 						}
