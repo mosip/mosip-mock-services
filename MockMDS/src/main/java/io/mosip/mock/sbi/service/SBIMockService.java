@@ -191,7 +191,7 @@ public synchronized  void createServerSocket () throws SBIException
 		}
 		catch (IOException ex)
 		{
-			throw new SBIException (ex.hashCode() + "", "SBI Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
+			throw new SBIException (ex.hashCode() + "", "SBI  Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
 		}
 	}
 	
