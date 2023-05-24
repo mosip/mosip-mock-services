@@ -18,7 +18,7 @@ public class ExceptionInterceptor extends ResponseEntityExceptionHandler {
 			fr.setId(exp.entity.getId());
 			fr.setRequestId(exp.entity.getRequestId());
 			fr.setResponsetime(exp.entity.getRequesttime());
-			fr.setReturnValue(2);
+			fr.setReturnValue("2");
 			fr.setFailureReason(exp.reasonConstant);
 		}
 		return new ResponseEntity<Object>(fr, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -32,11 +32,9 @@ public class ExceptionInterceptor extends ResponseEntityExceptionHandler {
 			fr.setId(bindingException.entity.getId());
 			fr.setRequestId(bindingException.entity.getRequestId());
 			fr.setResponsetime(bindingException.entity.getRequesttime());
-			fr.setReturnValue(2);
+			fr.setReturnValue("2");
 			fr.setFailureReason(bindingException.bindingResult.getFieldErrors().get(0).getDefaultMessage());
 		}
 		return new ResponseEntity<Object>(fr, HttpStatus.INTERNAL_SERVER_ERROR);
-
 	}
-
 }
