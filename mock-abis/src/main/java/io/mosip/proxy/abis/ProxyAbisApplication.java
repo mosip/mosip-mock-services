@@ -21,10 +21,8 @@ public class ProxyAbisApplication {
 		configurableApplicationContext.getBean(Listener.class).runAbisQueue();
 	}
 		
-
 	@Bean
 	public RestTemplate getRestTemplate() {
 		return new RestTemplate();
 	}
-
 }
