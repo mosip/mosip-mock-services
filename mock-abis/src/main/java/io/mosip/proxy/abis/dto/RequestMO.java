@@ -3,15 +3,10 @@ package io.mosip.proxy.abis.dto;
 import java.time.LocalDateTime;
 
 public class RequestMO {
-
 	private String id;
-
 	private String version;
-
 	private String requestId;
-
 	private LocalDateTime requesttime;
-
 	private String referenceId;
 
 	public RequestMO() {
@@ -30,7 +25,6 @@ public class RequestMO {
 	public String getId() {
 		return id;
 	}
-
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -38,7 +32,6 @@ public class RequestMO {
 	public String getVersion() {
 		return version;
 	}
-
 	public void setVersion(String version) {
 		this.version = version;
 	}
@@ -46,7 +39,6 @@ public class RequestMO {
 	public String getRequestId() {
 		return requestId;
 	}
-
 	public void setRequestId(String requestId) {
 		this.requestId = requestId;
 	}
@@ -54,7 +46,6 @@ public class RequestMO {
 	public LocalDateTime getRequesttime() {
 		return requesttime;
 	}
-
 	public void setRequesttime(LocalDateTime requesttime) {
 		this.requesttime = requesttime;
 	}
@@ -62,9 +53,7 @@ public class RequestMO {
 	public String getReferenceId() {
 		return referenceId;
 	}
-
 	public void setReferenceId(String referenceId) {
 		this.referenceId = referenceId;
 	}
-
 }

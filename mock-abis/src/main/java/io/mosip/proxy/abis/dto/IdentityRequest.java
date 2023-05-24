@@ -18,7 +18,7 @@ public class IdentityRequest {
 
 	private String referenceUrl;
 
-	private Gallery gallery=null;
+	private Gallery gallery = null;
 
 	private Flags flags;
 
@@ -104,11 +104,9 @@ public class IdentityRequest {
 	}
 
 	public static class Gallery {
-
 		List<ReferenceIds> referenceIds = new ArrayList<>();
 
 		public Gallery() {
-
 		}
 
 		public Gallery(List<ReferenceIds> referenceIds) {
@@ -123,7 +121,6 @@ public class IdentityRequest {
 		public void setReferenceIds(List<ReferenceIds> referenceIds) {
 			this.referenceIds = referenceIds;
 		}
-
 	}
 
 	public static class ReferenceIds {
@@ -145,13 +142,11 @@ public class IdentityRequest {
 		public void setReferenceId(String referenceId) {
 			this.referenceId = referenceId;
 		}
-
 	}
 
- public static class Flags {
-
-		private Integer maxResults;
-		private Integer targetFPIR;
+	public static class Flags {
+		private String maxResults;
+		private String targetFPIR;
 		private String flag1;
 		private String flag2;
 
@@ -159,7 +154,7 @@ public class IdentityRequest {
 			super();
 		}
 
-		public Flags(Integer maxResults, Integer targetFPIR, String flag1, String flag2) {
+		public Flags(String maxResults, String targetFPIR, String flag1, String flag2) {
 			super();
 			this.maxResults = maxResults;
 			this.targetFPIR = targetFPIR;
@@ -167,19 +162,19 @@ public class IdentityRequest {
 			this.flag2 = flag2;
 		}
 
-		public Integer getMaxResults() {
+		public String getMaxResults() {
 			return maxResults;
 		}
 
-		public void setMaxResults(Integer maxResults) {
+		public void setMaxResults(String maxResults) {
 			this.maxResults = maxResults;
 		}
 
-		public Integer getTargetFPIR() {
+		public String getTargetFPIR() {
 			return targetFPIR;
 		}
 
-		public void setTargetFPIR(Integer targetFPIR) {
+		public void setTargetFPIR(String targetFPIR) {
 			this.targetFPIR = targetFPIR;
 		}
 
@@ -198,6 +193,5 @@ public class IdentityRequest {
 		public void setFlag2(String flag2) {
 			this.flag2 = flag2;
 		}
-
 	}
 }

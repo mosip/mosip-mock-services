@@ -2,16 +2,11 @@ package io.mosip.proxy.abis.dto;
 
 import java.time.LocalDateTime;
 
-public class FailureResponse {
-	
-	private String id;
-	
+public class FailureResponse {	
+	private String id;	
 	private String requestId;
-	
 	private LocalDateTime responsetime;
-	
-	private int returnValue;
-	
+	private String returnValue;	
 	private String failureReason;
 
 	public FailureResponse()
@@ -19,7 +14,7 @@ public class FailureResponse {
 		super();
 	}
 		
-	public FailureResponse(String id, String requestId, LocalDateTime responsetime, int returnValue,
+	public FailureResponse(String id, String requestId, LocalDateTime responsetime, String returnValue,
 			String failureReason) {
 		super();
 		this.id = id;
@@ -32,7 +27,6 @@ public class FailureResponse {
 	public String getId() {
 		return id;
 	}
-
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -40,7 +34,6 @@ public class FailureResponse {
 	public String getRequestId() {
 		return requestId;
 	}
-
 	public void setRequestId(String requestId) {
 		this.requestId = requestId;
 	}
@@ -48,27 +41,21 @@ public class FailureResponse {
 	public LocalDateTime getResponsetime() {
 		return responsetime;
 	}
-
 	public void setResponsetime(LocalDateTime responsetime) {
 		this.responsetime = responsetime;
 	}
 
-	public int getReturnValue() {
+	public String getReturnValue() {
 		return returnValue;
 	}
-
-	public void setReturnValue(int returnValue) {
+	public void setReturnValue(String returnValue) {
 		this.returnValue = returnValue;
 	}
 
 	public String getFailureReason() {
 		return failureReason;
 	}
-
 	public void setFailureReason(String failureReason) {
 		this.failureReason = failureReason;
 	}
-
-	
-	
 }

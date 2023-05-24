@@ -23,8 +23,10 @@ import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +39,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +56,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -139,7 +144,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			proxyabis.save(ie);
 			return delayResponse;
 		} catch (CbeffException cbef) {
-			logger.error("CBEF error While inserting data " + cbef.getMessage());
+			logger.error("CBEFF error While inserting data " + cbef.getMessage());
 			throw new RequestException(cbef.getMessage(), delayResponse);
 		} catch(RequestException rex) {
 			rex.setDelayResponse(delayResponse);
@@ -175,7 +180,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
 				HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
 
-				Object obj = JSONValue.parse(response.getBody());
+				String responseData = response.getBody();
+				logger.info("CBEFF URL responseData -" + responseData);
+
+				Object obj = JSONValue.parse(responseData);
 
 				JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
 				HttpHeaders responseHeader = response.getHeaders();
@@ -186,44 +194,146 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
 						responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
 			}
+
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
 			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
 			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
-
+			logger.info("CBEFF Data-" + cbeff);
+			
+			try
+			{
+				/* Data Share response 
+				 *  {
+				 *		"id": "mosip.data.share",
+				 *		"version": "1.0",
+				 *		"responsetime": "2023-05-23T12:02:53.601Z",
+				 *		"dataShare": null,
+				 *		"errors": [
+				 *			{
+				 *				"errorCode": "DAT-SER-006",
+				 *				"message": "Data share usuage expired"
+				 *			}
+				 *		]
+				 *	}
+				 *  And Errors
+				 *  	DATA_ENCRYPTION_FAILURE_EXCEPTION("DAT-SER-001", "Data Encryption failed"),
+				 *  	API_NOT_ACCESSIBLE_EXCEPTION("DAT-SER-002", "API not accessible"),
+				 *  	FILE_EXCEPTION("DAT-SER-003", "File is not exists or File is empty"),
+				 *  	URL_CREATION_EXCEPTION("DAT-SER-004", "URL creation exception"),
+				 *  	SIGNATURE_EXCEPTION("DAT-SER-005", "Failed to generate digital signature"),
+				 *  	DATA_SHARE_NOT_FOUND_EXCEPTION("DAT-SER-006", "Data share not found"),
+				 *  	DATA_SHARE_EXPIRED_EXCEPTION("DAT-SER-006", "Data share usuage expired"),
+				 *  	POLICY_EXCEPTION("DAT-SER-007", "Exception while fetching policy details");
+				 *  	KER-ATH-401 - Authentication Failed
+				 *  	KER-ATH-403 - Forbidden
+				 */	
+				JSONParser parser = new JSONParser();
+				JSONObject json = (JSONObject) parser.parse(cbeff);
+				JSONArray errors = (JSONArray)json.get("errors");
+				for (Iterator it = errors.iterator(); it.hasNext();) {
+					JSONObject error = (JSONObject) it.next();
+					String errorCode = ((String) error.get("errorCode")).trim();
+					String message = ((String) error.get("message")).trim();
+					logger.info("errorCode-" + errorCode);
+					logger.info("message-" + message);
+					throw new RequestException (errorCode);					
+				}
+			}
+			catch (RequestException ex)
+			{
+				if (ex.getReasonConstant().equalsIgnoreCase("DAT-SER-006"))
+					throw new RequestException (FailureReasonsConstants.DATA_SHARE_URL_EXPIRED);					
+				else
+					throw new RequestException (FailureReasonsConstants.UNEXPECTED_ERROR);					
+			}
+			catch (Exception ex)
+			{				
+				//ex.printStackTrace();
+			}
+			
 			if(encryption) {
 				cbeff = cryptoUtil.decryptCbeff(cbeff);
 			}
 
-			BIR birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
-			birType.setBirs(birType.getBirs().stream().filter(b -> b.getBdb() != null).collect(Collectors.toList()));
-			logger.info("Validating CBEFF data");
-			if (!CbeffValidator.validateXML(birType)) {
+			logger.info("CBEFF Data-" + cbeff);
+			if (cbeff == null || cbeff.isBlank() || cbeff.isEmpty()) {
 				logger.info("Error while validating CBEFF");
-				throw new CbeffException("Invalid CBEFF");
+				throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+			}
+
+			BIR birType = null;
+			try
+			{
+				birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+				birType.setBirs(birType.getBirs().stream().filter(b -> b.getBdb() != null).collect(Collectors.toList()));
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+				logger.error("Error while validating CBEFF", ex);
+				throw new RequestException (FailureReasonsConstants.INVALID_CBEFF_FORMAT);
+			}
+
+			logger.info("Validating CBEFF data");
+			try
+			{
+				if (!CbeffValidator.validateXML(birType)) {
+					logger.error("Error while validating CBEFF");
+					throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+				}
+				
+				if (birType == null || birType.getBirs().size() == 0)
+					throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+				logger.error("Error while validating CBEFF Data", ex);
+				throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
 			}
 
 			logger.info("Valid CBEFF data");
-			logger.info("Inserting biometric details to concerned table");
+			logger.info("Inserting biometric details to concerned table" + birType.getBirs().size());
 
 			for (BIR bir : birType.getBirs()) {
 				if (bir.getBdb() != null && bir.getBdb().length > 0) {
 					BiometricData bd = new BiometricData();
 					bd.setType(bir.getBdbInfo().getType().iterator().next().value());
+					if (bir.getBdbInfo() == null)
+						throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+
 					if (bir.getBdbInfo().getSubtype() != null && bir.getBdbInfo().getSubtype().size() >0)
 					bd.setSubtype(bir.getBdbInfo().getSubtype().toString());
+
+					if ((bir.getBdb() == null || bir.getBdb().length <= 0))
+						throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+
 					String hash = getSHAFromBytes(bir.getBdb());
 					bd.setBioData(hash);
 					bd.setInsertEntity(ie);
 
 					lst.add(bd);
 				}
+				else 
+				{
+					throw new RequestException (FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+				}
 			}
-
-		} catch (CbeffException ex) {
-			logger.error("issue with cbeff " + ex.getMessage());
-			throw ex;
+		} catch (HttpClientErrorException ex) {
+			ex.printStackTrace();
+			logger.error("issue with httpclient URL " + ex.getLocalizedMessage());
+			throw new RequestException (FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
+		}
+		catch (URISyntaxException | IllegalArgumentException ex) {
+			ex.printStackTrace();
+			logger.error("issue with httpclient URL Syntax " + ex.getLocalizedMessage());
+			throw new RequestException (FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
+		} 
+		catch (CbeffException ex) {
+			logger.error("issue with cbeff " + ex.getLocalizedMessage());
+			throw new RequestException (FailureReasonsConstants.INVALID_CBEFF_FORMAT);
 		} catch (Exception ex) {
-			logger.error("Issue while getting ,validating and inserting Cbeff" + ex.getMessage());
+			logger.error("Issue while getting ,validating and inserting Cbeff" + ex.getLocalizedMessage());
 			ex.printStackTrace();
 			throw ex;
 		}
@@ -279,13 +389,16 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			List<BiometricData> lst = null;
 			logger.info("find duplicate property set to " + proxyAbisConfigService.getDuplicate());
 			logger.info("force duplicate property set to " + proxyAbisConfigService.isForceDuplicate());
-			if (null != ir.getGallery() && ir.getGallery().getReferenceIds().size() > 0
-					&& null != ir.getGallery().getReferenceIds().get(0).getReferenceId()
+			if (ir.getGallery() != null && ir.getGallery().getReferenceIds().size() > 0
+					&& ir.getGallery().getReferenceIds().get(0).getReferenceId() != null 
 					&& !ir.getGallery().getReferenceIds().get(0).getReferenceId().isEmpty()) {
 				List<String> referenceIds = new ArrayList();
 				ir.getGallery().getReferenceIds().stream().forEach(ref -> referenceIds.add(ref.getReferenceId()));
+
 				logger.info("checking for duplication of reference Id against" + referenceIds.toString());
-				lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
+				if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
+					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId, referenceIds);
+				}
 			} else {
 				logger.info("checking for duplication in entire DB of reference ID" + refId);
 				List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
@@ -331,7 +444,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		if(expectation.getForcedResponse().equals("Error")){
 			throw new RequestException(expectation.getErrorCode());
 		} else if(expectation.getForcedResponse().equals("Duplicate")) {
-			response.setReturnValue(1);
+			response.setReturnValue("1");
 			IdentityResponse.CandidateList cdl = new IdentityResponse.CandidateList();
 			cdl.setCandidates(new ArrayList<>());
 			List<Modalities> modalitiesList = new ArrayList<>();
@@ -350,7 +463,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 						}
 					}
 				}
-				cdl.setCount(cdl.getCandidates().size());
+				cdl.setCount(cdl.getCandidates().size() + "");
 				response.setCandidateList(cdl);
 				logger.info("response==" +response);
 				return response;
@@ -363,12 +476,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		IdentityResponse response = new IdentityResponse();
 		response.setId(ir.getId());
 		response.setRequestId(ir.getRequestId());
-		response.setReturnValue(1);
+		response.setReturnValue(1+ "");
 		response.setResponsetime(ir.getRequesttime());
 		IdentityResponse.CandidateList cl = new IdentityResponse.CandidateList();
 		if (null == lst || lst.size() == 0) {
 			logger.info("No duplicates found for referenceID" + ir.getReferenceId());
-			cl.setCount(0);
+			cl.setCount(0+ "");
 			response.setCandidateList(cl);
 			return response;
 		}
@@ -398,7 +511,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 			});
 			logger.info("Number of duplicates are" + mp.size());
-			cl.setCount(mp.size());
+			cl.setCount(mp.size()+ "");
 			List<IdentityResponse.Candidates> clst = new ArrayList<>();
 			mp.entrySet().stream().forEach(e -> {
 				clst.add(e.getValue());
@@ -409,15 +522,15 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		} catch (Exception e) {
 			logger.error(ExceptionUtils.getStackTrace(e));
 		}
-		cl.setCount(0);
+		cl.setCount(0+ "");
 		response.setCandidateList(new IdentityResponse.CandidateList());
 		return response;
 	}
 
 	private IdentityResponse.Analytics getAnalytics() {
 		IdentityResponse.Analytics a = new IdentityResponse.Analytics();
-		a.setConfidence(Integer.parseInt(env.getProperty("analytics.confidence")));
-		a.setInternalScore(Integer.parseInt(env.getProperty("analytics.internalscore")));
+		a.setConfidence(env.getProperty("analytics.confidence").toString());
+		a.setInternalScore(env.getProperty("analytics.internalscore").toString());
 		a.setKey1(env.getProperty("analytics.key1"));
 		a.setKey2(env.getProperty("analytics.key2"));
 		return a;
