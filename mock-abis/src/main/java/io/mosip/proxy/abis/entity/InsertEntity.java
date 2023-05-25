@@ -95,8 +95,5 @@ public class InsertEntity {
 	public void setBiometricList(List<BiometricData> biometricList) {
 		this.biometricList = biometricList;
 	}
-	
-	
 
-	
 }

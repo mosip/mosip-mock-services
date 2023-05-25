@@ -34,8 +34,6 @@ public class BiometricData {
 		super();
 	}
 
-	
-	
 	public BiometricData(Long id, String type, String subtype, String bioData, InsertEntity insertEntity) {
 		super();
 		this.id = id;
@@ -44,8 +42,6 @@ public class BiometricData {
 		this.bioData = bioData;
 		this.insertEntity = insertEntity;
 	}
-
-
 
 	public Long getId() {
 		return id;
