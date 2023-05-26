@@ -370,7 +370,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 				logger.info("checking for duplication of reference Id against" + referenceIds.toString());
 
-				int galleryRefIdCountInDB = proxyAbisBioDataRepository
+				int galleryRefIdCountInDB = proxyabis
 						.fetchCountForReferenceIdPresentInGallery(referenceIds);
 				if (galleryRefIdCountInDB != referenceIds.size()) {
 					logger.info(String.format("checking for reference Id Present in DB[%d], Gallery reference Id list size[%d] ", galleryRefIdCountInDB, referenceIds.size()));
