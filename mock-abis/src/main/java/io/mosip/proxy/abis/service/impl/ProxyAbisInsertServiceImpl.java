@@ -1,7 +1,6 @@
 package io.mosip.proxy.abis.service.impl;
 
 import io.mosip.kernel.biometrics.commons.CbeffValidator;
-import io.mosip.kernel.core.cbeffutil.jaxbclasses.BIRType;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import io.mosip.kernel.core.exception.ExceptionUtils;
@@ -21,7 +20,6 @@ import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -68,8 +66,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
-	private static String UPLOAD_FOLDER = System.getProperty("user.dir") + "\\keystore";
-	private static String PROPERTIES_FILE = UPLOAD_FOLDER + "\\partner.properties";
+	private static Path currentPath = Paths.get(System.getProperty("user.dir"));
+	private static Path keystoreFilePath = Paths.get(currentPath.toString(), File.pathSeparator, "keystore");
+
+	private static String PROPERTIES_FILE_NAME = "partner.properties";
 
 	@Autowired
 	ProxyAbisInsertRepository proxyabis;
@@ -154,7 +154,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.error("Error While inserting data " + exp.getMessage());
 			throw new RequestException(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, delayResponse);
 		}
-
 	}
 
 	private List<BiometricData> fetchCBEFF(InsertEntity ie) throws Exception {
@@ -224,8 +223,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					JSONObject error = (JSONObject) it.next();
 					String errorCode = ((String) error.get("errorCode")).trim();
 					String message = ((String) error.get("message")).trim();
-					logger.info("errorCode-" + errorCode);
-					logger.info("message-" + message);
+					logger.info(String.format("ErrorCode[%s], ErrorMessage[%s],", errorCode, message));
 					throw new RequestException(errorCode);
 				}
 			} catch (RequestException ex) {
@@ -375,8 +373,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				int galleryRefIdCountInDB = proxyAbisBioDataRepository
 						.fetchCountForReferenceIdPresentInGallery(referenceIds);
 				if (galleryRefIdCountInDB != referenceIds.size()) {
-					logger.info("checking for reference Id Present in DB ==== " + galleryRefIdCountInDB);
-					logger.info("checking for reference Id Size ==== " + referenceIds.size());
+					logger.info(String.format("checking for reference Id Present in DB[%d], Gallery reference Id list size[%d] ", galleryRefIdCountInDB, referenceIds.size()));
 					throw new RequestException(FailureReasonsConstants.REFERENCEID_NOT_FOUND);
 				}
 
@@ -528,7 +525,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		try {
 			logger.info("Uploading certificate");
 			byte[] bytes = uploadedFile.getBytes();
-			Path path = Paths.get(UPLOAD_FOLDER + "/" + uploadedFile.getOriginalFilename());
+			Path currentPath = Paths.get(System.getProperty("user.dir"));
+			Path path = Paths.get(keystoreFilePath.toString(), File.separator, uploadedFile.getOriginalFilename());
+			
 			File keyFile = new File(path.toString());
 			File parent = keyFile.getParentFile();
 			if (parent != null && !parent.exists() && !parent.mkdirs()) {
@@ -537,14 +536,15 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			keyFile.createNewFile();
 			Files.write(path, bytes);
 
-			FileWriter myWriter = new FileWriter(PROPERTIES_FILE);
+			path = Paths.get(keystoreFilePath.toString(), File.separator, PROPERTIES_FILE_NAME);
+			FileWriter myWriter = new FileWriter(path.toString());
 			myWriter.write("certificate.alias=" + alias + "\n" + "certificate.password=" + password + "\n");
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
 					+ uploadedFile.getOriginalFilename());
 			myWriter.close();
 			CryptoCoreUtil.setCertificateValues(uploadedFile.getOriginalFilename(), keystore, password, alias);
 
-			File dir = new File(UPLOAD_FOLDER);
+			File dir = new File(keystoreFilePath.toString());
 			File[] fileList = dir.listFiles();
 			for (File file : fileList) {
 				if (!file.getName().equalsIgnoreCase(uploadedFile.getOriginalFilename())
@@ -561,7 +561,5 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.error("Could not upload file");
 		}
 		return "Could not upload file";
-
 	}
-
 }
