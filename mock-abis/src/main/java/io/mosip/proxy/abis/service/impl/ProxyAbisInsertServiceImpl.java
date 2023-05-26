@@ -525,7 +525,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		try {
 			logger.info("Uploading certificate");
 			byte[] bytes = uploadedFile.getBytes();
-			Path currentPath = Paths.get(System.getProperty("user.dir"));
 			Path path = Paths.get(keystoreFilePath.toString(), File.separator, uploadedFile.getOriginalFilename());
 			
 			File keyFile = new File(path.toString());
