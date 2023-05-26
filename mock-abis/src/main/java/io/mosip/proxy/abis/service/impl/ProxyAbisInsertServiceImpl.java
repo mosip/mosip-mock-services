@@ -67,7 +67,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
 	private static Path currentPath = Paths.get(System.getProperty("user.dir"));
-	private static Path keystoreFilePath = Paths.get(currentPath.toString(), File.pathSeparator, "keystore");
+	private static Path keystoreFilePath = Paths.get(currentPath.toString(), "keystore");
 
 	private static String PROPERTIES_FILE_NAME = "partner.properties";
 
@@ -525,7 +525,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		try {
 			logger.info("Uploading certificate");
 			byte[] bytes = uploadedFile.getBytes();
-			Path path = Paths.get(keystoreFilePath.toString(), File.separator, uploadedFile.getOriginalFilename());
+			Path path = Paths.get(keystoreFilePath.toString(), uploadedFile.getOriginalFilename());
 			
 			File keyFile = new File(path.toString());
 			File parent = keyFile.getParentFile();
@@ -535,7 +535,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			keyFile.createNewFile();
 			Files.write(path, bytes);
 
-			path = Paths.get(keystoreFilePath.toString(), File.separator, PROPERTIES_FILE_NAME);
+			path = Paths.get(keystoreFilePath.toString(), PROPERTIES_FILE_NAME);
 			FileWriter myWriter = new FileWriter(path.toString());
 			myWriter.write("certificate.alias=" + alias + "\n" + "certificate.password=" + password + "\n");
 			myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
