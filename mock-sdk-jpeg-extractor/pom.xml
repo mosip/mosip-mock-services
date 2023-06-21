@@ -5,7 +5,7 @@
 
 	<artifactId>mock-sdk-jpeg-extractor</artifactId>
 	<groupId>io.mosip.mock.sdk</groupId>
-	<version>1.2.0.1-B1</version>
+	<version>1.2.0.1-SNAPSHOT</version>
 	<name>mock-sdk-jpeg-extractor</name>
 	<description>Sample implementation of biometrics SDK-containing jpeg extraction</description>
 	<packaging>jar</packaging>
