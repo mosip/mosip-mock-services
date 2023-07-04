@@ -377,21 +377,7 @@ public class Listener {
 		}
 		return candidateList;
 	}
-//	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType){
-//		TimerTask task = new TimerTask() {
-//			public void run() {
-//				try {
-//					listener.sendToQueue(finalResponseEntity, msgType);
-//					logger.info("Scheduled job completed: MsgType "+msgType);
-//				} catch (JsonProcessingException | UnsupportedEncodingException e) {
-//					logger.error(e.getMessage());
-//					e.printStackTrace();
-//				}
-//			}
-//		};
-//		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
-//		timer.schedule(task, delayResponse*1000);
-//	}
+
 
 	public boolean executeAsync(String response, int delayResponse, Integer textType,String mvAddress ){
 		TimerTask task = new TimerTask() {
