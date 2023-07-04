@@ -3,18 +3,10 @@ package io.mosip.mock.mv.dto;
 public class Expectation {
 
     private String rid;
-    
+
     private String mockMvDecision;
 
     private int delayResponse = 0;
-
-    public String getRid() {
-        return rid;
-    }
-
-    public void setRid(String rid) {
-        this.rid = rid;
-    }
 
     public int getDelayResponse() {
         return delayResponse;
@@ -32,23 +24,23 @@ public class Expectation {
         this.rid = rid;
     }
 
-    public Expectation(String rid, String mockMvDecision, int delayResponse) {
+    public Expectation(String rid,String mockMvDecision) {
+        super();
         this.rid = rid;
-        this.mockMvDecision = mockMvDecision;
-        this.delayResponse = delayResponse;
+        this.mockMvDecision=mockMvDecision;
     }
 
-	public Expectation() {
-		super();
-	}
+    public Expectation() {
+        super();
+    }
 
-	public String getMockMvDecision() {
-		return mockMvDecision;
-	}
+    public String getMockMvDecision() {
+        return mockMvDecision;
+    }
 
-	public void setMockMvDecision(String mockMvDecision) {
-		this.mockMvDecision = mockMvDecision;
-	}
+    public void setMockMvDecision(String mockMvDecision) {
+        this.mockMvDecision = mockMvDecision;
+    }
 
     @Override
     public String toString() {
