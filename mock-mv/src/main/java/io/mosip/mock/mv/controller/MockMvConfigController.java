@@ -27,6 +27,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import static io.mosip.mock.mv.queue.Listener.javaObjectToJsonString;
+
 @CrossOrigin
 @RestController
 @Tag(name = "Proxy MockMv config API", description = "Provides API's for configuring proxy MockMv")
@@ -86,12 +88,14 @@ public class MockMvConfigController {
 	            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 	            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	    public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
-	        logger.info("Setting expectation" + expectation.getRId());
+
+		 String response = javaObjectToJsonString(expectation);
+		 logger.info("Setting expectation " + response);
 	        try {
 	        	mockMvDecisionService.setExpectation(expectation);
 	            return new ResponseEntity<>("Successfully inserted expectation "+expectation.getRId(), HttpStatus.OK);
 	        } catch (RuntimeException exp) {
-	            logger.error("Exception while getting expectation: "+exp.getMessage());
+				logger.error("Exception while getting expectation: "+response);
 	            throw exp;
 	        }
 	    }

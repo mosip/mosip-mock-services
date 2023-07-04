@@ -6,6 +6,23 @@ public class Expectation {
     
     private String mockMvDecision;
 
+    private int delayResponse = 0;
+
+    public String getRid() {
+        return rid;
+    }
+
+    public void setRid(String rid) {
+        this.rid = rid;
+    }
+
+    public int getDelayResponse() {
+        return delayResponse;
+    }
+
+    public void setDelayResponse(int delayResponse) {
+        this.delayResponse = delayResponse;
+    }
 
     public String getRId() {
         return rid;
@@ -15,11 +32,11 @@ public class Expectation {
         this.rid = rid;
     }
 
-    public Expectation(String rid,String mockMvDecision) {
-        super();
+    public Expectation(String rid, String mockMvDecision, int delayResponse) {
         this.rid = rid;
-        this.mockMvDecision=mockMvDecision;
-    } 
+        this.mockMvDecision = mockMvDecision;
+        this.delayResponse = delayResponse;
+    }
 
 	public Expectation() {
 		super();
@@ -33,4 +50,12 @@ public class Expectation {
 		this.mockMvDecision = mockMvDecision;
 	}
 
+    @Override
+    public String toString() {
+        return "Expectation{" +
+                "rid='" + rid + '\'' +
+                ", mockMvDecision='" + mockMvDecision + '\'' +
+                ", delayResponse=" + delayResponse +
+                '}';
+    }
 }
