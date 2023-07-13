@@ -1,4 +1,14 @@
 FROM ubuntu:18.04 as buildimage
+
+ARG SOURCE
+ARG COMMIT_HASH
+ARG COMMIT_ID
+ARG BUILD_TIME
+LABEL source=${SOURCE}
+LABEL commit_hash=${COMMIT_HASH}
+LABEL commit_id=${COMMIT_ID}
+LABEL build_time=${BUILD_TIME}
+
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get -y install gcc make automake libtool autoconf pkg-config libssl-dev git-core \
