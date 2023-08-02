@@ -14,6 +14,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env: 
+      NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
+      MOCK_ABIS_SERVICE_NAME: mock-abis
+      MOCK_MV_SERVICE_NAME: mock-mv
+    
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -60,7 +65,7 @@ jobs:
           cd mock-abis
           ls -ltr ./target
           # docker build . --file Dockerfile --tag mock-abis
-          docker build . --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --file Dockerfile --tag ${{ env.SERVICE_NAME }}
+          docker build . --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --file Dockerfile --tag ${{ env.MOCK_ABIS_SERVICE_NAME }}
 
     - name: Log into registry
       run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
@@ -91,7 +96,7 @@ jobs:
           cd mock-mv
           ls -ltr ./target
           # docker build . --file Dockerfile --tag mock-mv
-          docker build . --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --file Dockerfile --tag ${{ env.SERVICE_NAME }}
+          docker build . --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --file Dockerfile --tag ${{ env.MOCK_MV_SERVICE_NAME }}
 
     - name: Log into registry
       run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
