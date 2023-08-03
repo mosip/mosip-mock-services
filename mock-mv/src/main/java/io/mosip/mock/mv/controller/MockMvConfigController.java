@@ -87,8 +87,9 @@ public class MockMvConfigController {
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
-		try {
-		String request = Listener.javaObjectToJsonString(expectation);
+		String request="";
+		 try {
+			request= Listener.javaObjectToJsonString(expectation);
 		logger.info( String.format("Setting expectation %s" , request));
 
 			mockMvDecisionService.setExpectation(expectation);
