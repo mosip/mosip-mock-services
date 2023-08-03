@@ -171,12 +171,11 @@ public class Listener {
 				candidateList.setCount(candidateList.getCandidates()!=null?candidateList.getCandidates().size():0);// logic needs to be implemented.
 				candidateList.setAnalytics(analytics);
 				decisionDto.setCandidateList(candidateList);
-
 			}
 
 			String response = javaObjectToJsonString(decisionDto);
 
-			logger.info(String.format("Request type is " , response));
+			logger.info(String.format("Request type is %s" , response));
 
 
 			isrequestAddedtoQueue=executeAsync(response,delayResponse,textType,mvAddress);
@@ -250,7 +249,7 @@ public class Listener {
 		if (activeMQConnectionFactory == null) {
 			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
-			logger.info("Broker url : " + failOverBrokerUrl);
+			logger.info(String.format("Broker url : %s" , failOverBrokerUrl));
 			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(username, password, failOverBrokerUrl);
 		}
 
