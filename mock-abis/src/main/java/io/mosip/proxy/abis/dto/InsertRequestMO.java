@@ -34,9 +34,8 @@ public class InsertRequestMO {
 	@NotNull(message = FailureReasonsConstants.MISSING_REFERENCE_URL)
 	@Column(name = "referenceURL")
 	private String referenceURL;
-	
-	public InsertRequestMO()
-	{
+
+	public InsertRequestMO() {
 		super();
 	}
 
@@ -54,6 +53,7 @@ public class InsertRequestMO {
 	public String getId() {
 		return id;
 	}
+
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -61,6 +61,7 @@ public class InsertRequestMO {
 	public String getVersion() {
 		return version;
 	}
+
 	public void setVersion(String version) {
 		this.version = version;
 	}
@@ -68,6 +69,7 @@ public class InsertRequestMO {
 	public String getRequestId() {
 		return requestId;
 	}
+
 	public void setRequestId(String requestId) {
 		this.requestId = requestId;
 	}
@@ -75,6 +77,7 @@ public class InsertRequestMO {
 	public LocalDateTime getRequesttime() {
 		return requesttime;
 	}
+
 	public void setRequesttime(LocalDateTime requesttime) {
 		this.requesttime = requesttime;
 	}
@@ -82,6 +85,7 @@ public class InsertRequestMO {
 	public String getReferenceId() {
 		return referenceId;
 	}
+
 	public void setReferenceId(String referenceId) {
 		this.referenceId = referenceId;
 	}
@@ -89,6 +93,7 @@ public class InsertRequestMO {
 	public String getReferenceURL() {
 		return referenceURL;
 	}
+
 	public void setReferenceURL(String referenceURL) {
 		this.referenceURL = referenceURL;
 	}

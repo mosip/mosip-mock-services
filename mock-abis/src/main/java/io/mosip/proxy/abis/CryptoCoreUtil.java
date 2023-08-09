@@ -15,7 +15,6 @@ import java.security.cert.CertificateException;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.Properties;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -33,7 +32,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource({"classpath:partner.properties"})
+@PropertySource({ "classpath:partner.properties" })
 public class CryptoCoreUtil {
 	@Autowired
 	private Environment env;
@@ -61,7 +60,8 @@ public class CryptoCoreUtil {
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(io.mosip.proxy.abis.CryptoCoreUtil.class.getClassLoader().getResourceAsStream("partner.properties"));
+			prop.load(io.mosip.proxy.abis.CryptoCoreUtil.class.getClassLoader()
+					.getResourceAsStream("partner.properties"));
 			certiPassword = prop.getProperty("certificate.password");
 			alias = prop.getProperty("certificate.alias");
 			keystore = prop.getProperty("certificate.keystore");
@@ -78,21 +78,23 @@ public class CryptoCoreUtil {
 		return new String(deryptedCbeffData);
 	}
 
-	public static void setCertificateValues(String filePathVal, String keystoreVal, String passwordVal, String aliasVal) {
+	public static void setCertificateValues(String filePathVal, String keystoreVal, String passwordVal,
+			String aliasVal) {
 		alias = aliasVal;
 		filePath = filePathVal;
 		keystore = keystoreVal;
 		certiPassword = passwordVal;
 	}
 
-	private KeyStore.PrivateKeyEntry getPrivateKeyEntryFromP12() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableEntryException {
+	private KeyStore.PrivateKeyEntry getPrivateKeyEntryFromP12() throws KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException, UnrecoverableEntryException {
 		if (null == certiPassword || certiPassword.isEmpty())
 			setPropertyValues();
 		KeyStore keyStore = KeyStore.getInstance(keystore);
 		InputStream is = getClass().getResourceAsStream("/" + this.env.getProperty("certificate.filename"));
 		keyStore.load(is, certiPassword.toCharArray());
 		KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(certiPassword.toCharArray());
-		KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry)keyStore.getEntry(alias, password);
+		KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, password);
 		return privateKeyEntry;
 	}
 
@@ -102,7 +104,8 @@ public class CryptoCoreUtil {
 		int keyDemiliterIndex = getSplitterIndex(responseData, 0, "#KEY_SPLITTER#");
 		try {
 			byte[] copiedBytes = Arrays.copyOfRange(responseData, 0, keyDemiliterIndex);
-			byte[] encryptedCbeffData = Arrays.copyOfRange(responseData, keyDemiliterIndex + keySplitterLength, cipherKeyandDataLength);
+			byte[] encryptedCbeffData = Arrays.copyOfRange(responseData, keyDemiliterIndex + keySplitterLength,
+					cipherKeyandDataLength);
 			byte[] headerBytes = parseEncryptKeyHeader(copiedBytes);
 			if (Arrays.equals(headerBytes, VERSION_RSA_2048)) {
 				byte[] arrayOfByte1 = Arrays.copyOfRange(copiedBytes, 32 + VERSION_RSA_2048.length, copiedBytes.length);
@@ -136,7 +139,8 @@ public class CryptoCoreUtil {
 		int keySplitterLength = keySplitter.length();
 		for (byte data : encryptedData) {
 			if (data == keySplitterFirstByte) {
-				String keySplit = new String(Arrays.copyOfRange(encryptedData, keyDemiliterIndex, keyDemiliterIndex + keySplitterLength));
+				String keySplit = new String(
+						Arrays.copyOfRange(encryptedData, keyDemiliterIndex, keyDemiliterIndex + keySplitterLength));
 				if (keySplitter.equals(keySplit))
 					break;
 			}
@@ -145,10 +149,13 @@ public class CryptoCoreUtil {
 		return keyDemiliterIndex;
 	}
 
-	private byte[] decryptRandomSymKey(PrivateKey privateKey, byte[] encRandomSymKey) throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+	private byte[] decryptRandomSymKey(PrivateKey privateKey, byte[] encRandomSymKey)
+			throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException,
+			InvalidAlgorithmParameterException, InvalidKeyException {
 		try {
 			Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
-			OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+			OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
+					PSource.PSpecified.DEFAULT);
 			cipher.init(2, privateKey, oaepParams);
 			return cipher.doFinal(encRandomSymKey);
 		} catch (NoSuchAlgorithmException e) {

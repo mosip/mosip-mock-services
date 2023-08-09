@@ -19,5 +19,5 @@ public class MockAbisQueueDetails {
 	private String pingOutboundQueueName;
 	private String userName;
 	private String password;
-	private String typeOfQueue;	
+	private String typeOfQueue;
 }

@@ -1,5 +1,40 @@
 package io.mosip.proxy.abis.service.impl;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
 import io.mosip.kernel.biometrics.commons.CbeffValidator;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
@@ -11,6 +46,7 @@ import io.mosip.proxy.abis.dto.Expectation;
 import io.mosip.proxy.abis.dto.IdentifyDelayResponse;
 import io.mosip.proxy.abis.dto.IdentityRequest;
 import io.mosip.proxy.abis.dto.IdentityResponse;
+import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
 import io.mosip.proxy.abis.dto.InsertRequestMO;
 import io.mosip.proxy.abis.dto.RequestMO;
 import io.mosip.proxy.abis.entity.BiometricData;
@@ -20,50 +56,11 @@ import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import io.mosip.proxy.abis.dto.IdentityResponse.Modalities;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Configuration
 @PropertySource("classpath:config.properties")
 public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
-
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
 	private static Path currentPath = Paths.get(System.getProperty("user.dir"));
@@ -80,8 +77,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	@Autowired
 	ProxyAbisConfigService proxyAbisConfigService;
 
-	@Autowired
-	RestTemplate restTemplate;
+	@Autowired(required = true)
+	@Qualifier("selfTokenRestTemplate")
+	private RestTemplate restTemplate;
 
 	@Autowired
 	CryptoCoreUtil cryptoUtil;
@@ -93,9 +91,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private ExpectationCache expectationCache;
 
 	private static String CBEFF_URL = null;
-
-	@Value("${secret_url}")
-	private String SECRET_URL;
 
 	/**
 	 * This flag is added for fast-tracking core ABIS functionality testing without
@@ -112,7 +107,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	@Override
 	public int insertData(InsertRequestMO ire) {
-		System.out.println(SECRET_URL);
 		int delayResponse = 0;
 		try {
 			java.util.Optional<InsertEntity> op = proxyabis.findById(ire.getReferenceId());
@@ -159,45 +153,10 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private List<BiometricData> fetchCBEFF(InsertEntity ie) throws Exception {
 		List<BiometricData> lst = new ArrayList();
 		try {
-			HttpHeaders headers1 = new HttpHeaders();
-			headers1.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-
-			if (encryption) {
-				HttpHeaders headers = new HttpHeaders();
-				headers.setContentType(MediaType.APPLICATION_JSON);
-				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("id", env.getProperty("secret_url.id"));
-				jsonObject.put("metadata", new JSONObject());
-				JSONObject jsonObject1 = new JSONObject();
-				jsonObject1.put("clientId", env.getProperty("secret_url.clientnId"));
-				jsonObject1.put("secretKey", env.getProperty("secret_url.secretKey"));
-				jsonObject1.put("appId", env.getProperty("secret_url.appId"));
-				jsonObject.put("requesttime", env.getProperty("secret_url.requesttime"));
-				jsonObject.put("version", env.getProperty("secret_url.version"));
-				jsonObject.put("request", jsonObject1);
-
-				HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
-				HttpEntity<String> response = restTemplate.exchange(SECRET_URL, HttpMethod.POST, entity, String.class);
-
-				String responseData = response.getBody();
-				logger.info("CBEFF URL responseData -" + responseData);
-
-				Object obj = JSONValue.parse(responseData);
-
-				JSONObject jo1 = (JSONObject) ((JSONObject) obj).get("response");
-				HttpHeaders responseHeader = response.getHeaders();
-				if (!(jo1.get("status").toString().equalsIgnoreCase("Success"))) {
-
-					throw new Exception();
-				}
-				headers1.set("Cookie", "AUTHORIZATION" + responseHeader.get("Set-Cookie").get(0).toString().substring(0,
-						responseHeader.get("Set-Cookie").get(0).toString().indexOf(";")));
-			}
-
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
-			HttpEntity<String> entity1 = new HttpEntity<String>(headers1);
-			String cbeff = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, entity1, String.class).getBody();
+			ResponseEntity<String> cbeffResp = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, null, String.class);
+			logger.info("CBEFF response-" + cbeffResp);
+			String cbeff = cbeffResp.getBody();
 			logger.info("CBEFF Data-" + cbeff);
 
 			try {
@@ -370,10 +329,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 				logger.info("checking for duplication of reference Id against" + referenceIds.toString());
 
-				int galleryRefIdCountInDB = proxyabis
-						.fetchCountForReferenceIdPresentInGallery(referenceIds);
+				int galleryRefIdCountInDB = proxyabis.fetchCountForReferenceIdPresentInGallery(referenceIds);
 				if (galleryRefIdCountInDB != referenceIds.size()) {
-					logger.info(String.format("checking for reference Id Present in DB[%d], Gallery reference Id list size[%d] ", galleryRefIdCountInDB, referenceIds.size()));
+					logger.info(String.format(
+							"checking for reference Id Present in DB[%d], Gallery reference Id list size[%d] ",
+							galleryRefIdCountInDB, referenceIds.size()));
 					throw new RequestException(FailureReasonsConstants.REFERENCEID_NOT_FOUND);
 				}
 
@@ -526,7 +486,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			logger.info("Uploading certificate");
 			byte[] bytes = uploadedFile.getBytes();
 			Path path = Paths.get(keystoreFilePath.toString(), uploadedFile.getOriginalFilename());
-			
+
 			File keyFile = new File(path.toString());
 			File parent = keyFile.getParentFile();
 			if (parent != null && !parent.exists() && !parent.mkdirs()) {

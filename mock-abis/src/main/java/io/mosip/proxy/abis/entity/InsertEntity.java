@@ -14,7 +14,6 @@ import javax.persistence.Table;
 @Entity(name = "InsertRequest")
 @Table
 public class InsertEntity {
-
 	@Column(name = "id")
 	private String id;
 
@@ -95,5 +94,4 @@ public class InsertEntity {
 	public void setBiometricList(List<BiometricData> biometricList) {
 		this.biometricList = biometricList;
 	}
-
 }

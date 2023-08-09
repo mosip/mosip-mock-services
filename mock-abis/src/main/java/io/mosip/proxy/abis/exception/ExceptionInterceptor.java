@@ -10,7 +10,6 @@ import io.mosip.proxy.abis.dto.FailureResponse;
 
 @ControllerAdvice
 public class ExceptionInterceptor extends ResponseEntityExceptionHandler {
-
 	@ExceptionHandler(RequestException.class)
 	public ResponseEntity<Object> handleInsertRequestException(RequestException exp) {
 		FailureResponse fr = new FailureResponse();
