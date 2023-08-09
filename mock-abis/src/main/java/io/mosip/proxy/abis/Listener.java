@@ -1,13 +1,8 @@
 package io.mosip.proxy.abis;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,12 +26,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
-import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
@@ -62,7 +56,6 @@ import io.mosip.proxy.abis.exception.RequestException;
 
 @Component
 public class Listener {
-
 	private static final Logger logger = LoggerFactory.getLogger(Listener.class);
 
 	@Value("${config.server.file.storage.uri}")
@@ -70,7 +63,7 @@ public class Listener {
 
 	@Value("${registration.processor.abis.json}")
 	private String registrationProcessorAbisJson;
-	
+
 	@Value("${registration.processor.abis.response.delay:0}")
 	private int delayResponse;
 
@@ -125,10 +118,11 @@ public class Listener {
 	private Destination destination;
 
 	/**
-	 * This flag is added for development & debugging locally registration-processor-abis-sample.json
-	 * If true then registration-processor-abis-sample.json will be picked from resources
+	 * This flag is added for development & debugging locally
+	 * registration-processor-abis-sample.json If true then
+	 * registration-processor-abis-sample.json will be picked from resources
 	 */
-	@Value("${local.development:false}")
+	@Value("${local.development:true}")
 	private boolean localDevelopment;
 
 	@Autowired
@@ -152,7 +146,7 @@ public class Listener {
 				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
 			} else {
 				logger.error("Received message is neither text nor byte");
-				return ;
+				return;
 			}
 			logger.info("Message Data " + messageData);
 			map = new Gson().fromJson(messageData, Map.class);
@@ -179,7 +173,7 @@ public class Listener {
 				proxycontroller.deleteRequestThroughListner(mo, textType);
 				break;
 			default:
-				throw new Exception ("Invalid id value");
+				throw new Exception("Invalid id value");
 			}
 		} catch (Exception e) {
 			logger.error("Issue while hitting mock abis API", e.getMessage());
@@ -196,39 +190,33 @@ public class Listener {
 
 	public ResponseEntity<Object> errorRequestThroughListner(Exception ex, Map map, int msgType) {
 		logger.info("Error Request");
-		String failureReason = "3"; 
-		String id = "id"; 
-		String requestId = "requestId"; 
-		
-		try
-		{			
-			if (ex instanceof RequestException)
-			{
-				failureReason = ((RequestException)ex).getReasonConstant();
-			}
-			else
-			{
+		String failureReason = "3";
+		String id = "id";
+		String requestId = "requestId";
+
+		try {
+			if (ex instanceof RequestException) {
+				failureReason = ((RequestException) ex).getReasonConstant();
+			} else {
 				failureReason = getFailureReason(map);
 			}
 			logger.info("failureReason >> " + failureReason);
-			id = (String) map.get("id"); 
-			requestId = (String) map.get("requestId"); 
+			id = (String) map.get("id");
+			requestId = (String) map.get("requestId");
 
 			FailureResponse fr = new FailureResponse(id, requestId, LocalDateTime.now(), "2", failureReason);
 			return new ResponseEntity<Object>(fr, HttpStatus.OK);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("errorRequestThroughListner", e);
 			FailureResponse fr = new FailureResponse(id, requestId, LocalDateTime.now(), "2", failureReason);
 			return new ResponseEntity<Object>(fr, HttpStatus.OK);
 		}
 	}
-	
-	public String getFailureReason(Map map)
-	{
-		String failureReason = "3"; 
-		String id = "", version = "", requestId = "", requestTime = "", referenceId = "", referenceURL = "", gallery = "";
+
+	public String getFailureReason(Map map) {
+		String failureReason = "3";
+		String id = "", version = "", requestId = "", requestTime = "", referenceId = "", referenceURL = "",
+				gallery = "";
 		id = (String) map.get("id");
 		version = (String) map.get("version");
 		requestId = (String) map.get("requestId");
@@ -244,159 +232,160 @@ public class Listener {
 		logger.info("referenceId >>" + referenceId);
 		logger.info("referenceURL >>" + referenceURL);
 		logger.info("gallery >>" + gallery);
-		
-		if (id == null || id.isBlank() || id.isEmpty() || !(id.equalsIgnoreCase(ABIS_INSERT) || id.equalsIgnoreCase(ABIS_IDENTIFY) || id.equalsIgnoreCase(ABIS_DELETE)))
-		{
-			failureReason = FailureReasonsConstants.INVALID_ID; //invalid id
+
+		if (id == null || id.isBlank() || id.isEmpty() || !(id.equalsIgnoreCase(ABIS_INSERT)
+				|| id.equalsIgnoreCase(ABIS_IDENTIFY) || id.equalsIgnoreCase(ABIS_DELETE))) {
+			failureReason = FailureReasonsConstants.INVALID_ID; // invalid id
 			return failureReason;
 		}
-		
-		if (version == null || version.isBlank() || version.isEmpty() || !(version.equalsIgnoreCase("1.1")))
-		{
-			failureReason = FailureReasonsConstants.INVALID_VERSION; //invalid version
+
+		if (version == null || version.isBlank() || version.isEmpty() || !(version.equalsIgnoreCase("1.1"))) {
+			failureReason = FailureReasonsConstants.INVALID_VERSION; // invalid version
 			return failureReason;
 		}
-				
-		if (requestId == null || requestId.isBlank() || requestId.isEmpty())
-		{
-			failureReason = FailureReasonsConstants.MISSING_REQUESTID; //missing requestId (in request body)
+
+		if (requestId == null || requestId.isBlank() || requestId.isEmpty()) {
+			failureReason = FailureReasonsConstants.MISSING_REQUESTID; // missing requestId (in request body)
 			return failureReason;
 		}
-	
-		if (requestTime == null || requestTime.isBlank() || requestTime.isEmpty())
-		{
-			failureReason = FailureReasonsConstants.MISSING_REQUESTTIME; //missing requesttime (in request body)
+
+		if (requestTime == null || requestTime.isBlank() || requestTime.isEmpty()) {
+			failureReason = FailureReasonsConstants.MISSING_REQUESTTIME; // missing requesttime (in request body)
 			return failureReason;
 		}
-		if (requestTime != null)
-		{
-			if (!isValidFormat (UTC_DATETIME_PATTERN, requestTime, Locale.ENGLISH))
-			{
-				failureReason = FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT; //invalid requesttime format
+		if (requestTime != null) {
+			if (!isValidFormat(UTC_DATETIME_PATTERN, requestTime, Locale.ENGLISH)) {
+				failureReason = FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT; // invalid requesttime format
 				return failureReason;
 			}
 		}
-		if (referenceId == null || referenceId.isBlank() || referenceId.isEmpty())
-		{
-			failureReason = FailureReasonsConstants.MISSING_REFERENCEID; //missing referenceId (in request body)
+		if (referenceId == null || referenceId.isBlank() || referenceId.isEmpty()) {
+			failureReason = FailureReasonsConstants.MISSING_REFERENCEID; // missing referenceId (in request body)
 			return failureReason;
 		}
-		
-		if (id.equalsIgnoreCase(ABIS_INSERT) && (referenceURL == null || referenceURL.isBlank() || referenceURL.isEmpty()))
-		{
-			failureReason = FailureReasonsConstants.MISSING_REFERENCE_URL; //missing reference URL (in request body)
+
+		if (id.equalsIgnoreCase(ABIS_INSERT)
+				&& (referenceURL == null || referenceURL.isBlank() || referenceURL.isEmpty())) {
+			failureReason = FailureReasonsConstants.MISSING_REFERENCE_URL; // missing reference URL (in request body)
 			return failureReason;
 		}
-			
-		if (id.equalsIgnoreCase(ABIS_INSERT) && isValidInsertRequestDto (map))
-		{
-			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; //unable to serve the request - invalid request structure
+
+		if (id.equalsIgnoreCase(ABIS_INSERT) && isValidInsertRequestDto(map)) {
+			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; // unable to
+																											// serve the
+																											// request -
+																											// invalid
+																											// request
+																											// structure
 			return failureReason;
 		}
-		if (id.equalsIgnoreCase(ABIS_IDENTIFY) && isValidIdentifyRequestDto (map))
-		{
-			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; //unable to serve the request - invalid request structure
+		if (id.equalsIgnoreCase(ABIS_IDENTIFY) && isValidIdentifyRequestDto(map)) {
+			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; // unable to
+																											// serve the
+																											// request -
+																											// invalid
+																											// request
+																											// structure
 			return failureReason;
 		}
-		
+
 		return failureReason;
 	}
-	
+
 	public static boolean isValidFormat(String format, String value, Locale locale) {
-	    LocalDateTime ldt = null;
-	    DateTimeFormatter fomatter = DateTimeFormatter.ofPattern(format, locale);
+		LocalDateTime ldt = null;
+		DateTimeFormatter fomatter = DateTimeFormatter.ofPattern(format, locale);
 
-	    try {
-	        ldt = LocalDateTime.parse(value, fomatter);
-	        String result = ldt.format(fomatter);
-	        return result.equals(value);
-	    } catch (DateTimeParseException e) {
-	    	e.printStackTrace();
-	        try {
-	            LocalDate ld = LocalDate.parse(value, fomatter);
-	            String result = ld.format(fomatter);
-	            return result.equals(value);
-	        } catch (DateTimeParseException exp) {
-		    	exp.printStackTrace();
-	            try {
-	                LocalTime lt = LocalTime.parse(value, fomatter);
-	                String result = lt.format(fomatter);
-	                return result.equals(value);
-	            } catch (DateTimeParseException e2) {
-	                // Debugging purposes
-	                e2.printStackTrace();
-	            }
-	        }
-	    }
+		try {
+			ldt = LocalDateTime.parse(value, fomatter);
+			String result = ldt.format(fomatter);
+			return result.equals(value);
+		} catch (DateTimeParseException e) {
+			e.printStackTrace();
+			try {
+				LocalDate ld = LocalDate.parse(value, fomatter);
+				String result = ld.format(fomatter);
+				return result.equals(value);
+			} catch (DateTimeParseException exp) {
+				exp.printStackTrace();
+				try {
+					LocalTime lt = LocalTime.parse(value, fomatter);
+					String result = lt.format(fomatter);
+					return result.equals(value);
+				} catch (DateTimeParseException e2) {
+					// Debugging purposes
+					e2.printStackTrace();
+				}
+			}
+		}
 
-	    return false;
+		return false;
 	}
 
 	public static boolean isValidInsertRequestDto(Map map) {
 		// Get the iterator over the HashMap
-        Iterator<Map.Entry<String, String> > iterator = map.entrySet().iterator();
-        // flag to store result
-        boolean isOtherKeyPresent = false;
-  
-        // Iterate over the HashMap
-        while (iterator.hasNext()) {
-            // Get the entry at this iteration
-            Map.Entry<String, String> entry = iterator.next();
-            // Check if unknown key is present
-            if (!(entry.getKey().equals("id") || entry.getKey().equals("version") 
-        		|| entry.getKey().equals("requestId") || entry.getKey().equals("requesttime") 
-        		|| entry.getKey().equals("referenceId") || entry.getKey().equals("referenceURL"))) {
-            	isOtherKeyPresent = true;
-            	break;
-            }
-        }
-        
-        return isOtherKeyPresent;
+		Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
+		// flag to store result
+		boolean isOtherKeyPresent = false;
+
+		// Iterate over the HashMap
+		while (iterator.hasNext()) {
+			// Get the entry at this iteration
+			Map.Entry<String, String> entry = iterator.next();
+			// Check if unknown key is present
+			if (!(entry.getKey().equals("id") || entry.getKey().equals("version") || entry.getKey().equals("requestId")
+					|| entry.getKey().equals("requesttime") || entry.getKey().equals("referenceId")
+					|| entry.getKey().equals("referenceURL"))) {
+				isOtherKeyPresent = true;
+				break;
+			}
+		}
+
+		return isOtherKeyPresent;
 	}
-	
+
 	public static boolean isValidIdentifyRequestDto(Map map) {
 		// Get the iterator over the HashMap
-        Iterator<Map.Entry<String, String> > iterator = map.entrySet().iterator();
-        // flag to store result
-        boolean isOtherKeyPresent = false;
-  
-        // Iterate over the HashMap
-        while (iterator.hasNext()) {
-            // Get the entry at this iteration
-            Map.Entry<String, String> entry = iterator.next();
-            // Check if unknown key is present
-            if (!(entry.getKey().equals("id") || entry.getKey().equals("version") 
-        		|| entry.getKey().equals("requestId") || entry.getKey().equals("requesttime") 
-        		|| entry.getKey().equals("referenceId") || entry.getKey().equals("referenceURL")
-        		|| entry.getKey().equals("gallery") )) {
-            	isOtherKeyPresent = true;
-            	break;
-            }
-        }
-        
-        return isOtherKeyPresent;
+		Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
+		// flag to store result
+		boolean isOtherKeyPresent = false;
+
+		// Iterate over the HashMap
+		while (iterator.hasNext()) {
+			// Get the entry at this iteration
+			Map.Entry<String, String> entry = iterator.next();
+			// Check if unknown key is present
+			if (!(entry.getKey().equals("id") || entry.getKey().equals("version") || entry.getKey().equals("requestId")
+					|| entry.getKey().equals("requesttime") || entry.getKey().equals("referenceId")
+					|| entry.getKey().equals("referenceURL") || entry.getKey().equals("gallery"))) {
+				isOtherKeyPresent = true;
+				break;
+			}
+		}
+
+		return isOtherKeyPresent;
 	}
-	
-	
-	public void sendToQueue(ResponseEntity<Object> obj, Integer textType) throws JsonProcessingException, UnsupportedEncodingException {
+
+	public void sendToQueue(ResponseEntity<Object> obj, Integer textType)
+			throws JsonProcessingException, UnsupportedEncodingException {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.findAndRegisterModules();
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		logger.info("Response: ", obj.getBody().toString());
 		if (textType == 2) {
-			send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"),
-					outBoundQueue);
+			send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"), outBoundQueue);
 		} else if (textType == 1) {
 			send(mapper.writeValueAsString(obj.getBody()), outBoundQueue);
 		}
 	}
 
-	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf) throws IOException, URISyntaxException {
+	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf)
+			throws IOException, URISyntaxException {
 		if (localAbisQueueConf) {
 			return Helpers.readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
-			logger.info("Json URL ",configServerFileStorageURL,uri);
+			logger.info("Json URL ", configServerFileStorageURL, uri);
 			return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 		}
 	}
@@ -404,8 +393,9 @@ public class Listener {
 	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
 		List<MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
-		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson, localDevelopment);
-		
+		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson,
+				localDevelopment);
+
 		logger.info(registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
 		MockAbisQueueDetails abisQueueDetails = new MockAbisQueueDetails();
@@ -568,10 +558,10 @@ public class Listener {
 			initialSetup();
 			destination = session.createQueue(address);
 			MessageProducer messageProducer = session.createProducer(destination);
-			
-			//Message m = session.createMessage();
-			//m.setJMSPriority(4);
-			//m.setStringProperty("response", message);
+
+			// Message m = session.createMessage();
+			// m.setJMSPriority(4);
+			// m.setStringProperty("response", message);
 			messageProducer.send(session.createTextMessage(message));
 
 			flag = true;
@@ -594,5 +584,4 @@ public class Listener {
 		}
 		setup();
 	}
-
 }

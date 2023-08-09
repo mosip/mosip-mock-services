@@ -5,21 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IdentityRequest {
-
 	private String id;
-
 	private String version;
-
 	private String requestId;
-
 	private LocalDateTime requesttime;
-
 	private String referenceId;
-
 	private String referenceUrl;
-
 	private Gallery gallery = null;
-
 	private Flags flags;
 
 	public String getId() {

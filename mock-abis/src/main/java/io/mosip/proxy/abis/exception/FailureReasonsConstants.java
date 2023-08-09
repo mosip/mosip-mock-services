@@ -1,7 +1,6 @@
 package io.mosip.proxy.abis.exception;
 
 public class FailureReasonsConstants {
-
 	public static final String INTERNAL_ERROR_UNKNOWN = "1";
 	public static final String Aborted = "2";
 	public static final String UNEXPECTED_ERROR = "3";
