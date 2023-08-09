@@ -50,7 +50,7 @@ ENV loader_path_env=${loader_path}
 # environment variable to pass iam_adapter url, at docker runtime
 ENV iam_adapter_url_env=${iam_adapter_url}
 
-COPY ./target/mockabis.jar  mockabis-service.jar
+COPY ./target/mock-abis-*.jar  mockabis-service.jar
 
 RUN echo "Build application"
 
