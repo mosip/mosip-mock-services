@@ -45,6 +45,9 @@ RUN mkdir -p ${loader_path}
 
 ENV loader_path_env=${loader_path}
 
+# environment variable to pass iam_adapter url, at docker runtime
+ENV iam_adapter_url_env=${iam_adapter_url}
+
 COPY ./target/mockabis.jar  mockabis-service.jar
 
 RUN echo "Build application"
@@ -57,5 +60,8 @@ RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
 EXPOSE 8081
 
-CMD java -jar -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}"  -Dspring.cloud.config.uri="${spring_config_url_env}" mockabis-service.jar;
+#CMD java -jar -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}"  -Dspring.cloud.config.uri="${spring_config_url_env}" mockabis-service.jar;
     
+CMD wget -q --show-progress "${iam_adapter_url_env}" -O "${loader_path_env}"/kernel-auth-adapter.jar; \
+java -jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" mockabis-service.jar;
+      

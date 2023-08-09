@@ -29,12 +29,13 @@ This section is for the developers to run mock-abis locally against MOSIP server
 
 Steps:
 * Go to REPO_ROOT/mock-abis.
-* Setting ABIS queue conf (here queue details will be for server's queue):
-  1) Create registration-processor-abis.json in resources.
-  2) Copy the contents of registration-processor-abis-sample.json to registration-processor-abis.json.
-  3) Update registration-processor-abis.json with the correct queue details.
+* Setting ABIS queue conf (here queue details will be for server's queue):<br>
+  1) Create registration-processor-abis.json in resources.<br>
+  2) Copy the contents of registration-processor-abis-sample.json to registration-processor-abis.json.<br>
+  3) Update registration-processor-abis.json with the correct queue details.<br>
+  4) Download the latest kernel-auth-adapter from `https://mvnrepository.com/artifact/io.mosip.kernel/kernel-auth-adapter` and save into lib folder .<br>
 * Build the code: `mvn clean install -Dmaven.test.skip=true -Dgpg.skip=true`.
-* Run the jar: `java -jar -Dlocal.development=true -Dabis.bio.encryption=true -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> target/mockabis-service.jar`.
+* Run the jar: `java -Dloader.path=lib/kernel-auth-adapter-1.2.1-SNAPSHOT.jar -Dlocal.development=true -Dabis.bio.encryption=true -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> -jar  target/mock-abis-1.2.1-SNAPSHOT.jar`.
 
 Flags:
 * local.development (true: whenever running locally, this will take the registration-processor-abis.json from resources)
@@ -56,12 +57,13 @@ Running ActiveMQ locally:
 
 Steps:
 * Go to REPO_ROOT/mock-abis.
-* Setting ABIS queue conf (here queue details will be for local queue):
-  1) Create registration-processor-abis.json in resources.
-  2) Copy the contents of registration-processor-abis-sample.json to registration-processor-abis.json.
-  3) Update registration-processor-abis.json with the correct queue details.
+* Setting ABIS queue conf (here queue details will be for local queue):<br>
+  1) Create registration-processor-abis.json in resources.<br>
+  2) Copy the contents of registration-processor-abis-sample.json to registration-processor-abis.json.<br>
+  3) Update registration-processor-abis.json with the correct queue details.<br>
+  4) Download the latest kernel-auth-adapter from `https://mvnrepository.com/artifact/io.mosip.kernel/kernel-auth-adapter` and save into lib folder .<br>
 * Build the code: `mvn clean install -Dmaven.test.skip=true -Dgpg.skip=true`.
-* Run the jar: `java -jar -Dlocal.development=true -Dabis.bio.encryption=true -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> target/mockabis-service.jar`.
+* Run the jar: `java -Dloader.path=lib/kernel-auth-adapter-1.2.1-SNAPSHOT.jar -Dlocal.development=true -Dabis.bio.encryption=true -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> -jar target/mock-abis-1.2.1-SNAPSHOT.jar`.
 * Add message directly to queue and view responses from mock ABIS
 
 Flags:

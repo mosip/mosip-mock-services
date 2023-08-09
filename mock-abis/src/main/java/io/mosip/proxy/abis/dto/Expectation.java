@@ -98,6 +98,7 @@ public class Expectation {
 
 	public static class Gallery {
 		List<ReferenceIds> referenceIds = new ArrayList<>();
+
 		public Gallery() {
 
 		}
@@ -110,6 +111,7 @@ public class Expectation {
 		public List<ReferenceIds> getReferenceIds() {
 			return referenceIds;
 		}
+
 		public void setReferenceIds(List<ReferenceIds> referenceIds) {
 			this.referenceIds = referenceIds;
 		}
@@ -130,6 +132,7 @@ public class Expectation {
 		public String getReferenceId() {
 			return referenceId;
 		}
+
 		public void setReferenceId(String referenceId) {
 			this.referenceId = referenceId;
 		}
@@ -156,6 +159,7 @@ public class Expectation {
 		public String getMaxResults() {
 			return maxResults;
 		}
+
 		public void setMaxResults(String maxResults) {
 			this.maxResults = maxResults;
 		}
@@ -163,6 +167,7 @@ public class Expectation {
 		public String getTargetFPIR() {
 			return targetFPIR;
 		}
+
 		public void setTargetFPIR(String targetFPIR) {
 			this.targetFPIR = targetFPIR;
 		}

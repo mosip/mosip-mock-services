@@ -12,7 +12,6 @@ import javax.persistence.Table;
 @Table
 @Entity(name = "Biometric_Data")
 public class BiometricData {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -82,5 +81,4 @@ public class BiometricData {
 	public void setInsertEntity(InsertEntity insertEntity) {
 		this.insertEntity = insertEntity;
 	}
-
 }
