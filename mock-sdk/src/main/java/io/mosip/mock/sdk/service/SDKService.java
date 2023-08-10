@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import io.mosip.biometrics.util.ConvertRequestDto;
 import io.mosip.biometrics.util.face.FaceBDIR;
@@ -36,19 +36,44 @@ import io.mosip.kernel.biometrics.constant.PurposeType;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.mock.sdk.constant.ResponseStatus;
+import io.mosip.mock.sdk.constant.SdkConstant;
 import io.mosip.mock.sdk.exceptions.SDKException;
 import io.mosip.mock.sdk.utils.Util;
 
 public abstract class SDKService {
-	Logger LOGGER = LoggerFactory.getLogger(SDKService.class);
+	protected Logger LOGGER = LoggerFactory.getLogger(SDKService.class);
+	private Map<String, String> flags;
+	private Environment env;
+
+	protected SDKService(Environment env, Map<String, String> flags) {
+		setEnv(env);
+		setFlags(flags);
+	}
+
+	protected Map<String, String> getFlags() {
+		return flags;
+	}
+
+	protected void setFlags(Map<String, String> flags) {
+		this.flags = flags;
+	}
+
+	protected Environment getEnv() {
+		return env;
+	}
+
+	protected void setEnv(Environment env) {
+		this.env = env;
+	}
 
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord record,
 			List<BiometricType> modalitiesToMatch) {
-		LOGGER.info("getBioSegmentMap>>" +  modalitiesToMatch.toString());
 		Boolean noFilter = false;
 
-		// if the modalities to match is not passed, assume that all modalities have to
-		// be matched.
+		/**
+		 * if the modalities to match is not passed, assume that all modalities have to
+		 * be matched.
+		 */
 		if (modalitiesToMatch == null || modalitiesToMatch.isEmpty())
 			noFilter = true;
 
@@ -56,8 +81,9 @@ public abstract class SDKService {
 		for (BIR segment : record.getSegments()) {
 			BiometricType bioType = segment.getBdbInfo().getType().get(0);
 
-			LOGGER.info("getBioSegmentMap>>bioType >> " +  bioType.toString());
-			// ignore modalities that are not to be matched
+			/**
+			 * ignore modalities that are not to be matched
+			 */
 			if (noFilter == false && !modalitiesToMatch.contains(bioType))
 				continue;
 
@@ -126,10 +152,10 @@ public abstract class SDKService {
 	protected boolean isValidBDBData(PurposeType purposeType, BiometricType bioType, String bioSubType,
 			byte[] bdbData) {
 		ResponseStatus responseStatus = null;
-		
+
 		if (bdbData != null && bdbData.length != 0) {
 			return isValidBiometericData(purposeType, bioType, bioSubType, Util.encodeToURLSafeBase64(bdbData));
-		}			
+		}
 
 		responseStatus = ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF;
 		throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
@@ -145,6 +171,8 @@ public abstract class SDKService {
 			return isValidFingerBdb(purposeType, bioSubType, bdbData);
 		case IRIS:
 			return isValidIrisBdb(purposeType, bioSubType, bdbData);
+		default:
+			break;
 		}
 		responseStatus = ResponseStatus.INVALID_INPUT;
 		throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
@@ -223,16 +251,21 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			if (!FingerISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
-					bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
-					bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
-				message.append(
-						"<BR>Invalid CaptureDateTime for Finger Modality, The capture date and time field shall \r\n"
-								+ "indicate when the capture of this \r\n" + "representation stated in Coordinated \r\n"
-								+ "Universal Time (UTC). The capture date \r\n"
-								+ "and time field shall consist of 9 bytes., but received input value["
-								+ bdir.getCaptureDateTime() + "]");
-				isValid = false;
+			LOGGER.info("isValidFingerBdb>>timestamp check >> " + this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true));
+
+			if (this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true)) {
+				if (!FingerISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
+						bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
+						bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
+					message.append(
+							"<BR>Invalid CaptureDateTime for Finger Modality, The capture date and time field shall \r\n"
+									+ "indicate when the capture of this \r\n"
+									+ "representation stated in Coordinated \r\n"
+									+ "Universal Time (UTC). The capture date \r\n"
+									+ "and time field shall consist of 9 bytes., but received input value["
+									+ bdir.getCaptureDateTime() + "]");
+					isValid = false;
+				}
 			}
 
 			if (!FingerISOStandardsValidator.getInstance()
@@ -342,7 +375,9 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			// Used to check the image based on PIXELS_PER_INCH or PIXELS_PER_CM
+			/**
+			 *  Used to check the image based on PIXELS_PER_INCH or PIXELS_PER_CM
+			 */
 			int scaleUnitsType = bdir.getScaleUnits();
 			if (!FingerISOStandardsValidator.getInstance().isValidScaleUnits(scaleUnitsType)) {
 				message.append(
@@ -421,8 +456,11 @@ public abstract class SDKService {
 								+ String.format("0x%08X", bdir.getImageLength()) + "]");
 				isValid = false;
 			}
+
 			// TODO check the condition: imagedata
-			// can check imagettype for auth and reg
+			/**
+			 *  can check imagettype for auth and reg
+			 */
 			if (!isValid) {
 				responseStatus = ResponseStatus.INVALID_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "",
@@ -537,7 +575,8 @@ public abstract class SDKService {
 					bdir.getRecordLength())) {
 				message.append(
 						"<BR>Invalid Record Length for Iris Modality, expected values between[0x00000045 and 0xFFFFFFFF], but received input value["
-								+ String.format("0x%08X", (bioData != null ? bioData.length : 0)) + "] Or Data Length mismatch["+ bioData.length +"!= " + bdir.getRecordLength() +"]");
+								+ String.format("0x%08X", (bioData != null ? bioData.length : 0))
+								+ "] Or Data Length mismatch[" + bioData.length + "!= " + bdir.getRecordLength() + "]");
 				isValid = false;
 			}
 
@@ -570,18 +609,22 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			if (!IrisISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
-					bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
-					bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
-				message.append(
-						"<BR>Invalid CaptureDateTime for Iris Modality, The capture date and time field shall \r\n"
-								+ "indicate when the capture of this \r\n" + "representation stated in Coordinated \r\n"
-								+ "Universal Time (UTC). The capture date \r\n"
-								+ "and time field shall consist of 9 bytes., but received input value["
-								+ bdir.getCaptureDateTime() + "]");
-				isValid = false;
-			}
+			LOGGER.info("isValidIrisBdb>>timestamp check >> " + this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true));
 
+			if (this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true)) {
+				if (!IrisISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
+						bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
+						bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
+					message.append(
+							"<BR>Invalid CaptureDateTime for Iris Modality, The capture date and time field shall \r\n"
+									+ "indicate when the capture of this \r\n"
+									+ "representation stated in Coordinated \r\n"
+									+ "Universal Time (UTC). The capture date \r\n"
+									+ "and time field shall consist of 9 bytes., but received input value["
+									+ bdir.getCaptureDateTime() + "]");
+					isValid = false;
+				}
+			}
 			if (!IrisISOStandardsValidator.getInstance()
 					.isValidCaptureDeviceTechnologyIdentifier(bdir.getCaptureDeviceTechnologyIdentifier())) {
 				message.append(
@@ -856,7 +899,7 @@ public abstract class SDKService {
 					bdir.getRecordLength())) {
 				message.append(
 						"<BR>Invalid Record Length for Face Modality, expected values between[0x00000001 and 0xFFFFFFFF], but received input value["
-								+ String.format("0x%08X", (bioData != null ? bioData.length : 0)) + "]");				
+								+ String.format("0x%08X", (bioData != null ? bioData.length : 0)) + "]");
 				isValid = false;
 			}
 
@@ -881,18 +924,22 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			if (!FaceISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
-					bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
-					bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
-				message.append(
-						"<BR>Invalid CaptureDateTime for Face Modality, The capture date and time field shall \r\n"
-								+ "indicate when the capture of this \r\n" + "representation stated in Coordinated \r\n"
-								+ "Universal Time (UTC). The capture date \r\n"
-								+ "and time field shall consist of 9 bytes., but received input value["
-								+ bdir.getCaptureDateTime() + "]");
-				isValid = false;
-			}
+			LOGGER.info("isValidFaceBdb>>timestamp check >> " + this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true));
 
+			if (this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true)) {
+				if (!FaceISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
+						bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
+						bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
+					message.append(
+							"<BR>Invalid CaptureDateTime for Face Modality, The capture date and time field shall \r\n"
+									+ "indicate when the capture of this \r\n"
+									+ "representation stated in Coordinated \r\n"
+									+ "Universal Time (UTC). The capture date \r\n"
+									+ "and time field shall consist of 9 bytes., but received input value["
+									+ bdir.getCaptureDateTime() + "]");
+					isValid = false;
+				}
+			}
 			if (!FaceISOStandardsValidator.getInstance()
 					.isValidCaptureDeviceTechnologyIdentifier(bdir.getCaptureDeviceTechnologyIdentifier())) {
 				message.append(

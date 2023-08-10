@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Match;
@@ -21,25 +22,24 @@ import io.mosip.mock.sdk.exceptions.SDKException;
 import io.mosip.mock.sdk.utils.Util;
 
 public class MatchService extends SDKService {
+	private Logger LOGGER = LoggerFactory.getLogger(MatchService.class);
+
 	private BiometricRecord sample;
 	private BiometricRecord[] gallery;
 	private List<BiometricType> modalitiesToMatch;
-	private Map<String, String> flags;
 
-	Logger LOGGER = LoggerFactory.getLogger(MatchService.class);
-
-	public MatchService(BiometricRecord sample, BiometricRecord[] gallery, List<BiometricType> modalitiesToMatch,
-			Map<String, String> flags) {
+	public MatchService(Environment env, BiometricRecord sample, BiometricRecord[] gallery,
+			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
+		super(env, flags);
 		this.sample = sample;
 		this.gallery = gallery;
 		this.modalitiesToMatch = modalitiesToMatch;
-		this.flags = flags;
 	}
 
 	public Response<MatchDecision[]> getMatchDecisionInfo() {
 		Response<MatchDecision[]> response = new Response<>();
 		try {
-			return doMatch(sample, gallery, modalitiesToMatch, flags);
+			return doMatch(sample, gallery, modalitiesToMatch, getFlags());
 		} catch (SDKException ex) {
 			LOGGER.error("match -- error", ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {
@@ -160,7 +160,7 @@ public class MatchService extends SDKService {
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
-		
+
 		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
 		if ((sampleSegments != null && sampleSegments.isEmpty())) {
 			LOGGER.info("Modality: {} -- biometric list empty in sample", BiometricType.FINGER.value());
@@ -183,11 +183,13 @@ public class MatchService extends SDKService {
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
-					LOGGER.info("Finger Modality: {}; Subtype: {}  Check ", galleryBIR.getBdbInfo().getSubtype().get(0), sampleBIR.getBdbInfo().getSubtype().get(0));
+					LOGGER.info("Finger Modality: {}; Subtype: {}  Check ", galleryBIR.getBdbInfo().getSubtype().get(0),
+							sampleBIR.getBdbInfo().getSubtype().get(0));
 					// need to check isValidBIRParams and isValidBDBData too
 					// if (!isValidBirData(galleryBIR))
 					// break;
-					if (galleryBIR.getBdbInfo().getSubtype().get(0).equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
+					if (galleryBIR.getBdbInfo().getSubtype().get(0)
+							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 							LOGGER.info("Modality: {}; Subtype: {}  -- matched", BiometricType.FINGER.value(),
 									galleryBIR.getBdbInfo().getSubtype());
@@ -264,7 +266,7 @@ public class MatchService extends SDKService {
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
-		
+
 		LOGGER.info("sampleSegments: {} -- gallerySegments: {}", sampleSegments.size(), gallerySegments.size());
 		if ((sampleSegments != null && sampleSegments.isEmpty())) {
 			LOGGER.info("Modality: {} -- biometric list empty in sample", BiometricType.IRIS.value());
@@ -276,7 +278,7 @@ public class MatchService extends SDKService {
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
-		
+
 		for (BIR sampleBIR : sampleSegments) {
 
 			if (!isValidBirData(sampleBIR))
@@ -288,7 +290,8 @@ public class MatchService extends SDKService {
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).contains("UNKNOWN")) {
 				for (BIR galleryBIR : gallerySegments) {
-					LOGGER.info("Iris Modality: {}; Subtype: {}  Check ", galleryBIR.getBdbInfo().getSubtype().get(0), sampleBIR.getBdbInfo().getSubtype().get(0));
+					LOGGER.info("Iris Modality: {}; Subtype: {}  Check ", galleryBIR.getBdbInfo().getSubtype().get(0),
+							sampleBIR.getBdbInfo().getSubtype().get(0));
 					// need to check isValidBIRParams and isValidBDBData too
 					// if (!isValidBirData(galleryBIR))
 					// break;
