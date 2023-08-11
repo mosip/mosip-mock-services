@@ -123,7 +123,7 @@ jobs:
 
     - name: Build SDK with Maven
       run: |
-        cd ${{ env.MOCK_SDK_SERVICE_LOCATION }}
+        cd ./${{ env.MOCK_SDK_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build Mock-SDK-with-jpeg-extractor with Maven
