@@ -17,7 +17,9 @@ jobs:
     env: 
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
       MOCK_ABIS_SERVICE_NAME: mock-abis
-      MOCK_MV_SERVICE_NAME: mock-mv    
+      MOCK_ABIS_SERVICE_LOCATION: mock-abis
+      MOCK_MV_SERVICE_NAME: mock-mv
+      MOCK_MV_SERVICE_LOCATION: mock-mv
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -56,12 +58,12 @@ jobs:
 
     - name: Build abis with Maven
       run: |
-        cd mock-abis
+        cd ./${{ env.MOCK_ABIS_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build image
       run: |
-          cd mock-abis
+          cd ./${{ env.MOCK_ABIS_SERVICE_LOCATION }}
           ls -ltr ./target
           # docker build . --file Dockerfile --tag mock-abis
           docker build . --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --file Dockerfile --tag ${{ env.MOCK_ABIS_SERVICE_NAME }} 
@@ -87,12 +89,12 @@ jobs:
 
     - name: Build MockMV with Maven
       run: |
-        cd mock-mv
+        cd ./${{ env.MOCK_MV_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build image
       run: |
-          cd mock-mv
+          cd ./${{ env.MOCK_MV_SERVICE_LOCATION }}
           ls -ltr ./target
           # docker build . --file Dockerfile --tag mock-mv
           docker build . --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME=${{steps.date.outputs.date}} --file Dockerfile --tag ${{ env.MOCK_MV_SERVICE_NAME }} 
