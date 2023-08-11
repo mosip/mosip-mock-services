@@ -124,26 +124,22 @@ jobs:
     - name: Build SDK with Maven
       run: |
         cd ./${{ env.MOCK_SDK_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build Mock-SDK-with-jpeg-extractor with Maven
       run: |
         cd ./${{ env.MOCK_SDK_JPEG_EXTRACTOR_LOCATION }}
-        pwd 
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build SBI with Maven
       run: |
         cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
   publish_to_nexus_mock-sdk:
     runs-on: ubuntu-latest
+    env: 
+      MOCK_SDK_SERVICE_LOCATION: mock-sdk   
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -180,8 +176,6 @@ jobs:
     - name: Build with Maven
       run: |
         cd ./${{ env.MOCK_SDK_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
@@ -202,6 +196,8 @@ jobs:
 
   publish_to_nexus_mock-sdk-with-jpeg-extractor:
     runs-on: ubuntu-latest
+    env: 
+      MOCK_SDK_JPEG_EXTRACTOR_LOCATION: mock-sdk-jpeg-extractor    
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -238,8 +234,6 @@ jobs:
     - name: Build with Maven
       run: |
         cd ./${{ env.MOCK_SDK_JPEG_EXTRACTOR_LOCATION }}
-        pwd
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
@@ -261,6 +255,8 @@ jobs:
 
   publish_to_nexus_mock-mv:
     runs-on: ubuntu-latest
+    env: 
+      MOCK_MV_SERVICE_LOCATION: mock-mv    
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -297,15 +293,11 @@ jobs:
     - name: Build with Maven
       run: |
         cd ./${{ env.MOCK_MV_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
         cd ./${{ env.MOCK_MV_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
@@ -322,6 +314,8 @@ jobs:
 
   publish_to_nexus_mock-mds:
     runs-on: ubuntu-latest
+    env: 
+      MOCK_MDS_SERVICE_LOCATION: MockMDS 
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -358,15 +352,11 @@ jobs:
     - name: Build with Maven
       run: |
         cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
         cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
-        pwd
-        ls
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
