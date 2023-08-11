@@ -20,6 +20,9 @@ jobs:
       MOCK_ABIS_SERVICE_LOCATION: mock-abis
       MOCK_MV_SERVICE_NAME: mock-mv
       MOCK_MV_SERVICE_LOCATION: mock-mv
+      MOCK_SDK_SERVICE_LOCATION: mock-sdk
+      MOCK_MDS_SERVICE_LOCATION: MockMDS
+      MOCK_SDK_JPEG_EXTRACTOR_LOCATION: mock-sdk-jpeg-extractor
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -73,7 +76,7 @@ jobs:
 
     - name: Push image
       run: |
-          IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-abis
+          IMAGE_ID=${{ env.NAMESPACE }}/${{ env.MOCK_ABIS_SERVICE_NAME }}
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -84,7 +87,7 @@ jobs:
           fi
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag mock-abis $IMAGE_ID:$VERSION
+          docker tag ${{ env.MOCK_ABIS_SERVICE_NAME }} $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
     - name: Build MockMV with Maven
@@ -104,7 +107,7 @@ jobs:
 
     - name: Push image
       run: |
-          IMAGE_ID=${{ secrets.dev_namespace_docker_hub }}/mock-mv
+          IMAGE_ID=${{ env.NAMESPACE }}/${{ env.MOCK_MV_SERVICE_NAME }}
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -115,22 +118,22 @@ jobs:
           fi
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag mock-mv $IMAGE_ID:$VERSION
+          docker tag ${{ env.MOCK_MV_SERVICE_NAME }} $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
     - name: Build SDK with Maven
       run: |
-        cd mock-sdk
+        cd ${{ env.MOCK_SDK_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build Mock-SDK-with-jpeg-extractor with Maven
       run: |
-        cd mock-sdk-jpeg-extractor
+        cd ./${{ env.MOCK_SDK_JPEG_EXTRACTOR_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build SBI with Maven
       run: |
-        cd MockMDS
+        cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
   publish_to_nexus_mock-sdk:
@@ -170,12 +173,12 @@ jobs:
 
     - name: Build with Maven
       run: |
-        cd mock-sdk
+        cd ./${{ env.MOCK_SDK_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
-        cd mock-sdk
+        cd ./${{ env.MOCK_SDK_SERVICE_LOCATION }}
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
@@ -226,12 +229,12 @@ jobs:
 
     - name: Build with Maven
       run: |
-        cd mock-sdk-jpeg-extractor
+        cd ./${{ env.MOCK_SDK_JPEG_EXTRACTOR_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
-        cd mock-sdk-jpeg-extractor
+        cd ./${{ env.MOCK_SDK_JPEG_EXTRACTOR_LOCATION }}
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
@@ -283,12 +286,12 @@ jobs:
 
     - name: Build with Maven
       run: |
-        cd mock-mv
+        cd ./${{ env.MOCK_MV_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
-        cd mock-mv
+        cd ./${{ env.MOCK_MV_SERVICE_LOCATION }}
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
@@ -340,12 +343,12 @@ jobs:
 
     - name: Build with Maven
       run: |
-        cd MockMDS
+        cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
-        cd MockMDS
+        cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
         mvn deploy -DskipTests -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
