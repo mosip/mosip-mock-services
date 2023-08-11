@@ -124,16 +124,22 @@ jobs:
     - name: Build SDK with Maven
       run: |
         cd ./${{ env.MOCK_SDK_SERVICE_LOCATION }}
+        pwd
+        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build Mock-SDK-with-jpeg-extractor with Maven
       run: |
         cd ./${{ env.MOCK_SDK_JPEG_EXTRACTOR_LOCATION }}
+        pwd 
+        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Build SBI with Maven
       run: |
         cd ./${{ env.MOCK_MDS_SERVICE_LOCATION }}
+        pwd
+        ls
         mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
   publish_to_nexus_mock-sdk:
