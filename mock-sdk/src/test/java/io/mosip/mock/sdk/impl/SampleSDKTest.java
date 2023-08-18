@@ -1,7 +1,5 @@
 package io.mosip.mock.sdk.impl;
 
-
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.Match;
@@ -9,8 +7,6 @@ import io.mosip.kernel.biometrics.entities.*;
 import io.mosip.kernel.biometrics.model.Decision;
 import io.mosip.kernel.biometrics.model.MatchDecision;
 import io.mosip.kernel.biometrics.model.Response;
-import io.mosip.mock.sdk.impl.SampleSDK;
-import io.mosip.mock.sdk.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +23,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static java.lang.Integer.parseInt;

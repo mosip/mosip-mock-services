@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import io.mosip.kernel.bio.converter.constant.ConverterErrorCode;
 import io.mosip.kernel.bio.converter.exception.ConversionException;
@@ -18,50 +19,49 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
 import io.mosip.mock.sdk.utils.Util;
 
-public class ConvertFormatService extends SDKService{
+public class ConvertFormatService extends SDKService {
 	private BiometricRecord sample;
 	private List<BiometricType> modalitiesToConvert;
 	private String sourceFormat;
 	private String targetFormat;
 	private Map<String, String> sourceParams;
 	private Map<String, String> targetParams;
-	
+
 	Logger LOGGER = LoggerFactory.getLogger(ConvertFormatService.class);
 
-	public ConvertFormatService(BiometricRecord sample, String sourceFormat, String targetFormat,
-		Map<String, String> sourceParams, Map<String, String> targetParams, List<BiometricType> modalitiesToConvert)
-	{
+	public ConvertFormatService(Environment env, BiometricRecord sample, String sourceFormat, String targetFormat,
+			Map<String, String> sourceParams, Map<String, String> targetParams,
+			List<BiometricType> modalitiesToConvert) {
+		super(env, null);
 		this.sample = sample;
-		this.sourceParams = sourceParams; 
-		this.sourceFormat = sourceFormat; 
-		this.targetFormat = targetFormat; 
-		this.targetParams = targetParams; 
+		this.sourceParams = sourceParams;
+		this.sourceFormat = sourceFormat;
+		this.targetFormat = targetFormat;
+		this.targetParams = targetParams;
 		this.modalitiesToConvert = modalitiesToConvert;
 	}
-	
-	public Response<BiometricRecord> getConvertFormatInfo()
-	{
+
+	public Response<BiometricRecord> getConvertFormatInfo() {
 		Response<BiometricRecord> response = new Response<>();
 
 		Map<String, String> responseValues = null;
 		try {
 			Map<String, String> values = new HashMap<>();
 			for (BIR segment : sample.getSegments()) {
-				
+
 				if (!isValidBirData(segment))
 					break;
 
 				BiometricType bioType = segment.getBdbInfo().getType().get(0);
 				List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
-				
+
 				String bioSubType = null;
-				if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
-				{
+				if (bioSubTypeList != null && !bioSubTypeList.isEmpty()) {
 					bioSubType = bioSubTypeList.get(0).trim();
 					if (bioSubTypeList.size() >= 2)
-						bioSubType += " " + bioSubTypeList.get(1).trim();					
+						bioSubType += " " + bioSubTypeList.get(1).trim();
 				}
-				
+
 				String key = bioType + "_" + bioSubType;
 				// ignore modalities that are not to be matched
 				if (!isValidBioTypeForSourceFormat(bioType, sourceFormat))
@@ -80,11 +80,10 @@ public class ConvertFormatService extends SDKService{
 				BiometricType bioType = segment.getBdbInfo().getType().get(0);
 				List<String> bioSubTypeList = segment.getBdbInfo().getSubtype();
 				String bioSubType = null;
-				if (bioSubTypeList != null && !bioSubTypeList.isEmpty())
-				{
+				if (bioSubTypeList != null && !bioSubTypeList.isEmpty()) {
 					bioSubType = bioSubTypeList.get(0).trim();
 					if (bioSubTypeList.size() >= 2)
-						bioSubType += " " + bioSubTypeList.get(1).trim();					
+						bioSubType += " " + bioSubTypeList.get(1).trim();
 				}
 
 				String key = bioType + "_" + bioSubType;
@@ -101,11 +100,9 @@ public class ConvertFormatService extends SDKService{
 			sample.setSegments(birList);
 			response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
 			response.setResponse(sample);
-		} 
-		catch (SDKException ex){
+		} catch (SDKException ex) {
 			LOGGER.error("convertFormat -- error", ex);
-			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode())))
-			{
+			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {
 			case INVALID_INPUT:
 				response.setStatusCode(ResponseStatus.INVALID_INPUT.getStatusCode());
 				response.setStatusMessage(String.format(ResponseStatus.INVALID_INPUT.getStatusMessage() + " sample"));
@@ -123,27 +120,28 @@ public class ConvertFormatService extends SDKService{
 				return response;
 			case BIOMETRIC_NOT_FOUND_IN_CBEFF:
 				response.setStatusCode(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusMessage()+  ""));
+				response.setStatusMessage(
+						String.format(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusMessage() + ""));
 				response.setResponse(null);
 				return response;
 			case MATCHING_OF_BIOMETRIC_DATA_FAILED:
 				response.setStatusCode(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusMessage()+  ""));
+				response.setStatusMessage(
+						String.format(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusMessage() + ""));
 				response.setResponse(null);
 				return response;
 			case POOR_DATA_QUALITY:
 				response.setStatusCode(ResponseStatus.POOR_DATA_QUALITY.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.POOR_DATA_QUALITY.getStatusMessage()+ ""));
+				response.setStatusMessage(String.format(ResponseStatus.POOR_DATA_QUALITY.getStatusMessage() + ""));
 				response.setResponse(null);
 				return response;
 			default:
 				response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage()+  ""));
+				response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage() + ""));
 				response.setResponse(null);
 				return response;
 			}
-		}
-		catch (ConversionException ex) {
+		} catch (ConversionException ex) {
 			LOGGER.error("convertFormat -- error", ex);
 			switch (ConverterErrorCode.fromErrorCode(ex.getErrorCode())) {
 			case INPUT_SOURCE_EXCEPTION:
@@ -197,5 +195,5 @@ public class ConvertFormatService extends SDKService{
 			break;
 		}
 		return isValid;
-	}	
+	}
 }
