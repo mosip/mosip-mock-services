@@ -383,6 +383,7 @@ public class MatchService extends SDKService {
 				break;
 
 			Boolean bio_found = false;
+			LOGGER.info("SampleBIR Value check",sampleBIR.getBdbInfo().getSubtype());
 			if (sampleBIR.getBdbInfo().getSubtype() != null && !sampleBIR.getBdbInfo().getSubtype().isEmpty()
 					&& sampleBIR.getBdbInfo().getSubtype().get(0) != null
 					&& !sampleBIR.getBdbInfo().getSubtype().get(0).isEmpty()) {
@@ -390,17 +391,18 @@ public class MatchService extends SDKService {
 					// need to check isValidBIRParams and isValidBDBData too
 					// if (!isValidBirData(galleryBIR))
 					// break;
-					if (galleryBIR.getBdbInfo().getSubtype().get(0)
+					LOGGER.info("GalleryBIR Value check",galleryBIR.getBdbInfo().getSubtype());
+					if (galleryBIR.getBdbInfo().getSubtype() == null || galleryBIR.getBdbInfo().getSubtype().isEmpty() || galleryBIR.getBdbInfo().getSubtype().get(0)
 							.equals(sampleBIR.getBdbInfo().getSubtype().get(0))) {
 						if (Util.compareHash(galleryBIR.getBdb(), sampleBIR.getBdb())) {
 							LOGGER.info("Modality: {}; Subtype: {} -- matched", BiometricType.FACE.value(),
-									galleryBIR.getBdbInfo().getSubtype().get(0));
+									galleryBIR.getBdbInfo().getSubtype());
 							matched.add(true);
 							bio_found = true;
 							break;
 						} else {
 							LOGGER.info("Modality: {}; Subtype: {} -- not matched", BiometricType.FACE.value(),
-									galleryBIR.getBdbInfo().getSubtype().get(0));
+									galleryBIR.getBdbInfo().getSubtype());
 							matched.add(false);
 							bio_found = true;
 						}
