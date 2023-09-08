@@ -988,8 +988,9 @@ public class SBIServiceResponse {
             }
             else if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_ISBUSY))
             {
-            	if (deviceHelper.getCaptureInfo().isCaptureStarted())
+            	if (deviceHelper.getCaptureInfo() == null || deviceHelper.getCaptureInfo().isCaptureStarted())
                 	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "703", "", true);
+          
             }
             
             int timeout = Integer.parseInt(requestObject.getTimeout()+ "");

@@ -1,9 +1,11 @@
 package io.mosip.mock.sbi.service;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import io.mosip.mock.sbi.util.FileHelper;
@@ -85,6 +87,8 @@ public class SBIMockService implements Runnable {
 		catch (Exception ex)
 		{
 			LOGGER.error("SBI Mock Service Error", ex);			
+		}finally {
+			setStopped(true);
 		}
 		
 		LOGGER.info ("SBI Mock Service Stopped.");
@@ -135,11 +139,51 @@ public class SBIMockService implements Runnable {
         return null;
     }
 
-	public void createServerSocket () throws SBIException
+	/*
+	 *
+public synchronized  void createServerSocket () throws SBIException
+	{
+		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
+		InetAddress addr;
+		try {
+			addr = InetAddress.getByName(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
+
+
+			for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
+			{
+				try {
+					
+					this.serverPort = port;
+					this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
+					
+					return;
+				}
+				catch(Exception e){
+					//Do nothing
+					e.printStackTrace();
+				}
+			}
+			throw new IOException("No port available");
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+*/
+	
+	public  void createServerSocket () throws SBIException
 	{
 		try
 		{
+			
 			this.serverPort = getAvailabilePort ();
+			LOGGER.info ("SBI Proxy Service Check port " + this.serverPort);
 			InetAddress addr = InetAddress.getByName (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
 			this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
 
@@ -147,24 +191,33 @@ public class SBIMockService implements Runnable {
 		}
 		catch (IOException ex)
 		{
-			throw new SBIException (ex.hashCode() + "", "SBI Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
+			throw new SBIException (ex.hashCode() + "", "SBI  Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
 		}
 	}
-
-	private int getAvailabilePort ()
+	
+	
+	private int getAvailabilePort () throws IOException
 	{
 		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
 		for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
 		{
-			if (!checkHostAvailability (port))
+			if (isPortInUse (port)==false) 
 			{
-				break;
+				LOGGER.info ("SBI currently not running on port " + port);
+				
+				return port;
 			}
 		}
-		return port;
+		throw new IOException("no port available");
+		
 	}
-
-	private static boolean checkHostAvailability (int port)
+	
+	
+/*
+ * checkHostAvailability : Verifies As a client socket to check if provoded port is listening with loopback. 
+ * 
+ */
+	private static synchronized boolean isPortInUse (int port)
 	{
 		try
 		{
@@ -173,6 +226,7 @@ public class SBIMockService implements Runnable {
 		}
 		catch (Exception ex)
 		{
+			LOGGER.error("Socket Not available {}" , port , ex);
 		}
 		return false;
 	}
