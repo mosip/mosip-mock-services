@@ -70,19 +70,48 @@
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 
 		<!-- Mosip kernel -->
-		<kernel.core.version>1.2.1-SNAPSHOT</kernel.core.version>
-		<kernel.biometricsdk.version>1.2.0.1-B2-SNAPSHOT</kernel.biometricsdk.version>
+		<kernel.version>1.2.0.1-SNAPSHOT</kernel.version>
+		<kernel.biometrics.api.version>1.2.0.1-B2</kernel.biometrics.api.version>
 		<kernel.bioconverter.version>1.2.1-SNAPSHOT</kernel.bioconverter.version>
+		<biometrics-util.version>1.2.0.1-B2-SNAPSHOT</biometrics-util.version>
 
+		<!-- slf4j -->
+		<slf4j.version>1.7.25</slf4j.version>
+		<!-- slf4j -->
+		<jai-imageio.version>1.3.0</jai-imageio.version>
+		<!-- base64url codec -->
+		<commons-codec.version>1.15</commons-codec.version>
+		<!-- base64url codec -->
+		<apache.commons.version>3.11</apache.commons.version>
+		<fasterxml.jackson.version>2.11.0</fasterxml.jackson.version>
+		<hibernate.version>5.2.17.Final</hibernate.version>
+		<hibernate.validator.version>6.0.12.Final</hibernate.validator.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+		<!-- lombok -->
 		<lombok.version>1.18.8</lombok.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-core</artifactId>
+			<version>${kernel.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-biometrics-api</artifactId>
-			<version>${kernel.biometricsdk.version}</version>
+			<version>${kernel.biometrics.api.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip</groupId>
@@ -97,35 +126,60 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.11.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.11</version>
+			<version>${apache.commons.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.15</version>
+			<version>${commons-codec.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
-			<version>1.7.25</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.25</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.github.jai-imageio/jai-imageio-jpeg2000 -->
 		<dependency>
 			<groupId>com.github.jai-imageio</groupId>
 			<artifactId>jai-imageio-jpeg2000</artifactId>
-			<version>1.3.0</version>
+			<version>${jai-imageio.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${fasterxml.jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${fasterxml.jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>${fasterxml.jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<version>${fasterxml.jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate.validator.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator-annotation-processor</artifactId>
+			<version>${hibernate.validator.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -139,6 +193,7 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<excludes><exclude>io.mosip.kernel.biometrics.*</exclude></excludes>
 					<archive>
 						<!-- <manifest>
 	                     <addClasspath>true</addClasspath>
@@ -219,7 +274,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.5</version>
-				<!-- <configuration><skip>true</skip></configuration> -->
+				<!-- <configuration><skip>true</skip></configuration>-->
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
@@ -299,4 +354,5 @@
 
 		</plugins>
 	</build>
+	
 </project>
