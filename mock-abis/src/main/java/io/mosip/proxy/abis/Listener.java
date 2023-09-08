@@ -122,7 +122,7 @@ public class Listener {
 	 * registration-processor-abis-sample.json If true then
 	 * registration-processor-abis-sample.json will be picked from resources
 	 */
-	@Value("${local.development:true}")
+	@Value("${local.development:false}")
 	private boolean localDevelopment;
 
 	@Autowired
