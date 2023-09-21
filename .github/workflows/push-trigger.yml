@@ -106,7 +106,6 @@ jobs:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./mock-sdk
-      BUILD_ARTIFACT: mock-sdk
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
@@ -132,7 +131,6 @@ jobs:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./mock-sdk-jpeg-extractor
-      BUILD_ARTIFACT: mock-sdk-jpeg-extractor
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
@@ -158,7 +156,6 @@ jobs:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./MockMDS
-      BUILD_ARTIFACT: mock-mds
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
