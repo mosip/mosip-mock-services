@@ -1,10 +1,7 @@
 package io.mosip.mock.mv.queue;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -120,6 +117,9 @@ public class Listener {
 	private Session session;
 	private Destination destination;
 
+
+	private Timer timer = new Timer();
+
 	public boolean consumeLogic(javax.jms.Message message, String mvAddress) {
 		boolean isrequestAddedtoQueue = false;
 		Integer textType = 0;
@@ -129,22 +129,24 @@ public class Listener {
 				textType = 1;
 				TextMessage textMessage = (TextMessage) message;
 				messageData = textMessage.getText();
+
 			} else if (message instanceof ActiveMQBytesMessage) {
 				textType = 2;
 				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
+
 			} else {
 				logger.error("Received message is neither text nor byte");
 				return false;
 			}
-			logger.info("Message Data " + messageData);
+			logger.info(String.format("Message Data %s" , messageData));
 
 			ManualAdjudicationRequestDTO requestDTO = objectMapper().readValue(messageData, ManualAdjudicationRequestDTO.class);
-
 			ManualAdjudicationResponseDTO decisionDto = new ManualAdjudicationResponseDTO();
 			decisionDto.setId(env.getProperty(DECISION_SERVICE_ID));
 			decisionDto.setRequestId(requestDTO.getRequestId());
 			decisionDto.setResponsetime(OffsetDateTime.now().toInstant().toString());
 			decisionDto.setReturnValue(isSuccess ? 1 : 2);// logic needs to be implemented.
+			int delayResponse=0;
 			if (mvAddress != verificationResponseAddress) {
 				List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
 				CandidateList candidateList=new CandidateList();
@@ -155,14 +157,14 @@ public class Listener {
 					} else {
 						candidateList.setCandidates(null);
 					}
+					delayResponse=(expectation.getDelayResponse() > 0)?expectation.getDelayResponse(): 0;
 				}
 				else {
-				if (mockDecision.equalsIgnoreCase(REJECTED)) {
-					candidateList=populatesCandidateList(refIds);
-				} else
-					candidateList.setCandidates(null);
+					if (mockDecision.equalsIgnoreCase(REJECTED)) {
+						candidateList=populatesCandidateList(refIds);
+					} else
+						candidateList.setCandidates(null);
 				}
-
 				Map<String,String> analytics=new HashMap<>();
 				analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
 				analytics.put("primaryOperatorComments", "abcd");
@@ -174,17 +176,14 @@ public class Listener {
 
 			String response = javaObjectToJsonString(decisionDto);
 
-			logger.info("Request type is " + response);
+			logger.info(String.format("Request type is " , response));
 
-			if (textType == 2) {
-				isrequestAddedtoQueue = send(response.getBytes(), mvAddress);
-			} else if (textType == 1) {
-				isrequestAddedtoQueue = send(response, mvAddress);
-			}
+
+			isrequestAddedtoQueue=executeAsync(response,delayResponse,textType,mvAddress);
 		} catch (Exception e) {
 			logger.error("Could not process mv request", ExceptionUtils.getStackTrace(e));
 		}
-		logger.info("Is response sent = " + isrequestAddedtoQueue);
+		logger.info(String.format("Is response sent = %b" , isrequestAddedtoQueue));
 		return isrequestAddedtoQueue;
 	}
 
@@ -367,6 +366,29 @@ public class Listener {
 			candidateList.setCandidates(candidates);
 		}
 		return candidateList;
+	}
+
+	public boolean executeAsync(String response, int delayResponse, Integer textType,String mvAddress ){
+		TimerTask task = new TimerTask() {
+			public void run() {
+				try {
+					if (textType == 2) {
+						send(response.getBytes(), mvAddress);
+					} else if (textType == 1) {
+
+						send(response, mvAddress);
+					}
+					logger.info(String.format("Scheduled job completed: MsgType %d ",textType));
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		};
+
+		logger.info(String.format("Adding timed task with timer as %d seconds",delayResponse));
+		timer.schedule(task, delayResponse*1000);
+		return true;
 	}
 
 }
