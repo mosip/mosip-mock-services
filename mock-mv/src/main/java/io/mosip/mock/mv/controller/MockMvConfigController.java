@@ -94,7 +94,7 @@ public class MockMvConfigController {
 			mockMvDecisionService.setExpectation(expectation);
 			return new ResponseEntity<>("Successfully inserted expectation "+expectation.getRId(), HttpStatus.OK);
 		} catch (RuntimeException exp) {
-			logger.error("Exception while getting expectation: "+response);
+			logger.error(String.format("Exception while getting expectation: %s",response));
 			throw exp;
 		}
 	}
