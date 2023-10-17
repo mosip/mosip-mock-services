@@ -88,13 +88,13 @@ public class MockMvConfigController {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
 
-		String response = Listener.javaObjectToJsonString(expectation);
-		logger.info("Setting expectation " + response);
+		String request = Listener.javaObjectToJsonString(expectation);
+		logger.info( String.format("Setting expectation %s" , request));
 		try {
 			mockMvDecisionService.setExpectation(expectation);
 			return new ResponseEntity<>("Successfully inserted expectation "+expectation.getRId(), HttpStatus.OK);
 		} catch (RuntimeException exp) {
-			logger.error(String.format("Exception while getting expectation: %s",response));
+			logger.error(String.format("Exception while getting expectation: %s",request));
 			throw exp;
 		}
 	}

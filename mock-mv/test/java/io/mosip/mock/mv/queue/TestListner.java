@@ -1,7 +1,6 @@
-//package io.mosip.mock.mv;
+package io.mosip.mock.mv.queue;
 
 import io.mosip.mock.mv.dto.Expectation;
-import io.mosip.mock.mv.queue.Listener;
 import io.mosip.mock.mv.service.ExpectationCache;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -14,10 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
-
-//import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.mockito.Mockito.*;
