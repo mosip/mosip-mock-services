@@ -821,20 +821,8 @@ public abstract class SBIDeviceHelper {
 	 */
 
 	
-	public static boolean evictKeys(String keystoreFilePath) {
-		boolean bKeyFound = false;
-		for (Entry<String, PrivateKey> entry : privateKeyMap.entrySet()) {
-			if (entry.getKey().startsWith(keystoreFilePath)) {
-				bKeyFound = true;
-				break;
-			}
-		}
-		if (bKeyFound == false)
-			return true; // No key to remove
-		boolean bRetVal = privateKeyMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
-		if (bRetVal) {
-			bRetVal = certificateMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
-		}
-		return bRetVal;
+	public static synchronized void evictKeys(String keystoreFilePath) {
+		privateKeyMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
+		 certificateMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
 	}
 }
