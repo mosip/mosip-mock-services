@@ -10,6 +10,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -817,9 +818,11 @@ public abstract class SBIDeviceHelper {
 	/**
 	 * To be invoked in afterSuite
 	 * @param keystoreFilePath
+	 * This method is not thread safe
 	 */
+
 	public static void evictKeys(String keystoreFilePath) {
-		privateKeyMap.entrySet().removeIf( e -> e.getKey().startsWith(keystoreFilePath));
-		certificateMap.entrySet().removeIf( e -> e.getKey().startsWith(keystoreFilePath));
+		privateKeyMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
+		certificateMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
 	}
 }
