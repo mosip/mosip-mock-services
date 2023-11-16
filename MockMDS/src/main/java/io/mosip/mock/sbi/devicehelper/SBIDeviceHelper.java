@@ -818,11 +818,11 @@ public abstract class SBIDeviceHelper {
 	/**
 	 * To be invoked in afterSuite
 	 * @param keystoreFilePath
+	 * This method is not thread safe
 	 */
 
-	
-	public static synchronized void evictKeys(String keystoreFilePath) {
+	public static void evictKeys(String keystoreFilePath) {
 		privateKeyMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
-		 certificateMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
+		certificateMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
 	}
 }
