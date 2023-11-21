@@ -269,7 +269,7 @@ public abstract class SBIDeviceHelper {
 			deviceInfo = objectMapper.readValue(new File(fileName), DeviceInfo.class);
 			if (deviceInfo != null)
 			{
-				deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, false));
+				deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, true));
 				deviceInfo.setDeviceStatus(getDeviceStatus());
 				deviceInfo.setPurpose(getPurpose ());
 				deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");

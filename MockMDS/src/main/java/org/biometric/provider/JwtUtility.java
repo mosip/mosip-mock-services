@@ -165,7 +165,7 @@ public class JwtUtility {
 		return DigestUtils.sha256(cert.getEncoded());
 	}
 
-	public String getCertificateFromIDA() {
+	public String getCertificateFromIDA() throws Exception {
 		OkHttpClient client = new OkHttpClient();
 		String requestBody = String.format(AUTH_REQ_TEMPLATE,
 				getPropertyValue("mosip.auth.appid"),
@@ -199,6 +199,7 @@ public class JwtUtility {
 
 		} catch (IOException | JSONException e) {
 			e.printStackTrace();
+			throw e;
 		}
 		return null;
 	}
