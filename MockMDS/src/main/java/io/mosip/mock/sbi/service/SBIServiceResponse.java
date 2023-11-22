@@ -57,6 +57,7 @@ import io.mosip.mock.sbi.devicehelper.iris.binacular.SBIIrisDoubleHelper;
 import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleCaptureInfo;
 import io.mosip.mock.sbi.devicehelper.iris.monocular.SBIIrisSingleHelper;
+import io.mosip.mock.sbi.exception.SBIException;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.mock.sbi.util.StringHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDataDto;
@@ -1318,24 +1319,32 @@ public class SBIServiceResponse {
             }
             else
             {            	
-            	List<BioMetricsDto> biometrics = getBioMetricsDtoList (lang, requestObject, deviceHelper, deviceSubId, true);
-            	if (biometrics != null && biometrics.size() > 0)
+            	List<BioMetricsDto> biometrics = null;
+            	try
             	{
-                	RCaptureResponse captureResponse = new RCaptureResponse ();
-	            	captureResponse.setBiometrics(biometrics);
+            		biometrics = getBioMetricsDtoList (lang, requestObject, deviceHelper, deviceSubId, true);
+            		if (biometrics != null && biometrics.size() > 0)
+                	{
+                    	RCaptureResponse captureResponse = new RCaptureResponse ();
+    	            	captureResponse.setBiometrics(biometrics);
 
-	            	ObjectMapper mapper = new ObjectMapper ();	
-	                SerializationConfig config = mapper.getSerializationConfig();
-	                config.setSerializationInclusion(Inclusion.NON_NULL);
-	                mapper.setSerializationConfig(config);
+    	            	ObjectMapper mapper = new ObjectMapper ();	
+    	                SerializationConfig config = mapper.getSerializationConfig();
+    	                config.setSerializationInclusion(Inclusion.NON_NULL);
+    	                mapper.setSerializationConfig(config);
 
-	                response = mapper.writeValueAsString(captureResponse);
-        		}
-            	else
-            	{
-                    response = SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "708", "", false);
+    	                response = mapper.writeValueAsString(captureResponse);
+            		}
+                	else
+                	{
+                        response = SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "708", "", false);
+                	}
             	}
- 
+            	catch (Exception ex)
+            	{
+                    response = SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "999", ex.getLocalizedMessage(), false);
+            	}
+            	 
                 deviceHelper.deInitDevice();
         		deviceHelper.setDeviceStatus(SBIConstant.DEVICE_STATUS_ISREADY);
             }
@@ -1377,7 +1386,7 @@ public class SBIServiceResponse {
         return response;
 	}
 
-	private List<BioMetricsDto> getBioMetricsDtoList (String lang, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, int deviceSubId, boolean isForAuthenication) throws JsonGenerationException, JsonMappingException, IOException, NoSuchAlgorithmException, DecoderException
+	private List<BioMetricsDto> getBioMetricsDtoList (String lang, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, int deviceSubId, boolean isForAuthenication) throws JsonGenerationException, JsonMappingException, IOException, NoSuchAlgorithmException, DecoderException, SBIException
 	{
         List<BioMetricsDto> biometrics = new ArrayList<BioMetricsDto> ();
     	String specVersion = requestObject.getSpecVersion();
@@ -2196,7 +2205,7 @@ public class SBIServiceResponse {
 	
 	private BioMetricsDto getBiometricData (String transactionId, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, 
 			String previousHash, String bioType, String bioSubType, String bioValue, 
-			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws JsonGenerationException, JsonMappingException, IOException, NoSuchAlgorithmException, DecoderException
+			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws SBIException, JsonGenerationException, JsonMappingException, IOException, DecoderException, NoSuchAlgorithmException
     {
 		DeviceInfo deviceInfo = deviceHelper.getDeviceInfo();
 		
@@ -2236,12 +2245,11 @@ public class SBIServiceResponse {
 						cryptoResult.get("ENC_DATA") : null);		
 				biometric.setSessionKey(cryptoResult.get("ENC_SESSION_KEY"));
 				String thumbPrint = toHex (JwtUtility.getCertificateThumbprint(certificate)).replace ("-", "").toUpperCase();
-				//System.out.println("ThumbPrint>>" + thumbPrint);
 				biometric.setThumbprint(thumbPrint);
 			} catch (Exception ex) {
-                LOGGER.error("getBiometricData :: encrypt :: ", ex);
-				// TODO Auto-generated catch block
                 ex.printStackTrace();
+                LOGGER.error("getBiometricData :: encrypt :: ", ex);
+                throw new SBIException("IDA Biometric encryption Certificate not found", "IDA Biometric encryption Certificate not found", ex);
 			}
         }
 
