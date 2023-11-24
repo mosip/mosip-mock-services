@@ -275,7 +275,7 @@ public abstract class SBIDeviceHelper {
 				deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
 				if (!getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREGISTERED))
 				{
-					deviceInfo.setDigitalId(getSignedDigitalId (deviceInfo.getDigitalId(),
+					deviceInfo.setDigitalId(getSignedDigitalId (getUnsignedDigitalId (digitalId, false),
 							getPrivateKey(keyStoreFileName, keyAlias, keyPwd),
 							getCertificate(keyStoreFileName, keyAlias, keyPwd)));
 				}
