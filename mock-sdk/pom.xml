@@ -72,13 +72,8 @@
 		<!-- Mosip kernel -->
 		<kernel.version>1.2.0.1-SNAPSHOT</kernel.version>
 		<kernel.biometrics.api.version>1.2.0.1-B2</kernel.biometrics.api.version>
-<<<<<<< Updated upstream
 		<kernel.bioconverter.version>1.2.0.1-B1</kernel.bioconverter.version>
 		<biometrics-util.version>1.2.0.1-B1</biometrics-util.version>
-=======
-		<kernel.bioconverter.version>1.2.0.1-SNAPSHOT</kernel.bioconverter.version>
-		<biometrics-util.version>1.2.0.1-B2-SNAPSHOT</biometrics-util.version>
->>>>>>> Stashed changes
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
         <lombok.version>1.18.8</lombok.version>
