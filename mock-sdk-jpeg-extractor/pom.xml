@@ -76,13 +76,8 @@
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
 		<kernel.biometricsdk.version>1.2.0.1-B1</kernel.biometricsdk.version>
-<<<<<<< Updated upstream
 		<mosip.mock.version>1.2.0.1-B1</mosip.mock.version>
 		<mosip.bioutil.version>1.2.0.1-B1</mosip.bioutil.version>
-=======
-		<mosip.mock.version>1.2.0.1-SNAPSHOT</mosip.mock.version>
-		<mosip.bioutil.version>1.2.0.1-SNAPSHOT</mosip.bioutil.version>
->>>>>>> Stashed changes
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
     	<lombok.version>1.18.8</lombok.version>
