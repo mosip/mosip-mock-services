@@ -858,11 +858,11 @@ public class SBIServiceResponse {
             LOGGER.info("processRCaptureInfo :: deviceId :: "+ deviceId + " :: deviceSubId ::" + deviceSubId);
             if (env == null || env.trim().length() == 0)
             {
-                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "115", "", false);
+                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "115", "", true);
             }
             else if (env != null && env.trim().length() > 0 && !(env.trim().equalsIgnoreCase(SBIConstant.ENVIRONMENT_STAGING) || env.trim().equalsIgnoreCase(SBIConstant.ENVIRONMENT_DEVELOPER) || env.trim().equalsIgnoreCase(SBIConstant.ENVIRONMENT_PRE_PRODUCTION) || env.trim().equalsIgnoreCase(SBIConstant.ENVIRONMENT_PRODUCTION)))
             {
-                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "115", "", false);
+                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "115", "", true);
             }
 
             if (deviceId != null && deviceId.trim().length() == 0)
@@ -872,7 +872,7 @@ public class SBIServiceResponse {
             }
             if (deviceType == null || deviceType.trim().length() == 0)
             {
-            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "114", "", false);
+            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "114", "", true);
             }
             	
             if (deviceType != null && deviceType.trim().length() > 0 && 
@@ -882,7 +882,7 @@ public class SBIServiceResponse {
     				deviceType.trim().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
         		)
             {
-            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "114", "", false);
+            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "114", "", true);
             }
             
             deviceHelper = getDeviceHelperForDeviceId (mockService, deviceId);
@@ -892,7 +892,7 @@ public class SBIServiceResponse {
             }
             if (deviceType != null && deviceHelper.getDeviceType().equalsIgnoreCase(deviceType.trim()) == false)
             {
-                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "112", "", false);
+                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "120", "", true);
             }
 
             if (deviceHelper.getDeviceInfo() != null && !deviceHelper.getDeviceInfo().getPurpose().trim().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
@@ -913,6 +913,10 @@ public class SBIServiceResponse {
             if (deviceHelper.getDeviceInfo() != null && deviceHelper.getDeviceInfo().getDeviceStatus().trim().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREADY))
             {
             	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "110", "", true);
+            }
+            if (!StringHelper.isAlphaNumericHyphenWithMinMaxLength(requestObject.getTransactionId()))
+            {
+            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "112", "", true);
             }
                         
             String bioType = mosipBioRequest.get(0).getType();
@@ -1195,7 +1199,7 @@ public class SBIServiceResponse {
             }
             if (deviceType != null && deviceHelper.getDeviceType().equalsIgnoreCase(deviceType.trim()) == false)
             {
-                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "112", "", false);
+                return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "120", "", false);
             }
 
             if (deviceHelper.getDeviceInfo() != null && !deviceHelper.getDeviceInfo().getPurpose().trim().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
@@ -1214,10 +1218,15 @@ public class SBIServiceResponse {
             {
             	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "111", "", false);
             }
+            if (!StringHelper.isAlphaNumericHyphenWithMinMaxLength(requestObject.getTransactionId()))
+            {
+            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "112", "", false);
+            }
 
             String bioType = mosipBioRequest.get(0).getType();
             String [] bioSubType = mosipBioRequest.get(0).getBioSubType();// Bio Subtype
             int timeout = Integer.parseInt(requestObject.getTimeout()+ "");
+            
             int requestScore = Integer.parseInt(mosipBioRequest.get(0).getRequestedScore() + "");
             int bioCount = Integer.parseInt(mosipBioRequest.get(0).getCount() + "");
             
