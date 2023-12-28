@@ -28,4 +28,24 @@ public class StringHelper {
     {
         return arg.getBytes (StandardCharsets.UTF_8);
     }
+    
+    public static boolean isValidLength(String value, int minLength, int maxLength) {
+        if(value == null) {
+            return false;
+        }
+
+        int length = value.length();
+        return length >= minLength && length <= maxLength;
+    }
+    
+    public static boolean isAlphaNumericHyphenWithMinMaxLength(String input) {
+        if(input == null) {
+            return false;
+        }
+        // Regular expression for Match alphanumeric characters or hyphens, with no whitespaces and with a length between minLength and maxLength
+        String regex = "^[a-zA-Z0-9-]{4,50}$";
+        
+        // Check if the input string matches the pattern
+        return input.matches(regex);
+    }
 }
