@@ -937,11 +937,11 @@ public class SBIServiceResponse {
             int bioSubtypeCount = (bioSubtype != null ? bioSubtype.length : 0);
 			int finalCount = count + exceptionCount;
 			
-            if (!isValidBioSubtypeValues(bioType, bioSubtype))
+            if (bioSubtypeCount != 0 && !isValidBioSubtypeValues(bioType, bioSubtype, false))
             {
             	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "122", "", true);
             }
-            if (!isValidBioExceptionValues(bioType, bioException))
+            if (exceptionCount != 0 && !isValidBioExceptionValues(bioType, bioException))
             {
             	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "122", "", true);
             }
@@ -1254,6 +1254,10 @@ public class SBIServiceResponse {
             int requestScore = Integer.parseInt(mosipBioRequest.get(0).getRequestedScore() + "");
             int bioCount = Integer.parseInt(mosipBioRequest.get(0).getCount() + "");
             
+            if (!isValidBioSubtypeValues(bioType, bioSubType, true))
+            {
+            	return SBIJsonInfo.getCaptureErrorJson  (specVersion, lang, "122", "", true);
+            }            
             if (deviceType != null)
             {
             	if ((bioCount < 0 || bioCount > 10) && deviceType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
@@ -2614,17 +2618,17 @@ public class SBIServiceResponse {
 	private boolean isValidBioExceptionValues(String bioType, String[] bioExceptions) {
 		if (bioExceptions != null)
 		{
-			if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
+        	if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
 				return bioExceptionsListFinger.containsAll(Arrays.asList(bioExceptions));
 			else if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
 				return bioExceptionsListIris.containsAll(Arrays.asList(bioExceptions));
 			else if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
 				return true;
 		}
-		return false;
+		return true;
 	}
 
-	private boolean isValidBioSubtypeValues(String bioType, String[] bioSubtypes) {
+	private boolean isValidBioSubtypeValues(String bioType, String[] bioSubtypes, boolean isCapture) {
 		if (bioSubtypes != null)
 		{
 			if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
@@ -2634,6 +2638,9 @@ public class SBIServiceResponse {
 			else if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
 				return true;
 		}
-		return false;
+		if (isCapture)
+			return false;
+		else
+			return true;
 	}
 }
