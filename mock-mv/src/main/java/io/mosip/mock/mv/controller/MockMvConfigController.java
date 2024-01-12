@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import io.mosip.mock.mv.queue.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,24 +78,26 @@ public class MockMvConfigController {
 	            throw exp;
 	        }
 	    }
-	 
-	 @RequestMapping(value = "/expectationMockMv", method = RequestMethod.POST)
-	    @Operation(summary = "Set expectation", description = "Set expectation", tags = { "Proxy mockMv config API" })
-	    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
-	            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
-	            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
-	            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
-	            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
-	    public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
-	        logger.info("Setting expectation" + expectation.getRId());
-	        try {
-	        	mockMvDecisionService.setExpectation(expectation);
-	            return new ResponseEntity<>("Successfully inserted expectation "+expectation.getRId(), HttpStatus.OK);
-	        } catch (RuntimeException exp) {
-	            logger.error("Exception while getting expectation: "+exp.getMessage());
-	            throw exp;
-	        }
-	    }
+
+	@RequestMapping(value = "/expectationMockMv", method = RequestMethod.POST)
+	@Operation(summary = "Set expectation", description = "Set expectation", tags = { "Proxy mockMv config API" })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
+			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
+	public ResponseEntity<String> setExpectation(@Valid @RequestBody Expectation expectation) throws Exception {
+
+		String request = Listener.javaObjectToJsonString(expectation);
+		logger.info( String.format("Setting expectation %s" , request));
+		try {
+			mockMvDecisionService.setExpectation(expectation);
+			return new ResponseEntity<>("Successfully inserted expectation "+expectation.getRId(), HttpStatus.OK);
+		} catch (RuntimeException exp) {
+			logger.error(String.format("Exception while getting expectation: %s",request));
+			throw exp;
+		}
+	}
 	 
 	 @RequestMapping(value = "/expectationMockMv", method = RequestMethod.GET)
 	    @Operation(summary = "Gets expectation", description = "Gets expectation", tags = { "Proxy mockMv config API" })
