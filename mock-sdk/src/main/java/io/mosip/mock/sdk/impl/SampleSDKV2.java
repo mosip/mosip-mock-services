@@ -33,6 +33,7 @@ import io.mosip.mock.sdk.service.SegmentService;
 @Component
 @EnableAutoConfiguration
 public class SampleSDKV2 implements IBioApiV2 {
+
 	private Logger LOGGER = LoggerFactory.getLogger(SampleSDKV2.class);
 
 	/** The environment. */

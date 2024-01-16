@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -68,6 +69,7 @@ public abstract class SDKService {
 
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord record,
 			List<BiometricType> modalitiesToMatch) {
+		LOGGER.info("getBioSegmentMap>>" +  modalitiesToMatch.toString());
 		Boolean noFilter = false;
 
 		/**
@@ -152,7 +154,6 @@ public abstract class SDKService {
 	protected boolean isValidBDBData(PurposeType purposeType, BiometricType bioType, String bioSubType,
 			byte[] bdbData) {
 		ResponseStatus responseStatus = null;
-
 		if (bdbData != null && bdbData.length != 0) {
 			return isValidBiometericData(purposeType, bioType, bioSubType, Util.encodeToURLSafeBase64(bdbData));
 		}
