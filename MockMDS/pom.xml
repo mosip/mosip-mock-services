@@ -12,7 +12,7 @@
 	
 	<groupId>io.mosip.mock.mds</groupId>
 	<artifactId>mock-mds</artifactId>
-	<version>1.2.0.1-B3</version>
+	<version>1.2.0.1-B4-SNAPSHOT</version>
 	<name>mock-mds</name>
 	<description>A mock project for biometric provider</description>
 
