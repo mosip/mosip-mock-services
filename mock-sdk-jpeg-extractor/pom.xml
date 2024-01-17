@@ -75,7 +75,7 @@
 		<maven.assembly.version>3.3.0</maven.assembly.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
-		<kernel.biometricsdk.version>1.2.0.1-B4</kernel.biometricsdk.version>
+		<kernel.biometricsdk.version>1.2.0.1-B4-SNAPSHOT</kernel.biometricsdk.version>
 		<mosip.mock.version>1.2.0.1-B4-SNAPSHOT</mosip.mock.version>
 		<mosip.bioutil.version>1.2.0.1-B4</mosip.bioutil.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
