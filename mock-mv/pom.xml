@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.mock.mv</groupId>
 	<artifactId>mock-mv</artifactId>
-	<version>1.2.0.1-B3</version>
+	<version>1.2.0.1-B4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>mock-mv</name>
@@ -103,7 +103,7 @@
 		<!--<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-core</artifactId>
-			<version>1.2.0.1-B1</version>
+			<version>1.2.0.1-B2</version>
 		</dependency>-->
 		<!--
 		<dependency>
