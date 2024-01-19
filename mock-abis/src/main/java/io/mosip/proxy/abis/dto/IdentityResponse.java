@@ -4,24 +4,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class IdentityResponse {
-
 	private String id;
-
 	private String requestId;
-
 	private LocalDateTime responsetime;
-
-	private Integer returnValue;
-
+	private String returnValue;
 	private CandidateList candidateList;
-
-	private Analytics analytics=new Analytics();
+	private Analytics analytics = new Analytics();
 
 	public IdentityResponse() {
 		super();
 	}
 
-	public IdentityResponse(String id, String requestId, LocalDateTime responsetime, Integer returnValue,
+	public IdentityResponse(String id, String requestId, LocalDateTime responsetime, String returnValue,
 			CandidateList candidateList, Analytics analytics) {
 		super();
 		this.id = id;
@@ -72,49 +66,43 @@ public class IdentityResponse {
 		this.analytics = analytics;
 	}
 
-	
-	
-	public Integer getReturnValue() {
+	public String getReturnValue() {
 		return returnValue;
 	}
 
-	public void setReturnValue(Integer returnValue) {
+	public void setReturnValue(String returnValue) {
 		this.returnValue = returnValue;
 	}
 
-
-
 	public static class CandidateList {
-
-		private Integer count;
+		private String count;
 		private List<Candidates> candidates;
 
 		public CandidateList() {
 			super();
 		}
 
-		public CandidateList(Integer count,List<Candidates>  candidates) {
+		public CandidateList(String count, List<Candidates> candidates) {
 			super();
 			this.count = count;
 			this.candidates = candidates;
 		}
 
-		public Integer getCount() {
+		public String getCount() {
 			return count;
 		}
 
-		public void setCount(Integer count) {
+		public void setCount(String count) {
 			this.count = count;
 		}
 
-		public List<Candidates>  getCandidates() {
+		public List<Candidates> getCandidates() {
 			return candidates;
 		}
 
-		public void setCandidates(List<Candidates>  candidates) {
+		public void setCandidates(List<Candidates> candidates) {
 			this.candidates = candidates;
 		}
-
 	}
 
 	public static class Modalities {
@@ -125,7 +113,7 @@ public class IdentityResponse {
 			super();
 		}
 
-		public Modalities(String biometricType,Analytics analytics) {
+		public Modalities(String biometricType, Analytics analytics) {
 			super();
 			this.biometricType = biometricType;
 			this.analytics = analytics;
@@ -146,15 +134,11 @@ public class IdentityResponse {
 		public void setAnalytics(Analytics analytics) {
 			this.analytics = analytics;
 		}
-
-		
-
-		
 	}
 
 	public static class Analytics {
-		private Integer confidence;
-		private Integer internalScore;
+		private String confidence;
+		private String internalScore;
 		private String key1;
 		private String key2;
 
@@ -162,7 +146,7 @@ public class IdentityResponse {
 			super();
 		}
 
-		public Analytics(Integer confidence, Integer internalScore, String value1, String value2) {
+		public Analytics(String confidence, String internalScore, String value1, String value2) {
 			super();
 			this.confidence = confidence;
 			this.internalScore = internalScore;
@@ -170,19 +154,19 @@ public class IdentityResponse {
 			this.key2 = value2;
 		}
 
-		public Integer getConfidence() {
+		public String getConfidence() {
 			return confidence;
 		}
 
-		public void setConfidence(Integer confidence) {
+		public void setConfidence(String confidence) {
 			this.confidence = confidence;
 		}
 
-		public Integer getInternalScore() {
+		public String getInternalScore() {
 			return internalScore;
 		}
 
-		public void setInternalScore(Integer internalScore) {
+		public void setInternalScore(String internalScore) {
 			this.internalScore = internalScore;
 		}
 
@@ -201,9 +185,6 @@ public class IdentityResponse {
 		public void setKey2(String key2) {
 			this.key2 = key2;
 		}
-
-		
-
 	}
 
 	public static class Candidates {
@@ -245,7 +226,5 @@ public class IdentityResponse {
 		public void setModalities(List<Modalities> modalities) {
 			this.modalities = modalities;
 		}
-
 	}
-
 }

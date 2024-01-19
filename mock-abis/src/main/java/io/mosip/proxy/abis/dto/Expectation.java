@@ -5,200 +5,187 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Expectation {
+	private String id;
+	private String version;
+	private LocalDateTime requesttime;
+	/* Insert/ Identity */
+	private String actionToInterfere;
+	/* Error/ Duplicate/ Success (default) */
+	private String forcedResponse;
+	/* Failure response */
+	private String errorCode;
+	private String delayInExecution;
+	private Gallery matchedGallery;
 
-    private String id;
+	public String getId() {
+		return id;
+	}
 
-    private String version;
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    private LocalDateTime requesttime;
+	public String getVersion() {
+		return version;
+	}
 
-    /* Insert/ Identity*/
-    private String actionToInterfere;
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
-    /* Error/ Duplicate/ Success (default)*/
-    private String forcedResponse;
+	public LocalDateTime getRequesttime() {
+		return requesttime;
+	}
 
-    /* Failure response */
-    private String errorCode;
+	public void setRequesttime(LocalDateTime requesttime) {
+		this.requesttime = requesttime;
+	}
 
-    private String delayInExecution;
+	public String getActionToInterfere() {
+		return actionToInterfere;
+	}
 
-    private Gallery matchedGallery;
+	public void setActionToInterfere(String actionToInterfere) {
+		this.actionToInterfere = actionToInterfere;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getForcedResponse() {
+		return forcedResponse;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setForcedResponse(String forcedResponse) {
+		this.forcedResponse = forcedResponse;
+	}
 
-    public String getVersion() {
-        return version;
-    }
+	public Gallery getGallery() {
+		return matchedGallery;
+	}
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+	public void setGallery(Gallery matchedGallery) {
+		this.matchedGallery = matchedGallery;
+	}
 
-    public LocalDateTime getRequesttime() {
-        return requesttime;
-    }
+	public String getErrorCode() {
+		return errorCode;
+	}
 
-    public void setRequesttime(LocalDateTime requesttime) {
-        this.requesttime = requesttime;
-    }
+	public void setErrorCode(String e) {
+		this.errorCode = e;
+	}
 
-    public String getActionToInterfere() {
-        return actionToInterfere;
-    }
+	public String getDelayInExecution() {
+		return delayInExecution;
+	}
 
-    public void setActionToInterfere(String actionToInterfere) {
-        this.actionToInterfere = actionToInterfere;
-    }
+	public void setDelayInExecution(String e) {
+		this.delayInExecution = e;
+	}
 
-    public String getForcedResponse() {
-        return forcedResponse;
-    }
+	public Expectation() {
+		super();
+	}
 
-    public void setForcedResponse(String forcedResponse) {
-        this.forcedResponse = forcedResponse;
-    }
+	public Expectation(String id, String version, LocalDateTime requesttime, String actionToInterfere,
+			String forcedResponse, Gallery matchedGallery) {
+		super();
+		this.id = id;
+		this.version = version;
+		this.requesttime = requesttime;
+		this.actionToInterfere = actionToInterfere;
+		this.forcedResponse = forcedResponse;
+		this.matchedGallery = matchedGallery;
+	}
 
-    public Gallery getGallery() {
-        return matchedGallery;
-    }
+	public static class Gallery {
+		List<ReferenceIds> referenceIds = new ArrayList<>();
 
-    public void setGallery(Gallery matchedGallery) {
-        this.matchedGallery = matchedGallery;
-    }
+		public Gallery() {
 
-    public String getErrorCode() {
-        return errorCode;
-    }
+		}
 
-    public void setErrorCode(String e) {
-        this.errorCode = e;
-    }
+		public Gallery(List<ReferenceIds> referenceIds) {
+			super();
+			this.referenceIds = referenceIds;
+		}
 
-    public String getDelayInExecution() {
-        return delayInExecution;
-    }
+		public List<ReferenceIds> getReferenceIds() {
+			return referenceIds;
+		}
 
-    public void setDelayInExecution(String e) {
-        this.delayInExecution = e;
-    }
+		public void setReferenceIds(List<ReferenceIds> referenceIds) {
+			this.referenceIds = referenceIds;
+		}
+	}
 
-    public Expectation() {
-        super();
-    }
+	public static class ReferenceIds {
+		private String referenceId;
 
-    public Expectation(String id, String version, LocalDateTime requesttime, String actionToInterfere,
-                       String forcedResponse, Gallery matchedGallery) {
-        super();
-        this.id = id;
-        this.version = version;
-        this.requesttime = requesttime;
-        this.actionToInterfere = actionToInterfere;
-        this.forcedResponse = forcedResponse;
-        this.matchedGallery = matchedGallery;
-    }
+		public ReferenceIds() {
+			super();
+		}
 
-    public static class Gallery {
+		public ReferenceIds(String referenceId) {
+			super();
+			this.referenceId = referenceId;
+		}
 
-        List<ReferenceIds> referenceIds = new ArrayList<>();
+		public String getReferenceId() {
+			return referenceId;
+		}
 
-        public Gallery() {
+		public void setReferenceId(String referenceId) {
+			this.referenceId = referenceId;
+		}
+	}
 
-        }
+	public static class Flags {
+		private String maxResults;
+		private String targetFPIR;
+		private String flag1;
+		private String flag2;
 
-        public Gallery(List<ReferenceIds> referenceIds) {
-            super();
-            this.referenceIds = referenceIds;
-        }
+		public Flags() {
+			super();
+		}
 
-        public List<ReferenceIds> getReferenceIds() {
-            return referenceIds;
-        }
+		public Flags(String maxResults, String targetFPIR, String flag1, String flag2) {
+			super();
+			this.maxResults = maxResults;
+			this.targetFPIR = targetFPIR;
+			this.flag1 = flag1;
+			this.flag2 = flag2;
+		}
 
-        public void setReferenceIds(List<ReferenceIds> referenceIds) {
-            this.referenceIds = referenceIds;
-        }
+		public String getMaxResults() {
+			return maxResults;
+		}
 
-    }
+		public void setMaxResults(String maxResults) {
+			this.maxResults = maxResults;
+		}
 
-    public static class ReferenceIds {
-        private String referenceId;
+		public String getTargetFPIR() {
+			return targetFPIR;
+		}
 
-        public ReferenceIds() {
-            super();
-        }
+		public void setTargetFPIR(String targetFPIR) {
+			this.targetFPIR = targetFPIR;
+		}
 
-        public ReferenceIds(String referenceId) {
-            super();
-            this.referenceId = referenceId;
-        }
+		public String getFlag1() {
+			return flag1;
+		}
 
-        public String getReferenceId() {
-            return referenceId;
-        }
+		public void setFlag1(String flag1) {
+			this.flag1 = flag1;
+		}
 
-        public void setReferenceId(String referenceId) {
-            this.referenceId = referenceId;
-        }
+		public String getFlag2() {
+			return flag2;
+		}
 
-    }
-
-    public static class Flags {
-
-        private Integer maxResults;
-        private Integer targetFPIR;
-        private String flag1;
-        private String flag2;
-
-        public Flags() {
-            super();
-        }
-
-        public Flags(Integer maxResults, Integer targetFPIR, String flag1, String flag2) {
-            super();
-            this.maxResults = maxResults;
-            this.targetFPIR = targetFPIR;
-            this.flag1 = flag1;
-            this.flag2 = flag2;
-        }
-
-        public Integer getMaxResults() {
-            return maxResults;
-        }
-
-        public void setMaxResults(Integer maxResults) {
-            this.maxResults = maxResults;
-        }
-
-        public Integer getTargetFPIR() {
-            return targetFPIR;
-        }
-
-        public void setTargetFPIR(Integer targetFPIR) {
-            this.targetFPIR = targetFPIR;
-        }
-
-        public String getFlag1() {
-            return flag1;
-        }
-
-        public void setFlag1(String flag1) {
-            this.flag1 = flag1;
-        }
-
-        public String getFlag2() {
-            return flag2;
-        }
-
-        public void setFlag2(String flag2) {
-            this.flag2 = flag2;
-        }
-
-    }
+		public void setFlag2(String flag2) {
+			this.flag2 = flag2;
+		}
+	}
 }

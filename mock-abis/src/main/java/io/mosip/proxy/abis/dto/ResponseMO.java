@@ -2,22 +2,13 @@ package io.mosip.proxy.abis.dto;
 
 import java.time.LocalDateTime;
 
-
-
-
 public class ResponseMO {
-	
 	private String id;
-	
 	private String requestId;
-	
 	private LocalDateTime responsetime;
-	
-	private int returnValue;
-	
-	
+	private String returnValue;
 
-	public ResponseMO(String id, String requestId, LocalDateTime responsetime, int returnValue) {
+	public ResponseMO(String id, String requestId, LocalDateTime responsetime, String returnValue) {
 		super();
 		this.id = id;
 		this.requestId = requestId;
@@ -41,8 +32,6 @@ public class ResponseMO {
 		this.requestId = requestId;
 	}
 
-
-
 	public LocalDateTime getResponsetime() {
 		return responsetime;
 	}
@@ -51,13 +40,11 @@ public class ResponseMO {
 		this.responsetime = responsetime;
 	}
 
-	public int getReturnValue() {
+	public String getReturnValue() {
 		return returnValue;
 	}
 
-	public void setReturnValue(int returnValue) {
+	public void setReturnValue(String returnValue) {
 		this.returnValue = returnValue;
 	}
-	
-
 }

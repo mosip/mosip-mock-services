@@ -1,7 +1,6 @@
 package io.mosip.mock.sdk.constant;
 
 public enum ResponseStatus {
-
 	SUCCESS(200, "OK"),
 	INVALID_INPUT(401, "Invalid Input Parameter"),
 	MISSING_INPUT(402, "Missing Input Parameter"),
@@ -43,4 +42,3 @@ public enum ResponseStatus {
 		 return UNKNOWN_ERROR;
     }
 }
-

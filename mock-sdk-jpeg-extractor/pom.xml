@@ -5,7 +5,7 @@
 
 	<artifactId>mock-sdk-jpeg-extractor</artifactId>
 	<groupId>io.mosip.mock.sdk</groupId>
-	<version>1.2.0.1-B3</version>
+	<version>1.2.0.1-B4-SNAPSHOT</version>
 	<name>mock-sdk-jpeg-extractor</name>
 	<description>Sample implementation of biometrics SDK-containing jpeg extraction</description>
 	<packaging>jar</packaging>
@@ -75,14 +75,14 @@
 		<maven.assembly.version>3.3.0</maven.assembly.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
-		<kernel.biometricsdk.version>1.2.0.1-B3</kernel.biometricsdk.version>
-		<mosip.mock.version>1.2.0.1-B3</mosip.mock.version>
-		<mosip.bioutil.version>1.2.0.1-B3</mosip.bioutil.version>
+		<kernel.biometricsdk.version>1.2.0.1-B4-SNAPSHOT</kernel.biometricsdk.version>
+		<mosip.mock.version>1.2.0.1-B4-SNAPSHOT</mosip.mock.version>
+		<mosip.bioutil.version>1.2.0.1-B4</mosip.bioutil.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
-        	<lombok.version>1.18.8</lombok.version>
+    	<lombok.version>1.18.8</lombok.version>
 		<jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
-        	<logging.slf4j.version>1.7.25</logging.slf4j.version>
+    	<logging.slf4j.version>1.7.25</logging.slf4j.version>
 		
 	</properties>
 	

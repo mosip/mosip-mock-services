@@ -7,26 +7,27 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import io.mosip.kernel.biometrics.constant.BiometricFunction;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.model.SDKInfo;
 
-public class SDKInfoService extends SDKService{
-	private String apiVersion; 
-	private String sample1,sample2, sample3; 
-	Logger LOGGER = LoggerFactory.getLogger(SDKInfoService.class);
+public class SDKInfoService extends SDKService {
+	private Logger LOGGER = LoggerFactory.getLogger(SDKInfoService.class);
 
-	public SDKInfoService(String apiVersion,String sample1, String sample2, String sample3)
-	{
+	private String apiVersion;
+	private String sample1, sample2, sample3;
+
+	public SDKInfoService(Environment env, String apiVersion, String sample1, String sample2, String sample3) {
+		super(env, null);
 		this.apiVersion = apiVersion;
 		this.sample1 = sample1;
-		this.sample2 = sample2; 
+		this.sample2 = sample2;
 		this.sample3 = sample3;
 	}
-	
-	public SDKInfo getSDKInfo()
-	{
+
+	public SDKInfo getSDKInfo() {
 		SDKInfo sdkInfo = new SDKInfo(this.apiVersion, this.sample1, this.sample2, this.sample3);
 		List<BiometricType> supportedModalities = new ArrayList<>();
 		supportedModalities.add(BiometricType.FINGER);

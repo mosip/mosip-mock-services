@@ -11,7 +11,6 @@ import javax.validation.constraints.Pattern;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 
 public class InsertRequestMO {
-
 	@Pattern(regexp = "mosip.abis.insert", message = FailureReasonsConstants.INVALID_ID)
 	private String id;
 
@@ -35,9 +34,8 @@ public class InsertRequestMO {
 	@NotNull(message = FailureReasonsConstants.MISSING_REFERENCE_URL)
 	@Column(name = "referenceURL")
 	private String referenceURL;
-	
-	public InsertRequestMO()
-	{
+
+	public InsertRequestMO() {
 		super();
 	}
 
@@ -99,5 +97,4 @@ public class InsertRequestMO {
 	public void setReferenceURL(String referenceURL) {
 		this.referenceURL = referenceURL;
 	}
-
 }

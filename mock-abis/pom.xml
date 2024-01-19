@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.mock.abis</groupId>
 	<artifactId>mock-abis</artifactId>
-	<version>1.2.0.1-B3</version>
+	<version>1.2.0.1-B4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>MockAbis</name>
@@ -63,15 +61,21 @@
 		<!-- Maven -->
 		<maven-compiler-plugin.source>11</maven-compiler-plugin.source>
 		<maven-compiler-plugin.target>11</maven-compiler-plugin.target>
-		<maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+		<encoding>UTF-8</encoding>
+		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
+		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
 		<maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
 		<maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
 		<maven-source-plugin>2.2.1</maven-source-plugin>
-        <nexus-staging-maven-plugin>1.6.7</nexus-staging-maven-plugin>
+		<nexus-staging-maven-plugin>1.6.7</nexus-staging-maven-plugin>
 		<git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
 
 		<!-- Core -->
-		<spring-cloud-config.version>2.2.7.RELEASE</spring-cloud-config.version>
+		<springdoc.version>1.5.10</springdoc.version>
+		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+		<spring.data.jpa.version>2.0.7.RELEASE</spring.data.jpa.version>
+		<spring-cloud-config.version>2.0.4.RELEASE</spring-cloud-config.version>
 		<spring-jms.version>5.0.16.RELEASE</spring-jms.version>
 
 		<!-- Lombok -->
@@ -92,54 +96,10 @@
 		<logback.version>1.2.3</logback.version>
 		<h2-database-engine.version>1.4.200</h2-database-engine.version>
 
-		<springdoc.version>1.5.10</springdoc.version>
-		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
-		<io.micrometer.prometheus.version>1.5.5</io.micrometer.prometheus.version>
+		<io.micrometer.prometheus.version>1.4.2</io.micrometer.prometheus.version>
 	</properties>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.4.RELEASE</version>
-	</parent>
-
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-config-client</artifactId>
-			<version>${spring-cloud-config.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-activemq</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jms</artifactId>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgresql.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-core</artifactId>
@@ -152,6 +112,27 @@
 					</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-activemq</artifactId>
+			<version>${spring.boot.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jms</artifactId>
+			<version>${spring-jms.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<version>${spring.data.jpa.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${postgresql.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
@@ -196,11 +177,6 @@
 			<version>${gson.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>${springdoc.version}</version>
@@ -215,16 +191,39 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 			<version>${io.micrometer.prometheus.version}</version>
 		</dependency>
+
+		<!-- 		
+		<dependency>
+		    <groupId>io.mosip.kernel</groupId>
+		    <artifactId>kernel-auth-adapter</artifactId>
+		    <version>1.2.0.1-B3</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-web</artifactId>
+			<version>3.0.0-milestone6</version>
+		</dependency>
+		-->
 	</dependencies>
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 				<configuration>
-					<addResources>true</addResources>
+					<executable>true</executable>
+					<layout>ZIP</layout>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
@@ -303,22 +302,10 @@
 				<version>${maven-surefire-plugin.version}</version>
 			</plugin>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<finalName>mockabis</finalName>
-				</configuration>
-			</plugin>
-
-
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-javadoc-plugin</artifactId> 
-				<version>3.2.0</version> <executions> <execution> <id>attach-javadocs</id> 
-				<goals> <goal>jar</goal> </goals> </execution> </executions> <configuration> 
-				<doclint>none</doclint> </configuration> </plugin> -->
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>${maven-gpg-plugin.version}</version>
+				<!-- <configuration> <skip>true</skip> </configuration> -->
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>

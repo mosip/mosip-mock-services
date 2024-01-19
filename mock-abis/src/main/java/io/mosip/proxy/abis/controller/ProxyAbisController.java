@@ -27,13 +27,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 @CrossOrigin
 @RestController
 @Tag(name = "Proxy Abis API", description = "Provides API's for proxy Abis")
 @RequestMapping("abis/")
 public class ProxyAbisController {
-
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisController.class);
 
 	@Autowired
@@ -90,18 +88,19 @@ public class ProxyAbisController {
 				exp.setReasonConstant(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
 			return new ResponseEntity<>(exp.getReasonConstant(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(summary = "Upload certificate Request", description = "Upload certificate Request", tags = { "Proxy Abis API" })
+	@Operation(summary = "Upload certificate Request", description = "Upload certificate Request", tags = {
+			"Proxy Abis API" })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
 			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	public ResponseEntity<String> uploadcertificate(@RequestBody MultipartFile uploadfile,
-			@RequestParam("password") String password, @RequestParam("alias") String alias,@RequestParam("keystore") String keystore) {
+			@RequestParam("password") String password, @RequestParam("alias") String alias,
+			@RequestParam("keystore") String keystore) {
 		if (uploadfile.isEmpty())
 			return new ResponseEntity("Please select a file", HttpStatus.NO_CONTENT);
 
@@ -110,9 +109,8 @@ public class ProxyAbisController {
 		if (null == password || password.isEmpty())
 			return new ResponseEntity("Please enter password", HttpStatus.NO_CONTENT);
 
-		return new ResponseEntity<String>( abisInsertService.saveUploadedFileWithParameters(uploadfile, alias, password,keystore),HttpStatus.OK);
-
-
+		return new ResponseEntity<String>(
+				abisInsertService.saveUploadedFileWithParameters(uploadfile, alias, password, keystore), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "identifyrequest", method = RequestMethod.POST)
@@ -140,7 +138,7 @@ public class ProxyAbisController {
 		try {
 			return processDeleteRequest(ie, msgType);
 		} catch (Exception ex) {
-			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
+			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "2",
 					FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN);
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -149,7 +147,7 @@ public class ProxyAbisController {
 	private ResponseEntity<Object> processDeleteRequest(RequestMO ie, int msgType) {
 		logger.info("Deleting request with reference id" + ie.getReferenceId());
 		abisInsertService.deleteData(ie.getReferenceId());
-		ResponseMO response = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
+		ResponseMO response = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "1");
 		logger.info("Successfully deleted reference id" + ie.getReferenceId());
 		ResponseEntity<Object> responseEntity = new ResponseEntity<Object>(response, HttpStatus.OK);
 		executeAsync(responseEntity, 0, msgType);
@@ -160,7 +158,7 @@ public class ProxyAbisController {
 		try {
 			return processIdentityRequest(ir, msgType);
 		} catch (Exception ex) {
-			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), 2,
+			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), "2",
 					FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -175,7 +173,7 @@ public class ProxyAbisController {
 			responseEntity = new ResponseEntity<Object>(idr.getIdentityResponse(), HttpStatus.OK);
 			delayResponse = idr.getDelayResponse();
 		} catch (RequestException exp) {
-			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), 2,
+			FailureResponse fr = new FailureResponse(ir.getId(), ir.getRequestId(), ir.getRequesttime(), "2",
 					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
 							: exp.getReasonConstant().toString());
 			delayResponse = exp.getDelayResponse();
@@ -189,13 +187,13 @@ public class ProxyAbisController {
 		logger.info("Saving Insert Request");
 		String validate = validateRequest(ie);
 		if (null != validate) {
-			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2, validate);
+			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "2", validate);
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 		}
 		try {
 			return processInsertRequest(ie, msgType);
 		} catch (RequestException exp) {
-			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
+			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "2",
 					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
 							: exp.getReasonConstant().toString());
 			return new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
@@ -208,26 +206,28 @@ public class ProxyAbisController {
 		try {
 			String validate = validateRequest(ie);
 			if (null != validate) {
-				FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2, validate);
+				FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "2",
+						validate);
 				responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
 			} else {
 				delayResponse = abisInsertService.insertData(ie);
-				ResponseMO responseMO = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 1);
+				ResponseMO responseMO = new ResponseMO(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "1");
 				responseEntity = new ResponseEntity<Object>(responseMO, HttpStatus.OK);
 			}
 		} catch (RequestException exp) {
-			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), 2,
+			logger.info("processInsertRequest>>failureReason::" + exp.getReasonConstant());
+			exp.printStackTrace();
+			FailureResponse fr = new FailureResponse(ie.getId(), ie.getRequestId(), ie.getRequesttime(), "2",
 					null == exp.getReasonConstant() ? FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN
 							: exp.getReasonConstant().toString());
 			delayResponse = exp.getDelayResponse();
-			responseEntity = new ResponseEntity<Object>(fr, HttpStatus.NOT_ACCEPTABLE);
+			responseEntity = new ResponseEntity<Object>(fr, HttpStatus.OK);
 		}
 		executeAsync(responseEntity, delayResponse, msgType);
 		return responseEntity;
 	}
 
 	private String validateRequest(InsertRequestMO ie) {
-
 		if (null != ie.getId() && !ie.getId().isEmpty() && !ie.getId().equalsIgnoreCase("mosip.abis.insert"))
 			return FailureReasonsConstants.INVALID_ID;
 		if (null == ie.getRequestId() || ie.getRequestId().isEmpty())
@@ -241,22 +241,21 @@ public class ProxyAbisController {
 				return FailureReasonsConstants.INVALID_VERSION;
 		}
 		return null;
-
 	}
 
-	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType){
+	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType) {
 		TimerTask task = new TimerTask() {
 			public void run() {
 				try {
 					listener.sendToQueue(finalResponseEntity, msgType);
-					logger.info("Scheduled job completed: MsgType "+msgType);
+					logger.info("Scheduled job completed: MsgType " + msgType);
 				} catch (JsonProcessingException | UnsupportedEncodingException e) {
 					logger.error(e.getMessage());
 					e.printStackTrace();
 				}
 			}
 		};
-		logger.info("Adding timed task with timer as "+delayResponse+" seconds");
-		timer.schedule(task, delayResponse*1000);
+		logger.info("Adding timed task with timer as " + delayResponse + " seconds");
+		timer.schedule(task, delayResponse * 1000);
 	}
 }

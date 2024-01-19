@@ -9,22 +9,21 @@ import java.util.Base64;
 import java.util.Base64.Encoder;
 
 public class Util {
-    public static boolean compareHash(byte[] s1, byte[] s2) throws NoSuchAlgorithmException {
-        String checksum1 = computeFingerPrint(s1, null).toLowerCase();
-        String checksum2 = computeFingerPrint(s2, null).toLowerCase();
-        return checksum1.equals(checksum2);
-    }
+	public static boolean compareHash(byte[] s1, byte[] s2) throws NoSuchAlgorithmException {
+		String checksum1 = computeFingerPrint(s1, null).toLowerCase();
+		String checksum2 = computeFingerPrint(s2, null).toLowerCase();
+		return checksum1.equals(checksum2);
+	}
 
-    public static String computeFingerPrint(byte[] data, String metaData) throws NoSuchAlgorithmException {
-        byte[] combinedPlainTextBytes = null;
-        if (metaData == null) {
-            combinedPlainTextBytes = ArrayUtils.addAll(data);
-        } else {
-            combinedPlainTextBytes = ArrayUtils.addAll(data, metaData.getBytes());
-        }
-        return DigestUtils.sha256Hex(combinedPlainTextBytes);
-    }
-    
+	public static String computeFingerPrint(byte[] data, String metaData) throws NoSuchAlgorithmException {
+		byte[] combinedPlainTextBytes = null;
+		if (metaData == null) {
+			combinedPlainTextBytes = ArrayUtils.addAll(data);
+		} else {
+			combinedPlainTextBytes = ArrayUtils.addAll(data, metaData.getBytes());
+		}
+		return DigestUtils.sha256Hex(combinedPlainTextBytes);
+	}
 
 	private static Encoder urlSafeEncoder;
 	static {
