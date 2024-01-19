@@ -292,7 +292,7 @@ public class MatchService extends SDKService {
 			decision.setMatch(Match.NOT_MATCHED);
 			return decision;
 		}
-\
+
 		for (BIR sampleBIR : sampleSegments) {
 
 			if (!isValidBirData(sampleBIR))
