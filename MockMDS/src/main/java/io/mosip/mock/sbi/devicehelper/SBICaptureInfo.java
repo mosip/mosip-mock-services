@@ -11,7 +11,7 @@ public abstract class SBICaptureInfo {
     private SBIBioExceptionInfo bioExceptionInfo = null;
     public abstract void initCaptureInfo ();
 	public abstract void deInitCaptureInfo ();
-	private int requestScore;
+	private float requestScore;
 	private String[] bioSubType;
 	private int bioCount; //Finger (10)/Iris count(2), in case of face max is set to 1
     private HashMap<String, String> biometricData = new HashMap<> ();
@@ -62,10 +62,10 @@ public abstract class SBICaptureInfo {
 	public void setBioExceptionInfo(SBIBioExceptionInfo bioExceptionInfo) {
 		this.bioExceptionInfo = bioExceptionInfo;
 	}
-	public int getRequestScore() {
+	public float getRequestScore() {
 		return requestScore;
 	}
-	public void setRequestScore(int requestScore) {
+	public void setRequestScore(float requestScore) {
 		this.requestScore = requestScore;
 	}
 	public String[] getBioSubType() {

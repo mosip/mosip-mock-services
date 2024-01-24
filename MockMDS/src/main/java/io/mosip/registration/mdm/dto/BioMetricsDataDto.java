@@ -20,8 +20,8 @@ public class BioMetricsDataDto {
 	private String registrationId;
 	private String transactionId;
 	private String timestamp;
-	private String requestedScore;
-	private String qualityScore;
+	private float requestedScore;
+	private float qualityScore;
 	/**
 	 * @return the digitalId
 	 */
@@ -171,25 +171,25 @@ public class BioMetricsDataDto {
 	/**
 	 * @return the requestedScore
 	 */
-	public String getRequestedScore() {
+	public float getRequestedScore() {
 		return requestedScore;
 	}
 	/**
 	 * @param requestedScore the requestedScore to set
 	 */
-	public void setRequestedScore(String requestedScore) {
+	public void setRequestedScore(float requestedScore) {
 		this.requestedScore = requestedScore;
 	}
 	/**
 	 * @return the qualityScore
 	 */
-	public String getQualityScore() {
+	public float getQualityScore() {
 		return qualityScore;
 	}
 	/**
 	 * @param qualityScore the qualityScore to set
 	 */
-	public void setQualityScore(String qualityScore) {
+	public void setQualityScore(float qualityScore) {
 		this.qualityScore = qualityScore;
 	}
 	public String getBioType() {

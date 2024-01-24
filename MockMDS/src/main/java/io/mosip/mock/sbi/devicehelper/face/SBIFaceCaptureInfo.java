@@ -10,8 +10,8 @@ public class SBIFaceCaptureInfo extends SBICaptureInfo {
 	
 	private String bioValueFace;
 	private String bioSubTypeFace;
-	private int requestScoreFace;
-	private int captureScoreFace;
+	private float requestScoreFace;
+	private float captureScoreFace;
 	private boolean isCaptureFace;
 	
 	private String bioValueExceptionPhoto;
@@ -61,19 +61,19 @@ public class SBIFaceCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeFace = bioSubTypeFace;
 	}
 
-	public int getRequestScoreFace() {
+	public float getRequestScoreFace() {
 		return requestScoreFace;
 	}
 
-	public void setRequestScoreFace(int requestScoreFace) {
+	public void setRequestScoreFace(float requestScoreFace) {
 		this.requestScoreFace = requestScoreFace;
 	}
 
-	public int getCaptureScoreFace() {
+	public float getCaptureScoreFace() {
 		return captureScoreFace;
 	}
 
-	public void setCaptureScoreFace(int captureScoreFace) {
+	public void setCaptureScoreFace(float captureScoreFace) {
 		this.captureScoreFace = captureScoreFace;
 	}
 
