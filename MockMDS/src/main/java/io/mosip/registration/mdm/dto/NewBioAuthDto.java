@@ -12,8 +12,8 @@ public class NewBioAuthDto {
 	private String bioValue;
 	private String transactionId;
 	private String timestamp;
-	private int requestedScore;
-	private String qualityScore;
+	private float requestedScore;
+	private float qualityScore;
 	private String domainUri;
 
 	/**
@@ -159,28 +159,28 @@ public class NewBioAuthDto {
 	/**
 	 * @return the requestedScore
 	 */
-	public int getRequestedScore() {
+	public float getRequestedScore() {
 		return requestedScore;
 	}
 
 	/**
 	 * @param requestedScore the requestedScore to set
 	 */
-	public void setRequestedScore(int requestedScore) {
+	public void setRequestedScore(float requestedScore) {
 		this.requestedScore = requestedScore;
 	}
 
 	/**
 	 * @return the qualityScore
 	 */
-	public String getQualityScore() {
+	public float getQualityScore() {
 		return qualityScore;
 	}
 
 	/**
 	 * @param qualityScore the qualityScore to set
 	 */
-	public void setQualityScore(String qualityScore) {
+	public void setQualityScore(float qualityScore) {
 		this.qualityScore = qualityScore;
 	}
 
