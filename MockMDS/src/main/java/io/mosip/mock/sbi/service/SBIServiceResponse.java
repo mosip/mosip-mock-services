@@ -2289,8 +2289,8 @@ public class SBIServiceResponse {
 			}
         }
 
-        biometricData.setRequestedScore(qualityRequestScore);
-        biometricData.setQualityScore(qualityScore);
+        biometricData.setRequestedScore(qualityRequestScore + "");
+        biometricData.setQualityScore(qualityScore + "");
         biometricData.setTransactionId(transactionId);
 
         ObjectMapper mapper = new ObjectMapper ();	
