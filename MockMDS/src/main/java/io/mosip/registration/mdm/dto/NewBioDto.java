@@ -12,8 +12,8 @@ public class NewBioDto {
 	private String bioValue;
 	private String transactionId;
 	private String timestamp;
-	private float requestedScore;
-	private float qualityScore;
+	private String requestedScore;
+	private String qualityScore;
 	
 	/**
 	 * @return the digitalId
@@ -144,28 +144,28 @@ public class NewBioDto {
 	/**
 	 * @return the requestedScore
 	 */
-	public float getRequestedScore() {
+	public String getRequestedScore() {
 		return requestedScore;
 	}
 
 	/**
 	 * @param requestedScore the requestedScore to set
 	 */
-	public void setRequestedScore(float requestedScore) {
+	public void setRequestedScore(String requestedScore) {
 		this.requestedScore = requestedScore;
 	}
 
 	/**
 	 * @return the qualityScore
 	 */
-	public float getQualityScore() {
+	public String getQualityScore() {
 		return qualityScore;
 	}
 
 	/**
 	 * @param qualityScore the qualityScore to set
 	 */
-	public void setQualityScore(float qualityScore) {
+	public void setQualityScore(String qualityScore) {
 		this.qualityScore = qualityScore;
 	}
 
