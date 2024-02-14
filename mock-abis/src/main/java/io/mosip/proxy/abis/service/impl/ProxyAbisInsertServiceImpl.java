@@ -336,6 +336,20 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							galleryRefIdCountInDB, referenceIds.size()));
 					throw new RequestException(FailureReasonsConstants.REFERENCEID_NOT_FOUND);
 				}
+				List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
+				if (!bioValues.isEmpty()) {
+					for (String bioValue : bioValues) {
+						Expectation exp = expectationCache.get(bioValue);
+						if (exp.getId() != null && !exp.getId().isEmpty()
+								&& exp.getActionToInterfere().equals("Identify")) {
+							logger.info("Expectation found for " + exp.getId());
+							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
+								delayResponse = Integer.parseInt(exp.getDelayInExecution());
+							}
+							return new IdentifyDelayResponse(processExpectation(ir, exp, referenceIds), delayResponse);
+						}
+					}
+				}
 
 				if (proxyAbisConfigService.isForceDuplicate() || proxyAbisConfigService.getDuplicate()) {
 					lst = proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(refId,
@@ -353,7 +367,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
-							return new IdentifyDelayResponse(processExpectation(ir, exp), delayResponse);
+							return new IdentifyDelayResponse(processExpectation(ir, exp, null), delayResponse);
 						}
 					}
 				}
@@ -376,7 +390,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 * @param expectation
 	 * @return
 	 */
-	private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation) {
+	private IdentityResponse processExpectation(IdentityRequest ir, Expectation expectation,
+			List<String> galleryReferenceIds) {
 		logger.info("processExpectation" + ir.getReferenceId());
 		IdentityResponse response = new IdentityResponse();
 		response.setId(ir.getId());
@@ -398,7 +413,14 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			if (expectation.getGallery() != null && expectation.getGallery().getReferenceIds().size() > 0) {
 				for (Expectation.ReferenceIds rd : expectation.getGallery().getReferenceIds()) {
 					System.out.println("rd.getReferenceId()" + rd.getReferenceId());
-					List<String> refIds = proxyAbisBioDataRepository.fetchReferenceId(rd.getReferenceId());
+					List<String> refIds;
+					if (galleryReferenceIds != null) {
+						refIds = proxyAbisBioDataRepository.fetchByReferenceId(rd.getReferenceId(),
+								galleryReferenceIds);
+					} else {
+						refIds = proxyAbisBioDataRepository.fetchReferenceId(rd.getReferenceId());
+					}
+
 					logger.info("expectation.refIds=>" + refIds);
 					if (refIds.size() > 0) {
 						for (String refId : refIds) {
