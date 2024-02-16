@@ -30,4 +30,8 @@ public interface ProxyAbisBioDataRepository extends CrudRepository<BiometricData
 
 	@Query(value = "select distinct(b.bio_data) from Biometric_Data b where b.bio_data=?1", nativeQuery = true)
 	public List<String> fetchByBioData(@Param("bioData") String bioData);
+
+	@Query(value = "select distinct(b.insertEntity.referenceId) from Biometric_Data b where b.bioData=?1 and b.insertEntity.referenceId in ?2")
+	public List<String> fetchByReferenceId(@Param("bioData") String bioData,
+			@Param("referenceIds") List<String> referenceIds);
 }
