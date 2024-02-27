@@ -85,8 +85,8 @@
 		<swagger.version>2.9.2</swagger.version>
 
 		<!-- Mosip kernel -->
-		<kernel.core.version>1.2.0.1-B2</kernel.core.version>
-		<kernel.biometrics.api.version>1.2.0.1-B2</kernel.biometrics.api.version>
+		<kernel.core.version>1.2.0.1-SNAPSHOT</kernel.core.version>
+		<kernel.biometrics.api.version>1.2.0.1-SNAPSHOT</kernel.biometrics.api.version>
 
 		<!--  Others -->
 		<postgresql.version>42.2.16</postgresql.version>
