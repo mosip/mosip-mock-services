@@ -10,38 +10,38 @@ import java.util.List;
 @ConfigurationProperties(prefix = "openapi")
 @Data
 public class OpenApiProperties {
-    private InfoProperty info;
-    private Service service;
-    private Group group;
+	private InfoProperty info;
+	private Service service;
+	private Group group;
 }
 
 @Data
 class InfoProperty {
-    private String title;
-    private String description;
-    private String version;
-    private LicenseProperty license;
+	private String title;
+	private String description;
+	private String version;
+	private LicenseProperty license;
 }
 
 @Data
 class LicenseProperty {
-    private String name;
-    private String url;
+	private String name;
+	private String url;
 }
 
 @Data
 class Service {
-    private List<Server> servers;
+	private List<Server> servers;
 }
 
 @Data
 class Server {
-    private String description;
-    private String url;
+	private String description;
+	private String url;
 }
 
 @Data
 class Group {
-    private String name;
-    private List<String> paths;
+	private String name;
+	private List<String> paths;
 }

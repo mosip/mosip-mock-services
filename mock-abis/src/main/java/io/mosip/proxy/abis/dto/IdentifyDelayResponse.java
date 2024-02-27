@@ -1,21 +1,20 @@
 package io.mosip.proxy.abis.dto;
 
 public class IdentifyDelayResponse {
-    private int delayResponse = 0;
+	private int delayResponse = 0;
+	private IdentityResponse identityResponse;
 
-    private IdentityResponse identityResponse;
+	public IdentifyDelayResponse(IdentityResponse ir, int d) {
+		super();
+		this.delayResponse = d;
+		this.identityResponse = ir;
+	}
 
-    public IdentifyDelayResponse(IdentityResponse ir, int d){
-        super();
-        this.delayResponse = d;
-        this.identityResponse = ir;
-    }
+	public int getDelayResponse() {
+		return this.delayResponse;
+	}
 
-    public int getDelayResponse(){
-        return this.delayResponse;
-    }
-
-    public IdentityResponse getIdentityResponse(){
-        return this.identityResponse;
-    }
+	public IdentityResponse getIdentityResponse() {
+		return this.identityResponse;
+	}
 }

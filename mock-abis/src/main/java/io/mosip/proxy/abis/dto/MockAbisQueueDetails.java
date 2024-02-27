@@ -20,5 +20,4 @@ public class MockAbisQueueDetails {
 	private String userName;
 	private String password;
 	private String typeOfQueue;
-	
 }

@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import io.mosip.kernel.biometrics.constant.BiometricType;
@@ -23,7 +25,7 @@ import io.mosip.mock.sdk.service.SDKInfoService;
 import io.mosip.mock.sdk.service.SegmentService;
 
 /**
- * The Class IBioApiV2Impl.
+ * The Class SampleSDKV2.
  * 
  * @author Janardhan B S
  * 
@@ -32,35 +34,39 @@ import io.mosip.mock.sdk.service.SegmentService;
 @EnableAutoConfiguration
 public class SampleSDKV2 implements IBioApiV2 {
 
-	Logger LOGGER = LoggerFactory.getLogger(SampleSDKV2.class);
+	private Logger LOGGER = LoggerFactory.getLogger(SampleSDKV2.class);
+
+	/** The environment. */
+	@Autowired
+	private Environment env;
 
 	private static final String API_VERSION = "0.9";
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
 		// TODO validate for mandatory initParams
-		SDKInfoService service = new SDKInfoService(API_VERSION, "sample", "sample", "sample");
+		SDKInfoService service = new SDKInfoService(env, API_VERSION, "sample", "sample", "sample");
 		return service.getSDKInfo();
 	}
 
 	@Override
 	public Response<QualityCheck> checkQuality(BiometricRecord sample, List<BiometricType> modalitiesToCheck,
 			Map<String, String> flags) {
-		CheckQualityService service = new CheckQualityService(sample, modalitiesToCheck, flags);
+		CheckQualityService service = new CheckQualityService(env, sample, modalitiesToCheck, flags);
 		return service.getCheckQualityInfo();
 	}
 
 	@Override
 	public Response<MatchDecision[]> match(BiometricRecord sample, BiometricRecord[] gallery,
 			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
-		MatchService service = new MatchService(sample, gallery, modalitiesToMatch, flags);
+		MatchService service = new MatchService(env, sample, gallery, modalitiesToMatch, flags);
 		return service.getMatchDecisionInfo();
 	}
 
 	@Override
 	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, List<BiometricType> modalitiesToExtract,
 			Map<String, String> flags) {
-		ExtractTemplateService service = new ExtractTemplateService(sample, modalitiesToExtract, flags);
+		ExtractTemplateService service = new ExtractTemplateService(env, sample, modalitiesToExtract, flags);
 		return service.getExtractTemplateInfo();
 	}
 
@@ -68,14 +74,15 @@ public class SampleSDKV2 implements IBioApiV2 {
 	public Response<BiometricRecord> convertFormatV2(BiometricRecord record, String sourceFormat, String targetFormat,
 			Map<String, String> sourceParams, Map<String, String> targetParams,
 			List<BiometricType> modalitiesToConvert) {
-		ConvertFormatService service = new ConvertFormatService(record, sourceFormat, targetFormat, sourceParams, targetParams, modalitiesToConvert);
+		ConvertFormatService service = new ConvertFormatService(env, record, sourceFormat, targetFormat, sourceParams,
+				targetParams, modalitiesToConvert);
 		return service.getConvertFormatInfo();
 	}
 
 	@Override
 	public Response<BiometricRecord> segment(BiometricRecord sample, List<BiometricType> modalitiesToSegment,
 			Map<String, String> flags) {
-		SegmentService service = new SegmentService(sample, modalitiesToSegment, flags);
+		SegmentService service = new SegmentService(env, sample, modalitiesToSegment, flags);
 		return service.getSegmentInfo();
 	}
 

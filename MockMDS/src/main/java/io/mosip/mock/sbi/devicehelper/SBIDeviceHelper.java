@@ -2,13 +2,17 @@ package io.mosip.mock.sbi.devicehelper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
@@ -28,7 +32,10 @@ import io.mosip.registration.mdm.dto.DiscoverDto;
 import io.mosip.registration.mdm.dto.ErrorInfo;
 
 public abstract class SBIDeviceHelper {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIDeviceHelper.class);	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SBIDeviceHelper.class);
+
+	private static Map<String, PrivateKey> privateKeyMap = new ConcurrentHashMap<>();
+	private static Map<String, Certificate> certificateMap = new ConcurrentHashMap<>();
 
 	private String biometricImageType;
 	private String purpose;
@@ -209,7 +216,6 @@ public abstract class SBIDeviceHelper {
 		String keyStoreFileName = null;
 		String keyAlias = null;
 		String keyPwd = null;
-		FileInputStream inputStream = null;
 		try {
 			String purpose = getPurpose ();
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -260,58 +266,29 @@ public abstract class SBIDeviceHelper {
 				break;
 			}
 
-			if (FileHelper.exists(fileName) && FileHelper.exists(keyStoreFileName)) 
+			deviceInfo = objectMapper.readValue(new File(fileName), DeviceInfo.class);
+			if (deviceInfo != null)
 			{
-				File jsonFile = new File(fileName);
-			    File keyStoreFile = new File(keyStoreFileName);
-			    KeyStore keystore = null;
-			    if (keyStoreFile.exists())
-			    {
-			    	inputStream = new FileInputStream (keyStoreFile);
-					keystore = loadKeyStore (inputStream, keyPwd);			    	
-			    }
-				
-				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
-
-	            /* Get certificate of public key */
-	            java.security.cert.Certificate cert = keystore.getCertificate(keyAlias); 
-
-	            /* Here it prints the public key*/
-	            //LOGGER.Info("Public Key:");
-	            //LOGGER.Info(cert.getPublicKey());
-
-	            /* Here it prints the private key*/
-	            //LOGGER.Info("\nPrivate Key:");
-	            //LOGGER.Info(key);
-	            
-				deviceInfo = objectMapper.readValue(jsonFile, DeviceInfo.class);
-				if (deviceInfo != null)
+				deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, true));
+				deviceInfo.setDeviceStatus(getDeviceStatus());
+				deviceInfo.setPurpose(getPurpose ());
+				deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
+				if (!getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREGISTERED))
 				{
-					deviceInfo.setDigitalId(getUnsignedDigitalId (digitalId, false));
-					deviceInfo.setDeviceStatus(getDeviceStatus());
-					deviceInfo.setPurpose(getPurpose ());
-					deviceInfo.setCallbackId("http://" + ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS) + ":" + getPort() + "/");
-					if (!getDeviceStatus().equalsIgnoreCase(SBIConstant.DEVICE_STATUS_NOTREGISTERED))
-					{
-						deviceInfo.setDigitalId(getSignedDigitalId (deviceInfo.getDigitalId(), key, cert));
-					}
-					else
-					{
-						deviceInfo.setDeviceId("");
-						deviceInfo.setDeviceCode("");
-						deviceInfo.setPurpose("");
-					}
+					deviceInfo.setDigitalId(getSignedDigitalId (getUnsignedDigitalId (digitalId, false),
+							getPrivateKey(keyStoreFileName, keyAlias, keyPwd),
+							getCertificate(keyStoreFileName, keyAlias, keyPwd)));
 				}
-        		return deviceInfo;
-			}	
+				else
+				{
+					deviceInfo.setDeviceId("");
+					deviceInfo.setDeviceCode("");
+					deviceInfo.setPurpose("");
+				}
+			}
+			return deviceInfo;
 		} catch (Exception ex) {
         	LOGGER.error("getDeviceInfo :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
-		}
-		finally
-		{
-			try { // because close can throw an exception
-		        if (inputStream != null) inputStream.close();
-		    } catch (IOException ignored) {}
 		}
 		return null;
 	}
@@ -321,7 +298,6 @@ public abstract class SBIDeviceHelper {
 		String keyStoreFileName = null;
 		String keyAlias = null;
 		String keyPwd = null;
-		FileInputStream inputStream = null;
 
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -367,59 +343,35 @@ public abstract class SBIDeviceHelper {
 				break;
 			}
 
-			if (FileHelper.exists(keyStoreFileName)) 
+			String strDeviceInfo = objectMapper.writeValueAsString(deviceInfo);
+			switch (getDeviceStatus())
 			{
-				String strDeviceInfo = objectMapper.writeValueAsString(deviceInfo);
-			    File keyStoreFile = new File(keyStoreFileName);
-			    KeyStore keystore = null;
-			    if (keyStoreFile.exists())
-			    {
-			    	inputStream = new FileInputStream (keyStoreFile);
-					keystore = loadKeyStore (inputStream, keyPwd);			    	
-			    }
-								
-				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
-
-	            /* Get certificate of public key */
-	            java.security.cert.Certificate cert = keystore.getCertificate(keyAlias); 
-
-	            /* Here it prints the public key*/
-	            //LOGGER.Info("Public Key:");
-	            //LOGGER.Info(cert.getPublicKey());
-
-	            /* Here it prints the private key*/
-	            //LOGGER.Info("\nPrivate Key:");
-	            //LOGGER.Info(key);
-				switch (getDeviceStatus())
-				{						
-					case SBIConstant.DEVICE_STATUS_NOTREADY:
-			            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
-			            deviceInfoDto.setError(new ErrorInfo ("110", SBIJsonInfo.getErrorDescription("en", "110"))); 
-						break;
-					case SBIConstant.DEVICE_STATUS_ISBUSY:
-			            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
-			            deviceInfoDto.setError(new ErrorInfo ("111", SBIJsonInfo.getErrorDescription("en", "111"))); 
-						break;
-					case SBIConstant.DEVICE_STATUS_NOTREGISTERED:
-			            deviceInfoDto.setDeviceInfo(getUnsignedDeviceInfo (deviceInfo, true));
-			            deviceInfoDto.setError(new ErrorInfo ("100", SBIJsonInfo.getErrorDescription("en", "100"))); 
-						break;
-					default:
-			            deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"), key, (X509Certificate) cert));
-			            deviceInfoDto.setError(new ErrorInfo ("0", SBIJsonInfo.getErrorDescription("en", "0"))); 
-						break;
-				}
-
-        		return deviceInfoDto ;
-			}	
+				case SBIConstant.DEVICE_STATUS_NOTREADY:
+					deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"),
+							getPrivateKey(keyStoreFileName, keyAlias, keyPwd),
+							(X509Certificate) getCertificate(keyStoreFileName, keyAlias, keyPwd)));
+					deviceInfoDto.setError(new ErrorInfo ("110", SBIJsonInfo.getErrorDescription("en", "110")));
+					break;
+				case SBIConstant.DEVICE_STATUS_ISBUSY:
+					deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"),
+							getPrivateKey(keyStoreFileName, keyAlias, keyPwd),
+							(X509Certificate) getCertificate(keyStoreFileName, keyAlias, keyPwd)));
+					deviceInfoDto.setError(new ErrorInfo ("111", SBIJsonInfo.getErrorDescription("en", "111")));
+					break;
+				case SBIConstant.DEVICE_STATUS_NOTREGISTERED:
+					deviceInfoDto.setDeviceInfo(getUnsignedDeviceInfo (deviceInfo, true));
+					deviceInfoDto.setError(new ErrorInfo ("100", SBIJsonInfo.getErrorDescription("en", "100")));
+					break;
+				default:
+					deviceInfoDto.setDeviceInfo(JwtUtility.getJwt(strDeviceInfo.getBytes("UTF-8"),
+							getPrivateKey(keyStoreFileName, keyAlias, keyPwd),
+							(X509Certificate) getCertificate(keyStoreFileName, keyAlias, keyPwd)));
+					deviceInfoDto.setError(new ErrorInfo ("0", SBIJsonInfo.getErrorDescription("en", "0")));
+					break;
+			}
+			return deviceInfoDto ;
 		} catch (Exception ex) {
         	LOGGER.error("getDeviceInfoDto :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
-		}
-		finally
-		{
-			try { // because close can throw an exception
-		        if (inputStream != null) inputStream.close();
-		    } catch (IOException ignored) {}
 		}
 		return null;
 	}
@@ -429,7 +381,6 @@ public abstract class SBIDeviceHelper {
 		String keyStoreFileName = null;
 		String keyAlias = null;
 		String keyPwd = null;
-		FileInputStream inputStream = null;
 		
 		try {
 			switch (deviceType)
@@ -474,41 +425,14 @@ public abstract class SBIDeviceHelper {
 				break;
 			}
 
-			if (FileHelper.exists(keyStoreFileName)) 
-			{
-				File keyStoreFile = new File(keyStoreFileName);
-			    KeyStore keystore = null;
-			    if (keyStoreFile.exists())
-			    {
-			    	inputStream = new FileInputStream (keyStoreFile);
-					keystore = loadKeyStore (inputStream, keyPwd);			    	
-			    }
-				
-				PrivateKey key = (PrivateKey)keystore.getKey(keyAlias, keyPwd.toCharArray());
+			signedBioMetricsDataDto = JwtUtility.getJwt(currentBioData.getBytes("UTF-8"),
+					getPrivateKey(keyStoreFileName, keyAlias, keyPwd),
+					(X509Certificate) getCertificate(keyStoreFileName, keyAlias, keyPwd));
+			return signedBioMetricsDataDto ;
 
-	            /* Get certificate of public key */
-	            java.security.cert.Certificate cert = keystore.getCertificate(keyAlias); 
-
-	            /* Here it prints the public key*/
-	            //LOGGER.Info("Public Key:");
-	            //LOGGER.Info(cert.getPublicKey());
-
-	            /* Here it prints the private key*/
-	            //LOGGER.Info("\nPrivate Key:");
-	            //LOGGER.Info(key);
-	            signedBioMetricsDataDto = JwtUtility.getJwt(currentBioData.getBytes("UTF-8"), key, (X509Certificate) cert);
-    		
-        		return signedBioMetricsDataDto ;
-			}	
 		} catch (Exception ex) {
         	LOGGER.error("getSignBioMetricsDataDto :: deviceType::" + deviceType + " :: deviceSubType::" + deviceSubType , ex);
 		}
-		finally
-		{
-			try { // because close can throw an exception
-		        if (inputStream != null) inputStream.close();
-		    } catch (IOException ignored) {}
-		}		
 		return null;
 	}
 
@@ -557,21 +481,6 @@ public abstract class SBIDeviceHelper {
 		}
 		return null;
     }
-	
-	private KeyStore loadKeyStore(FileInputStream inputStream, String keystorePwd) throws Exception {
-	    KeyStore keyStore = KeyStore.getInstance("JKS");
-        // if exists, load
-        keyStore.load(inputStream, keystorePwd.toCharArray());
-
-        /*
-	    else {
-	        // if not exists, create
-	        keyStore.load(null, null);
-	        keyStore.store(new FileOutputStream(file), keystorePwd.toCharArray());
-	    }
-	    */
-	    return keyStore;
-	}
 		
 	protected byte[] getLiveStreamBufferedImage() {
 		byte[] image = null;
@@ -876,5 +785,44 @@ public abstract class SBIDeviceHelper {
 			value = 1;
 		
 		return value;
-	}		
+	}
+
+	private PrivateKey getPrivateKey(String keyStoreFileName, String alias, String keystorePassword) {
+		loadKeys(keyStoreFileName, alias, keystorePassword);
+		return privateKeyMap.get(keyStoreFileName);
+	}
+
+	private Certificate getCertificate(String keyStoreFileName, String alias, String keystorePassword) {
+		loadKeys(keyStoreFileName, alias, keystorePassword);
+		return certificateMap.get(keyStoreFileName);
+	}
+
+	private void loadKeys(String keyStoreFileName, String alias, String keystorePassword) {
+		if(privateKeyMap.containsKey(keyStoreFileName) && certificateMap.containsKey(keyStoreFileName)) {
+			LOGGER.info("Keystore already cached, nothing to load :: " + keystoreFilePath);
+			return;
+		}
+
+		try(FileInputStream fileInputStream = new FileInputStream(keyStoreFileName)) {
+			LOGGER.info("Loading keystore into to local cache :: " + keystoreFilePath);
+			KeyStore keystore = KeyStore.getInstance("PKCS12");
+			keystore.load(fileInputStream, keystorePassword.toCharArray());
+			privateKeyMap.put(keyStoreFileName, (PrivateKey)keystore.getKey(alias, keystorePassword.toCharArray()));
+			certificateMap.put(keyStoreFileName, keystore.getCertificate(alias));
+		} catch (Exception e) {
+			LOGGER.error("Failed to load keystore into local cache :: " + keystoreFilePath, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * To be invoked in afterSuite
+	 * @param keystoreFilePath
+	 * This method is not thread safe
+	 */
+
+	public static void evictKeys(String keystoreFilePath) {
+		privateKeyMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
+		certificateMap.entrySet().removeIf(e -> e.getKey().startsWith(keystoreFilePath));
+	}
 }
