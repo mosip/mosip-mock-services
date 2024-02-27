@@ -70,10 +70,13 @@
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
 		<!-- Mosip kernel -->
-		<kernel.version>1.2.0.1-B2</kernel.version>
-		<kernel.biometrics.api.version>1.2.0.1-B4</kernel.biometrics.api.version>
-		<kernel.bioconverter.version>1.2.0.1-B2</kernel.bioconverter.version>
-		<biometrics-util.version>1.2.0.1-B4</biometrics-util.version>
+		<kernel.core.version>1.2.0.1-SNAPSHOT</kernel.core.version>
+		
+		<!--  Mosip Others -->
+		<kernel.biometrics.api.version>1.2.0.1-SNAPSHOT</kernel.biometrics.api.version>
+		<kernel.bioconverter.version>1.2.0.1-SNAPSHOT</kernel.bioconverter.version>
+		<biometrics-util.version>1.2.0.1-SNAPSHOT</biometrics-util.version>
+		
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
         <lombok.version>1.18.8</lombok.version>
@@ -98,7 +101,7 @@
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-core</artifactId>
-			<version>${kernel.version}</version>
+			<version>${kernel.core.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.fasterxml.jackson.core</groupId>
