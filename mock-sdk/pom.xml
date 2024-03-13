@@ -70,12 +70,12 @@
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 		
 		<!-- Mosip kernel -->
-		<kernel.version>1.2.0.1-SNAPSHOT</kernel.version>
-		<kernel.biometrics.api.version>1.2.0.1-SNAPSHOT</kernel.biometrics.api.version>
-		<kernel.bioconverter.version>1.2.0.1-SNAPSHOT</kernel.bioconverter.version>
+		<kernel.version>1.2.0.1</kernel.version>
+		<kernel.biometrics.api.version>1.2.0.2-SNAPSHOT</kernel.biometrics.api.version>
+		<kernel.bioconverter.version>1.2.0.1</kernel.bioconverter.version>
 
 		<!-- Mosip others -->
-		<biometrics-util.version>1.2.0.1-SNAPSHOT</biometrics-util.version>
+		<biometrics-util.version>1.2.0.2-SNAPSHOT</biometrics-util.version>
 		
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
@@ -112,6 +112,12 @@
 					<artifactId>jackson-core</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.biometric.util</groupId>
+			<artifactId>biometrics-util</artifactId>
+			<version>${biometrics-util.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
