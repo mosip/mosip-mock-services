@@ -117,13 +117,11 @@
 			<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>
 			<version>${biometrics-util.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-biometrics-api</artifactId>
 			<version>${kernel.biometrics.api.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
@@ -205,14 +203,6 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<excludes><exclude>io.mosip.kernel.biometrics.*</exclude></excludes>
-					<archive>
-						<!-- <manifest>
-	                     <addClasspath>true</addClasspath>
-	                     <mainClass>registrationtest.runapplication.RegistrationMain</mainClass>
-	                  </manifest>
-	                  -->
-					</archive>
 				</configuration>
 				<executions>
 					<execution>
