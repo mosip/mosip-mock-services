@@ -71,11 +71,11 @@
 		
 		<!-- Mosip kernel -->
 		<kernel.version>1.2.0.1</kernel.version>
-		<kernel.biometrics.api.version>1.2.0.2-SNAPSHOT</kernel.biometrics.api.version>
+		<kernel.biometrics.api.version>1.2.0.2</kernel.biometrics.api.version>
 		<kernel.bioconverter.version>1.2.0.1</kernel.bioconverter.version>
 
 		<!-- Mosip others -->
-		<biometrics-util.version>1.2.0.2-SNAPSHOT</biometrics-util.version>
+		<biometrics-util.version>1.2.0.2</biometrics-util.version>
 		
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
