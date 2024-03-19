@@ -368,8 +368,8 @@ public class CaptureRequest extends HttpServlet {
 		bioResponse.setDigitalId(getDigitalId(bioType));
 		
 		bioResponse.setPurpose(bioMetricsData.getPurpose());
-		bioResponse.setRequestedScore(requestedScore);
-		bioResponse.setQualityScore(bioMetricsData.getQualityScore());
+		bioResponse.setRequestedScore(requestedScore + "");
+		bioResponse.setQualityScore(bioMetricsData.getQualityScore() + "");
 		bioResponse.setTimestamp(CryptoUtility.getTimestamp());
 		bioResponse.setTransactionId(transactionId);
 		return bioResponse;
@@ -452,8 +452,8 @@ public class CaptureRequest extends HttpServlet {
 		//TODO - need to change, should handle based on deviceId
 		bioResponse.setDigitalId(getDigitalId(bioType));		
 		bioResponse.setPurpose(bioMetricsData.getPurpose());
-		bioResponse.setRequestedScore(requestedScore);
-		bioResponse.setQualityScore(bioMetricsData.getQualityScore());		
+		bioResponse.setRequestedScore(requestedScore + "");
+		bioResponse.setQualityScore(bioMetricsData.getQualityScore() + "");		
 		bioResponse.setTransactionId(transactionId);
 		//TODO Domain URL need to be set
 		bioResponse.setDomainUri("");

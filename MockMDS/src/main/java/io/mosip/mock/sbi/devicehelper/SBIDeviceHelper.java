@@ -53,7 +53,7 @@ public abstract class SBIDeviceHelper {
 	private DeviceInfoDto deviceInfoDto;
     private HashMap<String, String> statusMap = new HashMap<> ();
     private HashMap<String, Long> delayMap = new HashMap<> ();
-    protected int qualityScore;
+    protected float qualityScore;
     protected boolean isQualityScoreSet;
     private boolean scoreFromIso = false;
     private SBICaptureInfo captureInfo;
@@ -761,14 +761,14 @@ public abstract class SBIDeviceHelper {
 		this.deviceSubId = deviceSubId;
 	}
 	
-	public int getQualityScore() {
-		if (this.qualityScore <= 0 || this.qualityScore > 100)
-			this.qualityScore = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_MOCK_SBI_QUALITY_SCORE));
+	public float getQualityScore() {
+		if (this.qualityScore <= 0.0f || this.qualityScore > 100.0f)
+			this.qualityScore = Float.parseFloat(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_MOCK_SBI_QUALITY_SCORE));
 		
         return this.qualityScore;
 	}
 
-	public void setQualityScore(int qualityScore) {
+	public void setQualityScore(float qualityScore) {
         this.qualityScore = qualityScore;
 	}
 

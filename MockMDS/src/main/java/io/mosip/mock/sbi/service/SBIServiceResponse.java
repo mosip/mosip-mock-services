@@ -469,13 +469,13 @@ public class SBIServiceResponse {
              {
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "505", "");
              }             
-             else if (qualityScore != null && (Integer.parseInt(qualityScore) < 0 || Integer.parseInt(qualityScore) > 100))
+             else if (qualityScore != null && (Float.parseFloat(qualityScore) < 0.0f || Float.parseFloat(qualityScore) > 100.0f))
              {
                  response = SBIJsonInfo.getAdminApiErrorJson (lang, "505", "");
              }             
              else
              {
-            	 int defaultQualityScore = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_MOCK_SBI_QUALITY_SCORE));
+            	 float defaultQualityScore = Float.parseFloat(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_MOCK_SBI_QUALITY_SCORE));
 
             	 SBIDeviceHelper deviceHelper = null;
             	 switch (mockService.getPurpose())
@@ -490,7 +490,7 @@ public class SBIServiceResponse {
     			 if (deviceHelper != null)
     			 {
     				 deviceHelper.setScoreFromIso ((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? scoreFromIso : false);
-    				 deviceHelper.setQualityScore((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+    				 deviceHelper.setQualityScore((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? Float.parseFloat(qualityScore) : defaultQualityScore);
     				 deviceHelper.setQualityScoreSet((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) ? true : false);
     			 }
     			 
@@ -498,7 +498,7 @@ public class SBIServiceResponse {
     			 if (deviceHelper != null)
     			 {
 	                 deviceHelper.setScoreFromIso((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? scoreFromIso : false);
-	                 deviceHelper.setQualityScore((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+	                 deviceHelper.setQualityScore((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? Float.parseFloat(qualityScore) : defaultQualityScore);
     				 deviceHelper.setQualityScoreSet((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) ? true : false);
     			 }
 
@@ -514,7 +514,7 @@ public class SBIServiceResponse {
     			 if (deviceHelper != null)
     			 {
     				 deviceHelper.setScoreFromIso((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? scoreFromIso : false);
-    				 deviceHelper.setQualityScore((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? Integer.parseInt(qualityScore) : defaultQualityScore);
+    				 deviceHelper.setQualityScore((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? Float.parseFloat(qualityScore) : defaultQualityScore);
     				 deviceHelper.setQualityScoreSet((type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) || type.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) ? true : false);
     			 }
 
@@ -1017,7 +1017,7 @@ public class SBIServiceResponse {
             }
             
             int timeout = Integer.parseInt(requestObject.getTimeout()+ "");
-            int requestScore = Integer.parseInt(mosipBioRequest.get(0).getRequestedScore() + "");
+            float requestScore = Float.parseFloat(mosipBioRequest.get(0).getRequestedScore() + "");
             
             specVersion = requestObject.getSpecVersion();
             int returnCode = -1;
@@ -1251,7 +1251,7 @@ public class SBIServiceResponse {
             String [] bioSubType = mosipBioRequest.get(0).getBioSubType();// Bio Subtype
             int timeout = Integer.parseInt(requestObject.getTimeout()+ "");
             
-            int requestScore = Integer.parseInt(mosipBioRequest.get(0).getRequestedScore() + "");
+            float requestScore = Float.parseFloat(mosipBioRequest.get(0).getRequestedScore() + "");
             int bioCount = Integer.parseInt(mosipBioRequest.get(0).getCount() + "");
             
             if (!isValidBioSubtypeValues(bioType, bioSubType, true))
@@ -1427,7 +1427,7 @@ public class SBIServiceResponse {
         List<BioMetricsDto> biometrics = new ArrayList<BioMetricsDto> ();
     	String specVersion = requestObject.getSpecVersion();
     	String transactionId = requestObject.getTransactionId();
-    	int captureScore = deviceHelper.getQualityScore(); // SET MANUALLY
+    	float captureScore = deviceHelper.getQualityScore(); // SET MANUALLY
     	int requestScore = requestObject.getBio().get(0).getRequestedScore();
     	int bioCount = Integer.parseInt(requestObject.getBio().get(0).getCount());
     	String bioType = requestObject.getBio().get(0).getType();
@@ -2241,7 +2241,7 @@ public class SBIServiceResponse {
 	
 	private BioMetricsDto getBiometricData (String transactionId, CaptureRequestDto requestObject, SBIDeviceHelper deviceHelper, 
 			String previousHash, String bioType, String bioSubType, String bioValue, 
-			int qualityScore, int qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws SBIException, JsonGenerationException, JsonMappingException, IOException, DecoderException, NoSuchAlgorithmException
+			float qualityScore, float qualityRequestScore, String lang, String errorCode, boolean isUsedForAuthenication) throws SBIException, JsonGenerationException, JsonMappingException, IOException, DecoderException, NoSuchAlgorithmException
     {
 		DeviceInfo deviceInfo = deviceHelper.getDeviceInfo();
 		

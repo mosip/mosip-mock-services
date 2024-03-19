@@ -12,14 +12,14 @@ public class SBIIrisDoubleCaptureInfo extends SBICaptureInfo {
 	
 	private String bioValueLI;
 	private String bioSubTypeLI;
-	private int requestScoreLI;
-	private int captureScoreLI;
+	private float requestScoreLI;
+	private float captureScoreLI;
 	private boolean isCaptureLI;
 	
 	private String bioValueRI;
 	private String bioSubTypeRI;
-	private int requestScoreRI;
-	private int captureScoreRI;
+	private float requestScoreRI;
+	private float captureScoreRI;
 	private boolean isCaptureRI;
 	     
 	public SBIIrisDoubleCaptureInfo()  
@@ -63,19 +63,19 @@ public class SBIIrisDoubleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLI = bioSubTypeLI;
 	}
 
-	public int getRequestScoreLI() {
+	public float getRequestScoreLI() {
 		return requestScoreLI;
 	}
 
-	public void setRequestScoreLI(int requestScoreLI) {
+	public void setRequestScoreLI(float requestScoreLI) {
 		this.requestScoreLI = requestScoreLI;
 	}
 
-	public int getCaptureScoreLI() {
+	public float getCaptureScoreLI() {
 		return captureScoreLI;
 	}
 
-	public void setCaptureScoreLI(int captureScoreLI) {
+	public void setCaptureScoreLI(float captureScoreLI) {
 		this.captureScoreLI = captureScoreLI;
 	}
 
@@ -103,19 +103,19 @@ public class SBIIrisDoubleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRI = bioSubTypeRI;
 	}
 
-	public int getRequestScoreRI() {
+	public float getRequestScoreRI() {
 		return requestScoreRI;
 	}
 
-	public void setRequestScoreRI(int requestScoreRI) {
+	public void setRequestScoreRI(float requestScoreRI) {
 		this.requestScoreRI = requestScoreRI;
 	}
 
-	public int getCaptureScoreRI() {
+	public float getCaptureScoreRI() {
 		return captureScoreRI;
 	}
 
-	public void setCaptureScoreRI(int captureScoreRI) {
+	public void setCaptureScoreRI(float captureScoreRI) {
 		this.captureScoreRI = captureScoreRI;
 	}
 

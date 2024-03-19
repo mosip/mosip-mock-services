@@ -12,7 +12,7 @@ public class NewBioDto {
 	private String bioValue;
 	private String transactionId;
 	private String timestamp;
-	private int requestedScore;
+	private String requestedScore;
 	private String qualityScore;
 	
 	/**
@@ -144,14 +144,14 @@ public class NewBioDto {
 	/**
 	 * @return the requestedScore
 	 */
-	public int getRequestedScore() {
+	public String getRequestedScore() {
 		return requestedScore;
 	}
 
 	/**
 	 * @param requestedScore the requestedScore to set
 	 */
-	public void setRequestedScore(int requestedScore) {
+	public void setRequestedScore(String requestedScore) {
 		this.requestedScore = requestedScore;
 	}
 
