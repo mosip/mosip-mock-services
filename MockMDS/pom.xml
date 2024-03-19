@@ -12,7 +12,7 @@
 	
 	<groupId>io.mosip.mock.mds</groupId>
 	<artifactId>mock-mds</artifactId>
-	<version>1.2.0.1-B3</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<name>mock-mds</name>
 	<description>A mock project for biometric provider</description>
 
@@ -46,7 +46,7 @@
     	<dependency>
 			<groupId>io.mosip.biometric.util</groupId>
 		  	<artifactId>biometrics-util</artifactId>
-		  	<version>1.2.0.1-B4</version>
+		  	<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -128,7 +128,7 @@
 			<dependency>
 				<groupId>io.mosip.kernel</groupId>
 				<artifactId>kernel-core</artifactId>
-				<version>1.2.0.1-B2</version>
+				<version>1.2.1-SNAPSHOT</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
