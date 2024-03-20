@@ -77,7 +77,7 @@ jobs:
             BUILD_ARTIFACT: 'mock-mv'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: master/kattu/.github/workflows/docker-build.yml@master
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
