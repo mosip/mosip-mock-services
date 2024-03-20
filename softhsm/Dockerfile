@@ -8,6 +8,10 @@ LABEL source=${SOURCE}
 LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
+ARG container_user=mosip
+ARG container_user_group=mosip
+ARG container_user_uid=1001
+ARG container_user_gid=1001
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get -y install gcc make automake libtool autoconf pkg-config libssl-dev git-core \
@@ -57,6 +61,10 @@ RUN /bin/bash /SoftHSMv2/libtool   --mode=install /usr/bin/install -c   /SoftHSM
 && /bin/bash /SoftHSMv2/libtool   --mode=install /usr/bin/install -c /SoftHSMv2/src/bin/util/softhsm2-util '/usr/local/bin' \
 && /bin/bash /SoftHSMv2/libtool   --mode=install /usr/bin/install -c /SoftHSMv2/src/bin/dump/softhsm2-dump-file '/usr/local/bin'
 ARG security_officer_pin
+
+WORKDIR /home/${container_user}
+RUN chown -R ${container_user}:${container_user} /home/${container_user}
+USER ${container_user_uid}:${container_user_gid}
 
 RUN pkcs11-tool --module /usr/local/lib/softhsm/libsofthsm2.so --init-token --label "mosip-token" --slot 0 --so-pin ${security_officer_pin} \
     && pkcs11-tool --module /usr/local/lib/softhsm/libsofthsm2.so --init-pin --label "mosip-token" --login --so-pin ${security_officer_pin} --pin ${security_officer_pin}
