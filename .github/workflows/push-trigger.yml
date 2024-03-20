@@ -44,7 +44,7 @@ jobs:
             BUILD_ARTIFACT: 'mock-abis'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: abhishek8shankar/kattu/.github/workflows/docker-build.yml@develop
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -77,7 +77,7 @@ jobs:
             BUILD_ARTIFACT: 'mock-mv'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: abhishek8shankar/kattu/.github/workflows/docker-build.yml@develop
+    uses: master/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
