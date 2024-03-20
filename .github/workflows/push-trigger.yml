@@ -115,7 +115,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   publish_to_nexus_sdk:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build-maven-mock-sdk
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
     with:
@@ -141,7 +141,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   publish_to_nexus_MockMDS:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build-maven-MockMDS
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
     with:
