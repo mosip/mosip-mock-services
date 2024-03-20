@@ -420,7 +420,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					} else {
 						refIds = proxyAbisBioDataRepository.fetchReferenceId(rd.getReferenceId());
 					}
-
 					logger.info("expectation.refIds=>" + refIds);
 					if (refIds.size() > 0) {
 						for (String refId : refIds) {
