@@ -105,7 +105,7 @@ public class MatchService extends SDKService {
 			matchDecision[index] = new MatchDecision(index);
 			Map<BiometricType, Decision> decisions = new HashMap<>();
 			Decision decision = new Decision();
-			LOGGER.info("Comparing sample with gallery index " + index + " ----------------------------------");
+			LOGGER.info("Comparing sample with gallery index {}", index);
 			for (BiometricType modality : sampleBioSegmentMap.keySet()) {
 				try {
 					decision = compareModality(modality, sampleBioSegmentMap.get(modality),

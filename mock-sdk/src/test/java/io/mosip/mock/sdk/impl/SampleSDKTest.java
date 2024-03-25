@@ -122,7 +122,7 @@ public class SampleSDKTest {
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(fXmlFile);
         doc.getDocumentElement().normalize();
-        LOGGER.debug("Root element :" + doc.getDocumentElement().getNodeName());
+        LOGGER.debug("Root element :",  doc.getDocumentElement().getNodeName());
         Node rootBIRElement = doc.getDocumentElement();
         NodeList childNodes = rootBIRElement.getChildNodes();
         for (int temp = 0; temp < childNodes.getLength(); temp++) {

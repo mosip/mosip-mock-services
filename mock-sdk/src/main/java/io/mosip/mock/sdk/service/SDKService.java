@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -69,7 +68,7 @@ public abstract class SDKService {
 
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord record,
 			List<BiometricType> modalitiesToMatch) {
-		LOGGER.info("getBioSegmentMap>>" +  modalitiesToMatch.toString());
+		LOGGER.info("getBioSegmentMap>>", modalitiesToMatch.toString());
 		Boolean noFilter = false;
 
 		/**
@@ -131,20 +130,20 @@ public abstract class SDKService {
 					|| bioSubType.equals("Right IndexFinger") || bioSubType.equals("Right RingFinger")
 					|| bioSubType.equals("Right MiddleFinger") || bioSubType.equals("Right LittleFinger")
 					|| bioSubType.equals("Right Thumb"))) {
-				LOGGER.error("isValidBIRParams>>BiometricType#" + bioType + ">>BioSubType#" + bioSubType);
+				LOGGER.error("isValidBIRParams>>BiometricType {}, BioSubType {}", bioType, bioSubType);
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 			break;
 		case IRIS:
 			if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left") || bioSubType.equals("Right"))) {
-				LOGGER.error("isValidBIRParams>>BiometricType#" + bioType + ">>BioSubType#" + bioSubType);
+				LOGGER.error("isValidBIRParams>>BiometricType {}, BioSubType {}", bioType, bioSubType);
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 			break;
 		default:
-			LOGGER.error("isValidBIRParams>>BiometricType#" + bioType + ">>BioSubType#" + bioSubType);
+			LOGGER.error("isValidBIRParams>>BiometricType {}, BioSubType {}", bioType, bioSubType);
 			responseStatus = ResponseStatus.MISSING_INPUT;
 			throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 		}
@@ -252,9 +251,7 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			LOGGER.info("isValidFingerBdb>>timestamp check >> " + this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true));
-
-			if (this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true)) {
+			if (isCheckISOTimestampFormat()) {
 				if (!FingerISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
 						bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
 						bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
@@ -377,7 +374,7 @@ public abstract class SDKService {
 			}
 
 			/**
-			 *  Used to check the image based on PIXELS_PER_INCH or PIXELS_PER_CM
+			 * Used to check the image based on PIXELS_PER_INCH or PIXELS_PER_CM
 			 */
 			int scaleUnitsType = bdir.getScaleUnits();
 			if (!FingerISOStandardsValidator.getInstance().isValidScaleUnits(scaleUnitsType)) {
@@ -460,7 +457,7 @@ public abstract class SDKService {
 
 			// TODO check the condition: imagedata
 			/**
-			 *  can check imagettype for auth and reg
+			 * can check imagettype for auth and reg
 			 */
 			if (!isValid) {
 				responseStatus = ResponseStatus.INVALID_INPUT;
@@ -469,6 +466,7 @@ public abstract class SDKService {
 			}
 			return true;
 		} catch (Exception ex) {
+			LOGGER.error("isValidFingerBdb", ex);
 			responseStatus = ResponseStatus.INVALID_INPUT;
 			throw new SDKException(responseStatus.getStatusCode() + "",
 					responseStatus.getStatusMessage() + " " + ex.getLocalizedMessage());
@@ -610,9 +608,7 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			LOGGER.info("isValidIrisBdb>>timestamp check >> " + this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true));
-
-			if (this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true)) {
+			if (isCheckISOTimestampFormat()) {
 				if (!IrisISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
 						bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
 						bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
@@ -828,6 +824,7 @@ public abstract class SDKService {
 			// can check imagettype for auth and reg
 			return true;
 		} catch (Exception ex) {
+			LOGGER.error("isValidIrisBdb", ex);
 			responseStatus = ResponseStatus.INVALID_INPUT;
 			throw new SDKException(responseStatus.getStatusCode() + "",
 					responseStatus.getStatusMessage() + " " + ex.getLocalizedMessage());
@@ -925,9 +922,7 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			LOGGER.info("isValidFaceBdb>>timestamp check >> " + this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true));
-
-			if (this.getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT, Boolean.class, true)) {
+			if (isCheckISOTimestampFormat()) {
 				if (!FaceISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
 						bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(), bdir.getCaptureMinute(),
 						bdir.getCaptureSecond(), bdir.getCaptureMilliSecond())) {
@@ -1175,9 +1170,28 @@ public abstract class SDKService {
 			}
 			return true;
 		} catch (Exception ex) {
+			LOGGER.error("isValidFaceBdb", ex);
 			responseStatus = ResponseStatus.INVALID_INPUT;
 			throw new SDKException(responseStatus.getStatusCode() + "",
 					responseStatus.getStatusMessage() + " " + ex.getLocalizedMessage());
 		}
+	}
+	
+	protected boolean isCheckISOTimestampFormat()
+	{
+		boolean isCheckISOTimestampFormat = true;
+		if (getEnv() != null) {
+			isCheckISOTimestampFormat = getEnv().getProperty(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT,
+					Boolean.class, true);
+		}
+		if (getFlags() != null) {
+			if (getFlags().containsKey(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT)) {
+				String isoTimestampFormat = getFlags().get(SdkConstant.SDK_CHECK_ISO_TIMESTAMP_FORMAT)
+						.toLowerCase();
+				if (isoTimestampFormat.equals("true") || isoTimestampFormat.equals("false"))
+					isCheckISOTimestampFormat = Boolean.parseBoolean(isoTimestampFormat);
+			}
+		}			
+		return isCheckISOTimestampFormat;
 	}
 }

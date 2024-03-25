@@ -32,7 +32,7 @@ public class ConvertFormatService extends SDKService {
 	public ConvertFormatService(Environment env, BiometricRecord sample, String sourceFormat, String targetFormat,
 			Map<String, String> sourceParams, Map<String, String> targetParams,
 			List<BiometricType> modalitiesToConvert) {
-		super(env, null);
+		super(env, sourceParams);
 		this.sample = sample;
 		this.sourceParams = sourceParams;
 		this.sourceFormat = sourceFormat;
