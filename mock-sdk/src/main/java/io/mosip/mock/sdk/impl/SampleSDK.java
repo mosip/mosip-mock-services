@@ -36,6 +36,7 @@ import io.mosip.mock.sdk.service.SegmentService;
 public class SampleSDK implements IBioApi {
 	private Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
 
+	
 	/** The environment. */
 	@Autowired
 	private Environment env;
