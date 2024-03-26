@@ -86,7 +86,7 @@
 
 		<!-- Mosip kernel -->
 		<kernel.core.version>1.2.0.1</kernel.core.version>
-		<kernel.biometrics.api.version>1.2.0.2</kernel.biometrics.api.version>
+		<kernel.biometrics.api.version>1.2.0.1</kernel.biometrics.api.version>
 
 		<!--  Others -->
 		<postgresql.version>42.2.16</postgresql.version>
