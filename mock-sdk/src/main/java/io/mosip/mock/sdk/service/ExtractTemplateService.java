@@ -45,7 +45,6 @@ public class ExtractTemplateService extends SDKService {
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 
-			LOGGER.error("extractTemplate -- error", sample);
 			if (sample != null)
 				LOGGER.error("extractTemplate -- error", sample.getSegments().size());
 				
