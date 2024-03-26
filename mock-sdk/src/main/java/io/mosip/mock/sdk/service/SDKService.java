@@ -68,7 +68,7 @@ public abstract class SDKService {
 
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord record,
 			List<BiometricType> modalitiesToMatch) {
-		LOGGER.info("getBioSegmentMap>>", modalitiesToMatch.toString());
+		LOGGER.info("getBioSegmentMap {}", modalitiesToMatch.toString());
 		Boolean noFilter = false;
 
 		/**
