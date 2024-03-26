@@ -2643,7 +2643,7 @@ public class SBIServiceResponse {
 			if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
 				return true;
 			else
-				return true;
+				return false;
 		}
 		else
 			return true;
