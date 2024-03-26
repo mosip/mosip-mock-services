@@ -45,6 +45,9 @@ public class ExtractTemplateService extends SDKService {
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 
+			if (sample != null)
+				LOGGER.info("extractTemplate segment size {}", sample.getSegments().size());
+				
 			for (BIR segment : sample.getSegments()) {
 				if (!isValidBirData(segment))
 					break;
