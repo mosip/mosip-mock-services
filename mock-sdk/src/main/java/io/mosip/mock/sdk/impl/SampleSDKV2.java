@@ -41,7 +41,7 @@ public class SampleSDKV2 implements IBioApiV2 {
 	private Environment env;
 
 	private static final String API_VERSION = "0.9";
-	
+
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
 		// TODO validate for mandatory initParams
