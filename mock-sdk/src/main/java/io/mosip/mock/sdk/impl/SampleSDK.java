@@ -44,6 +44,7 @@ public class SampleSDK implements IBioApi {
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
+		// TODO validate for mandatory initParams
 		SDKInfoService service = new SDKInfoService(env, API_VERSION, "sample", "sample", "sample");
 		return service.getSDKInfo();
 	}
