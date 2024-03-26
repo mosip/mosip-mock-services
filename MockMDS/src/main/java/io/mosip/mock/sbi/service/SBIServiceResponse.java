@@ -2639,7 +2639,12 @@ public class SBIServiceResponse {
 				return true;
 		}
 		if (isCapture)
-			return false;
+		{
+			if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
+				return true;
+			else
+				return true;
+		}
 		else
 			return true;
 	}
