@@ -42,7 +42,7 @@ public class SampleSDK implements IBioApi {
 	private Environment env;
 
 	private static final String API_VERSION = "0.9";
-	
+
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
 		// TODO validate for mandatory initParams
