@@ -36,14 +36,15 @@ public class SampleSDKV2 implements IBioApiV2 {
 
 	private Logger LOGGER = LoggerFactory.getLogger(SampleSDKV2.class);
 
-	private static final String API_VERSION = "0.9";
-
 	/** The environment. */
 	@Autowired
 	private Environment env;
-	
+
+	private static final String API_VERSION = "0.9";
+
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
+		// TODO validate for mandatory initParams
 		SDKInfoService service = new SDKInfoService(env, API_VERSION, "sample", "sample", "sample");
 		return service.getSDKInfo();
 	}
