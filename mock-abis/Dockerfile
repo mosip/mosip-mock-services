@@ -1,24 +1,31 @@
 FROM openjdk:11
-ARG SOURCE
-ARG COMMIT_HASH
-ARG COMMIT_ID
-ARG BUILD_TIME
-LABEL source=${SOURCE}
-LABEL commit_hash=${COMMIT_HASH}
-LABEL commit_id=${COMMIT_ID}
-LABEL build_time=${BUILD_TIME}
 
-# can be passed during Docker build as build time environment for github branch to pickup configuration from | spring profiles active | config server URL and glowroot respectively .
-ARG spring_config_label 
-ARG active_profile
-ARG spring_config_url 
-ARG is_glowroot
-
-# can be passed during Docker build as build time environment for github branch to pickup configuration from.
+# can be passed during Docker build as build time environment variable for mosip user level change.
 ARG container_user=mosip
 ARG container_user_group=mosip
 ARG container_user_uid=1001
 ARG container_user_gid=1001
+
+# can be passed during Docker build as build time environment for label related addition to docker.
+ARG SOURCE
+ARG COMMIT_HASH
+ARG COMMIT_ID
+ARG BUILD_TIME
+
+# environment variable to pass github branch to pickup configuration from, at docker runtime
+ENV spring_config_label_env=${spring_config_label}
+# environment variable to pass active profile such as DEV, QA etc at docker runtime
+ENV active_profile_env=${active_profile}
+# environment variable to pass spring configuration url, at docker runtime
+ENV spring_config_url_env=${spring_config_url}
+# environment variable to pass glowroot, at docker runtime
+ENV is_glowroot_env=${is_glowroot}
+
+# can be passed during Docker build as build time environment for label.
+LABEL source=${SOURCE}
+LABEL commit_hash=${COMMIT_HASH}
+LABEL commit_id=${COMMIT_ID}
+LABEL build_time=${BUILD_TIME}
 
 # set working directory for the user
 WORKDIR /home/${container_user}
