@@ -1,6 +1,6 @@
 package io.mosip.mock.mv.queue;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 
 public abstract class QueueListener {
 	

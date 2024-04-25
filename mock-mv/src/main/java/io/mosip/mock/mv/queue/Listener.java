@@ -3,17 +3,17 @@ package io.mosip.mock.mv.queue;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageNotWriteableException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.Connection;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageListener;
+import jakarta.jms.MessageNotWriteableException;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -120,7 +120,7 @@ public class Listener {
 
 	private Timer timer = new Timer();
 
-	public boolean consumeLogic(javax.jms.Message message, String mvAddress) {
+	public boolean consumeLogic(jakarta.jms.Message message, String mvAddress) {
 		boolean isrequestAddedtoQueue = false;
 		Integer textType = 0;
 		String messageData = null;
@@ -211,7 +211,7 @@ public class Listener {
 			QueueListener listener = new QueueListener() {
 
 				@Override
-				public void setListener(javax.jms.Message message) {
+				public void setListener(jakarta.jms.Message message) {
 					consumeLogic(message, mvResponseAddress);
 
 				}
@@ -230,7 +230,7 @@ public class Listener {
 			QueueListener listener = new QueueListener() {
 
 				@Override
-				public void setListener(javax.jms.Message message) {
+				public void setListener(jakarta.jms.Message message) {
 					consumeLogic(message, verificationResponseAddress);
 
 				}
