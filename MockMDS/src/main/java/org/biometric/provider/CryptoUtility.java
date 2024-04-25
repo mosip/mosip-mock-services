@@ -236,8 +236,8 @@ public class CryptoUtility {
 		RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(publicKey.getModulus(), publicKey.getPublicExponent());
 
 		// Create OAEP parameters
-		OAEPParameterSpec paramSpec = new OAEPParameterSpec("SHA-256", // Hash algorithm
-				"MGF1", // MGF algorithm
+		OAEPParameterSpec paramSpec = new OAEPParameterSpec(HASH_ALGO, // Hash algorithm
+				MGF1, // MGF algorithm
 				MGF1ParameterSpec.SHA256, // MGF1 parameter
 				PSource.PSpecified.DEFAULT); // Source of encoding input
 
