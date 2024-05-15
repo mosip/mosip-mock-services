@@ -2610,7 +2610,6 @@ public class SBIServiceResponse {
 		try {
 			Thread.sleep(millseconds);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -2638,8 +2637,12 @@ public class SBIServiceResponse {
 			else if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
 				return true;
 		}
-		if (isCapture)
-			return false;
+		if (isCapture) {
+			if (bioType.equals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
+				return true;
+			else
+				return false;
+		}
 		else
 			return true;
 	}
