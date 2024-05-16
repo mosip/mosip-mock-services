@@ -349,6 +349,7 @@
 					</argLine>
 				</configuration>
 			</plugin>
+			<!-- 
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
@@ -365,16 +366,17 @@
 				<configuration>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<generateGitPropertiesFilename>
-						${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+						${project.build.outputDirectory}/service-git.properties</generateGitPropertiesFilename>
 					<includeOnlyProperties>
 						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
 						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
 					</includeOnlyProperties>
 					<commitIdGenerationMode>full</commitIdGenerationMode>
 					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-					<!-- <format>json</format> -->
+					
 				</configuration>
 			</plugin>
+			-->
 		</plugins>
 	</build>
 
