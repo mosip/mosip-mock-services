@@ -1,9 +1,9 @@
 package io.mosip.mock.mv.dto;
 
 public class Addtional {
-	
+
 	private String abisId;
-	
+
 	private String response;
 
 	public String getAbisId() {

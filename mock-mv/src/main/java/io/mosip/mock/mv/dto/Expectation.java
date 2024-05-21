@@ -2,42 +2,38 @@ package io.mosip.mock.mv.dto;
 
 public class Expectation {
 
-    private String rid;
-    
-    private String mockMvDecision;
+	private String rid;
 
-    private int delayResponse;
+	private String mockMvDecision;
 
-    public String getRId() {
-        return rid;
-    }
+	private int delayResponse;
 
-    public void setRid(String rid) {
-        this.rid = rid;
-    }
+	public String getRId() {
+		return rid;
+	}
 
-    public void setmockMvDecision(String mockMvDecision)
-    {
-        this.mockMvDecision=mockMvDecision;
-    }
+	public void setRid(String rid) {
+		this.rid = rid;
+	}
 
+	public void setmockMvDecision(String mockMvDecision) {
+		this.mockMvDecision = mockMvDecision;
+	}
 
-    public int getDelayResponse() {
-        return delayResponse;
-    }
+	public int getDelayResponse() {
+		return delayResponse;
+	}
 
-    public void setDelayResponse(int delayResponse) {
-        this.delayResponse = delayResponse;
-    }
+	public void setDelayResponse(int delayResponse) {
+		this.delayResponse = delayResponse;
+	}
 
-
-
-    public Expectation(String rid,String mockMvDecision,int delayResponse) {
-        super();
-        this.rid = rid;
-        this.mockMvDecision=mockMvDecision;
-        this.delayResponse=delayResponse;
-    } 
+	public Expectation(String rid, String mockMvDecision, int delayResponse) {
+		super();
+		this.rid = rid;
+		this.mockMvDecision = mockMvDecision;
+		this.delayResponse = delayResponse;
+	}
 
 	public Expectation() {
 		super();
@@ -47,13 +43,9 @@ public class Expectation {
 		return mockMvDecision;
 	}
 
-
-    @Override
-    public String toString() {
-        return "Expectation{" +
-                "rid='" + rid + '\'' +
-                ", mockMvDecision='" + mockMvDecision + '\'' +
-                ", delayResponse=" + delayResponse +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "Expectation{" + "rid='" + rid + '\'' + ", mockMvDecision='" + mockMvDecision + '\'' + ", delayResponse="
+				+ delayResponse + '}';
+	}
 }

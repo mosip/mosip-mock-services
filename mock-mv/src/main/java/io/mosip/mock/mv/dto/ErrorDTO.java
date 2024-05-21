@@ -20,7 +20,7 @@ public class ErrorDTO implements Serializable {
 
 	/** The errorcode. */
 	private String errorCode;
-	
+
 	/** The message. */
 	private String message;
 }

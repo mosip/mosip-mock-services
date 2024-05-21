@@ -9,24 +9,24 @@ import org.springframework.stereotype.Service;
 import io.mosip.mock.mv.dto.Expectation;
 import io.mosip.mock.mv.service.ExpectationCache;
 import io.mosip.mock.mv.service.MockMvDecisionService;
+
 @Service
 public class MockMvDecisionServiceImpl implements MockMvDecisionService {
-	
+
 	@Value("${mock.mv.default.decision}")
 	private String mockMvDecision;
-	
+
 	@Autowired
 	private ExpectationCache expectationCache;
 
-
 	@Override
 	public String getMockMvDecision() {
-	   return mockMvDecision;
+		return mockMvDecision;
 	}
 
 	@Override
 	public void setMockMvDecision(String mockDecision) {
-		mockMvDecision=mockDecision;
+		mockMvDecision = mockDecision;
 	}
 
 	@Override
@@ -36,22 +36,21 @@ public class MockMvDecisionServiceImpl implements MockMvDecisionService {
 
 	@Override
 	public void setExpectation(Expectation exp) {
-         expectationCache.insert(exp);		
+		expectationCache.insert(exp);
 	}
 
 	@Override
 	public void deleteExpectation(String id) {
-		expectationCache.delete(id);		
+		expectationCache.delete(id);
 	}
 
 	@Override
 	public void deleteExpectations() {
-		expectationCache.deleteAll();		
+		expectationCache.deleteAll();
 	}
 
 	@Override
 	public Expectation getExpectation(String rid) {
 		return (Expectation) expectationCache.get(rid);
 	}
-
 }

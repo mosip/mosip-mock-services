@@ -39,7 +39,6 @@ import io.mosip.kernel.biometrics.commons.CbeffValidator;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
 import io.mosip.kernel.core.exception.ExceptionUtils;
-import io.mosip.proxy.abis.CryptoCoreUtil;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
 import io.mosip.proxy.abis.dto.Expectation;
@@ -56,6 +55,7 @@ import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
+import io.mosip.proxy.abis.utility.CryptoCoreUtil;
 
 @Service
 @Configuration
