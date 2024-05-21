@@ -170,11 +170,7 @@ public class Listener {
 				analytics.put("primaryOperatorID", "110006");// logic needs to be implemented
 				analytics.put("primaryOperatorComments", "abcd");
 				candidateList
-						.setCount(candidateList.getCandidates() != null ? candidateList.getCandidates().size() : 0);// logic
-																													// needs
-																													// to
-																													// be
-																													// implemented.
+						.setCount(candidateList.getCandidates() != null ? candidateList.getCandidates().size() : 0);
 				candidateList.setAnalytics(analytics);
 				decisionDto.setCandidateList(candidateList);
 			}

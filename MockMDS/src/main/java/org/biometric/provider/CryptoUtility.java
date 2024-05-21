@@ -36,7 +36,6 @@ public class CryptoUtility {
 
 	private static BouncyCastleProvider provider;
 	private static final String ASYMMETRIC_ALGORITHM = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
-	//private static final String SYMMETRIC_ALGORITHM = "AES/GCM/PKCS5Padding";
 	private static final String SYMMETRIC_ALGORITHM = "AES/GCM/NoPadding";
 	private static final int GCM_TAG_LENGTH = 128;
 	private static final String RSA_ECB_NO_PADDING = "RSA/ECB/NoPadding";
