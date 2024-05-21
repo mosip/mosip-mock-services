@@ -6,9 +6,7 @@ import lombok.Data;
 
 @Data
 public class CandidateList {
-
 	private Integer count;
-	private Map<String,String> analytics;
+	private Map<String, String> analytics;
 	private List<Candidate> candidates;
-	
 }

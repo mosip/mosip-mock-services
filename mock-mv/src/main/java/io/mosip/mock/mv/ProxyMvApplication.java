@@ -10,22 +10,21 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.web.client.RestTemplate;
 
-@ComponentScan(basePackages = {"io.mosip.*"})
+@ComponentScan(basePackages = { "io.mosip.*" })
 @SpringBootApplication
 @EnableAutoConfiguration
 @EnableJms
 public class ProxyMvApplication {
-    public static void main(String[] args) {
-        ConfigurableApplicationContext configurableApplcnConetxt = SpringApplication.run(ProxyMvApplication.class, args);
-        Listener listener = configurableApplcnConetxt.getBean(Listener.class);
-        listener.runAdjudicationQueue();
-        listener.runVerificationQueue();
-    }
+	public static void main(String[] args) {
+		ConfigurableApplicationContext configurableApplcnConetxt = SpringApplication.run(ProxyMvApplication.class,
+				args);
+		Listener listener = configurableApplcnConetxt.getBean(Listener.class);
+		listener.runAdjudicationQueue();
+		listener.runVerificationQueue();
+	}
 
-
-    @Bean
-    public RestTemplate getRestTemplate() {
-        return new RestTemplate();
-    }
-
+	@Bean
+	public RestTemplate getRestTemplate() {
+		return new RestTemplate();
+	}
 }

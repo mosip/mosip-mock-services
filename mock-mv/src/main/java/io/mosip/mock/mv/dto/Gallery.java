@@ -5,7 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Gallery {
-	
+public class Gallery {	
 	private List<ReferenceIds> referenceIds;
 }

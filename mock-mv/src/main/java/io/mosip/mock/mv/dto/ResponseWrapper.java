@@ -1,10 +1,9 @@
 package io.mosip.mock.mv.dto;
 
-import lombok.Data;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class ResponseWrapper<T> {
@@ -14,5 +13,4 @@ public class ResponseWrapper<T> {
 	private T response;
 
 	private List<ErrorDTO> errors = new ArrayList<>();
-
 }

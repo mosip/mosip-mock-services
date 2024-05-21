@@ -1,4 +1,4 @@
-package io.mosip.proxy.abis;
+package io.mosip.proxy.abis.listener;
 
 import jakarta.jms.Message;
 

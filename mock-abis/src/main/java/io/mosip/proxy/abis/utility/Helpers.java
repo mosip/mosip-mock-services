@@ -1,4 +1,4 @@
-package io.mosip.proxy.abis;
+package io.mosip.proxy.abis.utility;
 
 import org.apache.commons.io.IOUtils;
 

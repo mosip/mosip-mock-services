@@ -1,38 +1,34 @@
 package io.mosip.mock.mv.dto;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class ManualAdjudicationResponseDTO {
 
-private String id;
-	
+	private String id;
+
 	private String requestId;
-	
 
 //	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private String responsetime ;//= LocalDateTime.now(ZoneId.of("UTC"));
-	
+	private String responsetime;// = LocalDateTime.now(ZoneId.of("UTC"));
+
 	private Integer returnValue;
-	
-	//private Analytics  analytics;
-	
+
+	// private Analytics analytics;
+
 	private CandidateList candidateList;
-	
-	public ManualAdjudicationResponseDTO()
-	{
+
+	public ManualAdjudicationResponseDTO() {
 		super();
 	}
 
 	public ManualAdjudicationResponseDTO(String id, String requestId, String responsetime, Integer returnValue,
-			 CandidateList candidateList) {
+			CandidateList candidateList) {
 		super();
 		this.id = id;
 		this.requestId = requestId;
-		
+
 		this.returnValue = returnValue;
-	//	this.analytics = analytics;
+		// this.analytics = analytics;
 		this.candidateList = candidateList;
 		this.responsetime = OffsetDateTime.now().toInstant().toString();
 
@@ -70,8 +66,6 @@ private String id;
 		this.returnValue = returnValue;
 	}
 
-
-
 	public CandidateList getCandidateList() {
 		return candidateList;
 	}
@@ -79,6 +73,4 @@ private String id;
 	public void setCandidateList(CandidateList candidateList) {
 		this.candidateList = candidateList;
 	}
-	
-	
 }

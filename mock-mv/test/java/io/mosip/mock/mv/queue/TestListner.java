@@ -17,9 +17,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.mockito.Mockito.*;
-import javax.jms.Connection;
+import jakarta.jms.Connection;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
 
 @RunWith(SpringRunner.class)

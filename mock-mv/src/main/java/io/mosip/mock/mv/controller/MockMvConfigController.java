@@ -2,7 +2,7 @@ package io.mosip.mock.mv.controller;
 
 import java.util.Map;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import io.mosip.mock.mv.queue.Listener;
 import org.slf4j.Logger;

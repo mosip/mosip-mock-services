@@ -1,4 +1,4 @@
-package io.mosip.proxy.abis;
+package io.mosip.proxy.abis.listener;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -53,6 +53,7 @@ import io.mosip.proxy.abis.dto.MockAbisQueueDetails;
 import io.mosip.proxy.abis.dto.RequestMO;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.utility.Helpers;
 
 @Component
 public class Listener {
@@ -182,13 +183,12 @@ public class Listener {
 			try {
 				proxycontroller.executeAsync(obj, delayResponse, textType);
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
 	}
 
-	public ResponseEntity<Object> errorRequestThroughListner(Exception ex, Map map, int msgType) {
+	public ResponseEntity<Object> errorRequestThroughListner(Exception ex, Map<String, String> map, int msgType) {
 		logger.info("Error Request");
 		String failureReason = "3";
 		String id = "id";
@@ -213,7 +213,7 @@ public class Listener {
 		}
 	}
 
-	public String getFailureReason(Map map) {
+	public String getFailureReason(Map<String, String> map) {
 		String failureReason = "3";
 		String id = "", version = "", requestId = "", requestTime = "", referenceId = "", referenceURL = "",
 				gallery = "";
@@ -322,7 +322,7 @@ public class Listener {
 		return false;
 	}
 
-	public static boolean isValidInsertRequestDto(Map map) {
+	public static boolean isValidInsertRequestDto(Map<String, String> map) {
 		// Get the iterator over the HashMap
 		Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
 		// flag to store result
@@ -344,7 +344,7 @@ public class Listener {
 		return isOtherKeyPresent;
 	}
 
-	public static boolean isValidIdentifyRequestDto(Map map) {
+	public static boolean isValidIdentifyRequestDto(Map<String, String> map) {
 		// Get the iterator over the HashMap
 		Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
 		// flag to store result
@@ -396,7 +396,7 @@ public class Listener {
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson,
 				localDevelopment);
 
-		logger.info(registrationProcessorAbis);
+		logger.info("getAbisQueueDetails....." + registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
 		MockAbisQueueDetails abisQueueDetails = new MockAbisQueueDetails();
 		Gson g = new Gson();
@@ -404,8 +404,11 @@ public class Listener {
 		try {
 			regProcessorAbisJson = g.fromJson(registrationProcessorAbis, JSONObject.class);
 
-			ArrayList<Map> regProcessorAbisArray = (ArrayList<Map>) regProcessorAbisJson.get(ABIS);
+			logger.info("getAbisQueueDetails....." + regProcessorAbisJson.toString());
+			ArrayList<Map<String, String>> regProcessorAbisArray = (ArrayList<Map<String, String>>) regProcessorAbisJson
+					.get(ABIS);
 
+			logger.info("getAbisQueueDetails{Size}....." + regProcessorAbisArray.size());
 			for (int i = 0; i < regProcessorAbisArray.size(); i++) {
 
 				Map<String, String> json = regProcessorAbisArray.get(i);
@@ -420,6 +423,7 @@ public class Listener {
 				String queueName = validateAbisQueueJsonAndReturnValue(json, NAME);
 
 				this.activeMQConnectionFactory = new ActiveMQConnectionFactory(userName, password, failOverBrokerUrl);
+				logger.info("getAbisQueueDetails{activeMQConnectionFactory}....." + this.activeMQConnectionFactory);
 
 				abisQueueDetails.setTypeOfQueue(typeOfQueue);
 				abisQueueDetails.setInboundQueueName(inboundQueueName);
@@ -489,16 +493,12 @@ public class Listener {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
-
 	}
 
 	public byte[] consume(String address, QueueListener object, String queueName) throws Exception {
-
 		ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
 		if (activeMQConnectionFactory == null) {
-
 			throw new Exception("Invalid Connection Exception");
-
 		}
 		if (destination == null) {
 			setup();
@@ -518,7 +518,6 @@ public class Listener {
 
 	public static MessageListener getListener(String queueName, QueueListener object) {
 		if (queueName.equals("ACTIVEMQ")) {
-
 			return new MessageListener() {
 				@Override
 				public void onMessage(Message message) {

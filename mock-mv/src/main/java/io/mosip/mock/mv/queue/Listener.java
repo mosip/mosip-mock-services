@@ -1,19 +1,12 @@
 package io.mosip.mock.mv.queue;
 
 import java.time.OffsetDateTime;
-import java.util.*;
-
-import jakarta.jms.BytesMessage;
-import jakarta.jms.Connection;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSException;
-import jakarta.jms.Message;
-import jakarta.jms.MessageConsumer;
-import jakarta.jms.MessageListener;
-import jakarta.jms.MessageNotWriteableException;
-import jakarta.jms.MessageProducer;
-import jakarta.jms.Session;
-import jakarta.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -40,6 +33,16 @@ import io.mosip.mock.mv.dto.ManualAdjudicationRequestDTO;
 import io.mosip.mock.mv.dto.ManualAdjudicationResponseDTO;
 import io.mosip.mock.mv.dto.ReferenceIds;
 import io.mosip.mock.mv.service.ExpectationCache;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.Connection;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageListener;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 
 @Component
 public class Listener {
@@ -100,10 +103,9 @@ public class Listener {
 	/** The address. */
 	@Value("${registration.processor.queue.verification.request:mosip-to-verification}")
 	private String verificationRequestAddress;
-	
+
 	@Autowired
 	private ExpectationCache expectationCache;
-
 
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
@@ -116,7 +118,6 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
-
 
 	private Timer timer = new Timer();
 
@@ -138,51 +139,51 @@ public class Listener {
 				logger.error("Received message is neither text nor byte");
 				return false;
 			}
-			logger.info(String.format("Message Data %s" , messageData));
+			logger.info(String.format("Message Data %s", messageData));
 
-			ManualAdjudicationRequestDTO requestDTO = objectMapper().readValue(messageData, ManualAdjudicationRequestDTO.class);
+			ManualAdjudicationRequestDTO requestDTO = objectMapper().readValue(messageData,
+					ManualAdjudicationRequestDTO.class);
 			ManualAdjudicationResponseDTO decisionDto = new ManualAdjudicationResponseDTO();
 			decisionDto.setId(env.getProperty(DECISION_SERVICE_ID));
 			decisionDto.setRequestId(requestDTO.getRequestId());
 			decisionDto.setResponsetime(OffsetDateTime.now().toInstant().toString());
 			decisionDto.setReturnValue(isSuccess ? 1 : 2);// logic needs to be implemented.
-			int delayResponse=0;
+			int delayResponse = 0;
 			if (mvAddress != verificationResponseAddress) {
-				List<ReferenceIds> refIds=requestDTO.getGallery().getReferenceIds();
-				CandidateList candidateList=new CandidateList();
+				List<ReferenceIds> refIds = requestDTO.getGallery().getReferenceIds();
+				CandidateList candidateList = new CandidateList();
 				Expectation expectation = expectationCache.get(requestDTO.getReferenceId());
-				if(expectation.getMockMvDecision()!=null&&!expectation.getMockMvDecision().isEmpty()) {
+				if (expectation.getMockMvDecision() != null && !expectation.getMockMvDecision().isEmpty()) {
 					if (expectation.getMockMvDecision().equalsIgnoreCase(REJECTED)) {
 						candidateList = populatesCandidateList(refIds);
 					} else {
 						candidateList.setCandidates(null);
 					}
-					delayResponse=(expectation.getDelayResponse() > 0)?expectation.getDelayResponse(): 0;
-				}
-				else {
+					delayResponse = (expectation.getDelayResponse() > 0) ? expectation.getDelayResponse() : 0;
+				} else {
 					if (mockDecision.equalsIgnoreCase(REJECTED)) {
-						candidateList=populatesCandidateList(refIds);
+						candidateList = populatesCandidateList(refIds);
 					} else
 						candidateList.setCandidates(null);
 				}
-				Map<String,String> analytics=new HashMap<>();
-				analytics.put("primaryOperatorID", "110006");//logic needs to be implemented
+				Map<String, String> analytics = new HashMap<>();
+				analytics.put("primaryOperatorID", "110006");// logic needs to be implemented
 				analytics.put("primaryOperatorComments", "abcd");
-				candidateList.setCount(candidateList.getCandidates()!=null?candidateList.getCandidates().size():0);// logic needs to be implemented.
+				candidateList
+						.setCount(candidateList.getCandidates() != null ? candidateList.getCandidates().size() : 0);
 				candidateList.setAnalytics(analytics);
 				decisionDto.setCandidateList(candidateList);
 			}
 
 			String response = javaObjectToJsonString(decisionDto);
 
-			logger.info(String.format("Request type is %s" , response));
+			logger.info(String.format("Request type is %s", response));
 
-
-			isrequestAddedtoQueue=executeAsync(response,delayResponse,textType,mvAddress);
+			isrequestAddedtoQueue = executeAsync(response, delayResponse, textType, mvAddress);
 		} catch (Exception e) {
 			logger.error("Could not process mv request", ExceptionUtils.getStackTrace(e));
 		}
-		logger.info(String.format("Is response sent = %b" , isrequestAddedtoQueue));
+		logger.info(String.format("Is response sent = %b", isrequestAddedtoQueue));
 		return isrequestAddedtoQueue;
 	}
 
@@ -222,7 +223,7 @@ public class Listener {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public void runVerificationQueue() {
@@ -244,12 +245,13 @@ public class Listener {
 
 	}
 
-	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password) throws Exception {
+	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password)
+			throws Exception {
 
 		if (activeMQConnectionFactory == null) {
 			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
-			logger.info(String.format("Broker url : %s" , failOverBrokerUrl));
+			logger.info(String.format("Broker url : %s", failOverBrokerUrl));
 			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(username, password, failOverBrokerUrl);
 		}
 
@@ -276,12 +278,12 @@ public class Listener {
 	}
 
 	public static MessageListener getListener(QueueListener object) {
-			return new MessageListener() {
-				@Override
-				public void onMessage(Message message) {
-					object.setListener(message);
-				}
-			};
+		return new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				object.setListener(message);
+			}
+		};
 	}
 
 	public Boolean send(byte[] message, String address) {
@@ -334,7 +336,8 @@ public class Listener {
 	}
 
 	public static ObjectMapper objectMapper() {
-		ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+				false);
 		return objectMapper;
 	}
 
@@ -346,15 +349,15 @@ public class Listener {
 		outputJson = objectMapper.writeValueAsString(className);
 		return outputJson;
 	}
-	
+
 	private CandidateList populatesCandidateList(List<ReferenceIds> refIds) {
 		List<Candidate> candidates = new ArrayList<>();
-		CandidateList candidateList=new CandidateList();
-		for(ReferenceIds refId : refIds) {
-			Candidate candidate=new Candidate();
+		CandidateList candidateList = new CandidateList();
+		for (ReferenceIds refId : refIds) {
+			Candidate candidate = new Candidate();
 			candidate.setReferenceId(refId.getReferenceId());
-			Map<String,String> analytics=new HashMap<>();
-			AnalyticsDTO analyticsDTO=new AnalyticsDTO();
+			Map<String, String> analytics = new HashMap<>();
+			AnalyticsDTO analyticsDTO = new AnalyticsDTO();
 			analyticsDTO.setPrimaryOperatorID("110006");
 			analyticsDTO.setPrimaryOperatorComments("abcd");
 			analyticsDTO.setSecondaryOperatorComments("asbd");
@@ -367,7 +370,7 @@ public class Listener {
 		return candidateList;
 	}
 
-	public boolean executeAsync(String response, int delayResponse, Integer textType,String mvAddress ){
+	public boolean executeAsync(String response, int delayResponse, Integer textType, String mvAddress) {
 		TimerTask task = new TimerTask() {
 			public void run() {
 				try {
@@ -377,7 +380,7 @@ public class Listener {
 
 						send(response, mvAddress);
 					}
-					logger.info(String.format("Scheduled job completed: MsgType %d ",textType));
+					logger.info(String.format("Scheduled job completed: MsgType %d ", textType));
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					e.printStackTrace();
@@ -385,8 +388,8 @@ public class Listener {
 			}
 		};
 
-		logger.info(String.format("Adding timed task with timer as %d seconds",delayResponse));
-		timer.schedule(task, delayResponse*1000);
+		logger.info(String.format("Adding timed task with timer as %d seconds", delayResponse));
+		timer.schedule(task, delayResponse * 1000);
 		return true;
 	}
 

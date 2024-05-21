@@ -1,4 +1,4 @@
-package io.mosip.proxy.abis;
+package io.mosip.proxy.abis.utility;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +38,14 @@ public class CryptoCoreUtil {
 	private Environment env;
 
 	private static final String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
+	/* Java 11
+	 * private static final String SYMMETRIC_ALGORITHM = "AES/GCM/PKCS5Padding";
+	 */
+	/*
+	 * Java 21
+	 */
+	private static final String SYMMETRIC_ALGORITHM = "AES/GCM/NoPadding";
+	private static final int GCM_TAG_LENGTH = 128;
 
 	private static final String KEY_SPLITTER = "#KEY_SPLITTER#";
 
@@ -60,7 +68,7 @@ public class CryptoCoreUtil {
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
 		try {
-			prop.load(io.mosip.proxy.abis.CryptoCoreUtil.class.getClassLoader()
+			prop.load(io.mosip.proxy.abis.utility.CryptoCoreUtil.class.getClassLoader()
 					.getResourceAsStream("partner.properties"));
 			certiPassword = prop.getProperty("certificate.password");
 			alias = prop.getProperty("certificate.alias");
@@ -171,9 +179,9 @@ public class CryptoCoreUtil {
 
 	private byte[] decryptCbeffData(SecretKey key, byte[] data) throws Exception {
 		try {
-			Cipher cipher = Cipher.getInstance("AES/GCM/PKCS5Padding");
+			Cipher cipher = Cipher.getInstance(SYMMETRIC_ALGORITHM);
 			byte[] randomIV = Arrays.copyOfRange(data, data.length - cipher.getBlockSize(), data.length);
-			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, randomIV);
+			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, randomIV);
 			cipher.init(2, key, gcmParameterSpec);
 			return cipher.doFinal(Arrays.copyOf(data, data.length - cipher.getBlockSize()));
 		} catch (Exception e) {
@@ -184,9 +192,9 @@ public class CryptoCoreUtil {
 
 	private byte[] decryptCbeffData(SecretKey key, byte[] data, byte[] nonce, byte[] aad) throws Exception {
 		try {
-			Cipher cipher = Cipher.getInstance("AES/GCM/PKCS5Padding");
+			Cipher cipher = Cipher.getInstance(SYMMETRIC_ALGORITHM);
 			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
-			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(128, nonce);
+			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, nonce);
 			cipher.init(2, keySpec, gcmParameterSpec);
 			cipher.updateAAD(aad);
 			return cipher.doFinal(data, 0, data.length);

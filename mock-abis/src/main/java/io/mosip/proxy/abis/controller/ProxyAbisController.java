@@ -1,11 +1,11 @@
 package io.mosip.proxy.abis.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.mosip.proxy.abis.Listener;
 import io.mosip.proxy.abis.dto.*;
 import io.mosip.proxy.abis.exception.BindingException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.listener.Listener;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,7 +37,6 @@ public class ProxyAbisController {
 	@Autowired
 	ProxyAbisInsertService abisInsertService;
 
-	@Autowired
 	private Listener listener;
 
 	private Timer timer = new Timer();
@@ -258,4 +257,12 @@ public class ProxyAbisController {
 		logger.info("Adding timed task with timer as " + delayResponse + " seconds");
 		timer.schedule(task, delayResponse * 1000);
 	}
+
+	public Listener getListener() {
+		return listener;
+	}
+
+	public void setListener(Listener listener) {
+		this.listener = listener;
+	}	
 }
