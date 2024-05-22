@@ -49,6 +49,9 @@
 		<!-- Mosip -->
 		<kernel.bom.version>1.2.1-java21-SNAPSHOT</kernel.bom.version>
 		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
+
+		<!-- active mq -->
+		<activemq.client.version>6.1.2</activemq.client.version>
 	</properties>
 
 	<dependencyManagement>
@@ -139,6 +142,11 @@
 		<dependency>
 			<groupId>jakarta.jms</groupId>
 			<artifactId>jakarta.jms-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-client</artifactId>
+			<version>${activemq.client.version}</version>
 		</dependency>
 	</dependencies>
 

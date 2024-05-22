@@ -223,7 +223,6 @@ public class Listener {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
-
 	}
 
 	public void runVerificationQueue() {
@@ -242,7 +241,6 @@ public class Listener {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
-
 	}
 
 	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password)
@@ -252,7 +250,10 @@ public class Listener {
 			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
 			logger.info(String.format("Broker url : %s", failOverBrokerUrl));
-			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(username, password, failOverBrokerUrl);
+			this.activeMQConnectionFactory = new ActiveMQConnectionFactory();
+			this.activeMQConnectionFactory.setBrokerURL(failOverBrokerUrl);
+			this.activeMQConnectionFactory.setUserName(username);
+			this.activeMQConnectionFactory.setPassword(password);
 		}
 
 		ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
