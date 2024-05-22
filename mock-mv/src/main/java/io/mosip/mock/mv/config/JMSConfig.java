@@ -34,7 +34,8 @@ public class JMSConfig {
         factory.setPassword(vbrokerUrl);
         return factory;
     }
-	
+
+	/*
 	@Bean
     public JmsTemplate jmsTemplate(ActiveMQConnectionFactory activeMQConnectionFactory) {
         return new JmsTemplate(new SingleConnectionFactory(activeMQConnectionFactory));
@@ -51,4 +52,5 @@ public class JMSConfig {
             }
         };
     }
+    */
 }
