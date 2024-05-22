@@ -250,8 +250,7 @@ public class Listener {
 			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
 			logger.info(String.format("Broker url : %s", failOverBrokerUrl));
-			this.activeMQConnectionFactory = new ActiveMQConnectionFactory();
-			this.activeMQConnectionFactory.setBrokerURL(failOverBrokerUrl);
+			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(failOverBrokerUrl);
 			this.activeMQConnectionFactory.setUserName(username);
 			this.activeMQConnectionFactory.setPassword(password);
 		}

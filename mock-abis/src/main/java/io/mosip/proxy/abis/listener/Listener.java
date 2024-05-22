@@ -422,7 +422,10 @@ public class Listener {
 				String outboundQueueName = validateAbisQueueJsonAndReturnValue(json, OUTBOUNDQUEUENAME);
 				String queueName = validateAbisQueueJsonAndReturnValue(json, NAME);
 
-				this.activeMQConnectionFactory = new ActiveMQConnectionFactory(userName, password, failOverBrokerUrl);
+				this.activeMQConnectionFactory = new ActiveMQConnectionFactory(failOverBrokerUrl);
+				this.activeMQConnectionFactory.setUserName(userName);
+				this.activeMQConnectionFactory.setPassword(password);
+
 				logger.info("getAbisQueueDetails{activeMQConnectionFactory}....." + this.activeMQConnectionFactory);
 
 				abisQueueDetails.setTypeOfQueue(typeOfQueue);
