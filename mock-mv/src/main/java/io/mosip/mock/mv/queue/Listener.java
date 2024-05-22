@@ -107,6 +107,7 @@ public class Listener {
 	@Autowired
 	private ExpectationCache expectationCache;
 
+	@Autowired
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
 	/** The Constant FAIL_OVER. */
@@ -245,7 +246,7 @@ public class Listener {
 
 	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password)
 			throws Exception {
-
+		/*
 		if (activeMQConnectionFactory == null) {
 			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
@@ -254,9 +255,9 @@ public class Listener {
 			this.activeMQConnectionFactory.setUserName(username);
 			this.activeMQConnectionFactory.setPassword(password);
 		}
-
-		ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
-		if (activeMQConnectionFactory == null) {
+		*/
+		//ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
+		if (this.activeMQConnectionFactory == null) {
 			logger.error("Could not create connection. Invalid connection configuration.");
 			throw new Exception("Invalid Connection Exception");
 
