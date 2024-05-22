@@ -15,23 +15,33 @@ import org.slf4j.LoggerFactory;
 public class JMSConfig {
 	private static final Logger logger = LoggerFactory.getLogger(JMSConfig.class);
 
+	/** The Constant FAIL_OVER. */
+	private static final String FAIL_OVER = "failover:(";
+
+	/** The Constant RANDOMIZE_FALSE. */
+	private static final String RANDOMIZE_FALSE = ")?randomize=false";
+
 	/** The username. */
-	@Value("${registration.processor.verification.queue.username}")
-	private String vusername;
+	@Value("${registration.processor.manual.adjudication.queue.username}")
+	private String mausername;
 
 	/** The password. */
-	@Value("${registration.processor.verification.queue.password}")
-	private String vpassword;
+	@Value("${registration.processor.manual.adjudication.queue.password}")
+	private String mapassword;
 
 	/** The URL. */
-	@Value("${registration.processor.verification.queue.url}")
-	private String vbrokerUrl;
+	@Value("${registration.processor.manual.adjudication.queue.url}")
+	private String mabrokerUrl;
 
 	@Bean
     public ActiveMQConnectionFactory activeMQConnectionFactory() {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(vbrokerUrl);
-        factory.setUserName(vusername);
-        factory.setPassword(vbrokerUrl);
+		
+		logger.info("Creating new connection from configuration.");
+		String failOverBrokerUrl = FAIL_OVER + mabrokerUrl + "," + mabrokerUrl + RANDOMIZE_FALSE;
+		logger.info(String.format("Broker url : %s", failOverBrokerUrl));
+        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(failOverBrokerUrl);
+        factory.setUserName(mausername);
+        factory.setPassword(mapassword);
         return factory;
     }
 
