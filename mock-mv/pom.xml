@@ -46,12 +46,12 @@
 		<!-- swagger -->
 		<springdoc.openapi.starter.webmvc.ui.version>2.5.0</springdoc.openapi.starter.webmvc.ui.version>
 
+		<!-- Active mq -->
+		<activemq.client.version>6.1.2</activemq.client.version>
+
 		<!-- Mosip -->
 		<kernel.bom.version>1.2.1-java21-SNAPSHOT</kernel.bom.version>
 		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
-
-		<!-- active mq -->
-		<activemq.client.version>6.1.2</activemq.client.version>
 	</properties>
 
 	<dependencyManagement>
@@ -87,6 +87,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-activemq</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-client-jakarta</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
