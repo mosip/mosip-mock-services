@@ -30,7 +30,7 @@ public class JMSConfig {
 	private String mabrokerUrl;
 
 	@Bean
-    public ActiveMQConnectionFactory activeMQConnectionFactory() {		
+    public ActiveMQConnectionFactory activeMQConnectionFactory() {
 		logger.info("Creating new connection from configuration.");
 		String failOverBrokerUrl = FAIL_OVER + mabrokerUrl + "," + mabrokerUrl + RANDOMIZE_FALSE;
 		logger.info(String.format("Broker url : %s", failOverBrokerUrl));
