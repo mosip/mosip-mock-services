@@ -110,12 +110,6 @@ public class Listener {
 	@Autowired
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
-	/** The Constant FAIL_OVER. */
-	private static final String FAIL_OVER = "failover:(";
-
-	/** The Constant RANDOMIZE_FALSE. */
-	private static final String RANDOMIZE_FALSE = ")?randomize=false";
-
 	private Connection connection;
 	private Session session;
 	private Destination destination;
@@ -202,8 +196,7 @@ public class Listener {
 				}
 			}
 		} catch (JMSException e) {
-			logger.error(ExceptionUtils.getStackTrace(e));
-			e.printStackTrace();
+			logger.error(ExceptionUtils.getStackTrace(e), e);
 		}
 		logger.info("Setup Completed.");
 	}
@@ -221,8 +214,7 @@ public class Listener {
 			consume(mvRequestAddress, listener, mabrokerUrl, mausername, mapassword);
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -239,24 +231,12 @@ public class Listener {
 			consume(verificationRequestAddress, listener, vbrokerUrl, vusername, vpassword);
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 
 	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password)
 			throws Exception {
-		/*
-		if (activeMQConnectionFactory == null) {
-			logger.info("Creating new connection.");
-			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
-			logger.info(String.format("Broker url : %s", failOverBrokerUrl));
-			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(failOverBrokerUrl);
-			this.activeMQConnectionFactory.setUserName(username);
-			this.activeMQConnectionFactory.setPassword(password);
-		}
-		*/
-		//ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
 		if (this.activeMQConnectionFactory == null) {
 			logger.error("Could not create connection. Invalid connection configuration.");
 			throw new Exception("Invalid Connection Exception");
@@ -272,8 +252,7 @@ public class Listener {
 			consumer.setMessageListener(getListener(object));
 
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -299,11 +278,9 @@ public class Listener {
 			messageProducer.send(byteMessage);
 			flag = true;
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return flag;
 	}
@@ -319,11 +296,9 @@ public class Listener {
 
 			flag = true;
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return flag;
 	}
@@ -383,8 +358,7 @@ public class Listener {
 					}
 					logger.info(String.format("Scheduled job completed: MsgType %d ", textType));
 				} catch (Exception e) {
-					logger.error(e.getMessage());
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 			}
 		};
@@ -393,5 +367,4 @@ public class Listener {
 		timer.schedule(task, delayResponse * 1000);
 		return true;
 	}
-
 }

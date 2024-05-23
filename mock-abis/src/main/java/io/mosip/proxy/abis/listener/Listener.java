@@ -80,6 +80,7 @@ public class Listener {
 	private static final String ABIS_DELETE = "mosip.abis.delete";
 
 	private static final String ID = "id";
+
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
 	/** The Constant INBOUNDQUEUENAME. */
@@ -235,57 +236,74 @@ public class Listener {
 
 		if (id == null || id.isBlank() || id.isEmpty() || !(id.equalsIgnoreCase(ABIS_INSERT)
 				|| id.equalsIgnoreCase(ABIS_IDENTIFY) || id.equalsIgnoreCase(ABIS_DELETE))) {
-			failureReason = FailureReasonsConstants.INVALID_ID; // invalid id
+			/*
+			 * invalid id
+			 */
+			failureReason = FailureReasonsConstants.INVALID_ID;
 			return failureReason;
 		}
 
 		if (version == null || version.isBlank() || version.isEmpty() || !(version.equalsIgnoreCase("1.1"))) {
-			failureReason = FailureReasonsConstants.INVALID_VERSION; // invalid version
+			/*
+			 * invalid version
+			 */
+			failureReason = FailureReasonsConstants.INVALID_VERSION;
 			return failureReason;
 		}
 
 		if (requestId == null || requestId.isBlank() || requestId.isEmpty()) {
-			failureReason = FailureReasonsConstants.MISSING_REQUESTID; // missing requestId (in request body)
+			/*
+			 * missing requestId (in request body)
+			 */
+			failureReason = FailureReasonsConstants.MISSING_REQUESTID;
 			return failureReason;
 		}
 
 		if (requestTime == null || requestTime.isBlank() || requestTime.isEmpty()) {
-			failureReason = FailureReasonsConstants.MISSING_REQUESTTIME; // missing requesttime (in request body)
+			/*
+			 * missing requesttime (in request body)
+			 */
+			failureReason = FailureReasonsConstants.MISSING_REQUESTTIME;
 			return failureReason;
 		}
 		if (requestTime != null) {
 			if (!isValidFormat(UTC_DATETIME_PATTERN, requestTime, Locale.ENGLISH)) {
-				failureReason = FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT; // invalid requesttime format
+				/*
+				 * invalid requesttime format
+				 */
+				failureReason = FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT;
 				return failureReason;
 			}
 		}
 		if (referenceId == null || referenceId.isBlank() || referenceId.isEmpty()) {
-			failureReason = FailureReasonsConstants.MISSING_REFERENCEID; // missing referenceId (in request body)
+			/*
+			 * missing referenceId (in request body)
+			 */
+			failureReason = FailureReasonsConstants.MISSING_REFERENCEID;
 			return failureReason;
 		}
 
 		if (id.equalsIgnoreCase(ABIS_INSERT)
 				&& (referenceURL == null || referenceURL.isBlank() || referenceURL.isEmpty())) {
-			failureReason = FailureReasonsConstants.MISSING_REFERENCE_URL; // missing reference URL (in request body)
+			/*
+			 * missing reference URL (in request body)
+			 */
+			failureReason = FailureReasonsConstants.MISSING_REFERENCE_URL;
 			return failureReason;
 		}
 
 		if (id.equalsIgnoreCase(ABIS_INSERT) && isValidInsertRequestDto(map)) {
-			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; // unable to
-																											// serve the
-																											// request -
-																											// invalid
-																											// request
-																											// structure
+			/*
+			 * unable to serve the request - invalid request structure
+			 */
+			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE;
 			return failureReason;
 		}
 		if (id.equalsIgnoreCase(ABIS_IDENTIFY) && isValidIdentifyRequestDto(map)) {
-			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; // unable to
-																											// serve the
-																											// request -
-																											// invalid
-																											// request
-																											// structure
+			/*
+			 * unable to serve the request - invalid request structure
+			 */
+			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE;
 			return failureReason;
 		}
 
@@ -313,8 +331,7 @@ public class Listener {
 					String result = lt.format(fomatter);
 					return result.equals(value);
 				} catch (DateTimeParseException e2) {
-					// Debugging purposes
-					e2.printStackTrace();
+					logger.error("isValidFormat", e2);
 				}
 			}
 		}
@@ -323,16 +340,11 @@ public class Listener {
 	}
 
 	public static boolean isValidInsertRequestDto(Map<String, String> map) {
-		// Get the iterator over the HashMap
 		Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
-		// flag to store result
 		boolean isOtherKeyPresent = false;
 
-		// Iterate over the HashMap
 		while (iterator.hasNext()) {
-			// Get the entry at this iteration
 			Map.Entry<String, String> entry = iterator.next();
-			// Check if unknown key is present
 			if (!(entry.getKey().equals("id") || entry.getKey().equals("version") || entry.getKey().equals("requestId")
 					|| entry.getKey().equals("requesttime") || entry.getKey().equals("referenceId")
 					|| entry.getKey().equals("referenceURL"))) {
@@ -345,16 +357,11 @@ public class Listener {
 	}
 
 	public static boolean isValidIdentifyRequestDto(Map<String, String> map) {
-		// Get the iterator over the HashMap
 		Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
-		// flag to store result
 		boolean isOtherKeyPresent = false;
 
-		// Iterate over the HashMap
 		while (iterator.hasNext()) {
-			// Get the entry at this iteration
 			Map.Entry<String, String> entry = iterator.next();
-			// Check if unknown key is present
 			if (!(entry.getKey().equals("id") || entry.getKey().equals("version") || entry.getKey().equals("requestId")
 					|| entry.getKey().equals("requesttime") || entry.getKey().equals("referenceId")
 					|| entry.getKey().equals("referenceURL") || entry.getKey().equals("gallery"))) {
@@ -404,11 +411,9 @@ public class Listener {
 		try {
 			regProcessorAbisJson = g.fromJson(registrationProcessorAbis, JSONObject.class);
 
-			logger.info("getAbisQueueDetails....." + regProcessorAbisJson.toString());
 			ArrayList<Map<String, String>> regProcessorAbisArray = (ArrayList<Map<String, String>>) regProcessorAbisJson
 					.get(ABIS);
 
-			logger.info("getAbisQueueDetails{Size}....." + regProcessorAbisArray.size());
 			for (int i = 0; i < regProcessorAbisArray.size(); i++) {
 
 				Map<String, String> json = regProcessorAbisArray.get(i);
@@ -426,8 +431,6 @@ public class Listener {
 				this.activeMQConnectionFactory.setUserName(userName);
 				this.activeMQConnectionFactory.setPassword(password);
 
-				logger.info("getAbisQueueDetails{activeMQConnectionFactory}....." + this.activeMQConnectionFactory);
-
 				abisQueueDetails.setTypeOfQueue(typeOfQueue);
 				abisQueueDetails.setInboundQueueName(inboundQueueName);
 				abisQueueDetails.setOutboundQueueName(outboundQueueName);
@@ -435,8 +438,7 @@ public class Listener {
 				abisQueueDetailsList.add(abisQueueDetails);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Error while fetching abis info", e.getMessage());
+			logger.error("Error while fetching abis info", e);
 		}
 		return abisQueueDetailsList;
 	}
@@ -451,7 +453,6 @@ public class Listener {
 	}
 
 	public void setup() {
-
 		try {
 
 			if (connection == null || ((ActiveMQConnection) connection).isClosed()) {
@@ -463,10 +464,8 @@ public class Listener {
 				}
 			}
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
-
 	}
 
 	public void runAbisQueue() {
@@ -493,14 +492,12 @@ public class Listener {
 
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 
 	public byte[] consume(String address, QueueListener object, String queueName) throws Exception {
-		ActiveMQConnectionFactory activeMQConnectionFactory = this.activeMQConnectionFactory;
-		if (activeMQConnectionFactory == null) {
+		if (this.activeMQConnectionFactory == null) {
 			throw new Exception("Invalid Connection Exception");
 		}
 		if (destination == null) {
@@ -513,8 +510,7 @@ public class Listener {
 			consumer.setMessageListener(getListener(queueName, object));
 
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -544,11 +540,9 @@ public class Listener {
 			messageProducer.send(byteMessage);
 			flag = true;
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return flag;
 	}
@@ -561,25 +555,18 @@ public class Listener {
 			destination = session.createQueue(address);
 			MessageProducer messageProducer = session.createProducer(destination);
 
-			// Message m = session.createMessage();
-			// m.setJMSPriority(4);
-			// m.setStringProperty("response", message);
 			messageProducer.send(session.createTextMessage(message));
 
 			flag = true;
 		} catch (JMSException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return flag;
 	}
 
 	private void initialSetup() throws Exception {
-		// this.activeMQConnectionFactory = new ActiveMQConnectionFactory(USERNAME,
-		// PASSWORD, BROKERURL);
 		if (this.activeMQConnectionFactory == null) {
 			throw new Exception("Invalid Connection Exception");
 
