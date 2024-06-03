@@ -105,7 +105,7 @@ jobs:
       
   sonar-analysis-mosip-mock-services:
     if: "${{ github.event_name != 'pull_request' }}"
-    needs: build-biometrics-util
+    needs: build-maven-mock-mv
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
     with:
       SERVICE_LOCATION: 'mosip-mock-services'
