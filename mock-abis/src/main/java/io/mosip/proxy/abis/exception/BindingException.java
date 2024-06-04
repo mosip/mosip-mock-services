@@ -1,17 +1,21 @@
 package io.mosip.proxy.abis.exception;
 
+import java.io.Serializable;
+
 import org.springframework.validation.BindingResult;
 
 import io.mosip.proxy.abis.dto.RequestMO;
 
-public class BindingException extends Exception {
-	public RequestMO entity;
-	public BindingResult bindingResult;
+public class BindingException extends Exception implements Serializable {
+	private static final long serialVersionUID = 4870396284624577010L;
 
-	private static final long serialVersionUID = 1L;
+	public final RequestMO entity;
+	public final transient BindingResult bindingResult;
 
 	public BindingException() {
 		super();
+		this.entity = new RequestMO();
+		this.bindingResult = null;
 	}
 
 	public BindingException(RequestMO entity, BindingResult bindingResult) {
@@ -24,15 +28,7 @@ public class BindingException extends Exception {
 		return entity;
 	}
 
-	public void setEntity(RequestMO entity) {
-		this.entity = entity;
-	}
-
 	public BindingResult getBindingResult() {
 		return bindingResult;
-	}
-
-	public void setBindingResult(BindingResult bindingResult) {
-		this.bindingResult = bindingResult;
 	}
 }

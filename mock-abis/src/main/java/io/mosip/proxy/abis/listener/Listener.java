@@ -1,30 +1,20 @@
 package io.mosip.proxy.abis.listener;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import jakarta.jms.BytesMessage;
-import jakarta.jms.Connection;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSException;
-import jakarta.jms.Message;
-import jakarta.jms.MessageConsumer;
-import jakarta.jms.MessageListener;
-import jakarta.jms.MessageProducer;
-import jakarta.jms.Session;
-import jakarta.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -45,15 +35,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 
+import io.mosip.proxy.abis.constant.AbisErrorCode;
 import io.mosip.proxy.abis.controller.ProxyAbisController;
 import io.mosip.proxy.abis.dto.FailureResponse;
 import io.mosip.proxy.abis.dto.IdentityRequest;
 import io.mosip.proxy.abis.dto.InsertRequestMO;
 import io.mosip.proxy.abis.dto.MockAbisQueueDetails;
 import io.mosip.proxy.abis.dto.RequestMO;
+import io.mosip.proxy.abis.exception.AbisException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.utility.Helpers;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.Connection;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageListener;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 
 @Component
 public class Listener {
@@ -78,8 +79,6 @@ public class Listener {
 	private static final String ABIS_IDENTIFY = "mosip.abis.identify";
 
 	private static final String ABIS_DELETE = "mosip.abis.delete";
-
-	private static final String ID = "id";
 
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
@@ -113,7 +112,12 @@ public class Listener {
 	/** The Constant RANDOMIZE_FALSE. */
 	private static final String RANDOMIZE_FALSE = ")?randomize=false";
 
-	private static final String VALUE = "value";
+	private static final String TAG_ID = "id";
+	private static final String TAG_VERSION = "version";
+	private static final String TAG_REQUEST_ID = "requestId";
+	private static final String TAG_REQUEST_TIME = "requesttime";
+	private static final String TAG_REFERENCE_ID = "referenceId";
+	private static final String TAG_REFERENCE_URL = "referenceURL";
 
 	private Connection connection;
 	private Session session;
@@ -127,30 +131,36 @@ public class Listener {
 	@Value("${local.development:false}")
 	private boolean localDevelopment;
 
-	@Autowired
-	ProxyAbisController proxycontroller;
+	private ProxyAbisController proxycontroller;
 
-	public String outBoundQueue;
+	private String outBoundQueue;
 
-	public void consumeLogic(jakarta.jms.Message message, String abismiddlewareaddress) {
+	@Autowired(required = true)
+	public Listener(ProxyAbisController proxycontroller) {
+		this.proxycontroller = proxycontroller;
+	}
+
+	@SuppressWarnings({ "unused", "unchecked", "rawtypes" })
+	public void consumeLogic(jakarta.jms.Message message, String abismiddlewareaddress)
+			throws JMSException, InterruptedException {
 		ResponseEntity<Object> obj = null;
 		Map map = null;
 		Integer textType = 0;
 		String messageData = null;
-		logger.info("Received message " + message);
+		logger.info("Received message {}", message);
 		try {
 			if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
 				textType = 1;
 				TextMessage textMessage = (TextMessage) message;
 				messageData = textMessage.getText();
-			} else if (message instanceof ActiveMQBytesMessage) {
+			} else if (message instanceof ActiveMQBytesMessage activeMQBytesMessage) {
 				textType = 2;
-				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
+				messageData = new String((activeMQBytesMessage).getContent().data);
 			} else {
 				logger.error("Received message is neither text nor byte");
 				return;
 			}
-			logger.info("Message Data " + messageData);
+			logger.info("Message Data {}", messageData);
 			map = new Gson().fromJson(messageData, Map.class);
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.findAndRegisterModules();
@@ -159,9 +169,9 @@ public class Listener {
 			logger.info("go on sleep {} ", delayResponse);
 			TimeUnit.SECONDS.sleep(delayResponse);
 
-			logger.info("Request type is " + map.get("id"));
+			logger.info("Request type is {}", map.get("id"));
 
-			switch (map.get(ID).toString()) {
+			switch (map.get(TAG_ID).toString()) {
 			case ABIS_INSERT:
 				final InsertRequestMO ie = mapper.convertValue(map, InsertRequestMO.class);
 				proxycontroller.saveInsertRequestThroughListner(ie, textType);
@@ -175,66 +185,68 @@ public class Listener {
 				proxycontroller.deleteRequestThroughListner(mo, textType);
 				break;
 			default:
-				throw new Exception("Invalid id value");
+				throw new AbisException(AbisErrorCode.INVALID_ID_EXCEPTION.getErrorCode(),
+						AbisErrorCode.INVALID_ID_EXCEPTION.getErrorMessage());
 			}
-		} catch (Exception e) {
-			logger.error("Issue while hitting mock abis API", e.getMessage());
-			e.printStackTrace();
+		} catch (AbisException e) {
+			logger.error("Issue while hitting mock abis API", e);
 			obj = errorRequestThroughListner(e, map, textType);
 			try {
 				proxycontroller.executeAsync(obj, delayResponse, textType);
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				logger.error("Issue while hitting mock abis API1", e);
 			}
 		}
 	}
 
+	@SuppressWarnings({ "unused" })
 	public ResponseEntity<Object> errorRequestThroughListner(Exception ex, Map<String, String> map, int msgType) {
 		logger.info("Error Request");
 		String failureReason = "3";
 		String id = "id";
-		String requestId = "requestId";
+		String requestId = TAG_REQUEST_ID;
 
 		try {
-			if (ex instanceof RequestException) {
-				failureReason = ((RequestException) ex).getReasonConstant();
+			if (ex instanceof RequestException requestException) {
+				failureReason = requestException.getReasonConstant();
 			} else {
 				failureReason = getFailureReason(map);
 			}
-			logger.info("failureReason >> " + failureReason);
-			id = (String) map.get("id");
-			requestId = (String) map.get("requestId");
+			logger.info("failureReason {} ", failureReason);
+			id = map.get("id");
+			requestId = map.get(TAG_REQUEST_ID);
 
 			FailureResponse fr = new FailureResponse(id, requestId, LocalDateTime.now(), "2", failureReason);
-			return new ResponseEntity<Object>(fr, HttpStatus.OK);
+			return new ResponseEntity<>(fr, HttpStatus.OK);
 		} catch (Exception e) {
 			logger.error("errorRequestThroughListner", e);
 			FailureResponse fr = new FailureResponse(id, requestId, LocalDateTime.now(), "2", failureReason);
-			return new ResponseEntity<Object>(fr, HttpStatus.OK);
+			return new ResponseEntity<>(fr, HttpStatus.OK);
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	public String getFailureReason(Map<String, String> map) {
 		String failureReason = "3";
-		String id = "", version = "", requestId = "", requestTime = "", referenceId = "", referenceURL = "",
+		String id = "", versionInfo = "", requestId = "", requestTime = "", referenceId = "", referenceURL = "",
 				gallery = "";
-		id = (String) map.get("id");
-		version = (String) map.get("version");
-		requestId = (String) map.get("requestId");
-		requestTime = (String) map.get("requesttime");
-		referenceId = (String) map.get("referenceId");
-		referenceURL = (String) map.get("referenceURL");
-		gallery = (String) map.get("gallery");
+		id = map.get(TAG_ID);
+		versionInfo = map.get(TAG_VERSION);
+		requestId = map.get(TAG_REQUEST_ID);
+		requestTime = map.get(TAG_REQUEST_TIME);
+		referenceId = map.get(TAG_REFERENCE_ID);
+		referenceURL = map.get(TAG_REFERENCE_URL);
+		gallery = map.get("gallery");
 
-		logger.info("id >>" + id);
-		logger.info("version >>" + version);
-		logger.info("requestId >>" + requestId);
-		logger.info("requestTime >>" + requestTime);
-		logger.info("referenceId >>" + referenceId);
-		logger.info("referenceURL >>" + referenceURL);
-		logger.info("gallery >>" + gallery);
+		logger.info("id >>{}", id);
+		logger.info("version >>{}", versionInfo);
+		logger.info("requestId >>{}", requestId);
+		logger.info("requestTime >>{}", requestTime);
+		logger.info("referenceId >>{}", referenceId);
+		logger.info("referenceURL >>{}", referenceURL);
+		logger.info("gallery >>{}", gallery);
 
-		if (id == null || id.isBlank() || id.isEmpty() || !(id.equalsIgnoreCase(ABIS_INSERT)
+		if (Objects.isNull(id) || id.isBlank() || id.isEmpty() || !(id.equalsIgnoreCase(ABIS_INSERT)
 				|| id.equalsIgnoreCase(ABIS_IDENTIFY) || id.equalsIgnoreCase(ABIS_DELETE))) {
 			/*
 			 * invalid id
@@ -243,7 +255,8 @@ public class Listener {
 			return failureReason;
 		}
 
-		if (version == null || version.isBlank() || version.isEmpty() || !(version.equalsIgnoreCase("1.1"))) {
+		if (Objects.isNull(versionInfo) || versionInfo.isBlank() || versionInfo.isEmpty()
+				|| !(versionInfo.equalsIgnoreCase("1.1"))) {
 			/*
 			 * invalid version
 			 */
@@ -251,7 +264,7 @@ public class Listener {
 			return failureReason;
 		}
 
-		if (requestId == null || requestId.isBlank() || requestId.isEmpty()) {
+		if (Objects.isNull(requestId) || requestId.isBlank() || requestId.isEmpty()) {
 			/*
 			 * missing requestId (in request body)
 			 */
@@ -259,23 +272,22 @@ public class Listener {
 			return failureReason;
 		}
 
-		if (requestTime == null || requestTime.isBlank() || requestTime.isEmpty()) {
+		if (Objects.isNull(requestTime) || requestTime.isBlank() || requestTime.isEmpty()) {
 			/*
 			 * missing requesttime (in request body)
 			 */
 			failureReason = FailureReasonsConstants.MISSING_REQUESTTIME;
 			return failureReason;
 		}
-		if (requestTime != null) {
-			if (!isValidFormat(UTC_DATETIME_PATTERN, requestTime, Locale.ENGLISH)) {
-				/*
-				 * invalid requesttime format
-				 */
-				failureReason = FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT;
-				return failureReason;
-			}
+		if (!isValidFormat(UTC_DATETIME_PATTERN, requestTime, Locale.ENGLISH)) {
+			/*
+			 * invalid requesttime format
+			 */
+			failureReason = FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT;
+			return failureReason;
 		}
-		if (referenceId == null || referenceId.isBlank() || referenceId.isEmpty()) {
+
+		if (Objects.isNull(referenceId) || referenceId.isBlank() || referenceId.isEmpty()) {
 			/*
 			 * missing referenceId (in request body)
 			 */
@@ -319,13 +331,13 @@ public class Listener {
 			String result = ldt.format(fomatter);
 			return result.equals(value);
 		} catch (DateTimeParseException e) {
-			e.printStackTrace();
+			logger.error("isValidFormat", e);
 			try {
 				LocalDate ld = LocalDate.parse(value, fomatter);
 				String result = ld.format(fomatter);
 				return result.equals(value);
 			} catch (DateTimeParseException exp) {
-				exp.printStackTrace();
+				logger.error("isValidFormat datetime", exp);
 				try {
 					LocalTime lt = LocalTime.parse(value, fomatter);
 					String result = lt.format(fomatter);
@@ -345,9 +357,9 @@ public class Listener {
 
 		while (iterator.hasNext()) {
 			Map.Entry<String, String> entry = iterator.next();
-			if (!(entry.getKey().equals("id") || entry.getKey().equals("version") || entry.getKey().equals("requestId")
-					|| entry.getKey().equals("requesttime") || entry.getKey().equals("referenceId")
-					|| entry.getKey().equals("referenceURL"))) {
+			if (!(entry.getKey().equals(TAG_ID) || entry.getKey().equals(TAG_VERSION)
+					|| entry.getKey().equals(TAG_REQUEST_ID) || entry.getKey().equals(TAG_REQUEST_TIME)
+					|| entry.getKey().equals(TAG_REFERENCE_ID) || entry.getKey().equals(TAG_REFERENCE_URL))) {
 				isOtherKeyPresent = true;
 				break;
 			}
@@ -362,9 +374,10 @@ public class Listener {
 
 		while (iterator.hasNext()) {
 			Map.Entry<String, String> entry = iterator.next();
-			if (!(entry.getKey().equals("id") || entry.getKey().equals("version") || entry.getKey().equals("requestId")
-					|| entry.getKey().equals("requesttime") || entry.getKey().equals("referenceId")
-					|| entry.getKey().equals("referenceURL") || entry.getKey().equals("gallery"))) {
+			if (!(entry.getKey().equals(TAG_ID) || entry.getKey().equals(TAG_VERSION)
+					|| entry.getKey().equals(TAG_REQUEST_ID) || entry.getKey().equals(TAG_REQUEST_TIME)
+					|| entry.getKey().equals(TAG_REFERENCE_ID) || entry.getKey().equals(TAG_REFERENCE_URL)
+					|| entry.getKey().equals("gallery"))) {
 				isOtherKeyPresent = true;
 				break;
 			}
@@ -373,49 +386,46 @@ public class Listener {
 		return isOtherKeyPresent;
 	}
 
-	public void sendToQueue(ResponseEntity<Object> obj, Integer textType)
-			throws JsonProcessingException, UnsupportedEncodingException {
+	public void sendToQueue(ResponseEntity<Object> obj, Integer textType) throws JsonProcessingException {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.findAndRegisterModules();
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		logger.info("Response: ", obj.getBody().toString());
+		logger.info("Response: {}", obj.getBody());
 		if (textType == 2) {
-			send(mapper.writeValueAsString(obj.getBody()).getBytes("UTF-8"), outBoundQueue);
+			send(mapper.writeValueAsString(obj.getBody()).getBytes(StandardCharsets.UTF_8), outBoundQueue);
 		} else if (textType == 1) {
 			send(mapper.writeValueAsString(obj.getBody()), outBoundQueue);
 		}
 	}
 
 	public static String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf)
-			throws IOException, URISyntaxException {
+			throws IOException {
 		if (localAbisQueueConf) {
 			return Helpers.readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
-			logger.info("Json URL ", configServerFileStorageURL, uri);
+			logger.info("Json URL {} {}", configServerFileStorageURL, uri);
 			return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 		}
 	}
 
-	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
+	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException {
 		List<MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson,
 				localDevelopment);
 
-		logger.info("getAbisQueueDetails....." + registrationProcessorAbis);
+		logger.info("getAbisQueueDetails.....{}", registrationProcessorAbis);
 		JSONObject regProcessorAbisJson;
 		MockAbisQueueDetails abisQueueDetails = new MockAbisQueueDetails();
 		Gson g = new Gson();
 
 		try {
 			regProcessorAbisJson = g.fromJson(registrationProcessorAbis, JSONObject.class);
-
 			ArrayList<Map<String, String>> regProcessorAbisArray = (ArrayList<Map<String, String>>) regProcessorAbisJson
 					.get(ABIS);
 
 			for (int i = 0; i < regProcessorAbisArray.size(); i++) {
-
 				Map<String, String> json = regProcessorAbisArray.get(i);
 				String userName = validateAbisQueueJsonAndReturnValue(json, USERNAME);
 				String password = validateAbisQueueJsonAndReturnValue(json, PASSWORD);
@@ -428,6 +438,7 @@ public class Listener {
 				String queueName = validateAbisQueueJsonAndReturnValue(json, NAME);
 
 				this.activeMQConnectionFactory = new ActiveMQConnectionFactory(failOverBrokerUrl);
+				this.activeMQConnectionFactory.setTrustedPackages(Arrays.asList("io.mosip.proxy.abis.*"));
 				this.activeMQConnectionFactory.setUserName(userName);
 				this.activeMQConnectionFactory.setPassword(password);
 
@@ -443,18 +454,18 @@ public class Listener {
 		return abisQueueDetailsList;
 	}
 
-	private String validateAbisQueueJsonAndReturnValue(Map<String, String> jsonObject, String key) throws Exception {
-
-		String value = (String) jsonObject.get(key);
-		if (value == null) {
-			throw new Exception("Value does not exists for key" + key);
+	private String validateAbisQueueJsonAndReturnValue(Map<String, String> jsonObject, String key)
+			throws AbisException {
+		String value = jsonObject.get(key);
+		if (Objects.isNull(value)) {
+			throw new AbisException(AbisErrorCode.NO_VALUE_FOR_KEY_EXCEPTION.getErrorCode(),
+					AbisErrorCode.NO_VALUE_FOR_KEY_EXCEPTION.getErrorMessage() + key);
 		}
 		return value;
 	}
 
 	public void setup() {
 		try {
-
 			if (connection == null || ((ActiveMQConnection) connection).isClosed()) {
 				connection = activeMQConnectionFactory.createConnection();
 
@@ -471,8 +482,7 @@ public class Listener {
 	public void runAbisQueue() {
 		try {
 			List<MockAbisQueueDetails> abisQueueDetails = getAbisQueueDetails();
-			if (abisQueueDetails != null && abisQueueDetails.size() > 0) {
-
+			if (abisQueueDetails != null && !abisQueueDetails.isEmpty()) {
 				for (int i = 0; i < abisQueueDetails.size(); i++) {
 					String outBoundAddress = abisQueueDetails.get(i).getOutboundQueueName();
 					outBoundQueue = outBoundAddress;
@@ -480,7 +490,12 @@ public class Listener {
 
 						@Override
 						public void setListener(jakarta.jms.Message message) {
-							consumeLogic(message, outBoundAddress);
+							try {
+								consumeLogic(message, outBoundAddress);
+							} catch (JMSException | InterruptedException e) {
+								logger.error("runAbisQueue", e);
+								Thread.currentThread().interrupt();
+							}
 						}
 					};
 					consume(abisQueueDetails.get(i).getInboundQueueName(), listener,
@@ -488,88 +503,98 @@ public class Listener {
 				}
 
 			} else {
-				throw new Exception("Queue Connection Not Found");
-
+				throw new AbisException(AbisErrorCode.QUEUE_CONNECTION_NOT_FOUND_EXCEPTION.getErrorCode(),
+						AbisErrorCode.QUEUE_CONNECTION_NOT_FOUND_EXCEPTION.getErrorMessage());
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("runAbisQueue", e);
 		}
 	}
 
-	public byte[] consume(String address, QueueListener object, String queueName) throws Exception {
-		if (this.activeMQConnectionFactory == null) {
-			throw new Exception("Invalid Connection Exception");
+	public byte[] consume(String address, QueueListener object, String queueName) throws AbisException {
+		if (Objects.isNull(this.activeMQConnectionFactory)) {
+			throw new AbisException(AbisErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
+					AbisErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorMessage());
 		}
 		if (destination == null) {
 			setup();
 		}
-		MessageConsumer consumer;
+		MessageConsumer consumer = null;
 		try {
 			destination = session.createQueue(address);
 			consumer = session.createConsumer(destination);
 			consumer.setMessageListener(getListener(queueName, object));
-
 		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("consume", e);
+		} finally {
+			if (!Objects.isNull(consumer))
+				try {
+					consumer.close();
+				} catch (JMSException e) {
+					logger.error("consume", e);
+				}
 		}
-		return null;
+		return new byte[0];
 	}
 
 	public static MessageListener getListener(String queueName, QueueListener object) {
-		if (queueName.equals("ACTIVEMQ")) {
-			return new MessageListener() {
-				@Override
-				public void onMessage(Message message) {
-					object.setListener(message);
-				}
-			};
+		if (queueName.equals("ACTIVEMQ"))
+			return object::setListener;
 
-		}
 		return null;
 	}
 
 	public Boolean send(byte[] message, String address) {
 		boolean flag = false;
-
+		MessageProducer messageProducer = null;
 		try {
 			initialSetup();
 			destination = session.createQueue(address);
-			MessageProducer messageProducer = session.createProducer(destination);
+			messageProducer = session.createProducer(destination);
 			BytesMessage byteMessage = session.createBytesMessage();
 			byteMessage.writeObject(message);
 			messageProducer.send(byteMessage);
 			flag = true;
-		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("send", e);
+		} finally {
+			if (!Objects.isNull(messageProducer))
+				try {
+					messageProducer.close();
+				} catch (JMSException e) {
+					logger.error("send", e);
+				}
 		}
 		return flag;
 	}
 
 	public Boolean send(String message, String address) {
 		boolean flag = false;
-
+		MessageProducer messageProducer = null;
 		try {
 			initialSetup();
 			destination = session.createQueue(address);
-			MessageProducer messageProducer = session.createProducer(destination);
-
+			messageProducer = session.createProducer(destination);
 			messageProducer.send(session.createTextMessage(message));
 
 			flag = true;
-		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("send", e);
+		} finally {
+			if (!Objects.isNull(messageProducer))
+				try {
+					messageProducer.close();
+				} catch (JMSException e) {
+					logger.error("send", e);
+				}
 		}
 		return flag;
 	}
 
-	private void initialSetup() throws Exception {
-		if (this.activeMQConnectionFactory == null) {
-			throw new Exception("Invalid Connection Exception");
-
+	private void initialSetup() throws AbisException {
+		if (Objects.isNull(this.activeMQConnectionFactory)) {
+			throw new AbisException(AbisErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
+					AbisErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorMessage());
 		}
 		setup();
 	}

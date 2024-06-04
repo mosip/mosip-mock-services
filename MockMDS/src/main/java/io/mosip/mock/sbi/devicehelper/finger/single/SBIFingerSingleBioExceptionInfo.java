@@ -1,15 +1,10 @@
 package io.mosip.mock.sbi.devicehelper.finger.single;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 
 public class SBIFingerSingleBioExceptionInfo extends SBIBioExceptionInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSingleBioExceptionInfo.class);	
-	
 	private SBICheckState chkMissingLeftIndex;
 	private SBICheckState chkMissingLeftMiddle;
 	private SBICheckState chkMissingLeftRing;
@@ -22,51 +17,49 @@ public class SBIFingerSingleBioExceptionInfo extends SBIBioExceptionInfo {
 
 	private SBICheckState chkMissingRightThumb;
 	private SBICheckState chkMissingLeftThumb;
-     
-	protected SBIFingerSingleBioExceptionInfo()  
-	{ 
-		super ();
+
+	protected SBIFingerSingleBioExceptionInfo() {
+		super();
 		deInitBioException();
 	}
 
 	@Override
 	public void initBioException(String[] bioException) {
-		// TODO Auto-generated method stub
-		if (bioException != null && bioException.length > 0)
-		{
-			for (String tag : bioException){
-				switch (tag.trim ())
-				{
-					case SBIConstant.BIO_NAME_RIGHT_THUMB:
-						setChkMissingRightThumb (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_INDEX:
-	                	setChkMissingRightIndex (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_MIDDLE:
-	                	setChkMissingRightMiddle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_RING:
-	                	setChkMissingRightRing (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_LITTLE:
-	                	setChkMissingRightLittle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_THUMB:
-	                	setChkMissingLeftThumb (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_INDEX:
-	                	setChkMissingLeftIndex (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_MIDDLE:
-	                	setChkMissingLeftMiddle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_RING:
-	                	setChkMissingLeftRing (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_LITTLE:
-	                	setChkMissingLeftLittle (SBICheckState.Checked);
-						break;
+		if (bioException != null && bioException.length > 0) {
+			for (String tag : bioException) {
+				switch (tag.trim()) {
+				case SBIConstant.BIO_NAME_RIGHT_THUMB:
+					setChkMissingRightThumb(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_INDEX:
+					setChkMissingRightIndex(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_MIDDLE:
+					setChkMissingRightMiddle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_RING:
+					setChkMissingRightRing(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_LITTLE:
+					setChkMissingRightLittle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_THUMB:
+					setChkMissingLeftThumb(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_INDEX:
+					setChkMissingLeftIndex(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_MIDDLE:
+					setChkMissingLeftMiddle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_RING:
+					setChkMissingLeftRing(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_LITTLE:
+					setChkMissingLeftLittle(SBICheckState.CHECKED);
+					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -74,18 +67,18 @@ public class SBIFingerSingleBioExceptionInfo extends SBIBioExceptionInfo {
 
 	@Override
 	public void deInitBioException() {
-		setChkMissingLeftIndex (SBICheckState.Unchecked);
-		setChkMissingLeftMiddle (SBICheckState.Unchecked);
-		setChkMissingLeftRing (SBICheckState.Unchecked);
-		setChkMissingLeftLittle (SBICheckState.Unchecked);
+		setChkMissingLeftIndex(SBICheckState.UNCHECKED);
+		setChkMissingLeftMiddle(SBICheckState.UNCHECKED);
+		setChkMissingLeftRing(SBICheckState.UNCHECKED);
+		setChkMissingLeftLittle(SBICheckState.UNCHECKED);
 
-		setChkMissingRightIndex (SBICheckState.Unchecked);
-		setChkMissingRightMiddle (SBICheckState.Unchecked);
-		setChkMissingRightRing (SBICheckState.Unchecked);
-		setChkMissingRightLittle (SBICheckState.Unchecked);
+		setChkMissingRightIndex(SBICheckState.UNCHECKED);
+		setChkMissingRightMiddle(SBICheckState.UNCHECKED);
+		setChkMissingRightRing(SBICheckState.UNCHECKED);
+		setChkMissingRightLittle(SBICheckState.UNCHECKED);
 
-		setChkMissingRightThumb (SBICheckState.Unchecked);
-		setChkMissingLeftThumb (SBICheckState.Unchecked);
+		setChkMissingRightThumb(SBICheckState.UNCHECKED);
+		setChkMissingLeftThumb(SBICheckState.UNCHECKED);
 	}
 
 	public SBICheckState getChkMissingLeftIndex() {
@@ -166,5 +159,5 @@ public class SBIFingerSingleBioExceptionInfo extends SBIBioExceptionInfo {
 
 	public void setChkMissingLeftThumb(SBICheckState chkMissingLeftThumb) {
 		this.chkMissingLeftThumb = chkMissingLeftThumb;
-	} 	
+	}
 }

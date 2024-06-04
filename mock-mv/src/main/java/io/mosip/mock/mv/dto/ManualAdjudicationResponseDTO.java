@@ -8,12 +8,9 @@ public class ManualAdjudicationResponseDTO {
 
 	private String requestId;
 
-//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private String responsetime;// = LocalDateTime.now(ZoneId.of("UTC"));
+	private String responsetime;
 
 	private Integer returnValue;
-
-	// private Analytics analytics;
 
 	private CandidateList candidateList;
 
@@ -21,6 +18,7 @@ public class ManualAdjudicationResponseDTO {
 		super();
 	}
 
+	@SuppressWarnings({ "1172" })
 	public ManualAdjudicationResponseDTO(String id, String requestId, String responsetime, Integer returnValue,
 			CandidateList candidateList) {
 		super();
@@ -28,10 +26,8 @@ public class ManualAdjudicationResponseDTO {
 		this.requestId = requestId;
 
 		this.returnValue = returnValue;
-		// this.analytics = analytics;
 		this.candidateList = candidateList;
 		this.responsetime = OffsetDateTime.now().toInstant().toString();
-
 	}
 
 	public String getId() {

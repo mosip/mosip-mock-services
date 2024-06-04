@@ -14,6 +14,7 @@ public class InsertRequestMO {
 	@Pattern(regexp = "mosip.abis.insert", message = FailureReasonsConstants.INVALID_ID)
 	private String id;
 
+	@SuppressWarnings({ "java:S6353" })
 	@Pattern(regexp = "[0-9]+.[0-9]", message = FailureReasonsConstants.INVALID_VERSION)
 	private String version;
 

@@ -9,14 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class ExpectationCacheImpl implements ExpectationCache {
-	Map<String, Expectation> expectationMap = new ConcurrentHashMap<String, Expectation>();
+	Map<String, Expectation> expectationMap = new ConcurrentHashMap<>();
 
 	public boolean delete(String id) {
 		return expectationMap.remove(id) != null;
 	}
 
 	public void deleteAll() {
-		expectationMap = new ConcurrentHashMap<String, Expectation>();
+		expectationMap = new ConcurrentHashMap<>();
 	}
 
 	public void insert(Expectation expectation) {

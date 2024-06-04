@@ -3,8 +3,6 @@ package io.mosip.mock.sdk.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.env.Environment;
@@ -25,28 +23,25 @@ import io.mosip.mock.sdk.service.SegmentService;
 
 /**
  * The Class SampleSDK.
- * 
+ * @deprecated (1.2.1)
  * @author Sanjay Murali
  * @author Manoj SP
  * 
  */
 @Component
 @EnableAutoConfiguration
-@Deprecated
+@Deprecated(since = "1.2.1", forRemoval = true)
 public class SampleSDK implements IBioApi {
-	private Logger LOGGER = LoggerFactory.getLogger(SampleSDK.class);
-
-
 	/** The environment. */
 	@Autowired
+	@SuppressWarnings({ "java:S6813" })
 	private Environment env;
 
 	private static final String API_VERSION = "0.9";
 
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
-		// TODO validate for mandatory initParams
-		SDKInfoService service = new SDKInfoService(env, API_VERSION, "sample", "sample", "sample");
+		SDKInfoService service = new SDKInfoService(env, API_VERSION, "sample1", "sample2", "sample3");
 		return service.getSDKInfo();
 	}
 

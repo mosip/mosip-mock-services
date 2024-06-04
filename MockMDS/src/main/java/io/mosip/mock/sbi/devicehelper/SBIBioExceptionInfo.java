@@ -1,10 +1,11 @@
 package io.mosip.mock.sbi.devicehelper;
 
 public abstract class SBIBioExceptionInfo {
-	public abstract void initBioException(String [] bioException);
+	public abstract void initBioException(String[] bioException);
+
 	public abstract void deInitBioException();
-	
-	public SBIBioExceptionInfo() {
+
+	protected SBIBioExceptionInfo() {
 		super();
 	}
 }

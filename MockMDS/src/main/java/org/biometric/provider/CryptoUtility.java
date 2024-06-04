@@ -1,5 +1,6 @@
 package org.biometric.provider;
 
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -9,6 +10,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -16,10 +18,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Base64.Encoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -27,12 +32,21 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
-import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.spec.PSource.PSpecified;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.mosip.kernel.core.crypto.exception.InvalidDataException;
+import io.mosip.kernel.core.crypto.exception.NullDataException;
+import io.mosip.kernel.core.crypto.exception.SignatureException;
 
 public class CryptoUtility {
+	private static final Logger logger = LoggerFactory.getLogger(CryptoUtility.class);
 
 	private static BouncyCastleProvider provider;
 	private static final String ASYMMETRIC_ALGORITHM = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
@@ -72,7 +86,7 @@ public class CryptoUtility {
 			digest.reset();
 			hash = digest.digest(message);
 		} catch (GeneralSecurityException ex) {
-			ex.printStackTrace();
+			logger.error("generateHash", ex);
 		}
 		return hash;
 	}
@@ -80,7 +94,7 @@ public class CryptoUtility {
 	public static LocalDateTime getUTCCurrentDateTime() {
 		return ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime();
 	}
-	
+
 	public static String getTimestamp() {
 		return formatToISOString(getUTCCurrentDateTime());
 	}
@@ -117,7 +131,7 @@ public class CryptoUtility {
 			result.put("TIMESTAMP", timestamp);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("encrypt", ex);
 		}
 		return result;
 	}
@@ -140,7 +154,7 @@ public class CryptoUtility {
 			return new String(decryptedData);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("decrypt", ex);
 		}
 		return null;
 	}
@@ -154,9 +168,9 @@ public class CryptoUtility {
 			cipher.updateAAD(aadBytes);
 			return cipher.doFinal(dataBytes);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("symmetricDecrypt", ex);
 		}
-		return null;
+		return new byte[0];
 	}
 
 	public static byte[] symmetricEncrypt(SecretKey secretKey, byte[] data, byte[] ivBytes, byte[] aadBytes) {
@@ -169,9 +183,9 @@ public class CryptoUtility {
 			return cipher.doFinal(data);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("symmetricDecrypt", ex);
 		}
-		return null;
+		return new byte[0];
 	}
 
 	public static SecretKey getSymmetricKey() throws NoSuchAlgorithmException {
@@ -182,7 +196,6 @@ public class CryptoUtility {
 	}
 
 	public static byte[] asymmetricEncrypt(PublicKey key, byte[] data) throws Exception {
-
 		Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM);
 
 		final OAEPParameterSpec oaepParams = new OAEPParameterSpec(HASH_ALGO, MGF1, MGF1ParameterSpec.SHA256,
@@ -191,8 +204,8 @@ public class CryptoUtility {
 		return doFinal(data, cipher);
 	}
 
+	@SuppressWarnings({ "java:S1172", "java:S5542" })
 	public static byte[] asymmetricDecrypt(PrivateKey key, byte[] data) throws Exception {
-
 		Cipher cipher = Cipher.getInstance(RSA_ECB_NO_PADDING);
 		cipher.init(Cipher.DECRYPT_MODE, key);
 
@@ -208,6 +221,7 @@ public class CryptoUtility {
 		return unpadOEAPPadding(paddedPlainText, oaepParams);
 	}
 
+	@SuppressWarnings({ "java:S1172" })
 	private static byte[] unpadOEAPPadding(byte[] paddedPlainText, OAEPParameterSpec paramSpec) throws Exception {
 		byte[] unpaddedData = null;
 		// Generate an RSA key pair
@@ -222,15 +236,10 @@ public class CryptoUtility {
 
 		// Now, let's unpad the encrypted data
 		unpaddedData = unpadOEAPPadding(encryptedData, (RSAPublicKey) keyPair.getPublic());
-
-		// sun.security.rsa.RSAPadding padding =
-		// sun.security.rsa.RSAPadding.getInstance(
-		// sun.security.rsa.RSAPadding.PAD_OAEP_MGF1, ASYMMETRIC_KEY_LENGTH / 8, new
-		// SecureRandom(), paramSpec);
-		// unpaddedData = padding.unpad(paddedPlainText);
 		return unpaddedData;
 	}
 
+	@SuppressWarnings({ "java:S112", "java:S1854", "unused" })
 	private static byte[] unpadOEAPPadding(byte[] paddedPlainText, RSAPublicKey publicKey) throws Exception {
 		// Get modulus and public exponent from public key
 		RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(publicKey.getModulus(), publicKey.getPublicExponent());
@@ -249,10 +258,42 @@ public class CryptoUtility {
 		return cipher.doFinal(paddedPlainText);
 	}
 
+	@SuppressWarnings({ "java:S112" })
 	private static byte[] doFinal(byte[] data, Cipher cipher) throws Exception {
 		return cipher.doFinal(data);
 	}
 
+	public static String sign(byte[] data, PrivateKey privateKey, X509Certificate x509Certificate) {
+		Objects.requireNonNull(privateKey, SecurityExceptionCodeConstant.MOSIP_INVALID_KEY_EXCEPTION.getErrorMessage());
+		verifyData(data);
+		JsonWebSignature jws = new JsonWebSignature();
+		List<X509Certificate> certList= new ArrayList<>();
+		certList.add(x509Certificate);
+		X509Certificate[] certArray=certList.toArray(new X509Certificate[]{});
+		jws.setCertificateChainHeaderValue(certArray); 
+		jws.setPayloadBytes(data);
+		jws.setAlgorithmHeaderValue("RS256");
+		jws.setKey(privateKey);
+		jws.setDoKeyValidation(false);
+		try {
+			return jws.getCompactSerialization();
+		} catch (JoseException e) {
+			throw new SignatureException(SecurityExceptionCodeConstant.MOSIP_SIGNATURE_EXCEPTION.getErrorCode(),
+					e.getMessage(), e);
+		}
+	}
+	
+	public static void verifyData(byte[] data) {
+		if (data == null) {
+			throw new NullDataException(SecurityExceptionCodeConstant.MOSIP_NULL_DATA_EXCEPTION.getErrorCode(),
+					SecurityExceptionCodeConstant.MOSIP_NULL_DATA_EXCEPTION.getErrorMessage());
+		} else if (data.length == 0) {
+			throw new InvalidDataException(SecurityExceptionCodeConstant.MOSIP_NULL_DATA_EXCEPTION.getErrorCode(),
+					SecurityExceptionCodeConstant.MOSIP_NULL_DATA_EXCEPTION.getErrorMessage());
+		}
+	}
+
+	
 	// Function to insert n 0s in the
 	// beginning of the given string
 	static byte[] prependZeros(byte[] str, int n) {
@@ -311,7 +352,7 @@ public class CryptoUtility {
 	public static boolean isNullEmpty(String str) {
 		return str == null || str.trim().length() == 0;
 	}
-	
+
 	/**
 	 * This method is used to check given <code>byte[]</code> is null or is Empty.
 	 * 
@@ -332,11 +373,12 @@ public class CryptoUtility {
 
 	public static byte[] decodeURLSafeBase64(String data) {
 		if (isNullEmpty(data)) {
-			return null;
+			return new byte[0];
 		}
 		return Base64.getUrlDecoder().decode(data);
 	}
 
+	@SuppressWarnings({ "java:S2629" })
 	public static void main(String[] args) throws Exception {
 		String data = "this is my test";
 
@@ -364,6 +406,7 @@ public class CryptoUtility {
 
 		byte[] decodedBioValue = decodeURLSafeBase64(bioValue);
 		final byte[] decryptedData = symmetricDecrypt(secretKeySpec, decodedBioValue, ivBytes, aadBytes);
-		System.out.println(new String(decryptedData));
+		Objects.requireNonNull(decryptedData, SecurityExceptionCodeConstant.MOSIP_NULL_DATA_EXCEPTION.getErrorMessage());
+		logger.info("main{}", new String(decryptedData, StandardCharsets.UTF_8));
 	}
 }
