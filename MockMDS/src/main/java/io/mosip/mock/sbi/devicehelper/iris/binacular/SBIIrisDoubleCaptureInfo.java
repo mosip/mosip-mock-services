@@ -1,50 +1,42 @@
 package io.mosip.mock.sbi.devicehelper.iris.binacular;
 
-import java.util.HashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 
 public class SBIIrisDoubleCaptureInfo extends SBICaptureInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisDoubleCaptureInfo.class);	
-	
 	private String bioValueLI;
 	private String bioSubTypeLI;
 	private float requestScoreLI;
 	private float captureScoreLI;
 	private boolean isCaptureLI;
-	
+
 	private String bioValueRI;
 	private String bioSubTypeRI;
 	private float requestScoreRI;
 	private float captureScoreRI;
 	private boolean isCaptureRI;
-	     
-	public SBIIrisDoubleCaptureInfo()  
-	{ 
-		super ();
-	} 
-  
+
+	public SBIIrisDoubleCaptureInfo() {
+		super();
+	}
+
 	@Override
 	public void initCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);	
-		setBioExceptionInfo (new SBIIrisDoubleBioExceptionInfo ());
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(new SBIIrisDoubleBioExceptionInfo());
 	}
 
 	@Override
 	public void deInitCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);
-		setBioExceptionInfo (null);
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
 	}
 
 	public String getBioValueLI() {

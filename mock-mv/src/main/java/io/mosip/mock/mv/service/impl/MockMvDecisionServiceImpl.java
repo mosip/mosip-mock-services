@@ -12,13 +12,16 @@ import io.mosip.mock.mv.service.MockMvDecisionService;
 
 @Service
 public class MockMvDecisionServiceImpl implements MockMvDecisionService {
-
 	@Value("${mock.mv.default.decision}")
 	private String mockMvDecision;
 
-	@Autowired
 	private ExpectationCache expectationCache;
 
+	@Autowired
+	public MockMvDecisionServiceImpl(ExpectationCache expectationCache) {
+		this.expectationCache = expectationCache;
+	}
+	
 	@Override
 	public String getMockMvDecision() {
 		return mockMvDecision;
@@ -51,6 +54,6 @@ public class MockMvDecisionServiceImpl implements MockMvDecisionService {
 
 	@Override
 	public Expectation getExpectation(String rid) {
-		return (Expectation) expectationCache.get(rid);
+		return expectationCache.get(rid);
 	}
 }

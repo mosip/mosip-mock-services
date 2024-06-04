@@ -1,25 +1,22 @@
 package io.mosip.registration.mdm.dto;
 
-import java.util.Map;
-
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
+@Data
 public class DiscoverResponse {
-
-	public String deviceId;
-	public String deviceStatus;
-	public String certification;
-	public String serviceVersion;
-	public String callbackId;
-	public String digitalId;
-	public String deviceCode;
-	public String purpose;
-	public ErrorInfo error;
-	public String [] specVersion;
-	public String [] deviceSubId;
-
+	private String deviceId;
+	private String deviceStatus;
+	private String certification;
+	private String serviceVersion;
+	private String callbackId;
+	private String digitalId;
+	private String deviceCode;
+	private String purpose;
+	private ErrorInfo error;
+	private String[] specVersion;
+	private String[] deviceSubId;
 }

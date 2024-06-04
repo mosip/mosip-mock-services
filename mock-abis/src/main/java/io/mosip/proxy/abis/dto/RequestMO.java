@@ -1,8 +1,9 @@
 package io.mosip.proxy.abis.dto;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class RequestMO {
+public class RequestMO implements Serializable {
 	private String id;
 	private String version;
 	private String requestId;

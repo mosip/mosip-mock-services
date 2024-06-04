@@ -1,54 +1,49 @@
 package io.mosip.proxy.abis.exception;
 
+import java.io.Serializable;
+
 import io.mosip.proxy.abis.dto.RequestMO;
 
-public class RequestException extends RuntimeException {
-	public RequestMO entity = null;
-	public String reasonConstant = null;
-	public int delayResponse = 0;
+public class RequestException extends RuntimeException implements Serializable {
+	private final RequestMO entity;
+	private final String reasonConstant;
+	private final int delayResponse;
 
 	public RequestException() {
 		super();
+		this.entity = new RequestMO();
+		this.reasonConstant = null;
+		this.delayResponse = 0;
 	}
 
-	public RequestException(RequestMO ie, String reasonConstant) {
+	public RequestException(RequestMO ie, String reasonConstant, int delayResponse) {
 		super();
 		this.entity = ie;
 		this.reasonConstant = reasonConstant;
+		this.delayResponse = delayResponse;
+	}
+
+	public RequestException(RequestMO ie, String reasonConstant) {
+		this(ie, reasonConstant, 0);
 	}
 
 	public RequestException(String reasonConstant) {
-		super();
-		this.reasonConstant = reasonConstant;
+		this(new RequestMO(), reasonConstant, 0);
 	}
 
-	public RequestException(String reasonConstant, int d) {
-		super();
-		this.reasonConstant = reasonConstant;
-		this.delayResponse = d;
+	public RequestException(String reasonConstant, int delayResponse) {
+		this(new RequestMO(), reasonConstant, delayResponse);
 	}
 
 	public RequestMO getEntity() {
 		return entity;
 	}
 
-	public void setEntity(RequestMO entity) {
-		this.entity = entity;
-	}
-
 	public String getReasonConstant() {
 		return reasonConstant;
 	}
 
-	public void setReasonConstant(String reasonConstant) {
-		this.reasonConstant = reasonConstant;
-	}
-
 	public int getDelayResponse() {
 		return delayResponse;
-	}
-
-	public void setDelayResponse(int d) {
-		this.delayResponse = d;
 	}
 }

@@ -1,5 +1,7 @@
 package io.mosip.mock.mv.config;
 
+import java.util.Arrays;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +35,9 @@ public class JMSConfig {
     public ActiveMQConnectionFactory activeMQConnectionFactory() {
 		logger.info("Creating new connection from configuration.");
 		String failOverBrokerUrl = FAIL_OVER + mabrokerUrl + "," + mabrokerUrl + RANDOMIZE_FALSE;
-		logger.info(String.format("Broker url : %s", failOverBrokerUrl));
+		logger.info("Broker url : {}", failOverBrokerUrl);
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(failOverBrokerUrl);
+        factory.setTrustedPackages(Arrays.asList("io.mosip.mock.mv.*"));
         factory.setUserName(mausername);
         factory.setPassword(mapassword);
         return factory;

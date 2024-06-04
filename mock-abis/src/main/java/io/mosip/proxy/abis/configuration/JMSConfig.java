@@ -1,9 +1,10 @@
 package io.mosip.proxy.abis.configuration;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.json.simple.JSONObject;
@@ -16,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 
+import io.mosip.proxy.abis.constant.AbisErrorCode;
+import io.mosip.proxy.abis.exception.AbisException;
 import io.mosip.proxy.abis.utility.Helpers;
 
 @Configuration
@@ -57,8 +60,9 @@ public class JMSConfig {
 	/** The Constant BROKERURL. */
 	private static final String BROKERURL = "brokerUrl";
 
+	@SuppressWarnings("unchecked")
 	@Bean
-    public ActiveMQConnectionFactory activeMQConnectionFactory() {		
+	public ActiveMQConnectionFactory activeMQConnectionFactory() {
 		logger.info("Creating new connection from configuration.");
 		Gson g = new Gson();
 		ActiveMQConnectionFactory factory = null;
@@ -66,8 +70,7 @@ public class JMSConfig {
 			String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson,
 					localDevelopment);
 			JSONObject regProcessorAbisJson = g.fromJson(registrationProcessorAbis, JSONObject.class);
-			ArrayList<Map<String, String>> regProcessorAbisArray = (ArrayList<Map<String, String>>) regProcessorAbisJson
-					.get(ABIS);
+			ArrayList<Map<String, String>> regProcessorAbisArray = (ArrayList<Map<String, String>>) regProcessorAbisJson.get(ABIS);
 			for (int i = 0; i < regProcessorAbisArray.size(); i++) {
 				Map<String, String> json = regProcessorAbisArray.get(i);
 				String userName = validateAbisQueueJsonAndReturnValue(json, USERNAME);
@@ -75,35 +78,35 @@ public class JMSConfig {
 				String brokerUrl = validateAbisQueueJsonAndReturnValue(json, BROKERURL);
 				String broker = brokerUrl.split("\\?")[0];
 				String failOverBrokerUrl = FAIL_OVER + broker + "," + broker + RANDOMIZE_FALSE;
-				
-		        factory = new ActiveMQConnectionFactory(failOverBrokerUrl);
-		        factory.setUserName(userName);
-		        factory.setPassword(password);
-		        return factory;
+
+				factory = new ActiveMQConnectionFactory(failOverBrokerUrl);
+				factory.setTrustedPackages(Arrays.asList("io.mosip.proxy.abis.*"));
+				factory.setUserName(userName);
+				factory.setPassword(password);
+				return factory;
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("Error while creating activeMQConnectionFactory info", e);
 		}
-        return factory;
-    }
-	
+		return factory;
+	}
+
 	private String getJson(String configServerFileStorageURL, String uri, boolean localAbisQueueConf)
-			throws IOException, URISyntaxException {
+			throws IOException {
 		if (localAbisQueueConf) {
 			return Helpers.readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
-			logger.info("Json URL ", configServerFileStorageURL, uri);
+			logger.info("Json URL {} {}", configServerFileStorageURL, uri);
 			return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 		}
 	}
-	
-	private String validateAbisQueueJsonAndReturnValue(Map<String, String> jsonObject, String key) throws Exception {
-		String value = (String) jsonObject.get(key);
-		if (value == null) {
-			throw new Exception("Value does not exists for key" + key);
+
+	private String validateAbisQueueJsonAndReturnValue(Map<String, String> jsonObject, String key)  {
+		String value = jsonObject.get(key);
+		if (Objects.isNull(value)) {
+			throw new AbisException(AbisErrorCode.INVALID_KEY_EXCEPTION.getErrorCode(),
+					AbisErrorCode.INVALID_KEY_EXCEPTION.getErrorMessage() + key);
 		}
 		return value;
 	}

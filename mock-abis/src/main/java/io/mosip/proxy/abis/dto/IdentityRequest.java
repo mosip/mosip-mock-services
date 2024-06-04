@@ -82,6 +82,7 @@ public class IdentityRequest {
 		super();
 	}
 
+	@SuppressWarnings({ "java:S107" })
 	public IdentityRequest(String id, String version, String requestId, LocalDateTime requesttime, String referenceId,
 			String referenceUrl, Gallery gallery, Flags flags) {
 		super();

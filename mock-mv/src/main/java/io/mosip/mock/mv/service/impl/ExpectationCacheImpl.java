@@ -10,15 +10,14 @@ import io.mosip.mock.mv.service.ExpectationCache;
 
 @Component
 public class ExpectationCacheImpl implements ExpectationCache {
-
-	Map<String, Expectation> expectationMap = new ConcurrentHashMap<String, Expectation>();
+	private Map<String, Expectation> expectationMap = new ConcurrentHashMap<>();
 
 	public boolean delete(String rid) {
 		return expectationMap.remove(rid) != null;
 	}
 
 	public void deleteAll() {
-		expectationMap = new ConcurrentHashMap<String, Expectation>();
+		expectationMap = new ConcurrentHashMap<>();
 	}
 
 	public void insert(Expectation expectation) {

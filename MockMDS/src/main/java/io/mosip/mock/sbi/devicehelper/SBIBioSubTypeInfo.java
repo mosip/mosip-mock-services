@@ -16,66 +16,64 @@ public class SBIBioSubTypeInfo {
 
 	private SBICheckState chkRightThumb;
 	private SBICheckState chkLeftThumb;
-	
+
 	private SBICheckState chkRightIris;
 	private SBICheckState chkLeftIris;
 
 	public SBIBioSubTypeInfo() {
 		super();
 	}
-	
+
 	public void initBioSubType(String[] bioSubType) {
-		// TODO Auto-generated method stub
-		if (bioSubType != null && bioSubType.length > 0)
-		{
-			for (String tag : bioSubType){
-				switch (tag.trim ())
-				{
-					case SBIConstant.BIO_NAME_UNKNOWN:
-						setChkUnknown (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_THUMB:
-	                	setChkRightThumb (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_INDEX:
-	                	setChkRightIndex (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_MIDDLE:
-	                	setChkRightMiddle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_RING:
-	                	setChkRightRing (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_LITTLE:
-	                	setChkRightLittle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_THUMB:
-	                	setChkLeftThumb (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_INDEX:
-	                	setChkLeftIndex (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_MIDDLE:
-	                	setChkLeftMiddle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_RING:
-	                	setChkLeftRing (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_LITTLE:
-	                	setChkLeftLittle (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_LEFT_IRIS:
-	                	setChkLeftIris (SBICheckState.Checked);
-						break;
-	                case SBIConstant.BIO_NAME_RIGHT_IRIS:
-	                	setChkRightIris (SBICheckState.Checked);
-						break;
+		if (bioSubType != null && bioSubType.length > 0) {
+			for (String tag : bioSubType) {
+				switch (tag.trim()) {
+				case SBIConstant.BIO_NAME_UNKNOWN:
+					setChkUnknown(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_THUMB:
+					setChkRightThumb(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_INDEX:
+					setChkRightIndex(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_MIDDLE:
+					setChkRightMiddle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_RING:
+					setChkRightRing(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_LITTLE:
+					setChkRightLittle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_THUMB:
+					setChkLeftThumb(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_INDEX:
+					setChkLeftIndex(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_MIDDLE:
+					setChkLeftMiddle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_RING:
+					setChkLeftRing(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_LITTLE:
+					setChkLeftLittle(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_LEFT_IRIS:
+					setChkLeftIris(SBICheckState.CHECKED);
+					break;
+				case SBIConstant.BIO_NAME_RIGHT_IRIS:
+					setChkRightIris(SBICheckState.CHECKED);
+					break;
+				default:
+					setChkUnknown(SBICheckState.CHECKED);
+					break;
 				}
 			}
-		}
-		else
-		{
-			setChkUnknown (SBICheckState.Checked);
+		} else {
+			setChkUnknown(SBICheckState.CHECKED);
 		}
 	}
 
@@ -181,5 +179,5 @@ public class SBIBioSubTypeInfo {
 
 	public void setChkLeftIris(SBICheckState chkLeftIris) {
 		this.chkLeftIris = chkLeftIris;
-	}	
+	}
 }

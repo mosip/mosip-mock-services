@@ -3,17 +3,14 @@ package io.mosip.mock.sdk.service;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.model.Response;
 
+@SuppressWarnings("unused")
 public class SegmentService extends SDKService {
-	private Logger LOGGER = LoggerFactory.getLogger(SegmentService.class);
-
 	private BiometricRecord sample;
 	private List<BiometricType> modalitiesToSegment;
 
@@ -25,12 +22,12 @@ public class SegmentService extends SDKService {
 	}
 
 	public Response<BiometricRecord> getSegmentInfo() {
-		BiometricRecord record = new BiometricRecord();
-		record.setSegments(null);
+		BiometricRecord bioRecord = new BiometricRecord();
+		bioRecord.setSegments(null);
 		Response<BiometricRecord> response = new Response<>();
 		// do actual Segmentation
 		response.setStatusCode(200);
-		response.setResponse(record);
+		response.setResponse(bioRecord);
 		return response;
 	}
 }
