@@ -157,11 +157,11 @@ public class SampleSDKV2Test {
 				}
 			}
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			logger.error("match_face_missing", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("match_face_missing", e);
 		} catch (SAXException e) {
-			e.printStackTrace();
+			logger.error("match_face_missing", e);
 		}
 	}
 
