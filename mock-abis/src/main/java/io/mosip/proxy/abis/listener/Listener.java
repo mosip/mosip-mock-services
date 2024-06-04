@@ -534,8 +534,7 @@ public class Listener {
 					logger.error("consume", e);
 				}
 		}
-		throw new AbisException(AbisErrorCode.DATA_NULL_OR_EMPTY_EXCEPTION.getErrorCode(),
-				AbisErrorCode.DATA_NULL_OR_EMPTY_EXCEPTION.getErrorMessage());
+		return new byte[0];
 	}
 
 	public static MessageListener getListener(String queueName, QueueListener object) {
