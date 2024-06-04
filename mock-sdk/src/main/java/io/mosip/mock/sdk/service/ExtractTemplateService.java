@@ -2,6 +2,7 @@ package io.mosip.mock.sdk.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -18,9 +19,11 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
 
 public class ExtractTemplateService extends SDKService {
-	private Logger LOGGER = LoggerFactory.getLogger(ExtractTemplateService.class);
+	private Logger logger = LoggerFactory.getLogger(ExtractTemplateService.class);
 
+	private Random random = new Random(); 
 	private BiometricRecord sample;
+	@SuppressWarnings("unused")
 	private List<BiometricType> modalitiesToExtract;
 
 	private ProcessedLevelType[] types = new ProcessedLevelType[] { ProcessedLevelType.INTERMEDIATE,
@@ -40,32 +43,14 @@ public class ExtractTemplateService extends SDKService {
 		ResponseStatus responseStatus = null;
 		Response<BiometricRecord> response = new Response<>();
 		try {
-			if (sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
+			if (Objects.isNull(sample) || Objects.isNull(sample.getSegments()) || sample.getSegments().isEmpty()) {
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 
-			for (BIR segment : sample.getSegments()) {
-				if (!isValidBirData(segment))
-					break;
-
-				segment.getBirInfo().setPayload(segment.getBdb());
-				BDBInfo bdbInfo = segment.getBdbInfo();
-				if (bdbInfo != null) {
-					// Update the level to processed
-					bdbInfo.setLevel(getRandomLevelType());
-					if (segment.getBdbInfo().getFormat() != null) {
-						String type = segment.getBdbInfo().getFormat().getType();
-						// Update the fingerprint image to fingerprint minutiae type
-						if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
-							segment.getBdbInfo().getFormat().setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
-						}
-					}
-				}
-				// do actual extraction
-			}
+			doExtractTemplateInfo(sample);
 		} catch (SDKException ex) {
-			LOGGER.error("extractTemplate -- error", ex);
+			logger.error("extractTemplate -- error", ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {
 			case INVALID_INPUT:
 				response.setStatusCode(ResponseStatus.INVALID_INPUT.getStatusCode());
@@ -106,7 +91,7 @@ public class ExtractTemplateService extends SDKService {
 				return response;
 			}
 		} catch (Exception ex) {
-			LOGGER.error("extractTemplate -- error", ex);
+			logger.error("extractTemplate -- error", ex);
 			response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
 			response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage(), ""));
 			response.setResponse(null);
@@ -117,8 +102,30 @@ public class ExtractTemplateService extends SDKService {
 		return response;
 	}
 
+	private void doExtractTemplateInfo(BiometricRecord bioRecord) {
+		for (BIR segment : bioRecord.getSegments()) {
+			if (!isValidBirData(segment))
+				break;
+			
+			segment.getBirInfo().setPayload(segment.getBdb());
+			BDBInfo bdbInfo = segment.getBdbInfo();
+			if (bdbInfo != null) {
+				// Update the level to processed
+				bdbInfo.setLevel(getRandomLevelType());
+				if (segment.getBdbInfo().getFormat() != null) {
+					String type = segment.getBdbInfo().getFormat().getType();
+					// Update the fingerprint image to fingerprint minutiae type
+					if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
+						segment.getBdbInfo().getFormat().setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
+					}
+				}
+			}
+			// do actual extraction
+		}
+	}
+
 	public ProcessedLevelType getRandomLevelType() {
-		int rnd = new Random().nextInt(types.length);
+		int rnd = this.random.nextInt(types.length);
 		return types[rnd];
 	}
 }

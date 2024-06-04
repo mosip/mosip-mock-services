@@ -1,37 +1,30 @@
 package io.mosip.mock.sbi.devicehelper.iris.binacular;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIBioExceptionInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
 
 public class SBIIrisDoubleBioExceptionInfo extends SBIBioExceptionInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisDoubleBioExceptionInfo.class);	
-	
 	private SBICheckState chkMissingLeftIris;
 	private SBICheckState chkMissingRightIris;
-     
-	protected SBIIrisDoubleBioExceptionInfo()  
-	{ 
-		super ();
+
+	protected SBIIrisDoubleBioExceptionInfo() {
+		super();
 		deInitBioException();
 	}
 
 	@Override
 	public void initBioException(String[] bioException) {
-		// TODO Auto-generated method stub
-		if (bioException != null && bioException.length > 0)
-		{
-			for (String tag : bioException){
-				switch (tag.trim ())
-				{
-					case SBIConstant.BIO_NAME_LEFT_IRIS:
-						setChkMissingLeftIris (SBICheckState.Checked);
+		if (bioException != null && bioException.length > 0) {
+			for (String tag : bioException) {
+				switch (tag.trim()) {
+				case SBIConstant.BIO_NAME_LEFT_IRIS:
+					setChkMissingLeftIris(SBICheckState.CHECKED);
 					break;
-					case SBIConstant.BIO_NAME_RIGHT_IRIS:
-	                	setChkMissingRightIris (SBICheckState.Checked);
+				case SBIConstant.BIO_NAME_RIGHT_IRIS:
+					setChkMissingRightIris(SBICheckState.CHECKED);
+					break;
+				default:
 					break;
 				}
 			}
@@ -40,8 +33,8 @@ public class SBIIrisDoubleBioExceptionInfo extends SBIBioExceptionInfo {
 
 	@Override
 	public void deInitBioException() {
-		setChkMissingLeftIris (SBICheckState.Unchecked);
-		setChkMissingRightIris (SBICheckState.Unchecked);
+		setChkMissingLeftIris(SBICheckState.UNCHECKED);
+		setChkMissingRightIris(SBICheckState.UNCHECKED);
 	}
 
 	public SBICheckState getChkMissingLeftIris() {
@@ -58,5 +51,5 @@ public class SBIIrisDoubleBioExceptionInfo extends SBIBioExceptionInfo {
 
 	public void setChkMissingRightIris(SBICheckState chkMissingRightIris) {
 		this.chkMissingRightIris = chkMissingRightIris;
-	}	
+	}
 }

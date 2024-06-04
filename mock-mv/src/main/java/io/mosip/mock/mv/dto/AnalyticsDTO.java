@@ -15,8 +15,4 @@ public class AnalyticsDTO {
 	private String secondaryOperatorComments;
 
 	private Map<String, String> analytics = new HashMap<>();
-
-	// private String key1="value1";
-
-	// private String key2="value2";
 }

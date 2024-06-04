@@ -14,27 +14,26 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerConfig.class);
 
-	@Autowired
 	private OpenApiProperties openApiProperties;
+
+	@Autowired
+	public SwaggerConfig(OpenApiProperties openApiProperties) {
+		this.openApiProperties = openApiProperties;
+	}
 
 	@Bean
 	public OpenAPI openApi() {
-		OpenAPI api = new OpenAPI()
-				.components(new Components())
-				.info(new Info()
-						.title(openApiProperties.getInfo().getTitle())
+		OpenAPI api = new OpenAPI().components(new Components())
+				.info(new Info().title(openApiProperties.getInfo().getTitle())
 						.version(openApiProperties.getInfo().getVersion())
 						.description(openApiProperties.getInfo().getDescription())
-						.license(new License()
-								.name(openApiProperties.getInfo().getLicense().getName())
+						.license(new License().name(openApiProperties.getInfo().getLicense().getName())
 								.url(openApiProperties.getInfo().getLicense().getUrl())));
 
-		openApiProperties.getService().getServers().forEach(server -> {
-			api.addServersItem(new Server().description(server.getDescription()).url(server.getUrl()));
-		});
+		openApiProperties.getService().getServers().forEach(
+				server -> api.addServersItem(new Server().description(server.getDescription()).url(server.getUrl())));
 		logger.info("swagger open api bean is ready");
 		return api;
 	}
@@ -42,7 +41,6 @@ public class SwaggerConfig {
 	@Bean
 	public GroupedOpenApi groupedOpenApi() {
 		return GroupedOpenApi.builder().group(openApiProperties.getGroup().getName())
-				.pathsToMatch(openApiProperties.getGroup().getPaths().stream().toArray(String[]::new))
-				.build();
+				.pathsToMatch(openApiProperties.getGroup().getPaths().stream().toArray(String[]::new)).build();
 	}
 }

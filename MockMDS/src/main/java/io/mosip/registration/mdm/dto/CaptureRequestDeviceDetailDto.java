@@ -1,20 +1,19 @@
 package io.mosip.registration.mdm.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Data
 public class CaptureRequestDeviceDetailDto {
-
-	public String type;
-	//public String[] bioSubType;
-	public String count;
-	public String[] exception;
-	public String[] bioSubType;
-	public int requestedScore;
-	public String deviceId;
-	public String deviceSubId;
-	public String previousHash;
-
+	private String type;
+	private String count;
+	private String[] exception;
+	private String[] bioSubType;
+	private int requestedScore;
+	private String deviceId;
+	private String deviceSubId;
+	private String previousHash;
 }

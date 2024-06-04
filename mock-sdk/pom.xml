@@ -182,12 +182,7 @@
 					<excludes>
 						<exclude>io.mosip.kernel.biometrics.*</exclude>
 					</excludes>
-					<archive>
-						<!-- <manifest>
-	                     <addClasspath>true</addClasspath>
-	                     <mainClass>registrationtest.runapplication.RegistrationMain</mainClass>
-	                  </manifest>
-	                  -->
+					<archive>						
 					</archive>
 				</configuration>
 				<executions>
@@ -262,7 +257,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>${maven.gpg.plugin.version}</version>
-				<!-- <configuration><skip>true</skip></configuration>-->
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>

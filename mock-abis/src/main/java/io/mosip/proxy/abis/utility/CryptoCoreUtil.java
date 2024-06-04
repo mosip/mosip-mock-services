@@ -15,6 +15,7 @@ import java.security.cert.CertificateException;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 import java.util.Properties;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -24,23 +25,30 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import io.mosip.proxy.abis.constant.AbisErrorCode;
+import io.mosip.proxy.abis.exception.AbisException;
+
 @Component
 @PropertySource({ "classpath:partner.properties" })
+@SuppressWarnings("unused")
 public class CryptoCoreUtil {
+	private static final Logger logger = LoggerFactory.getLogger(CryptoCoreUtil.class);
+
+	@SuppressWarnings({ "java:S6813" })
 	@Autowired
 	private Environment env;
 
 	private static final String RSA_ECB_OAEP_PADDING = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
-	/* Java 11
-	 * private static final String SYMMETRIC_ALGORITHM = "AES/GCM/PKCS5Padding";
-	 */
 	/*
 	 * Java 21
 	 */
@@ -63,7 +71,7 @@ public class CryptoCoreUtil {
 
 	private static final int AAD_SIZE = 32;
 
-	public static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
+	protected static final byte[] VERSION_RSA_2048 = "VER_R2".getBytes();
 
 	public static void setPropertyValues() {
 		Properties prop = new Properties();
@@ -75,10 +83,11 @@ public class CryptoCoreUtil {
 			keystore = prop.getProperty("certificate.keystore");
 			filePath = prop.getProperty("certificate.filename");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("setPropertyValues", e);
 		}
 	}
 
+	@SuppressWarnings({ "java:S112" })
 	public String decryptCbeff(String responseData) throws Exception {
 		KeyStore.PrivateKeyEntry privateKey = getPrivateKeyEntryFromP12();
 		byte[] responseBytes = Base64.decodeBase64(responseData);
@@ -102,14 +111,13 @@ public class CryptoCoreUtil {
 		InputStream is = getClass().getResourceAsStream("/" + this.env.getProperty("certificate.filename"));
 		keyStore.load(is, certiPassword.toCharArray());
 		KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(certiPassword.toCharArray());
-		KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, password);
-		return privateKeyEntry;
+		return (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, password);
 	}
 
-	private byte[] decryptCbeffData(byte[] responseData, KeyStore.PrivateKeyEntry privateKey) throws Exception {
+	private byte[] decryptCbeffData(byte[] responseData, KeyStore.PrivateKeyEntry privateKey) throws AbisException {
 		int cipherKeyandDataLength = responseData.length;
-		int keySplitterLength = "#KEY_SPLITTER#".length();
-		int keyDemiliterIndex = getSplitterIndex(responseData, 0, "#KEY_SPLITTER#");
+		int keySplitterLength = KEY_SPLITTER.length();
+		int keyDemiliterIndex = getSplitterIndex(responseData, 0, KEY_SPLITTER);
 		try {
 			byte[] copiedBytes = Arrays.copyOfRange(responseData, 0, keyDemiliterIndex);
 			byte[] encryptedCbeffData = Arrays.copyOfRange(responseData, keyDemiliterIndex + keySplitterLength,
@@ -137,8 +145,8 @@ public class CryptoCoreUtil {
 			SecretKey symmetricKey = new SecretKeySpec(decryptedSymmetricKey, 0, decryptedSymmetricKey.length, "AES");
 			return decryptCbeffData(symmetricKey, encryptedCbeffData);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new Exception("Error In Data Decryption.");
+			logger.error("decryptCbeffData with response", e);
+			throw new AbisException(AbisErrorCode.INVALID_DECRYPTION_EXCEPTION.getErrorCode(), AbisErrorCode.INVALID_DECRYPTION_EXCEPTION.getErrorMessage());
 		}
 	}
 
@@ -161,7 +169,7 @@ public class CryptoCoreUtil {
 			throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, InvalidKeyException {
 		try {
-			Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
+			Cipher cipher = Cipher.getInstance(RSA_ECB_OAEP_PADDING);
 			OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
 					PSource.PSpecified.DEFAULT);
 			cipher.init(2, privateKey, oaepParams);
@@ -177,7 +185,8 @@ public class CryptoCoreUtil {
 		}
 	}
 
-	private byte[] decryptCbeffData(SecretKey key, byte[] data) throws Exception {
+	@SuppressWarnings({ "java:S2139" })
+	private byte[] decryptCbeffData(SecretKey key, byte[] data) throws AbisException {
 		try {
 			Cipher cipher = Cipher.getInstance(SYMMETRIC_ALGORITHM);
 			byte[] randomIV = Arrays.copyOfRange(data, data.length - cipher.getBlockSize(), data.length);
@@ -185,12 +194,13 @@ public class CryptoCoreUtil {
 			cipher.init(2, key, gcmParameterSpec);
 			return cipher.doFinal(Arrays.copyOf(data, data.length - cipher.getBlockSize()));
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+			logger.error("decryptCbeffData", e);
+			throw new AbisException(AbisErrorCode.INVALID_DECRYPTION_EXCEPTION.getErrorCode(), AbisErrorCode.INVALID_DECRYPTION_EXCEPTION.getErrorMessage() + e.getLocalizedMessage());
 		}
 	}
 
-	private byte[] decryptCbeffData(SecretKey key, byte[] data, byte[] nonce, byte[] aad) throws Exception {
+	@SuppressWarnings({ "java:S2139" })
+	private byte[] decryptCbeffData(SecretKey key, byte[] data, byte[] nonce, byte[] aad) throws AbisException {
 		try {
 			Cipher cipher = Cipher.getInstance(SYMMETRIC_ALGORITHM);
 			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
@@ -198,16 +208,18 @@ public class CryptoCoreUtil {
 			cipher.init(2, keySpec, gcmParameterSpec);
 			cipher.updateAAD(aad);
 			return cipher.doFinal(data, 0, data.length);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw ex;
+		} catch (Exception e) {
+			logger.error("decryptCbeffData", e);
+			throw new AbisException(AbisErrorCode.INVALID_DECRYPTION_EXCEPTION.getErrorCode(), AbisErrorCode.INVALID_DECRYPTION_EXCEPTION.getErrorMessage() + e.getLocalizedMessage());
 		}
 	}
 
+	@SuppressWarnings({ "java:S2139" })
 	public byte[] getCertificateThumbprint(Certificate cert) throws CertificateEncodingException {
 		try {
 			return DigestUtils.sha256(cert.getEncoded());
 		} catch (CertificateEncodingException e) {
+			logger.error("getCertificateThumbprint", e);
 			throw e;
 		}
 	}

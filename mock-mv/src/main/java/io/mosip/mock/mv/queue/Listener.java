@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.mosip.mock.mv.constant.MVErrorCode;
 import io.mosip.mock.mv.dto.AnalyticsDTO;
 import io.mosip.mock.mv.dto.Candidate;
 import io.mosip.mock.mv.dto.CandidateList;
@@ -32,12 +34,12 @@ import io.mosip.mock.mv.dto.Expectation;
 import io.mosip.mock.mv.dto.ManualAdjudicationRequestDTO;
 import io.mosip.mock.mv.dto.ManualAdjudicationResponseDTO;
 import io.mosip.mock.mv.dto.ReferenceIds;
+import io.mosip.mock.mv.exception.MVException;
 import io.mosip.mock.mv.service.ExpectationCache;
 import jakarta.jms.BytesMessage;
 import jakarta.jms.Connection;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSException;
-import jakarta.jms.Message;
 import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageListener;
 import jakarta.jms.MessageProducer;
@@ -49,10 +51,12 @@ public class Listener {
 
 	private static final Logger logger = LoggerFactory.getLogger(Listener.class);
 	public static final String DECISION_SERVICE_ID = "mosip.registration.processor.manual.verification.decision.id";
+	@SuppressWarnings("unused")
 	private static final String APPROVED = "APPROVED";
 	private static final String REJECTED = "REJECTED";
 
 	@Autowired
+	@SuppressWarnings({ "java:S6813" })
 	private Environment env;
 
 	/** The username. */
@@ -105,9 +109,11 @@ public class Listener {
 	private String verificationRequestAddress;
 
 	@Autowired
+	@SuppressWarnings({ "java:S6813" })
 	private ExpectationCache expectationCache;
 
 	@Autowired
+	@SuppressWarnings({ "java:S6813" })
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
 	private Connection connection;
@@ -116,27 +122,20 @@ public class Listener {
 
 	private Timer timer = new Timer();
 
+	@SuppressWarnings({ "java:S3776" })
 	public boolean consumeLogic(jakarta.jms.Message message, String mvAddress) {
 		boolean isrequestAddedtoQueue = false;
-		Integer textType = 0;
-		String messageData = null;
+		int textType = 0;
+		StringBuilder messageData = new StringBuilder();
 		try {
-			if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
-				textType = 1;
-				TextMessage textMessage = (TextMessage) message;
-				messageData = textMessage.getText();
-
-			} else if (message instanceof ActiveMQBytesMessage) {
-				textType = 2;
-				messageData = new String(((ActiveMQBytesMessage) message).getContent().data);
-
-			} else {
+			textType = checkConsumeInfo(message, messageData);
+			if (textType == 0){
 				logger.error("Received message is neither text nor byte");
 				return false;
 			}
-			logger.info(String.format("Message Data %s", messageData));
+			logger.info("Message Data {}", messageData);
 
-			ManualAdjudicationRequestDTO requestDTO = objectMapper().readValue(messageData,
+			ManualAdjudicationRequestDTO requestDTO = objectMapper().readValue(messageData.toString(),
 					ManualAdjudicationRequestDTO.class);
 			ManualAdjudicationResponseDTO decisionDto = new ManualAdjudicationResponseDTO();
 			decisionDto.setId(env.getProperty(DECISION_SERVICE_ID));
@@ -144,7 +143,7 @@ public class Listener {
 			decisionDto.setResponsetime(OffsetDateTime.now().toInstant().toString());
 			decisionDto.setReturnValue(isSuccess ? 1 : 2);// logic needs to be implemented.
 			int delayResponse = 0;
-			if (mvAddress != verificationResponseAddress) {
+			if (!mvAddress.equalsIgnoreCase(verificationResponseAddress)) {
 				List<ReferenceIds> refIds = requestDTO.getGallery().getReferenceIds();
 				CandidateList candidateList = new CandidateList();
 				Expectation expectation = expectationCache.get(requestDTO.getReferenceId());
@@ -171,15 +170,26 @@ public class Listener {
 			}
 
 			String response = javaObjectToJsonString(decisionDto);
-
-			logger.info(String.format("Request type is %s", response));
-
+			logger.info("Request type is {}", response);
 			isrequestAddedtoQueue = executeAsync(response, delayResponse, textType, mvAddress);
 		} catch (Exception e) {
-			logger.error("Could not process mv request", ExceptionUtils.getStackTrace(e));
+			logger.error("Could not process mv request", e);
 		}
-		logger.info(String.format("Is response sent = %b", isrequestAddedtoQueue));
+		logger.info("Is response sent is {}", isrequestAddedtoQueue);
 		return isrequestAddedtoQueue;
+	}
+
+	private int checkConsumeInfo(jakarta.jms.Message message, StringBuilder messageData) throws JMSException {
+		int textType = 0;
+		if (message instanceof TextMessage || message instanceof ActiveMQTextMessage) {
+			textType = 1;
+			TextMessage textMessage = (TextMessage) message;
+			messageData.append(textMessage.getText());
+		} else if (message instanceof ActiveMQBytesMessage bytesMessage) {
+			textType = 2;
+			messageData.append(bytesMessage.getContent().data);
+		}
+		return textType;
 	}
 
 	public void setup() {
@@ -235,86 +245,98 @@ public class Listener {
 		}
 	}
 
-	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password)
-			throws Exception {
-		if (this.activeMQConnectionFactory == null) {
+	@SuppressWarnings({ "unused" })
+	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password) {
+		if (Objects.isNull(this.activeMQConnectionFactory)) {
 			logger.error("Could not create connection. Invalid connection configuration.");
-			throw new Exception("Invalid Connection Exception");
+			throw new MVException(MVErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
+					MVErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorMessage());
+		}
 
-		}
-		if (destination == null) {
+		if (Objects.isNull(destination))
 			setup();
-		}
-		MessageConsumer consumer;
+
+		MessageConsumer messageConsumer = null;
 		try {
 			destination = session.createQueue(address);
-			consumer = session.createConsumer(destination);
-			consumer.setMessageListener(getListener(object));
-
-		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
+			messageConsumer = session.createConsumer(destination);
+			messageConsumer.setMessageListener(getListener(object));
+		} catch (Exception e) {
+			logger.error("consume", e);
+		} finally {
+			try {
+				if (!Objects.isNull(messageConsumer))
+					messageConsumer.close();
+			} catch (JMSException e) {
+				logger.error("consume", e);
+			}
 		}
-		return null;
+		return new byte[0];
 	}
 
 	public static MessageListener getListener(QueueListener object) {
-		return new MessageListener() {
-			@Override
-			public void onMessage(Message message) {
-				object.setListener(message);
-			}
-		};
+		return object::setListener;
 	}
 
 	public Boolean send(byte[] message, String address) {
 		boolean flag = false;
-
+		MessageProducer messageProducer = null;
 		try {
 			initialSetup();
 			destination = session.createQueue(address);
-			MessageProducer messageProducer = session.createProducer(destination);
+			messageProducer = session.createProducer(destination);
 			BytesMessage byteMessage = session.createBytesMessage();
 			byteMessage.writeObject(message);
 			messageProducer.send(byteMessage);
 			flag = true;
-		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("send", e);
+		} finally {
+			try {
+				if (!Objects.isNull(messageProducer))
+					messageProducer.close();
+			} catch (JMSException e) {
+				logger.error("send", e);
+			}
 		}
 		return flag;
 	}
 
 	public Boolean send(String message, String address) {
 		boolean flag = false;
-
+		MessageProducer messageProducer = null;
 		try {
 			initialSetup();
 			destination = session.createQueue(address);
-			MessageProducer messageProducer = session.createProducer(destination);
+			messageProducer = session.createProducer(destination);
 			messageProducer.send(session.createTextMessage(message));
 
 			flag = true;
-		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("send", e);
+		} finally {
+			try {
+				if (!Objects.isNull(messageProducer))
+					messageProducer.close();
+			} catch (JMSException e) {
+				logger.error("send", e);
+			}
 		}
+
 		return flag;
 	}
 
-	private void initialSetup() throws Exception {
-		if (this.activeMQConnectionFactory == null) {
+	private void initialSetup() throws MVException {
+		if (Objects.isNull(this.activeMQConnectionFactory)) {
 			logger.error("Inside initialSetup method. Invalid connection.");
-			throw new Exception("Invalid Connection Exception");
+			throw new MVException(MVErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
+					MVErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorMessage());
 		}
 		setup();
 	}
 
 	public static ObjectMapper objectMapper() {
-		ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-				false);
-		return objectMapper;
+		return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 	public static String javaObjectToJsonString(Object className) throws JsonProcessingException {
@@ -356,15 +378,15 @@ public class Listener {
 
 						send(response, mvAddress);
 					}
-					logger.info(String.format("Scheduled job completed: MsgType %d ", textType));
+					logger.info("Scheduled job completed: MsgType {} ", textType);
 				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
+					logger.error("executeAsync", e);
 				}
 			}
 		};
 
-		logger.info(String.format("Adding timed task with timer as %d seconds", delayResponse));
-		timer.schedule(task, delayResponse * 1000);
+		logger.info("Adding timed task with timer as {} seconds", delayResponse);
+		timer.schedule(task, (long) delayResponse * 1000);
 		return true;
 	}
 }

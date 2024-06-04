@@ -1,8 +1,12 @@
 package io.mosip.proxy.abis.exception;
 
 public class FailureReasonsConstants {
+	private FailureReasonsConstants() {
+		throw new IllegalStateException("FailureReasonsConstants class");
+	}
+
 	public static final String INTERNAL_ERROR_UNKNOWN = "1";
-	public static final String Aborted = "2";
+	public static final String ABORTED = "2";
 	public static final String UNEXPECTED_ERROR = "3";
 	public static final String UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE = "4";
 	public static final String MISSING_REFERENCEID = "5";

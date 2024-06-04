@@ -14,14 +14,8 @@ import java.util.Map;
 
 @Service
 public class ProxyAbisConfigServiceImpl implements ProxyAbisConfigService {
-
-	@Autowired
-	ProxyAbisInsertRepository proxyabis;
-
-	@Autowired
-	ProxyAbisBioDataRepository proxyAbisBioDataRepository;
-
-	@Autowired
+	private ProxyAbisInsertRepository proxyabis;
+	private ProxyAbisBioDataRepository proxyAbisBioDataRepository;
 	private ExpectationCache expectationCache;
 
 	/**
@@ -33,6 +27,14 @@ public class ProxyAbisConfigServiceImpl implements ProxyAbisConfigService {
 
 	@Value("${abis.force.return.duplicate:false}")
 	private boolean forceDuplicate;
+
+	@Autowired
+	public ProxyAbisConfigServiceImpl(ProxyAbisInsertRepository proxyabis,
+			ProxyAbisBioDataRepository proxyAbisBioDataRepository, ExpectationCache expectationCache) {
+		this.proxyabis = proxyabis;
+		this.proxyAbisBioDataRepository = proxyAbisBioDataRepository;
+		this.expectationCache = expectationCache;
+	}
 
 	public Boolean getDuplicate() {
 		return findDuplicate;

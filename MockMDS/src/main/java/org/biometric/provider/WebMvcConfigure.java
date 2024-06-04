@@ -13,40 +13,34 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import io.mosip.kernel.crypto.jce.core.CryptoCore;
-
 @Configuration
 @PropertySource(value = { "application.properties" })
 public class WebMvcConfigure implements WebMvcConfigurer {
-
-	@Autowired
-	private CryptoCore cryptoCore;
-	
-	@Autowired
 	private Environment env;
  
- 
+	@Autowired
+	public WebMvcConfigure(Environment env) {
+		this.env = env;
+	}
+	
     @Override
     public void configureDefaultServletHandling(
       DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
     
-
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Bean
 	public ServletRegistrationBean infoBean() {
-	    @SuppressWarnings("unchecked")
 		ServletRegistrationBean bean = new ServletRegistrationBean(
-	      new InfoRequest(cryptoCore, env.getProperty("server.port")), "/info");
+	      new InfoRequest(env.getProperty("server.port")), "/info");
 	    bean.setLoadOnStartup(1);
 	    return bean;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Bean
 	public ServletRegistrationBean discoverBean() {
-	    @SuppressWarnings("unchecked")
 		ServletRegistrationBean bean = new ServletRegistrationBean(
 	      new DiscoverRequest(), "/device");
 	    bean.setLoadOnStartup(1);
@@ -54,12 +48,11 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 	}
     
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Bean
 	public ServletRegistrationBean captureBean() {
-	    @SuppressWarnings("unchecked")
 		ServletRegistrationBean bean = new ServletRegistrationBean(
-	      new CaptureRequest(cryptoCore), "/capture");
+	      new CaptureRequest(), "/capture");
 	    bean.setLoadOnStartup(1);
 	    return bean;
 	}
@@ -71,8 +64,6 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 		ServletRegistrationBean bean = new ServletRegistrationBean(
 	      new StreamRequest(), "/stream");
 	    bean.setLoadOnStartup(1);
-	    //PropertySourcesPlaceholderConfigurer props = new PropertySourcesPlaceholderConfigurer();
-		//props.setLocations(new Resource[] { new ClassPathResource("classpath:application.properties") });
 	    return bean;
 	}
 	
@@ -83,6 +74,5 @@ public class WebMvcConfigure implements WebMvcConfigurer {
 		ppc.setLocations(resources);
 		ppc.setTrimValues(true);
 		return ppc;
-	}
-	
+	}	
 }

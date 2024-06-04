@@ -1,22 +1,23 @@
 package io.mosip.registration.mdm.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-
+@Data
 public class DeviceRequest {
-	public String[] specVersion;
-	public String env;
-    public String digitalId;
-	public String deviceId;
-	public String deviceCode;
-	public String purpose;
-	public String serviceVersion;
-	public String deviceStatus;
-	public String firmware;
-	public String certification;
-	public String[] deviceSubId;
-	public String callbackId;
+	private String[] specVersion;
+	private String env;
+	private String digitalId;
+	private String deviceId;
+	private String deviceCode;
+	private String purpose;
+	private String serviceVersion;
+	private String deviceStatus;
+	private String firmware;
+	private String certification;
+	private String[] deviceSubId;
+	private String callbackId;
 }

@@ -1,22 +1,25 @@
 package io.mosip.proxy.abis.utility;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.io.IOUtils;
 
 public class Helpers {
-	public static String readFileFromResources(String filename) throws URISyntaxException, IOException {
+	private Helpers() {
+		throw new IllegalStateException("Helpers class");
+	}
+
+	public static String readFileFromResources(String filename) throws IOException {
 		InputStream inputStream = Helpers.class.getClassLoader().getResourceAsStream(filename);
 		StringWriter writer = new StringWriter();
-		IOUtils.copy(inputStream, writer, "UTF-8");
+		IOUtils.copy(inputStream, writer, StandardCharsets.UTF_8);
 		return writer.toString();
 	}
 
 	public static InputStream readStreamFromResources(String filename) {
-		InputStream inputStream = Helpers.class.getClassLoader().getResourceAsStream(filename);
-		return inputStream;
+		return Helpers.class.getClassLoader().getResourceAsStream(filename);
 	}
 }
