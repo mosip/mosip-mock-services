@@ -21,6 +21,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({ "java:S5122" })
 @CrossOrigin
 @RestController
 @Tag(name = "Proxy Abis config API", description = "Provides API's for configuring proxy Abis")

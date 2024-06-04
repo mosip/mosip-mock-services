@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressWarnings({ "java:S5122" })
 @CrossOrigin
 @RestController
 @Tag(name = "Proxy Abis API", description = "Provides API's for proxy Abis")
