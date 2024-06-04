@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@SuppressWarnings({ "java:S5122" })
 @CrossOrigin
 @RestController
 @Tag(name = "Proxy MockMv config API", description = "Provides API's for configuring proxy MockMv")

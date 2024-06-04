@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class CaptureRequest extends HttpServlet {
 	/** User Dir. */
 	public static final String USER_DIR = "user.dir";
 
-	private static final Random rand = new Random();
+	private static final SecureRandom rand = new SecureRandom ();
 
 	private static final long serialVersionUID = -7250199164515356577L;
 

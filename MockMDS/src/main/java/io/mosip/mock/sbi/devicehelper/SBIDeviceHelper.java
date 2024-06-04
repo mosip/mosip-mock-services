@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.biometric.provider.CryptoUtility;
@@ -69,7 +69,7 @@ public abstract class SBIDeviceHelper {
 	@SuppressWarnings({ "java:S112" })
 	public abstract int getBioCapture(boolean isUsedForAuthenication) throws Exception;
 
-	private Random rand = new Random();
+	private SecureRandom rand = new SecureRandom();
 
 	protected SBIDeviceHelper(int port, String purpose, String deviceType, String deviceSubType,
 			String keystoreFilePath, String biometricImageType) {
