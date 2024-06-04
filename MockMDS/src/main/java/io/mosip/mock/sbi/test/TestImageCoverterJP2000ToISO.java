@@ -108,7 +108,7 @@ public class TestImageCoverterJP2000ToISO {
 				fileName = name.replaceFirst("[.][^.]+$", "");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("getFileNameWithoutExtension", e);
 			fileName = "";
 		}
 
