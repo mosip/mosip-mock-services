@@ -228,6 +228,7 @@ public class InfoRequest extends HttpServlet {
 		}
 	}
 
+	@SuppressWarnings({ "java:S5852" })
 	private String trimBeginEnd(String pKey) {
 		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
 		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
