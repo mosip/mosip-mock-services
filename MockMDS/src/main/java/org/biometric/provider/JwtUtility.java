@@ -201,6 +201,7 @@ public class JwtUtility {
 		return null;
 	}
 
+	@SuppressWarnings({ "java:S5852" })
 	private static String trimBeginEnd(String pKey) {
 		pKey = pKey.replaceAll("-*BEGIN([^-]*)-*(\r?\n)?", "");
 		pKey = pKey.replaceAll("-*END([^-]*)-*(\r?\n)?", "");
