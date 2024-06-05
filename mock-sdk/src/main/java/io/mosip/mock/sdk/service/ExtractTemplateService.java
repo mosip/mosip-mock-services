@@ -1,9 +1,9 @@
 package io.mosip.mock.sdk.service;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import io.mosip.mock.sdk.exceptions.SDKException;
 public class ExtractTemplateService extends SDKService {
 	private Logger logger = LoggerFactory.getLogger(ExtractTemplateService.class);
 
-	private Random random = new Random(); 
+	private SecureRandom random = new SecureRandom(); 
 	private BiometricRecord sample;
 	@SuppressWarnings("unused")
 	private List<BiometricType> modalitiesToExtract;

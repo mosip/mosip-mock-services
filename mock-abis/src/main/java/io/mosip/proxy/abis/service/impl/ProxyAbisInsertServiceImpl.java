@@ -193,11 +193,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 			addBirs(ie, lst, birInfo);
 		} catch (HttpClientErrorException ex) {
-			ex.printStackTrace();
 			logger.error("issue with httpclient URL ", ex);
 			throw new RequestException(FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
 		} catch (URISyntaxException | IllegalArgumentException ex) {
-			ex.printStackTrace();
 			logger.error("issue with httpclient URL Syntax ", ex);
 			throw new RequestException(FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
 		} catch (CbeffException ex) {
