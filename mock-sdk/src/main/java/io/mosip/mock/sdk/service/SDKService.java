@@ -1122,10 +1122,10 @@ public abstract class SDKService {
 				isValid = false;
 			}
 
-			if (bdir.getImageColorSpace() != ImageColourSpace.UNSPECIFIED
-					|| bdir.getImageColorSpace() != ImageColourSpace.BIT_24_RGB) {
+			if (!(bdir.getImageColorSpace() == ImageColourSpace.UNSPECIFIED
+					|| bdir.getImageColorSpace() == ImageColourSpace.BIT_24_RGB)) {
 				message.append(
-						"<BR>Invalid Image Color Space Value for Face Modality, expected values[0x00, 0x01], but received input value["
+						"<BR>Invalid Image Color Space Value for Face Modality, expected values[0x00 or 0x01], but received input value["
 								+ MessageFormat.format("{0}", bdir.getImageColorSpace()) + "]");
 				isValid = false;
 			}
