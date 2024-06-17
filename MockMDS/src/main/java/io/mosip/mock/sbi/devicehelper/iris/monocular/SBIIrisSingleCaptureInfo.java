@@ -1,48 +1,42 @@
 package io.mosip.mock.sbi.devicehelper.iris.monocular;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 
 public class SBIIrisSingleCaptureInfo extends SBICaptureInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisSingleCaptureInfo.class);	
-	
 	private String bioValueLI;
 	private String bioSubTypeLI;
-	private int requestScoreLI;
-	private int captureScoreLI;
+	private float requestScoreLI;
+	private float captureScoreLI;
 	private boolean isCaptureLI;
-	
+
 	private String bioValueRI;
 	private String bioSubTypeRI;
-	private int requestScoreRI;
-	private int captureScoreRI;
+	private float requestScoreRI;
+	private float captureScoreRI;
 	private boolean isCaptureRI;
-	     
-	public SBIIrisSingleCaptureInfo()  
-	{ 
-		super ();
-	} 
-  
+
+	public SBIIrisSingleCaptureInfo() {
+		super();
+	}
+
 	@Override
 	public void initCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);	
-		setBioExceptionInfo (new SBIIrisSingleBioExceptionInfo ());
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(new SBIIrisSingleBioExceptionInfo());
 	}
 
 	@Override
 	public void deInitCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);
-		setBioExceptionInfo (null);
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
 	}
 
 	public String getBioValueLI() {
@@ -61,19 +55,19 @@ public class SBIIrisSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLI = bioSubTypeLI;
 	}
 
-	public int getRequestScoreLI() {
+	public float getRequestScoreLI() {
 		return requestScoreLI;
 	}
 
-	public void setRequestScoreLI(int requestScoreLI) {
+	public void setRequestScoreLI(float requestScoreLI) {
 		this.requestScoreLI = requestScoreLI;
 	}
 
-	public int getCaptureScoreLI() {
+	public float getCaptureScoreLI() {
 		return captureScoreLI;
 	}
 
-	public void setCaptureScoreLI(int captureScoreLI) {
+	public void setCaptureScoreLI(float captureScoreLI) {
 		this.captureScoreLI = captureScoreLI;
 	}
 
@@ -101,19 +95,19 @@ public class SBIIrisSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRI = bioSubTypeRI;
 	}
 
-	public int getRequestScoreRI() {
+	public float getRequestScoreRI() {
 		return requestScoreRI;
 	}
 
-	public void setRequestScoreRI(int requestScoreRI) {
+	public void setRequestScoreRI(float requestScoreRI) {
 		this.requestScoreRI = requestScoreRI;
 	}
 
-	public int getCaptureScoreRI() {
+	public float getCaptureScoreRI() {
 		return captureScoreRI;
 	}
 
-	public void setCaptureScoreRI(int captureScoreRI) {
+	public void setCaptureScoreRI(float captureScoreRI) {
 		this.captureScoreRI = captureScoreRI;
 	}
 

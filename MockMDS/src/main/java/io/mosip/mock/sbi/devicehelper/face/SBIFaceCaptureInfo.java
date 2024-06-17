@@ -1,48 +1,43 @@
 package io.mosip.mock.sbi.devicehelper.face;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 
 public class SBIFaceCaptureInfo extends SBICaptureInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFaceCaptureInfo.class);	
-	
 	private String bioValueFace;
 	private String bioSubTypeFace;
-	private int requestScoreFace;
-	private int captureScoreFace;
+	private float requestScoreFace;
+	private float captureScoreFace;
 	private boolean isCaptureFace;
-	
+
 	private String bioValueExceptionPhoto;
 	private String bioSubTypeExceptionPhoto;
 	private int requestScoreExceptionPhoto;
 	private int captureScoreExceptionPhoto;
 	private boolean isCaptureExceptionPhoto;
-	     
-	public SBIFaceCaptureInfo()  
-	{ 
-		super ();
-	} 
-  
-	@Override
-	public void initCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);	
-		setBioExceptionInfo (null);
+
+	public SBIFaceCaptureInfo() {
+		super();
 	}
 
 	@Override
+	public void initCaptureInfo() {
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
+	}
+
+	@Override
+	@SuppressWarnings({ "java:S4144" })
 	public void deInitCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);
-		setBioExceptionInfo (null);
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
 	}
 
 	public String getBioValueFace() {
@@ -61,19 +56,19 @@ public class SBIFaceCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeFace = bioSubTypeFace;
 	}
 
-	public int getRequestScoreFace() {
+	public float getRequestScoreFace() {
 		return requestScoreFace;
 	}
 
-	public void setRequestScoreFace(int requestScoreFace) {
+	public void setRequestScoreFace(float requestScoreFace) {
 		this.requestScoreFace = requestScoreFace;
 	}
 
-	public int getCaptureScoreFace() {
+	public float getCaptureScoreFace() {
 		return captureScoreFace;
 	}
 
-	public void setCaptureScoreFace(int captureScoreFace) {
+	public void setCaptureScoreFace(float captureScoreFace) {
 		this.captureScoreFace = captureScoreFace;
 	}
 
@@ -123,5 +118,5 @@ public class SBIFaceCaptureInfo extends SBICaptureInfo {
 
 	public void setCaptureExceptionPhoto(boolean isCaptureExceptionPhoto) {
 		this.isCaptureExceptionPhoto = isCaptureExceptionPhoto;
-	}	
+	}
 }

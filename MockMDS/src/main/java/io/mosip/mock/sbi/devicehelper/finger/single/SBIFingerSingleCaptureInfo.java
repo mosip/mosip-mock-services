@@ -1,96 +1,90 @@
 package io.mosip.mock.sbi.devicehelper.finger.single;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 
 public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSingleCaptureInfo.class);	
-	
 	private String bioValueLT;
 	private String bioSubTypeLT;
-	private int requestScoreLT;
-	private int captureScoreLT;
+	private float requestScoreLT;
+	private float captureScoreLT;
 	private boolean isCaptureLT;
-	
+
 	private String bioValueLI;
 	private String bioSubTypeLI;
-	private int requestScoreLI;
-	private int captureScoreLI;
+	private float requestScoreLI;
+	private float captureScoreLI;
 	private boolean isCaptureLI;
-	
+
 	private String bioValueLM;
 	private String bioSubTypeLM;
-	private int requestScoreLM;
-	private int captureScoreLM;
+	private float requestScoreLM;
+	private float captureScoreLM;
 	private boolean isCaptureLM;
-	
+
 	private String bioValueLR;
 	private String bioSubTypeLR;
-	private int requestScoreLR;
-	private int captureScoreLR;
+	private float requestScoreLR;
+	private float captureScoreLR;
 	private boolean isCaptureLR;
-	
+
 	private String bioValueLL;
 	private String bioSubTypeLL;
-	private int requestScoreLL;
-	private int captureScoreLL;
+	private float requestScoreLL;
+	private float captureScoreLL;
 	private boolean isCaptureLL;
-	
+
 	private String bioValueRT;
 	private String bioSubTypeRT;
-	private int requestScoreRT;
-	private int captureScoreRT;
+	private float requestScoreRT;
+	private float captureScoreRT;
 	private boolean isCaptureRT;
-	
+
 	private String bioValueRI;
 	private String bioSubTypeRI;
-	private int requestScoreRI;
-	private int captureScoreRI;
+	private float requestScoreRI;
+	private float captureScoreRI;
 	private boolean isCaptureRI;
-	
+
 	private String bioValueRM;
 	private String bioSubTypeRM;
-	private int requestScoreRM;
-	private int captureScoreRM;
+	private float requestScoreRM;
+	private float captureScoreRM;
 	private boolean isCaptureRM;
-	
+
 	private String bioValueRR;
 	private String bioSubTypeRR;
-	private int requestScoreRR;
-	private int captureScoreRR;
+	private float requestScoreRR;
+	private float captureScoreRR;
 	private boolean isCaptureRR;
-	
+
 	private String bioValueRL;
 	private String bioSubTypeRL;
-	private int requestScoreRL;
-	private int captureScoreRL;
+	private float requestScoreRL;
+	private float captureScoreRL;
 	private boolean isCaptureRL;
-     
-	public SBIFingerSingleCaptureInfo()  
-	{ 
-		super ();
-	} 
-  
+
+	public SBIFingerSingleCaptureInfo() {
+		super();
+	}
+
 	@Override
 	public void initCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);	
-		setBioExceptionInfo (new SBIFingerSingleBioExceptionInfo ());
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(new SBIFingerSingleBioExceptionInfo());
 	}
 
 	@Override
 	public void deInitCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);
-		setBioExceptionInfo (null);
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
 	}
 
 	public String getBioValueLT() {
@@ -109,19 +103,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLT = bioSubTypeLT;
 	}
 
-	public int getRequestScoreLT() {
+	public float getRequestScoreLT() {
 		return requestScoreLT;
 	}
 
-	public void setRequestScoreLT(int requestScoreLT) {
+	public void setRequestScoreLT(float requestScoreLT) {
 		this.requestScoreLT = requestScoreLT;
 	}
 
-	public int getCaptureScoreLT() {
+	public float getCaptureScoreLT() {
 		return captureScoreLT;
 	}
 
-	public void setCaptureScoreLT(int captureScoreLT) {
+	public void setCaptureScoreLT(float captureScoreLT) {
 		this.captureScoreLT = captureScoreLT;
 	}
 
@@ -149,19 +143,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLI = bioSubTypeLI;
 	}
 
-	public int getRequestScoreLI() {
+	public float getRequestScoreLI() {
 		return requestScoreLI;
 	}
 
-	public void setRequestScoreLI(int requestScoreLI) {
+	public void setRequestScoreLI(float requestScoreLI) {
 		this.requestScoreLI = requestScoreLI;
 	}
 
-	public int getCaptureScoreLI() {
+	public float getCaptureScoreLI() {
 		return captureScoreLI;
 	}
 
-	public void setCaptureScoreLI(int captureScoreLI) {
+	public void setCaptureScoreLI(float captureScoreLI) {
 		this.captureScoreLI = captureScoreLI;
 	}
 
@@ -189,19 +183,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLM = bioSubTypeLM;
 	}
 
-	public int getRequestScoreLM() {
+	public float getRequestScoreLM() {
 		return requestScoreLM;
 	}
 
-	public void setRequestScoreLM(int requestScoreLM) {
+	public void setRequestScoreLM(float requestScoreLM) {
 		this.requestScoreLM = requestScoreLM;
 	}
 
-	public int getCaptureScoreLM() {
+	public float getCaptureScoreLM() {
 		return captureScoreLM;
 	}
 
-	public void setCaptureScoreLM(int captureScoreLM) {
+	public void setCaptureScoreLM(float captureScoreLM) {
 		this.captureScoreLM = captureScoreLM;
 	}
 
@@ -229,19 +223,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLR = bioSubTypeLR;
 	}
 
-	public int getRequestScoreLR() {
+	public float getRequestScoreLR() {
 		return requestScoreLR;
 	}
 
-	public void setRequestScoreLR(int requestScoreLR) {
+	public void setRequestScoreLR(float requestScoreLR) {
 		this.requestScoreLR = requestScoreLR;
 	}
 
-	public int getCaptureScoreLR() {
+	public float getCaptureScoreLR() {
 		return captureScoreLR;
 	}
 
-	public void setCaptureScoreLR(int captureScoreLR) {
+	public void setCaptureScoreLR(float captureScoreLR) {
 		this.captureScoreLR = captureScoreLR;
 	}
 
@@ -269,19 +263,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeLL = bioSubTypeLL;
 	}
 
-	public int getRequestScoreLL() {
+	public float getRequestScoreLL() {
 		return requestScoreLL;
 	}
 
-	public void setRequestScoreLL(int requestScoreLL) {
+	public void setRequestScoreLL(float requestScoreLL) {
 		this.requestScoreLL = requestScoreLL;
 	}
 
-	public int getCaptureScoreLL() {
+	public float getCaptureScoreLL() {
 		return captureScoreLL;
 	}
 
-	public void setCaptureScoreLL(int captureScoreLL) {
+	public void setCaptureScoreLL(float captureScoreLL) {
 		this.captureScoreLL = captureScoreLL;
 	}
 
@@ -309,19 +303,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRT = bioSubTypeRT;
 	}
 
-	public int getRequestScoreRT() {
+	public float getRequestScoreRT() {
 		return requestScoreRT;
 	}
 
-	public void setRequestScoreRT(int requestScoreRT) {
+	public void setRequestScoreRT(float requestScoreRT) {
 		this.requestScoreRT = requestScoreRT;
 	}
 
-	public int getCaptureScoreRT() {
+	public float getCaptureScoreRT() {
 		return captureScoreRT;
 	}
 
-	public void setCaptureScoreRT(int captureScoreRT) {
+	public void setCaptureScoreRT(float captureScoreRT) {
 		this.captureScoreRT = captureScoreRT;
 	}
 
@@ -349,19 +343,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRI = bioSubTypeRI;
 	}
 
-	public int getRequestScoreRI() {
+	public float getRequestScoreRI() {
 		return requestScoreRI;
 	}
 
-	public void setRequestScoreRI(int requestScoreRI) {
+	public void setRequestScoreRI(float requestScoreRI) {
 		this.requestScoreRI = requestScoreRI;
 	}
 
-	public int getCaptureScoreRI() {
+	public float getCaptureScoreRI() {
 		return captureScoreRI;
 	}
 
-	public void setCaptureScoreRI(int captureScoreRI) {
+	public void setCaptureScoreRI(float captureScoreRI) {
 		this.captureScoreRI = captureScoreRI;
 	}
 
@@ -389,19 +383,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRM = bioSubTypeRM;
 	}
 
-	public int getRequestScoreRM() {
+	public float getRequestScoreRM() {
 		return requestScoreRM;
 	}
 
-	public void setRequestScoreRM(int requestScoreRM) {
+	public void setRequestScoreRM(float requestScoreRM) {
 		this.requestScoreRM = requestScoreRM;
 	}
 
-	public int getCaptureScoreRM() {
+	public float getCaptureScoreRM() {
 		return captureScoreRM;
 	}
 
-	public void setCaptureScoreRM(int captureScoreRM) {
+	public void setCaptureScoreRM(float captureScoreRM) {
 		this.captureScoreRM = captureScoreRM;
 	}
 
@@ -429,19 +423,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRR = bioSubTypeRR;
 	}
 
-	public int getRequestScoreRR() {
+	public float getRequestScoreRR() {
 		return requestScoreRR;
 	}
 
-	public void setRequestScoreRR(int requestScoreRR) {
+	public void setRequestScoreRR(float requestScoreRR) {
 		this.requestScoreRR = requestScoreRR;
 	}
 
-	public int getCaptureScoreRR() {
+	public float getCaptureScoreRR() {
 		return captureScoreRR;
 	}
 
-	public void setCaptureScoreRR(int captureScoreRR) {
+	public void setCaptureScoreRR(float captureScoreRR) {
 		this.captureScoreRR = captureScoreRR;
 	}
 
@@ -469,19 +463,19 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 		this.bioSubTypeRL = bioSubTypeRL;
 	}
 
-	public int getRequestScoreRL() {
+	public float getRequestScoreRL() {
 		return requestScoreRL;
 	}
 
-	public void setRequestScoreRL(int requestScoreRL) {
+	public void setRequestScoreRL(float requestScoreRL) {
 		this.requestScoreRL = requestScoreRL;
 	}
 
-	public int getCaptureScoreRL() {
+	public float getCaptureScoreRL() {
 		return captureScoreRL;
 	}
 
-	public void setCaptureScoreRL(int captureScoreRL) {
+	public void setCaptureScoreRL(float captureScoreRL) {
 		this.captureScoreRL = captureScoreRL;
 	}
 
@@ -491,5 +485,5 @@ public class SBIFingerSingleCaptureInfo extends SBICaptureInfo {
 
 	public void setCaptureRL(boolean isCaptureRL) {
 		this.isCaptureRL = isCaptureRL;
-	}	
+	}
 }
