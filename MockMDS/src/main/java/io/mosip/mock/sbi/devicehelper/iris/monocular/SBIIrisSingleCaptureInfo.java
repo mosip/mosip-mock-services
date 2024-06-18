@@ -1,48 +1,42 @@
 package io.mosip.mock.sbi.devicehelper.iris.monocular;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 
 public class SBIIrisSingleCaptureInfo extends SBICaptureInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIIrisSingleCaptureInfo.class);	
-	
 	private String bioValueLI;
 	private String bioSubTypeLI;
 	private float requestScoreLI;
 	private float captureScoreLI;
 	private boolean isCaptureLI;
-	
+
 	private String bioValueRI;
 	private String bioSubTypeRI;
 	private float requestScoreRI;
 	private float captureScoreRI;
 	private boolean isCaptureRI;
-	     
-	public SBIIrisSingleCaptureInfo()  
-	{ 
-		super ();
-	} 
-  
+
+	public SBIIrisSingleCaptureInfo() {
+		super();
+	}
+
 	@Override
 	public void initCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);	
-		setBioExceptionInfo (new SBIIrisSingleBioExceptionInfo ());
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(new SBIIrisSingleBioExceptionInfo());
 	}
 
 	@Override
 	public void deInitCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);
-		setBioExceptionInfo (null);
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
 	}
 
 	public String getBioValueLI() {

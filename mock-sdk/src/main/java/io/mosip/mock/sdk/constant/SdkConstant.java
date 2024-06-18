@@ -1,11 +1,27 @@
 package io.mosip.mock.sdk.constant;
 
 /**
- * The class contains variable names used from configuration
+ * Constants used in the SDK configuration.
+ * 
+ * <p>
+ * This class contains variables that represent keys used in the SDK
+ * configuration files.
+ * </p>
  * 
  * @author Janardhan B S
- * 
  */
 public class SdkConstant {
-	public static String SDK_CHECK_ISO_TIMESTAMP_FORMAT = "sdk_check_iso_timestamp_format";
+	private SdkConstant() {
+		throw new IllegalStateException("SdkConstant class");
+	}
+
+	/**
+	 * SDK configuration key for ISO timestamp format used in checks.
+	 * 
+	 * <p>
+	 * This constant represents the key used to retrieve the ISO timestamp format
+	 * from SDK configurations.
+	 * </p>
+	 */
+	public static final String SDK_CHECK_ISO_TIMESTAMP_FORMAT = "sdk_check_iso_timestamp_format";
 }

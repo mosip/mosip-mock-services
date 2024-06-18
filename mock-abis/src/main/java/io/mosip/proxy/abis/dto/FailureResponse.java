@@ -2,64 +2,36 @@ package io.mosip.proxy.abis.dto;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * FailureResponse encapsulates the details of a failed operation response.
+ * <p>
+ * This class represents a response object used to convey information about
+ * failed operations. It includes attributes such as the unique identifier
+ * {@code id} and {@code requestId} associated with the failed request, the
+ * {@code responsetime} indicating the time of the response, the {@code returnValue}
+ * which may contain additional context or error codes, and {@code failureReason}
+ * providing specific details or reasons for the failure.
+ * </p>
+ * <p>
+ * Use this class to handle and communicate failed operation responses in ABIS
+ * (Automated Biometric Identification System) interactions or any other system
+ * requiring structured failure response information.
+ * </p>
+ * 
+ * @author
+ * @since 1.0.0
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class FailureResponse {
 	private String id;
 	private String requestId;
 	private LocalDateTime responsetime;
 	private String returnValue;
 	private String failureReason;
-
-	public FailureResponse() {
-		super();
-	}
-
-	public FailureResponse(String id, String requestId, LocalDateTime responsetime, String returnValue,
-			String failureReason) {
-		super();
-		this.id = id;
-		this.requestId = requestId;
-		this.responsetime = responsetime;
-		this.returnValue = returnValue;
-		this.failureReason = failureReason;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getRequestId() {
-		return requestId;
-	}
-
-	public void setRequestId(String requestId) {
-		this.requestId = requestId;
-	}
-
-	public LocalDateTime getResponsetime() {
-		return responsetime;
-	}
-
-	public void setResponsetime(LocalDateTime responsetime) {
-		this.responsetime = responsetime;
-	}
-
-	public String getReturnValue() {
-		return returnValue;
-	}
-
-	public void setReturnValue(String returnValue) {
-		this.returnValue = returnValue;
-	}
-
-	public String getFailureReason() {
-		return failureReason;
-	}
-
-	public void setFailureReason(String failureReason) {
-		this.failureReason = failureReason;
-	}
 }

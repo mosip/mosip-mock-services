@@ -19,16 +19,53 @@ import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
 import io.mosip.mock.sdk.utils.Util;
 
+/**
+ * Service class to convert biometric data formats from one specified format to
+ * another. This service handles biometric record conversion operations based on
+ * provided parameters, utilizing {@link ConverterServiceImpl} for the actual
+ * format conversion process. Handles exceptions related to SDK operations and
+ * biometric data conversion errors, logging them using SLF4J.
+ * 
+ * <p>
+ * The conversion process involves encoding biometric segments into URL-safe
+ * base64, performing format conversion, and decoding the converted data back
+ * into the biometric record. Supports specific biometric types based on the
+ * source format and maps conversion errors to appropriate response statuses.
+ * 
+ * @author Janardhan B S
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 public class ConvertFormatService extends SDKService {
+	private Logger logger = LoggerFactory.getLogger(ConvertFormatService.class);
+
 	private BiometricRecord sample;
+	@SuppressWarnings("unused")
 	private List<BiometricType> modalitiesToConvert;
 	private String sourceFormat;
 	private String targetFormat;
 	private Map<String, String> sourceParams;
 	private Map<String, String> targetParams;
 
-	Logger LOGGER = LoggerFactory.getLogger(ConvertFormatService.class);
+	private static final String TAG_ERROR_INFO = "convertFormat -- error";
 
+	/**
+	 * Constructs a {@code ConvertFormatService} instance with the provided
+	 * environment, sample biometric record, source and target formats, source and
+	 * target parameters, and a list of biometric types to convert.
+	 * 
+	 * @param env                 The environment configuration to be used.
+	 * @param sample              The biometric record containing segments to be
+	 *                            converted.
+	 * @param sourceFormat        The source format of the biometric data segments.
+	 * @param targetFormat        The target format to which the biometric data
+	 *                            segments will be converted.
+	 * @param sourceParams        Additional parameters specific to the source
+	 *                            format conversion.
+	 * @param targetParams        Additional parameters specific to the target
+	 *                            format conversion.
+	 * @param modalitiesToConvert The list of biometric types to be converted.
+	 */
 	public ConvertFormatService(Environment env, BiometricRecord sample, String sourceFormat, String targetFormat,
 			Map<String, String> sourceParams, Map<String, String> targetParams,
 			List<BiometricType> modalitiesToConvert) {
@@ -41,6 +78,15 @@ public class ConvertFormatService extends SDKService {
 		this.modalitiesToConvert = modalitiesToConvert;
 	}
 
+	/**
+	 * Retrieves and converts biometric data segments from the source format to the
+	 * target format. Handles errors using specific {@link ResponseStatus} based on
+	 * SDK and conversion exceptions.
+	 * 
+	 * @return A {@link Response} object containing the status code, status message,
+	 *         and the updated {@code BiometricRecord} with converted data segments.
+	 */
+	@SuppressWarnings({ "java:S112", "java:S135", "java:S3776", "java:S6208", "java:S6541" })
 	public Response<BiometricRecord> getConvertFormatInfo() {
 		Response<BiometricRecord> response = new Response<>();
 
@@ -48,7 +94,6 @@ public class ConvertFormatService extends SDKService {
 		try {
 			Map<String, String> values = new HashMap<>();
 			for (BIR segment : sample.getSegments()) {
-
 				if (!isValidBirData(segment))
 					break;
 
@@ -101,48 +146,46 @@ public class ConvertFormatService extends SDKService {
 			response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
 			response.setResponse(sample);
 		} catch (SDKException ex) {
-			LOGGER.error("convertFormat -- error", ex);
+			logger.error(TAG_ERROR_INFO, ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {
 			case INVALID_INPUT:
 				response.setStatusCode(ResponseStatus.INVALID_INPUT.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.INVALID_INPUT.getStatusMessage() + " sample"));
+				response.setStatusMessage(ResponseStatus.INVALID_INPUT.getStatusMessage() + " sample");
 				response.setResponse(null);
 				return response;
 			case MISSING_INPUT:
 				response.setStatusCode(ResponseStatus.MISSING_INPUT.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.MISSING_INPUT.getStatusMessage() + " sample"));
+				response.setStatusMessage(ResponseStatus.MISSING_INPUT.getStatusMessage() + " sample");
 				response.setResponse(null);
 				return response;
 			case QUALITY_CHECK_FAILED:
 				response.setStatusCode(ResponseStatus.QUALITY_CHECK_FAILED.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.QUALITY_CHECK_FAILED.getStatusMessage() + " "));
+				response.setStatusMessage(ResponseStatus.QUALITY_CHECK_FAILED.getStatusMessage());
 				response.setResponse(null);
 				return response;
 			case BIOMETRIC_NOT_FOUND_IN_CBEFF:
 				response.setStatusCode(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusCode());
-				response.setStatusMessage(
-						String.format(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusMessage() + ""));
+				response.setStatusMessage(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusMessage());
 				response.setResponse(null);
 				return response;
 			case MATCHING_OF_BIOMETRIC_DATA_FAILED:
 				response.setStatusCode(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusCode());
-				response.setStatusMessage(
-						String.format(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusMessage() + ""));
+				response.setStatusMessage(ResponseStatus.MATCHING_OF_BIOMETRIC_DATA_FAILED.getStatusMessage());
 				response.setResponse(null);
 				return response;
 			case POOR_DATA_QUALITY:
 				response.setStatusCode(ResponseStatus.POOR_DATA_QUALITY.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.POOR_DATA_QUALITY.getStatusMessage() + ""));
+				response.setStatusMessage(ResponseStatus.POOR_DATA_QUALITY.getStatusMessage());
 				response.setResponse(null);
 				return response;
 			default:
 				response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
-				response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage() + ""));
+				response.setStatusMessage(ResponseStatus.UNKNOWN_ERROR.getStatusMessage());
 				response.setResponse(null);
 				return response;
 			}
 		} catch (ConversionException ex) {
-			LOGGER.error("convertFormat -- error", ex);
+			logger.error(TAG_ERROR_INFO, ex);
 			switch (ConverterErrorCode.fromErrorCode(ex.getErrorCode())) {
 			case INPUT_SOURCE_EXCEPTION:
 			case INVALID_REQUEST_EXCEPTION:
@@ -170,7 +213,7 @@ public class ConvertFormatService extends SDKService {
 				break;
 			}
 		} catch (Exception ex) {
-			LOGGER.error("convertFormat -- error", ex);
+			logger.error(TAG_ERROR_INFO, ex);
 			response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
 			response.setResponse(null);
 		}
@@ -178,6 +221,21 @@ public class ConvertFormatService extends SDKService {
 		return response;
 	}
 
+	/**
+	 * Checks if the given biometric type is valid for the specified source format.
+	 * Validity is determined based on the compatibility of biometric types with
+	 * known ISO biometric data formats.
+	 *
+	 * @param bioType      The biometric type to validate, such as
+	 *                     {@link BiometricType#FINGER}, {@link BiometricType#FACE},
+	 *                     or {@link BiometricType#IRIS}.
+	 * @param sourceFormat The source biometric data format against which the
+	 *                     validity is checked. Supported formats include
+	 *                     "ISO19794_4_2011" for fingerprint, "ISO19794_5_2011" for
+	 *                     face, and "ISO19794_6_2011" for iris.
+	 * @return {@code true} if the biometric type is valid for the specified source
+	 *         format; {@code false} otherwise.
+	 */
 	private boolean isValidBioTypeForSourceFormat(BiometricType bioType, String sourceFormat) {
 		boolean isValid = false;
 		switch (sourceFormat) {
@@ -192,6 +250,8 @@ public class ConvertFormatService extends SDKService {
 		case "ISO19794_6_2011":
 			if (bioType == BiometricType.IRIS)
 				isValid = true;
+			break;
+		default:
 			break;
 		}
 		return isValid;

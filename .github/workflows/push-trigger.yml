@@ -18,12 +18,20 @@ on:
       - release-1*
       - master
       - 1.*
+<<<<<<< HEAD
       - develop
+=======
+      - develop*
+>>>>>>> JanardhanBS-SyncByte-develop
       - MOSIP*
 
 jobs:
   build-maven-mock-abis:
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: mock-abis
       BUILD_ARTIFACT: mock-abis
@@ -44,7 +52,11 @@ jobs:
             BUILD_ARTIFACT: 'mock-abis'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -56,7 +68,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-maven-mock-mv:
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: mock-mv
       BUILD_ARTIFACT: mock-mv
@@ -77,7 +93,11 @@ jobs:
             BUILD_ARTIFACT: 'mock-mv'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -91,7 +111,11 @@ jobs:
   publish_to_nexus_mockmv:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build-maven-mock-mv
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ./mock-mv
     secrets:
@@ -103,7 +127,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-maven-mock-sdk:
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ./mock-sdk
       BUILD_ARTIFACT: mock-sdk
@@ -117,7 +145,11 @@ jobs:
   publish_to_nexus_sdk:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build-maven-mock-sdk
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ./mock-sdk
     secrets:
@@ -129,7 +161,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-maven-MockMDS:
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ./MockMDS
       BUILD_ARTIFACT: mockmds
@@ -143,7 +179,11 @@ jobs:
   publish_to_nexus_MockMDS:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build-maven-MockMDS
+<<<<<<< HEAD
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
+=======
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+>>>>>>> JanardhanBS-SyncByte-develop
     with:
       SERVICE_LOCATION: ./MockMDS
     secrets:
@@ -153,3 +193,70 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+<<<<<<< HEAD
+=======
+
+  sonar_analysis_mock_abis:
+    needs: build-maven-mock-abis
+    if: "${{ github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
+    with:
+      SERVICE_LOCATION: mock-abis
+      PROJECT_KEY: 'mosip_mock-abis'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  sonar_analysis_mock_mv:
+    needs: build-maven-mock-mv
+    if: "${{ github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
+    with:
+      SERVICE_LOCATION: mock-mv
+      PROJECT_KEY: 'mosip_mock-mv'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  
+  sonar_analysis_mock_mds:
+    needs: build-maven-MockMDS
+    if: "${{ github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
+    with:
+      SERVICE_LOCATION: MockMDS
+      PROJECT_KEY: 'mosip_mockmds'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  sonar_analysis_mock_sdk:
+    needs: build-maven-mock-sdk
+    if: "${{ github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
+    with:
+      SERVICE_LOCATION: mock-sdk
+      PROJECT_KEY: 'mosip_mock-sdk'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+>>>>>>> JanardhanBS-SyncByte-develop
