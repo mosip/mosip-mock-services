@@ -1,8 +1,9 @@
 package io.mosip.mock.sdk.service;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,17 @@ import io.mosip.kernel.biometrics.model.Response;
 import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
 
+/**
+ * Service class for extracting biometric templates from a
+ * {@link BiometricRecord}. Supports various biometric types and processes them
+ * to generate templates based on specified formats.
+ */
 public class ExtractTemplateService extends SDKService {
-	private Logger LOGGER = LoggerFactory.getLogger(ExtractTemplateService.class);
+	private Logger logger = LoggerFactory.getLogger(ExtractTemplateService.class);
 
+	private SecureRandom random = new SecureRandom();
 	private BiometricRecord sample;
+	@SuppressWarnings("unused")
 	private List<BiometricType> modalitiesToExtract;
 
 	private ProcessedLevelType[] types = new ProcessedLevelType[] { ProcessedLevelType.INTERMEDIATE,
@@ -29,6 +37,16 @@ public class ExtractTemplateService extends SDKService {
 	public static final long FORMAT_TYPE_FINGER = 7;
 	public static final long FORMAT_TYPE_FINGER_MINUTIAE = 2;
 
+	/**
+	 * Constructs an instance of ExtractTemplateService.
+	 *
+	 * @param env                 The Spring environment configuration.
+	 * @param sample              The biometric record from which templates are to
+	 *                            be extracted.
+	 * @param modalitiesToExtract The list of biometric types to extract templates
+	 *                            for.
+	 * @param flags               Additional flags or parameters for customization.
+	 */
 	public ExtractTemplateService(Environment env, BiometricRecord sample, List<BiometricType> modalitiesToExtract,
 			Map<String, String> flags) {
 		super(env, flags);
@@ -36,36 +54,24 @@ public class ExtractTemplateService extends SDKService {
 		this.modalitiesToExtract = modalitiesToExtract;
 	}
 
+	/**
+	 * Retrieves the extracted biometric templates information as a response.
+	 *
+	 * @return A {@link Response} object containing the status code, status message,
+	 *         and extracted templates.
+	 */
 	public Response<BiometricRecord> getExtractTemplateInfo() {
 		ResponseStatus responseStatus = null;
 		Response<BiometricRecord> response = new Response<>();
 		try {
-			if (sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
+			if (Objects.isNull(sample) || Objects.isNull(sample.getSegments()) || sample.getSegments().isEmpty()) {
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 
-			for (BIR segment : sample.getSegments()) {
-				if (!isValidBirData(segment))
-					break;
-
-				segment.getBirInfo().setPayload(segment.getBdb());
-				BDBInfo bdbInfo = segment.getBdbInfo();
-				if (bdbInfo != null) {
-					// Update the level to processed
-					bdbInfo.setLevel(getRandomLevelType());
-					if (segment.getBdbInfo().getFormat() != null) {
-						String type = segment.getBdbInfo().getFormat().getType();
-						// Update the fingerprint image to fingerprint minutiae type
-						if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
-							segment.getBdbInfo().getFormat().setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
-						}
-					}
-				}
-				// do actual extraction
-			}
+			doExtractTemplateInfo(sample);
 		} catch (SDKException ex) {
-			LOGGER.error("extractTemplate -- error", ex);
+			logger.error("extractTemplate -- error", ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {
 			case INVALID_INPUT:
 				response.setStatusCode(ResponseStatus.INVALID_INPUT.getStatusCode());
@@ -106,7 +112,7 @@ public class ExtractTemplateService extends SDKService {
 				return response;
 			}
 		} catch (Exception ex) {
-			LOGGER.error("extractTemplate -- error", ex);
+			logger.error("extractTemplate -- error", ex);
 			response.setStatusCode(ResponseStatus.UNKNOWN_ERROR.getStatusCode());
 			response.setStatusMessage(String.format(ResponseStatus.UNKNOWN_ERROR.getStatusMessage(), ""));
 			response.setResponse(null);
@@ -117,8 +123,43 @@ public class ExtractTemplateService extends SDKService {
 		return response;
 	}
 
+	/**
+	 * Performs the extraction of biometric templates from the provided biometric
+	 * record.
+	 *
+	 * @param bioRecord The biometric record containing segments from which
+	 *                  templates are to be extracted.
+	 */
+	private void doExtractTemplateInfo(BiometricRecord bioRecord) {
+		for (BIR segment : bioRecord.getSegments()) {
+			if (!isValidBirData(segment))
+				break;
+
+			segment.getBirInfo().setPayload(segment.getBdb());
+			BDBInfo bdbInfo = segment.getBdbInfo();
+			if (bdbInfo != null) {
+				// Update the level to processed
+				bdbInfo.setLevel(getRandomLevelType());
+				if (segment.getBdbInfo().getFormat() != null) {
+					String type = segment.getBdbInfo().getFormat().getType();
+					// Update the fingerprint image to fingerprint minutiae type
+					if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
+						segment.getBdbInfo().getFormat().setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
+					}
+				}
+			}
+			// do actual extraction
+		}
+	}
+
+	/**
+	 * Generates a random processed level type.
+	 *
+	 * @return A randomly selected {@link ProcessedLevelType} from the available
+	 *         types.
+	 */
 	public ProcessedLevelType getRandomLevelType() {
-		int rnd = new Random().nextInt(types.length);
+		int rnd = this.random.nextInt(types.length);
 		return types[rnd];
 	}
 }

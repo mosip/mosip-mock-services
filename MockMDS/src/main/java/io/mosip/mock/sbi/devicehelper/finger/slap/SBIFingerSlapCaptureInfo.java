@@ -1,96 +1,90 @@
 package io.mosip.mock.sbi.devicehelper.finger.slap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.mock.sbi.devicehelper.SBICaptureInfo;
 
 public class SBIFingerSlapCaptureInfo extends SBICaptureInfo {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIFingerSlapCaptureInfo.class);	
-	
 	private String bioValueLT;
 	private String bioSubTypeLT;
 	private float requestScoreLT;
 	private float captureScoreLT;
 	private boolean isCaptureLT;
-	
+
 	private String bioValueLI;
 	private String bioSubTypeLI;
 	private float requestScoreLI;
 	private float captureScoreLI;
 	private boolean isCaptureLI;
-	
+
 	private String bioValueLM;
 	private String bioSubTypeLM;
 	private float requestScoreLM;
 	private float captureScoreLM;
 	private boolean isCaptureLM;
-	
+
 	private String bioValueLR;
 	private String bioSubTypeLR;
 	private float requestScoreLR;
 	private float captureScoreLR;
 	private boolean isCaptureLR;
-	
+
 	private String bioValueLL;
 	private String bioSubTypeLL;
 	private float requestScoreLL;
 	private float captureScoreLL;
 	private boolean isCaptureLL;
-	
+
 	private String bioValueRT;
 	private String bioSubTypeRT;
 	private float requestScoreRT;
 	private float captureScoreRT;
 	private boolean isCaptureRT;
-	
+
 	private String bioValueRI;
 	private String bioSubTypeRI;
 	private float requestScoreRI;
 	private float captureScoreRI;
 	private boolean isCaptureRI;
-	
+
 	private String bioValueRM;
 	private String bioSubTypeRM;
 	private float requestScoreRM;
 	private float captureScoreRM;
 	private boolean isCaptureRM;
-	
+
 	private String bioValueRR;
 	private String bioSubTypeRR;
 	private float requestScoreRR;
 	private float captureScoreRR;
 	private boolean isCaptureRR;
-	
+
 	private String bioValueRL;
 	private String bioSubTypeRL;
 	private float requestScoreRL;
 	private float captureScoreRL;
 	private boolean isCaptureRL;
-     
-	public SBIFingerSlapCaptureInfo()  
-	{ 
-		super ();
-	} 
-  
+
+	public SBIFingerSlapCaptureInfo() {
+		super();
+	}
+
 	@Override
 	public void initCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);	
-		setBioExceptionInfo (new SBIFingerSlapBioExceptionInfo ());
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(new SBIFingerSlapBioExceptionInfo());
 	}
 
 	@Override
 	public void deInitCaptureInfo() {
-		setImage (null);
-		setLiveStreamStarted (false);
-		setLiveStreamCompleted (false);
-		setCaptureStarted (false);
-		setCaptureCompleted (false);
-		setBioExceptionInfo (null);
+		setImage(null);
+		setLiveStreamStarted(false);
+		setLiveStreamCompleted(false);
+		setCaptureStarted(false);
+		setCaptureCompleted(false);
+		setBioExceptionInfo(null);
 	}
 
 	public String getBioValueLT() {
@@ -491,5 +485,5 @@ public class SBIFingerSlapCaptureInfo extends SBICaptureInfo {
 
 	public void setCaptureRL(boolean isCaptureRL) {
 		this.isCaptureRL = isCaptureRL;
-	}	
+	}
 }

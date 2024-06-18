@@ -1,14 +1,12 @@
 package io.mosip.mock.sbi.service;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Map;
 
-import io.mosip.mock.sbi.util.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,210 +21,149 @@ import io.mosip.mock.sbi.exception.SBIException;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
 public class SBIMockService implements Runnable {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SBIMockService.class);	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SBIMockService.class);
 
 	protected String profileId = SBIConstant.PROFILE_DEFAULT;
 	protected String keystoreFilePath;
 	protected String purpose;
 	protected String biometricType;
 	protected String biometricImageType;
-	protected HashMap <String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
-	
+	protected Map<String, SBIDeviceHelper> deviceHelpers = new HashMap<>();
+
 	protected Thread runningThread = null;
 	protected int serverPort = 0;
 	protected ServerSocket serverSocket = null;
 	protected boolean isStopped = false;
-	
+
 	/**
 	 * Set Purpose and biometricType
 	 */
 	public SBIMockService(String purpose, String biometricType, String keystoreFilePath, String biometricImageType) {
 		super();
-		setPurpose (purpose);
-		setBiometricType (biometricType);
+		setPurpose(purpose);
+		setBiometricType(biometricType);
 		setKeystoreFilePath(keystoreFilePath);
-		setBiometricImageType (biometricImageType);
+		setBiometricImageType(biometricImageType);
 	}
 
 	@Override
+	@SuppressWarnings({ "java:S1141" })
 	public void run() {
-		synchronized (this)
-		{
-			this.runningThread = Thread.currentThread ();
+		synchronized (this) {
+			this.runningThread = Thread.currentThread();
 		}
-		
-		try
-		{
-			createServerSocket ();
+
+		try {
+			createServerSocket();
 			initDeviceHelpers();
-			while (!isStopped ())
-			{
+			while (!isStopped()) {
 				Socket clientSocket = null;
-				try
-				{
-					clientSocket = this.serverSocket.accept ();
-					//clientSocket.setKeepAlive(true);
-				}
-				catch (IOException ex)
-				{
-					if (isStopped ())
-					{
-						LOGGER.info ("SBI Mock Service Stopped.");
+				try {
+					clientSocket = this.serverSocket.accept();
+				} catch (IOException ex) {
+					if (isStopped()) {
+						LOGGER.error("SBI Mock Service Stopped.", ex);
 						return;
 					}
-					throw new SBIException (ex.hashCode() + "", "SBI Mock Service Error Accepting Client Connection", new Throwable (ex.getLocalizedMessage()));
+					throw new SBIException(ex.hashCode() + "", "SBI Mock Service Error Accepting Client Connection",
+							new Throwable(ex.getLocalizedMessage()));
 				}
-				new Thread (new SBIWorker (this, clientSocket, getServerPort())).start ();
-			}			
-		}
-		catch (SBIException ex)
-		{
-			LOGGER.error("SBI Mock Service Error", ex);			
-		}
-		catch (Exception ex)
-		{
-			LOGGER.error("SBI Mock Service Error", ex);			
-		}finally {
+				new Thread(new SBIWorker(this, clientSocket, getServerPort())).start();
+			}
+		} catch (SBIException ex) {
+			LOGGER.error("SBI Mock Service Error", ex);
+		} finally {
 			setStopped(true);
 		}
-		
-		LOGGER.info ("SBI Mock Service Stopped.");
+
+		LOGGER.info("SBI Mock Service Stopped.");
 	}
 
-	
-	private void initDeviceHelpers() {
-		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) ||
-				getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER))
-		{
-			if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
-				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP, SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath(), getBiometricImageType()));
-			else if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
-				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE, SBIFingerSingleHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath(), getBiometricImageType()));
+	protected void initDeviceHelpers() {
+		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
+				|| getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER)) {
+			if (getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+				this.deviceHelpers.put(
+						SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SLAP,
+						SBIFingerSlapHelper.getInstance(getServerPort(), getPurpose(), getKeystoreFilePath(),
+								getBiometricImageType()));
+			else if (getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+				this.deviceHelpers.put(
+						SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_"
+								+ SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FINGER_SINGLE,
+						SBIFingerSingleHelper.getInstance(getServerPort(), getPurpose(), getKeystoreFilePath(),
+								getBiometricImageType()));
 		}
-		
-		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) ||
-				getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS))
-		{
-			if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
-				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE, SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath(), getBiometricImageType()));
-			else if (getPurpose ().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
-				this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE, SBIIrisSingleHelper.getInstance(getServerPort(), getPurpose (),
-						getKeystoreFilePath(), getBiometricImageType()));
+
+		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
+				|| getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS)) {
+			if (getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_REGISTRATION))
+				this.deviceHelpers.put(
+						SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_DOUBLE,
+						SBIIrisDoubleHelper.getInstance(getServerPort(), getPurpose(), getKeystoreFilePath(),
+								getBiometricImageType()));
+			else if (getPurpose().equalsIgnoreCase(SBIConstant.PURPOSE_AUTH))
+				this.deviceHelpers.put(
+						SBIConstant.MOSIP_BIOMETRIC_TYPE_IRIS + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_IRIS_SINGLE,
+						SBIIrisSingleHelper.getInstance(getServerPort(), getPurpose(), getKeystoreFilePath(),
+								getBiometricImageType()));
 		}
-		
-		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE) ||
-				getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE))
-		{
-			this.deviceHelpers.put(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE, SBIFaceHelper.getInstance(getServerPort(), getPurpose (),
-					getKeystoreFilePath(), getBiometricImageType()));
+
+		if (getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
+				|| getBiometricType().equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE)) {
+			this.deviceHelpers.put(
+					SBIConstant.MOSIP_BIOMETRIC_TYPE_FACE + "_" + SBIConstant.MOSIP_BIOMETRIC_SUBTYPE_FACE,
+					SBIFaceHelper.getInstance(getServerPort(), getPurpose(), getKeystoreFilePath(),
+							getBiometricImageType()));
 		}
 	}
-	
-	public SBIDeviceHelper getDeviceHelper (String deviceTypeName)
-    {
-        if (this.deviceHelpers != null && this.deviceHelpers.size() >= 0)
-        {
-            if (this.deviceHelpers.containsKey(deviceTypeName) )
-            {
-                return this.deviceHelpers.get(deviceTypeName);
-            }
-        }
 
-        return null;
-    }
+	public SBIDeviceHelper getDeviceHelper(String deviceTypeName) {
+		if (this.deviceHelpers != null && this.deviceHelpers.size() >= 0 && this.deviceHelpers.containsKey(deviceTypeName)) {
+				return this.deviceHelpers.get(deviceTypeName);
+		}
 
-	/*
-	 *
-public synchronized  void createServerSocket () throws SBIException
-	{
-		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
-		InetAddress addr;
+		return null;
+	}
+
+	public void createServerSocket() throws SBIException {
 		try {
-			addr = InetAddress.getByName(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
 
+			this.serverPort = getAvailabilePort();
+			LOGGER.info("SBI Proxy Service Check port {}", this.serverPort);
+			InetAddress addr = InetAddress
+					.getByName(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
+			this.serverSocket = new ServerSocket(this.serverPort, 50, addr);
 
-			for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
-			{
-				try {
-					
-					this.serverPort = port;
-					this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
-					
-					return;
-				}
-				catch(Exception e){
-					//Do nothing
-					e.printStackTrace();
-				}
-			}
-			throw new IOException("No port available");
-		} catch (UnknownHostException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-
-	}
-
-*/
-	
-	public  void createServerSocket () throws SBIException
-	{
-		try
-		{
-			
-			this.serverPort = getAvailabilePort ();
-			LOGGER.info ("SBI Proxy Service Check port " + this.serverPort);
-			InetAddress addr = InetAddress.getByName (ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS));
-			this.serverSocket = new ServerSocket (this.serverPort, 50, addr);
-
-			LOGGER.info ("SBI Proxy Service started on port " + this.serverPort);
-		}
-		catch (IOException ex)
-		{
-			throw new SBIException (ex.hashCode() + "", "SBI  Proxy Service Cannot open port " + this.serverPort, new Throwable (ex.getLocalizedMessage()));
+			LOGGER.info("SBI Proxy Service started on port {}", this.serverPort);
+		} catch (IOException ex) {
+			throw new SBIException(ex.hashCode() + "", "SBI  Proxy Service Cannot open port " + this.serverPort,
+					new Throwable(ex.getLocalizedMessage()));
 		}
 	}
-	
-	
-	private int getAvailabilePort () throws IOException
-	{
-		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.MIN_PORT));
-		for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++)
-		{
-			if (isPortInUse (port)==false) 
-			{
-				LOGGER.info ("SBI currently not running on port " + port);
-				
+
+	private int getAvailabilePort() throws IOException {
+		int port = Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MIN_PORT));
+		for (; port <= Integer.parseInt(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MAX_PORT)); port++) {
+			if (!isPortInUse(port)) {
+				LOGGER.info("SBI currently not running on port {}", port);
+
 				return port;
 			}
 		}
 		throw new IOException("no port available");
-		
 	}
-	
-	
-/*
- * checkHostAvailability : Verifies As a client socket to check if provoded port is listening with loopback. 
- * 
- */
-	private static synchronized boolean isPortInUse (int port)
-	{
-		try
-		{
-			Socket s = new Socket (ApplicationPropertyHelper.getPropertyKeyValue (SBIConstant.SERVER_ADDRESS), port);
+
+	/*
+	 * checkHostAvailability : Verifies As a client socket to check if provoded port
+	 * is listening with loopback.
+	 * 
+	 */
+	private static synchronized boolean isPortInUse(int port) {
+		try (Socket s = new Socket(ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.SERVER_ADDRESS), port)) {
 			return true;
-		}
-		catch (Exception ex)
-		{
-			LOGGER.error("Socket Not available {}" , port , ex);
+		} catch (Exception ex) {
+			LOGGER.error("Socket Not available {}", port, ex);
 		}
 		return false;
 	}
