@@ -55,7 +55,6 @@ Running ActiveMQ locally:
 * use the docker compose file to create a local activemq server: `docker-compose up`
 * Open activemq web console: `http://localhost:8161/`
 
-
 Steps:
 * Go to REPO_ROOT/mock-abis.
 * Setting ABIS queue conf (here queue details will be for local queue):<br>
