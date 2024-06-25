@@ -1,5 +1,6 @@
 package io.mosip.proxy.abis.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.mosip.proxy.abis.constant.FailureReasonsConstants;
 import io.mosip.proxy.abis.dto.FailureResponse;
 import io.mosip.proxy.abis.dto.IdentifyDelayResponse;
 import io.mosip.proxy.abis.dto.IdentityRequest;
@@ -29,7 +31,6 @@ import io.mosip.proxy.abis.dto.InsertRequestMO;
 import io.mosip.proxy.abis.dto.RequestMO;
 import io.mosip.proxy.abis.dto.ResponseMO;
 import io.mosip.proxy.abis.exception.BindingException;
-import io.mosip.proxy.abis.constant.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.listener.Listener;
 import io.mosip.proxy.abis.service.ProxyAbisInsertService;
@@ -375,7 +376,11 @@ public class ProxyAbisController {
 		TimerTask task = new TimerTask() {
 			public void run() {
 				try {
-					listener.sendToQueue(finalResponseEntity, msgType);
+					try {
+						listener.sendToQueue(finalResponseEntity, msgType);
+					} catch (UnsupportedEncodingException e) {
+						logger.error("executeAsync::error ", e);
+					}
 					logger.info("Scheduled job completed: MsgType {}", msgType);
 				} catch (JsonProcessingException e) {
 					logger.error("executeAsync::error ", e);

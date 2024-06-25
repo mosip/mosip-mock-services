@@ -12,6 +12,7 @@ import io.mosip.proxy.abis.controller.ProxyAbisController;
 import io.mosip.proxy.abis.listener.Listener;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration;
 
 /**
  * Main application class for Proxy ABIS.
@@ -25,7 +26,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 @ComponentScan(basePackages = { "io.mosip.proxy.abis", "${mosip.auth.adapter.impl.basepackage}" })
 @EntityScan(basePackages = { "io.mosip.proxy.abis.*" })
 @SpringBootApplication
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = JmsAutoConfiguration.class)
 @EnableJpaRepositories(basePackages = { "io.mosip.proxy.abis.*" })
 @EnableJms
 public class ProxyAbisApplication {

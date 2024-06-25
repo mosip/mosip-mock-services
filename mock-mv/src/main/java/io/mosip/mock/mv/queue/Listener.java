@@ -2,6 +2,7 @@ package io.mosip.mock.mv.queue;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,10 +126,14 @@ public class Listener {
 	@SuppressWarnings({ "java:S6813" })
 	private ExpectationCache expectationCache;
 
-	@Autowired
-	@SuppressWarnings({ "java:S6813" })
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
+	/** The Constant FAIL_OVER. */
+	private static final String FAIL_OVER = "failover:(";
+
+	/** The Constant RANDOMIZE_FALSE. */
+	private static final String RANDOMIZE_FALSE = ")?randomize=false";
+	
 	private Connection connection;
 	private Session session;
 	private Destination destination;
@@ -290,7 +295,17 @@ public class Listener {
      * @throws MVException If an invalid connection configuration prevents connection creation.
      */
 	@SuppressWarnings({ "unused" })
-	public byte[] consume(String address, QueueListener object, String brokerUrl, String username, String password) {
+	public byte[] consume(String address, QueueListener object, String brokerUrl, String userName, String password) {
+		if (Objects.isNull(this.activeMQConnectionFactory)) {
+			logger.info("Creating new connection.");
+			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
+			logger.info("Broker url : {}" , failOverBrokerUrl);
+			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(failOverBrokerUrl);
+			this.activeMQConnectionFactory.setTrustedPackages(Arrays.asList("io.mosip.mock.mv.*"));
+			this.activeMQConnectionFactory.setUserName(userName);
+			this.activeMQConnectionFactory.setPassword(password);
+		}
+		
 		if (Objects.isNull(this.activeMQConnectionFactory)) {
 			logger.error("Could not create connection. Invalid connection configuration.");
 			throw new MVException(MVErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
@@ -300,21 +315,14 @@ public class Listener {
 		if (Objects.isNull(destination))
 			setup();
 
-		MessageConsumer messageConsumer = null;
+		MessageConsumer messageConsumer;
 		try {
 			destination = session.createQueue(address);
 			messageConsumer = session.createConsumer(destination);
 			messageConsumer.setMessageListener(getListener(object));
 		} catch (Exception e) {
 			logger.error("consume", e);
-		} finally {
-			try {
-				if (!Objects.isNull(messageConsumer))
-					messageConsumer.close();
-			} catch (JMSException e) {
-				logger.error("consume", e);
-			}
-		}
+		} 
 		return new byte[0];
 	}
 

@@ -15,7 +15,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.mosip.kernel.biometrics.commons.CbeffValidator;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.core.cbeffutil.exception.CbeffException;
+import io.mosip.proxy.abis.constant.FailureReasonsConstants;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
 import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
 import io.mosip.proxy.abis.dto.Expectation;
@@ -50,7 +54,6 @@ import io.mosip.proxy.abis.dto.RequestMO;
 import io.mosip.proxy.abis.entity.BiometricData;
 import io.mosip.proxy.abis.entity.InsertEntity;
 import io.mosip.proxy.abis.exception.AbisException;
-import io.mosip.proxy.abis.constant.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.service.ExpectationCache;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
@@ -76,6 +79,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private ProxyAbisBioDataRepository proxyAbisBioDataRepository;
 	private ProxyAbisConfigService proxyAbisConfigService;
 
+	@Autowired(required = true)
 	@Qualifier("selfTokenRestTemplate")
 	private RestTemplate restTemplate;
 
@@ -171,44 +175,108 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 */
 	@SuppressWarnings({ "java:S1141" })
 	private List<BiometricData> fetchCBEFF(InsertEntity ie) throws Exception {
-		List<BiometricData> lst = new ArrayList<>();
+		List<BiometricData> lst = new ArrayList();
 		try {
-			logger.info("Fetching CBEFF for reference URL- {}", cbeffURL);
+			logger.info("Fetching CBEFF for reference URL-" + cbeffURL);
 			ResponseEntity<String> cbeffResp = restTemplate.exchange(cbeffURL, HttpMethod.GET, null, String.class);
-			logger.info("CBEFF response-{}", cbeffResp);
+			logger.info("CBEFF response-" + cbeffResp);
 			String cbeff = cbeffResp.getBody();
-			logger.info("CBEFF Data-{}", cbeff);
+			logger.info("CBEFF Data-" + cbeff);
 
 			try {
-				validateCBEFFData(cbeff);
+				/*
+				 * Data Share response { "id": "mosip.data.share", "version": "1.0",
+				 * "responsetime": "2023-05-23T12:02:53.601Z", "dataShare": null, "errors": [ {
+				 * "errorCode": "DAT-SER-006", "message": "Data share usuage expired" } ] } And
+				 * Errors DATA_ENCRYPTION_FAILURE_EXCEPTION("DAT-SER-001",
+				 * "Data Encryption failed"), API_NOT_ACCESSIBLE_EXCEPTION("DAT-SER-002",
+				 * "API not accessible"), FILE_EXCEPTION("DAT-SER-003",
+				 * "File is not exists or File is empty"), URL_CREATION_EXCEPTION("DAT-SER-004",
+				 * "URL creation exception"), SIGNATURE_EXCEPTION("DAT-SER-005",
+				 * "Failed to generate digital signature"),
+				 * DATA_SHARE_NOT_FOUND_EXCEPTION("DAT-SER-006", "Data share not found"),
+				 * DATA_SHARE_EXPIRED_EXCEPTION("DAT-SER-006", "Data share usuage expired"),
+				 * POLICY_EXCEPTION("DAT-SER-007", "Exception while fetching policy details");
+				 * KER-ATH-401 - Authentication Failed KER-ATH-403 - Forbidden
+				 */
+				JSONParser parser = new JSONParser();
+				JSONObject json = (JSONObject) parser.parse(cbeff);
+				JSONArray errors = (JSONArray) json.get("errors");
+				for (Iterator it = errors.iterator(); it.hasNext();) {
+					JSONObject error = (JSONObject) it.next();
+					String errorCode = ((String) error.get("errorCode")).trim();
+					String message = ((String) error.get("message")).trim();
+					logger.info("ErrorCode {}, ErrorMessage {}", errorCode, message);
+					throw new RequestException(errorCode);
+				}
 			} catch (RequestException ex) {
 				if (ex.getReasonConstant().equalsIgnoreCase("DAT-SER-006"))
 					throw new RequestException(FailureReasonsConstants.DATA_SHARE_URL_EXPIRED);
 				else
 					throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
 			} catch (Exception ex) {
-				logger.error("fetchCBEFF", ex);
+				// ex.printStackTrace();
 			}
 
 			if (encryption) {
 				cbeff = cryptoUtil.decryptCbeff(cbeff);
 			}
 
-			logger.info("CBEFF Data-{}", cbeff);
-			if (Objects.isNull(cbeff) || cbeff.isBlank() || cbeff.isEmpty()) {
-				logger.info("Error while validating CBEFF at fetchCBEFF");
+			logger.info("CBEFF Data- {}", cbeff);
+			if (cbeff == null || cbeff.isBlank() || cbeff.isEmpty()) {
+				logger.error("Error while validating CBEFF null of blank");
 				throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
 			}
 
-			BIR birInfo = getBirs(cbeff);
+			BIR birType = null;
+			try {
+				birType = CbeffValidator.getBIRFromXML(IOUtils.toByteArray(cbeff));
+				birType.setBirs(
+						birType.getBirs().stream().filter(b -> b.getBdb() != null).collect(Collectors.toList()));
+			} catch (Exception ex) {
+				logger.error("Error while validating CBEFF", ex);
+				throw new RequestException(FailureReasonsConstants.INVALID_CBEFF_FORMAT);
+			}
 
 			logger.info("Validating CBEFF data");
-			validateBirs(birInfo);
+			try {
+				if (!CbeffValidator.validateXML(birType)) {
+					logger.error("Error while validating CBEFF");
+					throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+				}
+
+				if (birType == null || birType.getBirs().size() == 0)
+					throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+			} catch (Exception ex) {
+				logger.error("Error while validating CBEFF Data", ex);
+				throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+			}
 
 			logger.info("Valid CBEFF data");
-			logger.info("Inserting biometric details to concerned table {}", birInfo.getBirs().size());
+			logger.info("Inserting biometric details to concerned table {} ", birType.getBirs().size());
 
-			addBirs(ie, lst, birInfo);
+			for (BIR bir : birType.getBirs()) {
+				if (bir.getBdb() != null && bir.getBdb().length > 0) {
+					BiometricData bd = new BiometricData();
+					bd.setType(bir.getBdbInfo().getType().iterator().next().value());
+					if (bir.getBdbInfo() == null)
+						throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+
+					if (bir.getBdbInfo().getSubtype() != null && !bir.getBdbInfo().getSubtype().isEmpty())
+						bd.setSubtype(bir.getBdbInfo().getSubtype().toString());
+
+					if ((bir.getBdb() == null || bir.getBdb().length <= 0))
+						throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+
+					String hash = getSHAFromBytes(bir.getBdb());
+					bd.setBioData(hash);
+					bd.setInsertEntity(ie);
+
+					lst.add(bd);
+				} else {
+					throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
+				}
+			}
 		} catch (HttpClientErrorException ex) {
 			logger.error("issue with httpclient URL ", ex);
 			throw new RequestException(FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS);
@@ -220,7 +288,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			throw new RequestException(FailureReasonsConstants.INVALID_CBEFF_FORMAT);
 		} catch (Exception ex) {
 			logger.error("Issue while getting ,validating and inserting Cbeff", ex);
-			throw new RequestException(FailureReasonsConstants.INVALID_CBEFF_FORMAT);
+			throw ex;
 		}
 		return lst;
 	}
@@ -294,7 +362,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			if (Objects.isNull(birInfo) || birInfo.getBirs().isEmpty())
 				throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
 		} catch (Exception ex) {
-			logger.error("Error while validating CBEFF Data", ex);
 			throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
 		}
 	}
@@ -349,8 +416,11 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				throw new RequestException(errorCode);
 			}
 		} catch (RequestException e) {
-			logger.error("validateCBEFFData", e);
-			throw new RequestException(e.getReasonConstant());
+			if (e.getReasonConstant().equalsIgnoreCase("DAT-SER-006"))
+				throw new RequestException(FailureReasonsConstants.DATA_SHARE_URL_EXPIRED);
+			else
+				throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
+		} catch (Exception ex) {
 		}
 	}
 

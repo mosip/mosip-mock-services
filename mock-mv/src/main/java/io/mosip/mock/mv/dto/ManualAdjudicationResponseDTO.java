@@ -1,7 +1,5 @@
 package io.mosip.mock.mv.dto;
 
-import java.time.OffsetDateTime;
-
 import lombok.Data;
 
 /**
