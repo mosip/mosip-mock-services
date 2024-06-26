@@ -215,7 +215,6 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				else
 					throw new RequestException(FailureReasonsConstants.UNEXPECTED_ERROR);
 			} catch (Exception ex) {
-				// ex.printStackTrace();
 			}
 
 			if (encryption) {
