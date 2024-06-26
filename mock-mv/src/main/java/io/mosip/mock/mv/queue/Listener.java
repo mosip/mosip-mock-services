@@ -350,14 +350,7 @@ public class Listener {
 			flag = true;
 		} catch (Exception e) {
 			logger.error("send", e);
-		} finally {
-			try {
-				if (!Objects.isNull(messageProducer))
-					messageProducer.close();
-			} catch (JMSException e) {
-				logger.error("send", e);
-			}
-		}
+		} 
 		return flag;
 	}
 
@@ -380,13 +373,6 @@ public class Listener {
 			flag = true;
 		} catch (Exception e) {
 			logger.error("send", e);
-		} finally {
-			try {
-				if (!Objects.isNull(messageProducer))
-					messageProducer.close();
-			} catch (JMSException e) {
-				logger.error("send", e);
-			}
 		}
 
 		return flag;
