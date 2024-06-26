@@ -1,6 +1,8 @@
 package io.mosip.proxy.abis.listener;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,12 +33,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 
 import io.mosip.proxy.abis.constant.AbisErrorCode;
-import io.mosip.proxy.abis.constant.FailureReasonsConstants;
 import io.mosip.proxy.abis.controller.ProxyAbisController;
 import io.mosip.proxy.abis.dto.FailureResponse;
 import io.mosip.proxy.abis.dto.IdentityRequest;
@@ -44,31 +46,19 @@ import io.mosip.proxy.abis.dto.InsertRequestMO;
 import io.mosip.proxy.abis.dto.MockAbisQueueDetails;
 import io.mosip.proxy.abis.dto.RequestMO;
 import io.mosip.proxy.abis.exception.AbisException;
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.utility.Helpers;
 import jakarta.jms.BytesMessage;
 import jakarta.jms.Connection;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageListener;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Session;
 import jakarta.jms.TextMessage;
-
-/**
- * Listens to JMS queues for ABIS requests, processes them, and sends back
- * appropriate responses asynchronously.
- * <p>
- * This component connects to ActiveMQ brokers based on configuration properties
- * and consumes messages from specified queues. Depending on the message type
- * and content, it determines the response to be sent back. Responses are
- * processed asynchronously using timers, allowing configurable delays before
- * sending them back to the appropriate queue.
- * <p>
- * 
- * @author
- */
 
 @Component
 public class Listener {
@@ -94,6 +84,7 @@ public class Listener {
 
 	private static final String ABIS_DELETE = "mosip.abis.delete";
 
+	private static final String ID = "id";
 	private ActiveMQConnectionFactory activeMQConnectionFactory;
 
 	/** The Constant INBOUNDQUEUENAME. */
@@ -126,13 +117,15 @@ public class Listener {
 	/** The Constant RANDOMIZE_FALSE. */
 	private static final String RANDOMIZE_FALSE = ")?randomize=false";
 
+	private static final String VALUE = "value";
+
 	private static final String TAG_ID = "id";
 	private static final String TAG_VERSION = "version";
 	private static final String TAG_REQUEST_ID = "requestId";
 	private static final String TAG_REQUEST_TIME = "requesttime";
 	private static final String TAG_REFERENCE_ID = "referenceId";
 	private static final String TAG_REFERENCE_URL = "referenceURL";
-
+	
 	private Connection connection;
 	private Session session;
 	private Destination destination;
@@ -147,7 +140,7 @@ public class Listener {
 
 	private ProxyAbisController proxycontroller;
 
-	private String outBoundQueue;
+	public String outBoundQueue;
 
 	/**
 	 * Constructor for the Listener class.
@@ -158,7 +151,7 @@ public class Listener {
 	public Listener(ProxyAbisController proxycontroller) {
 		this.proxycontroller = proxycontroller;
 	}
-
+	
 	/**
 	 * Consumes and processes the received JMS message.
 	 *
@@ -167,9 +160,7 @@ public class Listener {
 	 * @throws JMSException         If there is an issue with JMS operations.
 	 * @throws InterruptedException If the thread is interrupted.
 	 */
-	@SuppressWarnings({ "unused", "unchecked", "rawtypes" })
-	public void consumeLogic(jakarta.jms.Message message, String abismiddlewareaddress)
-			throws JMSException, InterruptedException {
+	public void consumeLogic(jakarta.jms.Message message, String abismiddlewareaddress) throws JMSException, InterruptedException {
 		ResponseEntity<Object> obj = null;
 		Map map = null;
 		Integer textType = 0;
@@ -182,23 +173,23 @@ public class Listener {
 				messageData = textMessage.getText();
 			} else if (message instanceof ActiveMQBytesMessage activeMQBytesMessage) {
 				textType = 2;
-				messageData = new String((activeMQBytesMessage).getContent().data);
+				messageData = new String(activeMQBytesMessage.getContent().data);
 			} else {
 				logger.error("Received message is neither text nor byte");
 				return;
 			}
-			logger.info("Message Data {}", messageData);
+			logger.info("Message Data {} ", messageData);
 			map = new Gson().fromJson(messageData, Map.class);
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.findAndRegisterModules();
 			mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
+			
 			logger.info("go on sleep {} ", delayResponse);
 			TimeUnit.SECONDS.sleep(delayResponse);
 
-			logger.info("Request type is {}", map.get("id"));
+			logger.info("Request type is {} ", map.get("id"));
 
-			switch (map.get(TAG_ID).toString()) {
+			switch (map.get(ID).toString()) {
 			case ABIS_INSERT:
 				final InsertRequestMO ie = mapper.convertValue(map, InsertRequestMO.class);
 				proxycontroller.saveInsertRequestThroughListner(ie, textType);
@@ -215,13 +206,13 @@ public class Listener {
 				throw new AbisException(AbisErrorCode.INVALID_ID_EXCEPTION.getErrorCode(),
 						AbisErrorCode.INVALID_ID_EXCEPTION.getErrorMessage());
 			}
-		} catch (AbisException e) {
+		} catch (Exception e) {
 			logger.error("Issue while hitting mock abis API", e);
 			obj = errorRequestThroughListner(e, map, textType);
 			try {
 				proxycontroller.executeAsync(obj, delayResponse, textType);
 			} catch (Exception e1) {
-				logger.error("Issue while hitting mock abis API1", e);
+				logger.error("Issue while hitting mock abis API1", e1);
 			}
 		}
 	}
@@ -475,11 +466,12 @@ public class Listener {
 	 *                 interpretation required).
 	 * @throws JsonProcessingException if an error occurs during JSON serialization.
 	 */
-	public void sendToQueue(ResponseEntity<Object> obj, Integer textType) throws JsonProcessingException {
+	public void sendToQueue(ResponseEntity<Object> obj, Integer textType)
+			throws JsonProcessingException, UnsupportedEncodingException {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.findAndRegisterModules();
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		logger.info("Response: {}", obj.getBody());
+		logger.info("Response: {} ", obj.getBody());
 		if (textType == 2) {
 			send(mapper.writeValueAsString(obj.getBody()).getBytes(StandardCharsets.UTF_8), outBoundQueue);
 		} else if (textType == 1) {
@@ -514,7 +506,7 @@ public class Listener {
 			return Helpers.readFileFromResources("registration-processor-abis.json");
 		} else {
 			RestTemplate restTemplate = new RestTemplate();
-			logger.info("Json URL {} {}", configServerFileStorageURL, uri);
+			logger.info("Json URL {} {} ", configServerFileStorageURL, uri);
 			return restTemplate.getForObject(configServerFileStorageURL + uri, String.class);
 		}
 	}
@@ -528,7 +520,7 @@ public class Listener {
 	 *         information.
 	 * @throws IOException if an error occurs during file reading or JSON parsing.
 	 */
-	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException {
+	public List<MockAbisQueueDetails> getAbisQueueDetails() throws IOException, URISyntaxException {
 		List<MockAbisQueueDetails> abisQueueDetailsList = new ArrayList<>();
 
 		String registrationProcessorAbis = getJson(configServerFileStorageURL, registrationProcessorAbisJson,
@@ -541,10 +533,11 @@ public class Listener {
 
 		try {
 			regProcessorAbisJson = g.fromJson(registrationProcessorAbis, JSONObject.class);
-			ArrayList<Map<String, String>> regProcessorAbisArray = (ArrayList<Map<String, String>>) regProcessorAbisJson
-					.get(ABIS);
+
+			ArrayList<Map> regProcessorAbisArray = (ArrayList<Map>) regProcessorAbisJson.get(ABIS);
 
 			for (int i = 0; i < regProcessorAbisArray.size(); i++) {
+
 				Map<String, String> json = regProcessorAbisArray.get(i);
 				String userName = validateAbisQueueJsonAndReturnValue(json, USERNAME);
 				String password = validateAbisQueueJsonAndReturnValue(json, PASSWORD);
@@ -560,7 +553,7 @@ public class Listener {
 				this.activeMQConnectionFactory.setTrustedPackages(Arrays.asList("io.mosip.proxy.abis.*"));
 				this.activeMQConnectionFactory.setUserName(userName);
 				this.activeMQConnectionFactory.setPassword(password);
-
+				
 				abisQueueDetails.setTypeOfQueue(typeOfQueue);
 				abisQueueDetails.setInboundQueueName(inboundQueueName);
 				abisQueueDetails.setOutboundQueueName(outboundQueueName);
@@ -636,6 +629,7 @@ public class Listener {
 		try {
 			List<MockAbisQueueDetails> abisQueueDetails = getAbisQueueDetails();
 			if (abisQueueDetails != null && !abisQueueDetails.isEmpty()) {
+
 				for (int i = 0; i < abisQueueDetails.size(); i++) {
 					String outBoundAddress = abisQueueDetails.get(i).getOutboundQueueName();
 					outBoundQueue = outBoundAddress;
@@ -656,12 +650,14 @@ public class Listener {
 				}
 
 			} else {
-				throw new AbisException(AbisErrorCode.QUEUE_CONNECTION_NOT_FOUND_EXCEPTION.getErrorCode(),
-						AbisErrorCode.QUEUE_CONNECTION_NOT_FOUND_EXCEPTION.getErrorMessage());
+				throw new Exception("Queue Connection Not Found");
+
 			}
 		} catch (Exception e) {
-			logger.error("runAbisQueue", e);
+			logger.error(e.getMessage());
+			e.printStackTrace();
 		}
+
 	}
 
 	/**
@@ -690,20 +686,13 @@ public class Listener {
 		if (destination == null) {
 			setup();
 		}
-		MessageConsumer consumer = null;
+		MessageConsumer consumer;
 		try {
 			destination = session.createQueue(address);
 			consumer = session.createConsumer(destination);
 			consumer.setMessageListener(getListener(queueName, object));
 		} catch (JMSException e) {
 			logger.error("consume", e);
-		} finally {
-			if (!Objects.isNull(consumer))
-				try {
-					consumer.close();
-				} catch (JMSException e) {
-					logger.error("consume", e);
-				}
 		}
 		return new byte[0];
 	}
@@ -722,9 +711,16 @@ public class Listener {
 	 *         matching listener type is found.
 	 */
 	public static MessageListener getListener(String queueName, QueueListener object) {
-		if (queueName.equals("ACTIVEMQ"))
-			return object::setListener;
+		if (queueName.equals("ACTIVEMQ")) {
 
+			return new MessageListener() {
+				@Override
+				public void onMessage(Message message) {
+					object.setListener(message);
+				}
+			};
+
+		}
 		return null;
 	}
 
@@ -798,6 +794,7 @@ public class Listener {
 		}
 		return flag;
 	}
+
 
 	/**
 	 * Initializes a connection and session to the ActiveMQ server if they are not

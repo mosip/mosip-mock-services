@@ -2,15 +2,13 @@ package io.mosip.proxy.abis.dto;
 
 import java.time.LocalDateTime;
 
-import io.mosip.proxy.abis.constant.FailureReasonsConstants;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 
 /**
  * InsertRequestMO represents the data transfer object (DTO) for an insert
@@ -28,50 +26,91 @@ import lombok.NoArgsConstructor;
  * @author
  * @since 1.0.0
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class InsertRequestMO {
-	/**
-	 * The ID of the insert request.
-	 */
 	@Pattern(regexp = "mosip.abis.insert", message = FailureReasonsConstants.INVALID_ID)
 	private String id;
 
-	/**
-	 * The version number of the insert request.
-	 */
-	@SuppressWarnings({ "java:S6353" })
 	@Pattern(regexp = "[0-9]+.[0-9]", message = FailureReasonsConstants.INVALID_VERSION)
 	private String version;
 
-	/**
-	 * The unique request ID associated with the insert request.
-	 */
 	@NotEmpty(message = FailureReasonsConstants.MISSING_REQUESTID)
 	@NotNull(message = FailureReasonsConstants.MISSING_REQUESTID)
 	private String requestId;
 
-	/**
-	 * The timestamp when the insert request was made.
-	 */
 	@Column(name = "requesttime")
 	@NotNull(message = FailureReasonsConstants.MISSING_REQUESTTIME)
 	private LocalDateTime requesttime;
 
-	/**
-	 * The unique reference ID linked to the data being inserted.
-	 */
 	@Id
 	@NotEmpty(message = FailureReasonsConstants.MISSING_REFERENCEID)
 	@NotNull(message = FailureReasonsConstants.MISSING_REFERENCEID)
 	private String referenceId;
 
-	/**
-	 * The URL reference associated with the data being inserted.
-	 */
 	@NotEmpty(message = FailureReasonsConstants.MISSING_REFERENCE_URL)
 	@NotNull(message = FailureReasonsConstants.MISSING_REFERENCE_URL)
 	@Column(name = "referenceURL")
 	private String referenceURL;
+
+	public InsertRequestMO() {
+		super();
+	}
+
+	public InsertRequestMO(String id, String version, String requestId, LocalDateTime requesttime, String referenceId,
+			String referenceURL) {
+		super();
+		this.id = id;
+		this.version = version;
+		this.requestId = requestId;
+		this.requesttime = requesttime;
+		this.referenceId = referenceId;
+		this.referenceURL = referenceURL;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
+
+	public LocalDateTime getRequesttime() {
+		return requesttime;
+	}
+
+	public void setRequesttime(LocalDateTime requesttime) {
+		this.requesttime = requesttime;
+	}
+
+	public String getReferenceId() {
+		return referenceId;
+	}
+
+	public void setReferenceId(String referenceId) {
+		this.referenceId = referenceId;
+	}
+
+	public String getReferenceURL() {
+		return referenceURL;
+	}
+
+	public void setReferenceURL(String referenceURL) {
+		this.referenceURL = referenceURL;
+	}
 }
