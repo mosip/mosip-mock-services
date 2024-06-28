@@ -678,6 +678,7 @@ public class Listener {
 	 *                       during connection/session setup, or a JMS exception
 	 *                       occurs.
 	 */
+	@SuppressWarnings({ "java:S2095" })
 	public byte[] consume(String address, QueueListener object, String queueName) throws AbisException {
 		if (Objects.isNull(this.activeMQConnectionFactory)) {
 			throw new AbisException(AbisErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
