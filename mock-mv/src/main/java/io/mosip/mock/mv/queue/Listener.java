@@ -41,6 +41,7 @@ import jakarta.jms.BytesMessage;
 import jakarta.jms.Connection;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageListener;
 import jakarta.jms.MessageProducer;
@@ -48,16 +49,17 @@ import jakarta.jms.Session;
 import jakarta.jms.TextMessage;
 
 /**
- * Listens to JMS queues for manual adjudication and verification requests, processes them,
- * and sends back appropriate responses asynchronously.
+ * Listens to JMS queues for manual adjudication and verification requests,
+ * processes them, and sends back appropriate responses asynchronously.
  * <p>
- * This component connects to ActiveMQ brokers based on configuration properties and consumes
- * messages from specified queues. Depending on the message type and content, it determines
- * the response to be sent back. Responses are processed asynchronously using timers, allowing
- * configurable delays before sending them back to the appropriate queue.
+ * This component connects to ActiveMQ brokers based on configuration properties
+ * and consumes messages from specified queues. Depending on the message type
+ * and content, it determines the response to be sent back. Responses are
+ * processed asynchronously using timers, allowing configurable delays before
+ * sending them back to the appropriate queue.
  * <p>
- * Uses {@link ExpectationCache} to retrieve mock decision configurations and {@link ObjectMapper}
- * for JSON serialization and deserialization.
+ * Uses {@link ExpectationCache} to retrieve mock decision configurations and
+ * {@link ObjectMapper} for JSON serialization and deserialization.
  * 
  * @author
  */
@@ -133,22 +135,24 @@ public class Listener {
 
 	/** The Constant RANDOMIZE_FALSE. */
 	private static final String RANDOMIZE_FALSE = ")?randomize=false";
-	
+
 	private Connection connection;
 	private Session session;
 	private Destination destination;
 
 	private Timer timer = new Timer();
 
-	 /**
-     * Processes the incoming JMS message, determines the appropriate response based on
-     * configured expectations or default decisions, and sends the response asynchronously
-     * with a configurable delay.
-     * 
-     * @param message The JMS message received.
-     * @param mvAddress The address of the destination queue for sending the response.
-     * @return {@code true} if the response was successfully sent asynchronously; {@code false} otherwise.
-     */
+	/**
+	 * Processes the incoming JMS message, determines the appropriate response based
+	 * on configured expectations or default decisions, and sends the response
+	 * asynchronously with a configurable delay.
+	 * 
+	 * @param message   The JMS message received.
+	 * @param mvAddress The address of the destination queue for sending the
+	 *                  response.
+	 * @return {@code true} if the response was successfully sent asynchronously;
+	 *         {@code false} otherwise.
+	 */
 	@SuppressWarnings({ "java:S3776" })
 	public boolean consumeLogic(jakarta.jms.Message message, String mvAddress) {
 		boolean isrequestAddedtoQueue = false;
@@ -156,7 +160,7 @@ public class Listener {
 		StringBuilder messageData = new StringBuilder();
 		try {
 			textType = checkConsumeInfo(message, messageData);
-			if (textType == 0){
+			if (textType == 0) {
 				logger.error("Received message is neither text nor byte");
 				return false;
 			}
@@ -220,8 +224,8 @@ public class Listener {
 	}
 
 	/**
-     * Sets up the JMS connection and session if they are not already initialized.
-     */
+	 * Sets up the JMS connection and session if they are not already initialized.
+	 */
 	public void setup() {
 		logger.info("Inside setup.");
 		try {
@@ -242,9 +246,9 @@ public class Listener {
 	}
 
 	/**
-     * Consumes messages from the manual adjudication queue and processes them using the
-     * {@link #consumeLogic(jakarta.jms.Message, String)} method.
-     */
+	 * Consumes messages from the manual adjudication queue and processes them using
+	 * the {@link #consumeLogic(jakarta.jms.Message, String)} method.
+	 */
 	public void runAdjudicationQueue() {
 		try {
 			QueueListener listener = new QueueListener() {
@@ -262,10 +266,10 @@ public class Listener {
 		}
 	}
 
-	 /**
-     * Consumes messages from the verification queue and processes them using the
-     * {@link #consumeLogic(jakarta.jms.Message, String)} method.
-     */
+	/**
+	 * Consumes messages from the verification queue and processes them using the
+	 * {@link #consumeLogic(jakarta.jms.Message, String)} method.
+	 */
 	public void runVerificationQueue() {
 		try {
 			QueueListener listener = new QueueListener() {
@@ -273,7 +277,6 @@ public class Listener {
 				@Override
 				public void setListener(jakarta.jms.Message message) {
 					consumeLogic(message, verificationResponseAddress);
-
 				}
 			};
 			consume(verificationRequestAddress, listener, vbrokerUrl, vusername, vpassword);
@@ -283,29 +286,31 @@ public class Listener {
 		}
 	}
 
-	 /**
-     * Consumes messages from the specified JMS queue address asynchronously.
-     *
-     * @param address   The JMS queue address to consume messages from.
-     * @param object    The QueueListener object that handles the message consumption logic.
-     * @param brokerUrl The URL of the broker for the JMS connection.
-     * @param username  The username for authenticating the JMS connection.
-     * @param password  The password for authenticating the JMS connection.
-     * @return An empty byte array indicating successful consumption.
-     * @throws MVException If an invalid connection configuration prevents connection creation.
-     */
+	/**
+	 * Consumes messages from the specified JMS queue address asynchronously.
+	 *
+	 * @param address   The JMS queue address to consume messages from.
+	 * @param object    The QueueListener object that handles the message
+	 *                  consumption logic.
+	 * @param brokerUrl The URL of the broker for the JMS connection.
+	 * @param username  The username for authenticating the JMS connection.
+	 * @param password  The password for authenticating the JMS connection.
+	 * @return An empty byte array indicating successful consumption.
+	 * @throws MVException If an invalid connection configuration prevents
+	 *                     connection creation.
+	 */
 	@SuppressWarnings({ "unused" })
 	public byte[] consume(String address, QueueListener object, String brokerUrl, String userName, String password) {
 		if (Objects.isNull(this.activeMQConnectionFactory)) {
 			logger.info("Creating new connection.");
 			String failOverBrokerUrl = FAIL_OVER + brokerUrl + "," + brokerUrl + RANDOMIZE_FALSE;
-			logger.info("Broker url : {}" , failOverBrokerUrl);
+			logger.info("Broker url : {}", failOverBrokerUrl);
 			this.activeMQConnectionFactory = new ActiveMQConnectionFactory(failOverBrokerUrl);
 			this.activeMQConnectionFactory.setTrustedPackages(Arrays.asList("io.mosip.mock.mv.*"));
 			this.activeMQConnectionFactory.setUserName(userName);
 			this.activeMQConnectionFactory.setPassword(password);
 		}
-		
+
 		if (Objects.isNull(this.activeMQConnectionFactory)) {
 			logger.error("Could not create connection. Invalid connection configuration.");
 			throw new MVException(MVErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorCode(),
@@ -322,21 +327,26 @@ public class Listener {
 			messageConsumer.setMessageListener(getListener(object));
 		} catch (Exception e) {
 			logger.error("consume", e);
-		} 
+		}
 		return new byte[0];
 	}
 
 	public static MessageListener getListener(QueueListener object) {
-		return object::setListener;
-	}
+		return new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				object.setListener(message);
+			}
+		};
+}
 
 	/**
-     * Creates and sends a byte array message to the specified JMS queue address.
-     *
-     * @param message The byte array message to send.
-     * @param address The JMS queue address to send the message to.
-     * @return true if the message was sent successfully; false otherwise.
-     */
+	 * Creates and sends a byte array message to the specified JMS queue address.
+	 *
+	 * @param message The byte array message to send.
+	 * @param address The JMS queue address to send the message to.
+	 * @return true if the message was sent successfully; false otherwise.
+	 */
 	public Boolean send(byte[] message, String address) {
 		boolean flag = false;
 		MessageProducer messageProducer = null;
@@ -350,17 +360,17 @@ public class Listener {
 			flag = true;
 		} catch (Exception e) {
 			logger.error("send", e);
-		} 
+		}
 		return flag;
 	}
 
-	 /**
-     * Creates and sends a text message to the specified JMS queue address.
-     *
-     * @param message The text message to send.
-     * @param address The JMS queue address to send the message to.
-     * @return true if the message was sent successfully; false otherwise.
-     */
+	/**
+	 * Creates and sends a text message to the specified JMS queue address.
+	 *
+	 * @param message The text message to send.
+	 * @param address The JMS queue address to send the message to.
+	 * @return true if the message was sent successfully; false otherwise.
+	 */
 	public Boolean send(String message, String address) {
 		boolean flag = false;
 		MessageProducer messageProducer = null;
@@ -384,7 +394,7 @@ public class Listener {
 	 * an MVException if the connection factory is null.
 	 *
 	 * @throws MVException if the ActiveMQ connection factory is null, indicating an
-	 *         invalid connection scenario.
+	 *                     invalid connection scenario.
 	 */
 	private void initialSetup() throws MVException {
 		if (Objects.isNull(this.activeMQConnectionFactory)) {
@@ -396,21 +406,22 @@ public class Listener {
 	}
 
 	/**
-     * Returns a pre-configured ObjectMapper instance configured to ignore unknown properties.
-     *
-     * @return ObjectMapper instance with configured settings.
-     */
+	 * Returns a pre-configured ObjectMapper instance configured to ignore unknown
+	 * properties.
+	 *
+	 * @return ObjectMapper instance with configured settings.
+	 */
 	public static ObjectMapper objectMapper() {
 		return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
-	 /**
-     * Converts a Java object to its JSON representation as a String.
-     *
-     * @param className The object to convert to JSON.
-     * @return JSON representation of the object as a String.
-     * @throws JsonProcessingException If there's an error during JSON processing.
-     */
+	/**
+	 * Converts a Java object to its JSON representation as a String.
+	 *
+	 * @param className The object to convert to JSON.
+	 * @return JSON representation of the object as a String.
+	 * @throws JsonProcessingException If there's an error during JSON processing.
+	 */
 	public static String javaObjectToJsonString(Object className) throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -421,11 +432,11 @@ public class Listener {
 	}
 
 	/**
-     * Populates a list of candidates based on the provided reference IDs.
-     *
-     * @param refIds The list of reference IDs to create candidates from.
-     * @return A CandidateList object populated with candidates.
-     */
+	 * Populates a list of candidates based on the provided reference IDs.
+	 *
+	 * @param refIds The list of reference IDs to create candidates from.
+	 * @return A CandidateList object populated with candidates.
+	 */
 	private CandidateList populatesCandidateList(List<ReferenceIds> refIds) {
 		List<Candidate> candidates = new ArrayList<>();
 		CandidateList candidateList = new CandidateList();
@@ -447,14 +458,17 @@ public class Listener {
 	}
 
 	/**
-     * Executes a task asynchronously after a specified delay, sending a response to a message broker.
-     *
-     * @param response      The response to send, either as a byte array or a String depending on textType.
-     * @param delayResponse The delay in seconds before executing the task.
-     * @param textType      The type of response: 1 for String, 2 for byte array.
-     * @param mvAddress     The address of the message broker to send the response to.
-     * @return true if the task was scheduled successfully, false otherwise.
-     */
+	 * Executes a task asynchronously after a specified delay, sending a response to
+	 * a message broker.
+	 *
+	 * @param response      The response to send, either as a byte array or a String
+	 *                      depending on textType.
+	 * @param delayResponse The delay in seconds before executing the task.
+	 * @param textType      The type of response: 1 for String, 2 for byte array.
+	 * @param mvAddress     The address of the message broker to send the response
+	 *                      to.
+	 * @return true if the task was scheduled successfully, false otherwise.
+	 */
 	public boolean executeAsync(String response, int delayResponse, Integer textType, String mvAddress) {
 		TimerTask task = new TimerTask() {
 			public void run() {
