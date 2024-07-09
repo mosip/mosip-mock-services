@@ -201,6 +201,7 @@
 					</descriptorRefs>
 					<excludes>
 						<exclude>io.mosip.kernel.biometrics.*</exclude>
+						<exclude>org.springdoc.*</exclude>
 					</excludes>
 					<archive>						
 					</archive>
