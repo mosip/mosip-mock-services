@@ -93,6 +93,26 @@
 			<artifactId>kernel-bio-converter</artifactId>
 			<version>${kernel.bioconverter.version}</version>
 			<classifier>lib</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springdoc</groupId>
+					<artifactId>
+						springdoc-openapi-starter-webmvc-ui
+					</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springdoc</groupId>
+					<artifactId>
+						springdoc-openapi-starter-webmvc-api
+					</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springdoc</groupId>
+					<artifactId>
+						springdoc-openapi-starter-common
+					</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
