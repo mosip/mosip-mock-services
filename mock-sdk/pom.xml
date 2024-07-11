@@ -32,7 +32,7 @@
 		<maven.gpg.plugin.version>3.2.3</maven.gpg.plugin.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
-		<maven.assembly.plugin.version>3.1.1</maven.assembly.plugin.version>
+		<maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
 		<maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
 		<maven.resources.plugin.version>3.0.1</maven.resources.plugin.version>
 		<maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
@@ -96,21 +96,19 @@
 			<exclusions>
 				<exclusion>
 					<groupId>org.springdoc</groupId>
-					<artifactId>
-						springdoc-openapi-starter-webmvc-ui
-					</artifactId>
+					<artifactId>springdoc-openapi-ui</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.springdoc</groupId>
-					<artifactId>
-						springdoc-openapi-starter-webmvc-api
-					</artifactId>
+					<artifactId>springdoc-openapi-starter-common</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.springdoc</groupId>
-					<artifactId>
-						springdoc-openapi-starter-common
-					</artifactId>
+					<artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springdoc</groupId>
+					<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -203,7 +201,7 @@
 						<exclude>io.mosip.kernel.biometrics.*</exclude>
 						<exclude>org.springdoc.*</exclude>
 					</excludes>
-					<archive>						
+					<archive>
 					</archive>
 				</configuration>
 				<executions>
