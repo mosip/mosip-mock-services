@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:22
 
 ARG SOURCE
 ARG COMMIT_HASH
