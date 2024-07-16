@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as buildimage
+FROM ubuntu:mantic-20240530 as buildimage
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -36,7 +36,7 @@ RUN apt-get -y install zip \
 
 
 
-FROM ubuntu:18.04
+FROM ubuntu:mantic-20240530
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get -y install opensc libtool
