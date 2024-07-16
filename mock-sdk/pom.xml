@@ -89,7 +89,7 @@
 		<commons-codec.version>1.15</commons-codec.version>
 		<!-- base64url codec -->
 		<apache.commons.version>3.11</apache.commons.version>
-		<fasterxml.jackson.version>2.11.0</fasterxml.jackson.version>
+		<fasterxml.jackson.version>2.13.5</fasterxml.jackson.version>
 		<hibernate.version>5.2.17.Final</hibernate.version>
 		<hibernate.validator.version>6.0.12.Final</hibernate.validator.version>
 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
