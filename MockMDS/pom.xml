@@ -47,7 +47,7 @@
 		<com.squareup.okhttp.version>2.7.5</com.squareup.okhttp.version>
 		<org.codehaus.jackson.mapper.asl.version>1.9.13</org.codehaus.jackson.mapper.asl.version>
 		<javax.xml.crypto.jsr105.api.version>1.0.1</javax.xml.crypto.jsr105.api.version>
-		<org.bitbucket.jose4j.version>0.7.1</org.bitbucket.jose4j.version>
+		<org.bitbucket.jose4j.version>0.9.4</org.bitbucket.jose4j.version>
 
 		<!-- Mosip -->
 		<kernel.bom.version>1.2.1-java21-SNAPSHOT</kernel.bom.version>
