@@ -70,8 +70,8 @@
 		<h2.version>1.4.197</h2.version>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
-	    <swagger.version>2.9.2</swagger.version>
-		<springdoc.version>1.5.10</springdoc.version>
+	    <swagger.version>2.10.0</swagger.version>
+		<springdoc.version>1.8.0</springdoc.version>
 		<io.micrometer.prometheus.version>1.4.2</io.micrometer.prometheus.version>
 	</properties>
 
@@ -91,7 +91,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
-			<version>2.0.0.RELEASE</version>
+			<version>3.1.9</version>
 		</dependency>
 
 		<!--<dependency>
@@ -312,7 +312,7 @@
 						</goals>
 						<configuration>
 							<gpgArguments>
-								<arg>&#45;&#45;pinentry-mode</arg>
+								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
 							</gpgArguments>
 						</configuration>
