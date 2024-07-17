@@ -14,8 +14,7 @@
 	<artifactId>mock-mds</artifactId>
 	<version>1.2.0.2</version>
 	<name>mock-mds</name>
-	<description>A mock project for biometric provider</description>
-	<url>https://github.com/mosip/mosip-mock-services</url>
+	
 
 	<licenses>
 		<license>
