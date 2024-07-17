@@ -13,9 +13,7 @@
 	<groupId>io.mosip.mock.mds</groupId>
 	<artifactId>mock-mds</artifactId>
 	<version>1.2.0.2</version>
-	<name>mock-mds</name>
 	
-
 	<licenses>
 		<license>
 			<name>MPL 2.0</name>
