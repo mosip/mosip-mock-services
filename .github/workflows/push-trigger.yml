@@ -129,7 +129,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-maven-MockMDS:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    uses: abhishek8shankar/kattu/.github/workflows/maven-build.yml@master-31028
     with:
       SERVICE_LOCATION: ./MockMDS
       BUILD_ARTIFACT: mockmds
