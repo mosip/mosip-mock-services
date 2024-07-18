@@ -44,7 +44,7 @@
 		<git.commit.id.plugin.version>3.0.1</git.commit.id.plugin.version>
 
 		<!-- swagger -->
-		<springdoc.openapi.starter.webmvc.ui.version>2.5.0</springdoc.openapi.starter.webmvc.ui.version>
+		<springdoc.openapi.starter.webmvc.ui.version>2.6.0</springdoc.openapi.starter.webmvc.ui.version>
 
 		<!-- Active mq -->
 		<activemq.client.version>6.1.2</activemq.client.version>
