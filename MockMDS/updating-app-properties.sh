@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # Define the placeholders and their respective runtime values from environment variables
-#MOSIP_REGPROC_CLIENT_SECRET=${MOSIP_REGPROC_CLIENT_SECRET}
-#keystore_pwd=mosip123
 
 echo "keystore_pwd: $keystore_pwd"
 

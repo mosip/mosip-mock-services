@@ -22,13 +22,10 @@ zip -r $work_dir/mockmds.zip $work_dir/target $work_dir/MockMDS/* $work_dir/cert
 
 echo -e "\n\n=========================== CONFIGURING MINIO CLIENT ================================================\n"
 # Configure mc client
-#mc alias set s3 "$S3_HOST:9000" "$S3_USER_KEY" "$S3_USER_SECRET" --api=S3v2
-#mc --help
 
 mc alias set s3 "$S3_HOST" "$S3_USER_KEY" "$S3_USER_SECRET" --api=S3v2
 
 # Create bucket if it does not exist
-#mc mb "s3/$S3_BUCKET_NAME"
 mc mb s3/"$S3_BUCKET_NAME" --ignore-existing $S3_REGION
 
 # Upload the zip to MinIO

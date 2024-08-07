@@ -16,44 +16,36 @@ LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
-# Install Node.js, required tools, and clean up
-RUN apt-get update && apt-get install -y curl openssl jq bash sed gawk grep zip && \
-    curl -O https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-07-29T19-17-16Z && \
-    chmod +x mc.RELEASE.2022-07-29T19-17-16Z && \
-    mv mc.RELEASE.2022-07-29T19-17-16Z /usr/local/bin/mc &&  \
-    #curl https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc && \
-    #chmod +x /usr/local/bin/mc && \
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
-    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
-    rm kubectl && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Create user and group
-RUN groupadd -g ${container_user_gid} ${container_user_group} && \
-    useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user}
-
 # Set working directory
 WORKDIR /home/${container_user}
 
 ENV work_dir=/home/${container_user}
 
 # Copy files to the working directory
-COPY application.properties $work_dir/
-COPY ["Biometric Devices", "$work_dir/Biometric Devices"]
 COPY entrypoint.sh $work_dir
 COPY ./MockMDS/target $work_dir/target
-#COPY ./target $work_dir/target
 COPY *.sh openssl.cnf $work_dir
 
-# Set executable permissions for scripts
-RUN chmod +x *.sh
-
-# Set ownership of the working directory
-RUN chown -R ${container_user}:${container_user} /home/${container_user}
+# Install packages, download binaries, create user and group in a single RUN command
+RUN apt-get update && \
+    apt-get install -y curl openssl jq bash sed gawk grep zip && \
+    curl -O https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-07-29T19-17-16Z && \
+    chmod +x mc.RELEASE.2022-07-29T19-17-16Z && \
+    mv mc.RELEASE.2022-07-29T19-17-16Z /usr/local/bin/mc && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+    rm kubectl && \
+    groupadd -g ${container_user_gid} ${container_user_group} && \
+    useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* \
+    chmod +x *.sh \
+    chown -R ${container_user}:${container_user} /home/${container_user}
 
 # Switch to the container user
 USER ${container_user_uid}:${container_user_gid}
+
+WORKDIR /home/${container_user}
 
 # Define environment variables
 ENV CA= \
@@ -66,7 +58,6 @@ ENV CA= \
     mosip-api-internal-host= \
     mosip_regproc_client_secret= \
     mosip_deployment_client_secret= \
-    keystore_pwd=mosip123 \
     s3-host= \
     s3-region= \
     s3-user-key= \

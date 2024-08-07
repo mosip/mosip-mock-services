@@ -36,7 +36,6 @@ echo "TOKEN: $TOKEN"
 partnermanagerUrl=https://$( printenv mosip-api-internal-host )
 RAND_MOBILE_NO=$(tr -cd '[:digit:]' < /dev/urandom | fold -w 10 | head -n 1)
 RAND_EMAIL_ID=$( echo "$(openssl rand -hex 10)@gmail.com" )
-#RAND_EMAIL_ID=findme@gmail.com
 echo "RAND_EMAIL_ID: $RAND_EMAIL_ID"
 
 echo -e "\n========== Adding Device Partner =========="
