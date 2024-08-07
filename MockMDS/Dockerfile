@@ -31,17 +31,17 @@ COPY *.sh openssl.cnf $work_dir
 # Install packages, download binaries, create user and group in a single RUN command
 RUN apt-get update && \
     apt-get install -y curl openssl jq bash sed gawk grep zip && \
+    groupadd -g ${container_user_gid} ${container_user_group} && \
+    useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} && \
     curl -O https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-07-29T19-17-16Z && \
     chmod +x mc.RELEASE.2022-07-29T19-17-16Z && \
     mv mc.RELEASE.2022-07-29T19-17-16Z /usr/local/bin/mc && \
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl && \
-    groupadd -g ${container_user_gid} ${container_user_group} && \
-    useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
-    chmod +x *.sh \
+    chmod +x $work_dir/*.sh \
     chown -R ${container_user}:${container_user} /home/${container_user}
 
 # Switch to the container user
