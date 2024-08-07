@@ -139,11 +139,6 @@
 			<artifactId>jose4j</artifactId>
 			<version>${org.bitbucket.jose4j.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.36</version>
-		</dependency>
 
 	</dependencies>
 
