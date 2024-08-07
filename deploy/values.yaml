@@ -1,0 +1,9 @@
+mockmds:
+  configmaps:
+    certs:
+      CA: ca
+      SUBCA: subca
+      CLIENT: mds
+      COUNTRY: IN
+      STATE: KAR
+      LOCATION: Bangalore

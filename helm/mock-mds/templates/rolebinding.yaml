@@ -1,0 +1,13 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: "{{ .Values.job.rolebindingname }}-{{ .Release.Namespace }}"
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "mock-mds.serviceAccountName" $ }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: "{{ .Values.job.rolename }}-{{ .Release.Namespace }}"
+  apiGroup: rbac.authorization.k8s.io

@@ -1,10 +1,11 @@
-#!/bin/bash
-# Copy configmaps from other namespaces
+##!/bin/bash
+# Copy secrets from other namespaces
 # DST_NS: Destination namespace
 
-function copying_cm() {
+function copying_secrets() {
   UTIL_URL=https://raw.githubusercontent.com/mosip/mosip-infra/master/deployment/v3/utils/copy_cm_func.sh
   COPY_UTIL=./copy_cm_func.sh
+  DST_NS=mds
 
  # Check if copy_cm_func.sh exists, download if not
   if [ ! -f "$COPY_UTIL" ]; then
@@ -12,18 +13,10 @@ function copying_cm() {
     wget -q "$UTIL_URL" -O "$COPY_UTIL"
     chmod +x "$COPY_UTIL"
   fi
-
-  # Copy configmaps for $NS which is abis
-  DST_NS=abis
   echo "Copying configmaps to namespace $DST_NS"
-  $COPY_UTIL configmap global default $DST_NS
-  $COPY_UTIL configmap artifactory-share artifactory $DST_NS
-  $COPY_UTIL configmap config-server-share config-server $DST_NS
-
-  # Copy configmaps for $MDSNS which is mds
-  DST_NS=mds
-  echo "Copying configmaps to namespace $DST_NS"
-  $COPY_UTIL configmap global default $DST_NS
+  $COPY_UTIL secret s3 s3 $DST_NS
+  $COPY_UTIL secret keycloak keycloak $DST_NS
+  $COPY_UTIL secret keycloak-client-secrets keycloak $DST_NS
 
   return 0
 }
@@ -34,4 +27,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-copying_cm   # calling function
+copying_secrets   # calling function

@@ -1,0 +1,62 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "common.names.fullname" $ }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    {{- if $.Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if $.Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: {{ $.Values.backoffLimit }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" $ | nindent 10 }}
+        {{- if $.Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" $.Values.commonLabels "context" $ ) | nindent 10 }}
+        {{- end }}
+      annotations:
+        {{- if $.Values.commonAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 10 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "mock-mds.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml $.Values.jobSecurityContext | nindent 8 }}
+      restartPolicy: Never  # This is one time job
+      containers:
+        - name: {{ template "common.names.fullname" $ }}
+          securityContext: {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: {{ template "mock-mds.image" $ }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          envFrom:
+            {{- if $.Values.mockmds.configmaps }}
+            {{- range $cm_name, $cm_value := $.Values.mockmds.configmaps }}
+            - configMapRef:
+                name: {{ $cm_name }}
+            {{- end }}
+            {{- end }}
+            {{- if $.Values.mockmds.secrets }}
+            {{- range $secret_name, $secret_value := $.Values.mockmds.secrets }}
+            - secretRef:
+                name: {{ $secret_name }}
+            {{- end }}
+            {{- end }}
+            {{- if $.Values.extraEnvVarsSecret }}
+            {{- range $.Values.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ . }}
+            {{- end }}
+            {{- end }}
+              {{- if $.Values.extraEnvVarsCM }}
+              {{- range $.Values.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ . }}
+              {{- end }}
+              {{- end }}
+          {{- if $.Values.resources }}
+          resources: {{- toYaml $.Values.resources | nindent 12 }}
+          {{- end }}
