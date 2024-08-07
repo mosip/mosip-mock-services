@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the placeholders and their respective runtime values from environment variables
-
+keystore_pwd=mosip123
 echo "keystore_pwd: $keystore_pwd"
 
 # Fetch API_INTERNAL_HOST from Kubernetes ConfigMap
