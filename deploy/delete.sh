@@ -2,14 +2,15 @@
 # Uninstalls mocks
 
 function mock() {
-  NS=mock-smtp
-  ABISNS=abis
+  NS=abis
+  MDSNS=mds
   while true; do
-      read -p "Are you sure you want to delete mock smtp helm chart?(Y/n) " yn
+      read -p "Are you sure you want to delete mock helm chart?(Y/n) " yn
       if [ $yn = "Y" ]
         then
-          helm -n $ABISNS delete mock-abis
-          helm -n $ABISNS delete mock-mv
+          helm -n $NS delete mock-abis
+          helm -n $NS delete mock-mv
+          helm -n $MDSNS  delete mock-mds
           break
         else
           break
