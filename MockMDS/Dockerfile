@@ -29,8 +29,10 @@ ENV work_dir=/home/${container_user}
 # Copy files to the working directory
 
 COPY entrypoint.sh ${work_dir}/
-COPY ./MockMDS/target/ $work_dir/target/
-COPY *.sh openssl.cnf ${work_dir}/
+#COPY ./MockMDS/target/ $work_dir/target/
+#COPY *.sh openssl.cnf ${work_dir}/
+COPY ./mds-certgen/*.sh openssl.cnf ${work_dir}/
+
 # Install packages, download binaries, create user and group in a single RUN command
 RUN apt-get update && \
     apt-get install -y curl openssl jq zip && \
