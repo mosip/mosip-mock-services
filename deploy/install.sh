@@ -59,13 +59,13 @@ function mock() {
 
 
   echo "Installing mock-mv in $NS"
-  helm -n $NS template mock-mv mosip/mock-mv --version $CHART_VERSION
+  helm -n $NS install mock-mv mosip/mock-mv --version $CHART_VERSION
 
   echo "Installing mock-abis in $NS"
-  helm -n $NS template mock-abis mosip/mock-abis --version $CHART_VERSION
+  helm -n $NS install mock-abis mosip/mock-abis --version $CHART_VERSION
 
   echo "Installing mock-mds with provided configuration"
-  helm -n $MDSNS template mock-mds mosip/mock-mds \
+  helm -n $MDSNS install mock-mds mosip/mock-mds \
     --set mockmds.configmaps.s3.s3-host="$s3_url" \
     --set mockmds.configmaps.s3.s3-user-key="$s3_user_key" \
     --set mockmds.configmaps.s3.s3-region="$s3_region" \

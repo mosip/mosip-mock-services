@@ -8,8 +8,8 @@ function mock() {
       read -p "Are you sure you want to delete mock helm chart?(Y/n) " yn
       if [ $yn = "Y" ]
         then
-          helm -n $ABISNS delete mock-abis
-          helm -n $ABISNS delete mock-mv
+          helm -n $NS delete mock-abis
+          helm -n $NS delete mock-mv
           helm -n $MDSNS  delete mock-mds
           break
         else
