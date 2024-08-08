@@ -10,8 +10,6 @@ API_INTERNAL_HOST=$(kubectl get cm global -o jsonpath='{.data.mosip-api-internal
 # Print the fetched API_INTERNAL_HOST for verification
 echo "API_INTERNAL_HOST: $API_INTERNAL_HOST"
 
-pwd
-
 # Path to your application.properties file
 PROPERTIES_FILE="target/application.properties"
 
