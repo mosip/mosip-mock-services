@@ -135,7 +135,11 @@ public class ExtractTemplateService extends SDKService {
 			if (!isValidBirData(segment))
 				break;
 
-			segment.getBirInfo().setPayload(segment.getBdb());
+			/**
+			 * use it if required .. removed to get better performance
+			 * MOSIP-35428
+			 * segment.getBirInfo().setPayload(segment.getBdb());
+			 */
 			BDBInfo bdbInfo = segment.getBdbInfo();
 			if (bdbInfo != null) {
 				// Update the level to processed
