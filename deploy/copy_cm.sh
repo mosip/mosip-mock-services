@@ -7,8 +7,6 @@ function copying_cm() {
   COPY_UTIL=./copy_cm_func.sh
   DST_NS=abis
 
-  UTIL_URL=https://raw.githubusercontent.com/mosip/mosip-infra/master/deployment/v3/utils/copy_cm_func.sh
-
   $COPY_UTIL configmap global default $DST_NS
   $COPY_UTIL configmap config-server-share config-server $DST_NS
   $COPY_UTIL configmap artifactory-share artifactory $DST_NS
