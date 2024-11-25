@@ -52,13 +52,14 @@ Use Maven to build the project and resolve dependencies.
 ## Running the Application
 Used as reference implementation for biosdk-services[https://github.com/mosip/biosdk-services].
 
-## Configurations
+## Configurations 
+In biosdk-services below values are required for mockSDK implementation.
 
 	biosdk_class=io.mosip.mock.sdk.impl.SampleSDKV2
 	mosip.role.biosdk.getservicestatus=REGISTRATION_PROCESSOR
 	biosdk_bioapi_impl=io.mosip.mock.sdk.impl.SampleSDKV2
 
-in biosdk-services
+
 ---
 
 ## APIs Provided
