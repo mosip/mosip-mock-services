@@ -127,6 +127,9 @@ This section is for the developers, for developing this modules fast & efficient
 API documentation is available 
 [here](https://docs.mosip.io/1.1.5/modules/registration-processor/deduplication-and-manual-adjudication#manual-adjudication).
 
+## Deploy
+To deploy Admin on Kubernetes cluster using Dockers refer to [Sandbox Deployment](https://docs.mosip.io/1.2.0/deploymentnew/v3-installation).
+
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
 

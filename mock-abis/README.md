@@ -362,6 +362,9 @@ By performing the above steps, you are ready to run mock-ABIS in local machine
 API documentation is available
 [here](https://mosip.github.io/documentation/).
 
+## Deploy
+To deploy Admin on Kubernetes cluster using Dockers refer to [Sandbox Deployment](https://docs.mosip.io/1.2.0/deploymentnew/v3-installation).
+
 ## License
 
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
