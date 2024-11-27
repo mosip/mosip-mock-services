@@ -230,17 +230,22 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>${maven.deploy.plugin.version}</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 				<executions>
 					<execution>
 						<id>default-deploy</id>
-						<phase>deploy</phase>
+						<phase>none</phase>
 						<goals>
 							<goal>deploy</goal>
 						</goals>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -252,7 +257,7 @@
 				<executions>
 					<execution>
 						<id>default-deploy</id>
-						<phase>deploy</phase>
+						<phase>none</phase>
 						<goals>
 							<goal>deploy</goal>
 						</goals>
@@ -264,7 +269,6 @@
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>

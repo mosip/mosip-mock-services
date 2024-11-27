@@ -10,7 +10,7 @@
 
 	<name>MockAbis</name>
 	<description>Proxy abis project that supports the MOSIP abis specification</description>
-	<url>https://github.com/mosip/mosip-mock-services</url>	
+	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<properties>
 		<doclint>none</doclint>
@@ -188,17 +188,44 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${maven.deploy.plugin.version}</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-deploy</id>
+						<phase>none</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<version>${nexus.staging.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>default-deploy</id>
+						<phase>none</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<serverId>ossrh</serverId>
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -275,8 +302,10 @@
 						--add-opens java.base/java.lang.stream=ALL-UNNAMED
 						--add-opens java.base/java.time=ALL-UNNAMED
 						--add-opens java.base/java.time.LocalDate=ALL-UNNAMED
-						--add-opens java.base/java.time.LocalDateTime=ALL-UNNAMED
-						--add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED
+						--add-opens
+						java.base/java.time.LocalDateTime=ALL-UNNAMED
+						--add-opens
+						java.base/java.time.LocalDateTime.date=ALL-UNNAMED
 						--enable-preview
 					</argLine>
 				</configuration>
@@ -303,18 +332,19 @@
 			</plugin>
 		</plugins>
 	</build>
-	
-	
+
+
 	<licenses>
 		<license>
 			<name>MPL 2.0</name>
 			<url>https://www.mozilla.org/en-US/MPL/2.0/</url>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<connection>scm:git:git://github.com/mosip/mosip-mock-services.git</connection>
-		<developerConnection>scm:git:ssh://github.com:mosip/mosip-mock-services.git</developerConnection>
+		<developerConnection>
+			scm:git:ssh://github.com:mosip/mosip-mock-services.git</developerConnection>
 		<url>https://github.com/mosip/mosip-mock-services</url>
 		<tag>HEAD</tag>
 	</scm>
