@@ -10,7 +10,7 @@
 
 	<name>MockAbis</name>
 	<description>Proxy abis project that supports the MOSIP abis specification</description>
-	<url>https://github.com/mosip/mosip-mock-services</url>	
+	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<properties>
 		<doclint>none</doclint>
@@ -214,6 +214,14 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${maven.deploy.plugin.version}</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>${maven.antrun.plugin.version}</version>
 				<executions>
@@ -275,8 +283,10 @@
 						--add-opens java.base/java.lang.stream=ALL-UNNAMED
 						--add-opens java.base/java.time=ALL-UNNAMED
 						--add-opens java.base/java.time.LocalDate=ALL-UNNAMED
-						--add-opens java.base/java.time.LocalDateTime=ALL-UNNAMED
-						--add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED
+						--add-opens
+						java.base/java.time.LocalDateTime=ALL-UNNAMED
+						--add-opens
+						java.base/java.time.LocalDateTime.date=ALL-UNNAMED
 						--enable-preview
 					</argLine>
 				</configuration>
@@ -303,18 +313,19 @@
 			</plugin>
 		</plugins>
 	</build>
-	
-	
+
+
 	<licenses>
 		<license>
 			<name>MPL 2.0</name>
 			<url>https://www.mozilla.org/en-US/MPL/2.0/</url>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<connection>scm:git:git://github.com/mosip/mosip-mock-services.git</connection>
-		<developerConnection>scm:git:ssh://github.com:mosip/mosip-mock-services.git</developerConnection>
+		<developerConnection>
+			scm:git:ssh://github.com:mosip/mosip-mock-services.git</developerConnection>
 		<url>https://github.com/mosip/mosip-mock-services</url>
 		<tag>HEAD</tag>
 	</scm>
