@@ -237,6 +237,18 @@
 				<configuration>
 					<skip>true</skip>
 				</configuration>
+				<executions>
+					<execution>
+						<id>default-deploy</id>
+						<phase>none</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
@@ -246,7 +258,7 @@
 				<executions>
 					<execution>
 						<id>default-deploy</id>
-						<phase>deploy</phase>
+						<phase>none</phase>
 						<goals>
 							<goal>deploy</goal>
 						</goals>
