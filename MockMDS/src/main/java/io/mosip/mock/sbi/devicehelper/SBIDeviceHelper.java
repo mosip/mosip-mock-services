@@ -15,9 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.exception.SBIException;

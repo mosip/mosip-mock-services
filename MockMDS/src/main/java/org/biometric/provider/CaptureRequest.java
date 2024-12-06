@@ -483,7 +483,7 @@ public class CaptureRequest extends HttpServlet {
 	 * @param transactionId  The unique identifier for the capture transaction.
 	 * @return A NewBioDto object containing the constructed response data.
 	 */
-	private NewBioDto buildNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, int requestedScore,
+	private NewBioDto buildNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, String requestedScore,
 			String transactionId) {
 		NewBioDto bioResponse = new NewBioDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());
@@ -636,7 +636,7 @@ public class CaptureRequest extends HttpServlet {
 	 *                       encrypted data).
 	 * @return A NewBioAuthDto object containing the constructed response data.
 	 */
-	private NewBioAuthDto buildAuthNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, int requestedScore,
+	private NewBioAuthDto buildAuthNewBioDto(BioMetricsDataDto bioMetricsData, String bioType, String requestedScore,
 			String transactionId, Map<String, String> cryptoResult) {
 		NewBioAuthDto bioResponse = new NewBioAuthDto();
 		bioResponse.setBioSubType(bioMetricsData.getBioSubType());

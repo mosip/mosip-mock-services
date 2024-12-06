@@ -45,7 +45,6 @@
 		<jai.imageio.core.version>1.3.0</jai.imageio.core.version>
 		<org.apache.httpmime.version>4.5.7</org.apache.httpmime.version>
 		<com.squareup.okhttp.version>2.7.5</com.squareup.okhttp.version>
-		<org.codehaus.jackson.mapper.asl.version>1.9.13</org.codehaus.jackson.mapper.asl.version>
 		<javax.xml.crypto.jsr105.api.version>1.0.1</javax.xml.crypto.jsr105.api.version>
 		<org.bitbucket.jose4j.version>0.7.1</org.bitbucket.jose4j.version>
 
@@ -101,11 +100,6 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
 			<version>${org.apache.httpmime.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>${org.codehaus.jackson.mapper.asl.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
