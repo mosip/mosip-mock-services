@@ -22,14 +22,14 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -130,8 +130,15 @@ public class SBIServiceResponse {
 		String lang = "en";
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
-			DeviceDiscoveryRequestDetail requestObject = (DeviceDiscoveryRequestDetail) getRequestJson(
-					SBIConstant.MOSIP_DISC_VERB);
+			DeviceDiscoveryRequestDetail requestObject = null;
+			try {
+				requestObject = (DeviceDiscoveryRequestDetail) getRequestJson(SBIConstant.MOSIP_DISC_VERB);
+			}
+			catch (Exception ex) {
+				logger.error("processDeviceDicoveryInfo :: error ::", ex);
+				return SBIJsonInfo.getErrorJson(lang, "123", "");
+			} 
+
 			String type = null;
 			if (requestObject != null && requestObject.getType() != null && requestObject.getType().length() > 0)
 				type = requestObject.getType();
@@ -291,7 +298,14 @@ public class SBIServiceResponse {
 		String response = null;
 		String lang = "en";
 		try {
-			StatusRequest requestObject = (StatusRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_STATUS);
+			StatusRequest requestObject = null;
+			try {
+				requestObject = (StatusRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_STATUS);
+			}
+			catch (Exception ex) {
+				logger.error("processSetStatus :: error ::", ex);
+				return SBIJsonInfo.getErrorJson(lang, "123", "");
+			}
 			String type = null;
 			String status = null;
 			if (requestObject != null && requestObject.getType() != null && requestObject.getType().length() > 0)
@@ -365,7 +379,14 @@ public class SBIServiceResponse {
 		String response = null;
 		String lang = "en";
 		try {
-			ScoreRequest requestObject = (ScoreRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_SCORE);
+			ScoreRequest requestObject = null;
+			try {
+				requestObject = (ScoreRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_SCORE);
+			}
+			catch (Exception ex) {
+				logger.error("processSetQualityScore :: error ::", ex);
+				return SBIJsonInfo.getErrorJson(lang, "123", "");
+			}
 			String type = null;
 			String qualityScore = null;
 			boolean scoreFromIso = false;
@@ -459,7 +480,14 @@ public class SBIServiceResponse {
 		String response = null;
 		String lang = "en";
 		try {
-			DelayRequest requestObject = (DelayRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_DELAY);
+			DelayRequest requestObject = null;
+			try {
+				requestObject = (DelayRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_DELAY);
+			}
+			catch (Exception ex) {
+				logger.error("processSetDelay :: error ::", ex);
+				return SBIJsonInfo.getErrorJson(lang, "123", "");
+			}
 			String type = null;
 			String delay = null;
 			String[] method = null;
@@ -558,7 +586,15 @@ public class SBIServiceResponse {
 		String response = null;
 		String lang = "en";
 		try {
-			ProfileRequest requestObject = (ProfileRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_PROFILE);
+			ProfileRequest requestObject = null;
+			try {
+				requestObject = (ProfileRequest) getRequestJson(SBIConstant.MOSIP_ADMIN_API_PROFILE);
+			}
+			catch (Exception ex) {
+				logger.error("processSetProfileInfo :: error ::", ex);
+				return SBIJsonInfo.getErrorJson(lang, "123", "");
+			}
+
 			if (requestObject != null && requestObject.getProfileId() != null
 					&& requestObject.getProfileId().length() > 0) {
 				mockService.setProfileId(requestObject.getProfileId());
@@ -588,8 +624,14 @@ public class SBIServiceResponse {
 				return SBIJsonInfo.getStreamErrorJson(lang, "601", "");
 			}
 
-			StreamingRequestDetail requestObject = (StreamingRequestDetail) getRequestJson(
-					SBIConstant.MOSIP_STREAM_VERB);
+			StreamingRequestDetail requestObject = null;
+			try {
+				requestObject = (StreamingRequestDetail) getRequestJson(SBIConstant.MOSIP_STREAM_VERB);
+			}
+			catch (Exception ex) {
+				logger.error("processLiveStreamInfo :: error ::", ex);
+				return SBIJsonInfo.getErrorJson(lang, "123", "");
+			}
 			String deviceId = requestObject.getDeviceId();
 			int deviceSubId = Integer.parseInt(requestObject.getDeviceSubId());
 			boolean isStreamTimeoutSet = false;
@@ -727,7 +769,16 @@ public class SBIServiceResponse {
 			String env = "";
 			String purpose = "";
 			int deviceSubId = 0;
-			CaptureRequestDto requestObject = (CaptureRequestDto) getRequestJson(SBIConstant.MOSIP_RCAPTURE_VERB);
+			CaptureRequestDto requestObject = null;
+			try {
+				requestObject = (CaptureRequestDto) getRequestJson(SBIConstant.MOSIP_RCAPTURE_VERB);
+				requestObject.validateCaptureRequest();
+			}
+			catch (Exception ex) {
+				logger.error("processRCaptureInfo :: error ::", ex);
+				return SBIJsonInfo.getCaptureErrorJson(specVersion, lang, "123", "", false);
+			} 
+
 			List<CaptureRequestDeviceDetailDto> mosipBioRequest = null;
 			// if Null Throw Errors here
 			if (requestObject != null) {
@@ -947,9 +998,7 @@ public class SBIServiceResponse {
 					captureResponse.setBiometrics(biometrics);
 
 					ObjectMapper mapper = new ObjectMapper();
-					SerializationConfig config = mapper.getSerializationConfig();
-					config.setSerializationInclusion(Inclusion.NON_NULL);
-					mapper.setSerializationConfig(config);
+					mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 					response = mapper.writeValueAsString(captureResponse);
 				} else {
@@ -1007,7 +1056,16 @@ public class SBIServiceResponse {
 			String env = "";
 			String purpose = "";
 			int deviceSubId = 0;
-			CaptureRequestDto requestObject = (CaptureRequestDto) getRequestJson(SBIConstant.MOSIP_RCAPTURE_VERB);
+			CaptureRequestDto requestObject = null;
+			try {
+				requestObject = (CaptureRequestDto) getRequestJson(SBIConstant.MOSIP_CAPTURE_VERB);
+				requestObject.validateCaptureRequest();
+			}
+			catch (Exception ex) {
+				logger.error("processCaptureInfo :: error ::", ex);
+				return SBIJsonInfo.getCaptureErrorJson(specVersion, lang, "123", "", false);
+			} 
+			;
 			List<CaptureRequestDeviceDetailDto> mosipBioRequest = null;
 			// if Null Throw Errors here
 			if (requestObject != null) {
@@ -1175,9 +1233,7 @@ public class SBIServiceResponse {
 						captureResponse.setBiometrics(biometrics);
 
 						ObjectMapper mapper = new ObjectMapper();
-						SerializationConfig config = mapper.getSerializationConfig();
-						config.setSerializationInclusion(Inclusion.NON_NULL);
-						mapper.setSerializationConfig(config);
+						mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 						response = mapper.writeValueAsString(captureResponse);
 					} else {
@@ -1228,7 +1284,7 @@ public class SBIServiceResponse {
 		String specVersion = requestObject.getSpecVersion();
 		String transactionId = requestObject.getTransactionId();
 		float captureScore = deviceHelper.getQualityScore(); // SET MANUALLY
-		int requestScore = requestObject.getBio().get(0).getRequestedScore();
+		int requestScore = Integer.parseInt(requestObject.getBio().get(0).getRequestedScore());
 		int bioCount = Integer.parseInt(requestObject.getBio().get(0).getCount());
 		String bioType = requestObject.getBio().get(0).getType();
 		String[] bioExceptions = requestObject.getBio().get(0).getException();// Bio exceptions
@@ -2013,9 +2069,7 @@ public class SBIServiceResponse {
 		biometricData.setTransactionId(transactionId);
 
 		ObjectMapper mapper = new ObjectMapper();
-		SerializationConfig config = mapper.getSerializationConfig();
-		config.setSerializationInclusion(Inclusion.NON_NULL);
-		mapper.setSerializationConfig(config);
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 		String currentBioData = mapper.writeValueAsString(biometricData);
 
@@ -2190,13 +2244,20 @@ public class SBIServiceResponse {
 		if (getRequest() != null && getRequest().indexOf("{") >= 0) {
 			try {
 				ObjectMapper mapper = new ObjectMapper();
+				// Enable FAIL_ON_UNKNOWN_PROPERTIES to handle unknown properties
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+				// Enable FAIL_ON_MISSING_CREATOR_PROPERTIES to fail on missing required properties
+		        mapper.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, true);
+		        // Use FAIL_ON_NULL_CREATOR_PROPERTIES to check for missing properties on the field level
+		        mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true);
+
 				if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_DISC_VERB))
 					return mapper.readValue(getRequest().substring(getRequest().indexOf("{")),
 							DeviceDiscoveryRequestDetail.class);
 				if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_STREAM_VERB))
 					return mapper.readValue(getRequest().substring(getRequest().indexOf("{")),
 							StreamingRequestDetail.class);
-				if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_RCAPTURE_VERB))
+				if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_RCAPTURE_VERB) || methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_CAPTURE_VERB))
 					return mapper.readValue(getRequest().substring(getRequest().indexOf("{")), CaptureRequestDto.class);
 
 				if (methodVerb.equalsIgnoreCase(SBIConstant.MOSIP_ADMIN_API_STATUS))

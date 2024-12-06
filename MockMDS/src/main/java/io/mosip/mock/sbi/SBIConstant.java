@@ -124,6 +124,7 @@ public class SBIConstant {
 	public static final String ERROR_CODE_120 = "mds_ERROR_120_msg_en";
 	public static final String ERROR_CODE_121 = "mds_ERROR_121_msg_en";
 	public static final String ERROR_CODE_122 = "mds_ERROR_122_msg_en";
+	public static final String ERROR_CODE_123 = "mds_ERROR_123_msg_en";
 
 	public static final String ERROR_CODE_500 = "mds_ERROR_500_msg_en";
 	public static final String ERROR_CODE_501 = "mds_ERROR_501_msg_en";
