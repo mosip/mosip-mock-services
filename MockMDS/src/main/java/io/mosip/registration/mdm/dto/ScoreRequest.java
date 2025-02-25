@@ -1,5 +1,7 @@
 package io.mosip.registration.mdm.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import lombok.Data;
 
 /**
@@ -26,6 +28,7 @@ public class ScoreRequest {
 	 * This field can be populated by the device itself if the request includes
 	 * retrieving the quality score along with the requested score type.
 	 */
+	@JsonDeserialize(using = IntegerDeserializer.class)
 	private String qualityScore;
 
 	/**
