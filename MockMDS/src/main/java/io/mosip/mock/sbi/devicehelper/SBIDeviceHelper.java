@@ -15,9 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.biometric.provider.CryptoUtility;
 import org.biometric.provider.JwtUtility;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.exception.SBIException;
@@ -885,6 +886,7 @@ public abstract class SBIDeviceHelper {
 			logger.info("loading keystore into local cache Path#{} filename#{} ", keystoreFilePath, keyStoreFileName);
 			KeyStore keystore = KeyStore.getInstance("PKCS12");
 			keystore.load(fileInputStream, keystorePassword.toCharArray());
+
 			privateKeyMap.put(keyStoreFileName, (PrivateKey) keystore.getKey(alias, keystorePassword.toCharArray()));
 			certificateMap.put(keyStoreFileName, keystore.getCertificate(alias));
 		} catch (Exception e) {

@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import io.mosip.registration.mdm.dto.BioMetricsDto;
@@ -87,9 +87,7 @@ public class SBIJsonInfo {
 		captureResponse.setBiometrics(biometrics);
 
 		ObjectMapper mapper = new ObjectMapper();
-		SerializationConfig config = mapper.getSerializationConfig();
-		config.setSerializationInclusion(Inclusion.NON_NULL);
-		mapper.setSerializationConfig(config);
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 		try {
 			return mapper.writeValueAsString(captureResponse);
