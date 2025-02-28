@@ -4,7 +4,7 @@
 
 # MockSDK
 
-The **MockSDK** repository provides a mock implementation of [IBioAPI](https://github.com/mosip/commons/blob/master/kernel/kernel-biometrics-api/src/main/java/io/mosip/kernel/biometrics/spi/IBioApi.java) to perform 1:N match, segmentation, extraction, quality, converter etc.It simulates interactions with SDK components and is designed for testing and integration within the MOSIP ecosystem.
+The **MockSDK** repository provides a mock implementation of [IBioAPIV2](https://github.com/mosip/bio-utils/blob/master/kernel-biometrics-api/src/main/java/io/mosip/kernel/biometrics/spi/IBioApiV2.java) to perform 1:N match, segmentation, extraction, quality, converter etc.It simulates interactions with SDK components and is designed for testing and integration within the MOSIP ecosystem.
 
 ---
 
@@ -53,7 +53,7 @@ Use Maven to build the project and resolve dependencies.
 Used as reference implementation for biosdk-services[https://github.com/mosip/biosdk-services].
 
 ## Configurations 
-In biosdk-services below values are required for mockSDK implementation
+In biosdk-services below values are required for mockSDK implementation.
 
 	biosdk_class=io.mosip.mock.sdk.impl.SampleSDKV2
 	mosip.role.biosdk.getservicestatus=REGISTRATION_PROCESSOR
