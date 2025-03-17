@@ -49,10 +49,10 @@
 		<org.bitbucket.jose4j.version>0.7.1</org.bitbucket.jose4j.version>
 
 		<!-- Mosip -->
-		<kernel.bom.version>1.3.0-beta.1</kernel.bom.version>
-		<kernel.core.version>1.3.0-beta.1</kernel.core.version>
+		<kernel.bom.version>1.3.0-SNAPSHOT</kernel.bom.version>
+		<kernel.core.version>1.3.0-SNAPSHOT</kernel.core.version>
 
-		<mosip.biometrics.util.version>1.3.0-beta.1</mosip.biometrics.util.version>
+		<mosip.biometrics.util.version>1.3.0-SNAPSHOT</mosip.biometrics.util.version>
 	</properties>
 
 	<dependencyManagement>
