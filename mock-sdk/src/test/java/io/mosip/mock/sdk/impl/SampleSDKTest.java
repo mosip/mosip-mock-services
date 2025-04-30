@@ -117,8 +117,7 @@ public class SampleSDKTest {
 					add(BiometricType.IRIS);
 				}
 			};
-
-			// Prepare sample and gallery biometric records
+			
 			BiometricRecord[] galleryBioRecord = new BiometricRecord[1];
 			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
 			BiometricRecord galleryBioRecord0 = xmlFileToBiometricRecord(sampleIrisNoMatchPath);
