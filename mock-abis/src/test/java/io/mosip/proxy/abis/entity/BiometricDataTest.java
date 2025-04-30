@@ -3,8 +3,17 @@ package io.mosip.proxy.abis.entity;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit test class for the BiometricData entity.
+ * This class verifies the behavior of constructors, getters, setters,
+ * and overridden methods like equals, hashCode, and toString.
+ */
 class BiometricDataTest {
 
+    /**
+     * Test to verify the default constructor of BiometricData.
+     * Ensures all fields are initialized to null.
+     */
     @Test
     void testDefaultConstructor() {
         // When
@@ -19,6 +28,10 @@ class BiometricDataTest {
         assertNull(bioData.getInsertEntity());
     }
 
+    /**
+     * Test to verify the parameterized constructor of BiometricData.
+     * Ensures all fields are correctly initialized with the provided values.
+     */
     @Test
     void testParameterizedConstructor() {
         // Given
@@ -39,7 +52,10 @@ class BiometricDataTest {
         assertEquals(insertEntity, bioData.getInsertEntity());
     }
 
-
+    /**
+     * Test to verify the setters and getters of BiometricData.
+     * Ensures all fields can be set and retrieved correctly.
+     */
     @Test
     void testSettersAndGetters() {
         // Given
@@ -65,6 +81,11 @@ class BiometricDataTest {
         assertEquals(insertEntity, bioData.getInsertEntity());
     }
 
+    /**
+     * Test to verify the equals and hashCode methods of BiometricData.
+     * Ensures objects with the same field values are considered equal
+     * and have the same hash code.
+     */
     @Test
     void testEqualsAndHashCode() {
         // Given
@@ -73,13 +94,17 @@ class BiometricDataTest {
         BiometricData bioData3 = new BiometricData(2L, "iris", "right_eye", "data2", new InsertEntity());
 
         // Then
-        assertEquals(bioData1, bioData1);
-        assertEquals(bioData1, bioData2);
-        assertNotEquals(bioData1, bioData3);
-        assertEquals(bioData1.hashCode(), bioData2.hashCode());
-        assertNotEquals(bioData1.hashCode(), bioData3.hashCode());
+        assertEquals(bioData1, bioData1); // Reflexive
+        assertEquals(bioData1, bioData2); // Symmetric
+        assertNotEquals(bioData1, bioData3); // Different objects
+        assertEquals(bioData1.hashCode(), bioData2.hashCode()); // Same hash code for equal objects
+        assertNotEquals(bioData1.hashCode(), bioData3.hashCode()); // Different hash codes for different objects
     }
 
+    /**
+     * Test to verify the toString method of BiometricData.
+     * Ensures the string representation contains all field values.
+     */
     @Test
     void testToString() {
         // Given

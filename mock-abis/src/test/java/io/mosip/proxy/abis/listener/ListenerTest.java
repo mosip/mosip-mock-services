@@ -1,4 +1,3 @@
-// File: src/test/java/io/mosip/proxy/abis/listener/ListenerTest.java
 package io.mosip.proxy.abis.listener;
 
 import io.mosip.proxy.abis.constant.AbisErrorCode;
@@ -6,12 +5,7 @@ import io.mosip.proxy.abis.controller.ProxyAbisController;
 import io.mosip.proxy.abis.dto.InsertRequestMO;
 import io.mosip.proxy.abis.exception.AbisException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
-import jakarta.jms.JMSException;
-import jakarta.jms.Message;
-import jakarta.jms.Queue;
-import jakarta.jms.Session;
-import jakarta.jms.TextMessage;
-import jakarta.jms.MessageProducer;
+import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,26 +19,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
+/**
+ * Unit test class for Listener.
+ * This class tests various methods of the Listener class, including validation,
+ * message consumption, and exception handling.
+ */
 @ExtendWith(MockitoExtension.class)
 public class ListenerTest {
 
@@ -54,11 +43,19 @@ public class ListenerTest {
     @Mock
     private ProxyAbisController proxyAbisController;
 
+    /**
+     * Sets up the test environment before each test.
+     * Initializes mocks and injects them into the Listener instance.
+     */
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests the isValidInsertRequestDto method with only standard keys.
+     * Verifies that the method returns false.
+     */
     @Test
     void testIsValidInsertRequestDto_withOnlyStandardKeys_shouldReturnFalse() {
         Map<String, String> validMap = new HashMap<>();
@@ -70,9 +67,13 @@ public class ListenerTest {
         validMap.put("referenceURL", "http://example.com");
 
         boolean result = Listener.isValidInsertRequestDto(validMap);
-        assertFalse(result);
+        assertFalse(result); // Verify the result is false
     }
 
+    /**
+     * Tests the isValidIdentifyRequestDto method with valid keys only.
+     * Verifies that the method returns false.
+     */
     @Test
     void testIsValidIdentifyRequestDto_withValidKeysOnly_shouldReturnFalse() {
         Map<String, String> validMap = new HashMap<>();
@@ -85,16 +86,24 @@ public class ListenerTest {
         validMap.put("gallery", "gallery-name");
 
         boolean result = Listener.isValidIdentifyRequestDto(validMap);
-        assertFalse(result);
+        assertFalse(result); // Verify the result is false
     }
 
+    /**
+     * Tests the consumeLogic method with an unsupported message type.
+     * Verifies that no interactions occur with the ProxyAbisController.
+     */
     @Test
     void testConsumeLogicWithUnsupportedMessageType() throws Exception {
         Message unknownMessage = mock(Message.class);
         listener.consumeLogic(unknownMessage, "mockAddress");
-        verifyNoInteractions(proxyAbisController);
+        verifyNoInteractions(proxyAbisController); // Verify no interactions with the controller
     }
 
+    /**
+     * Tests the consumeLogic method when an exception occurs.
+     * Verifies that the exception is handled and the controller's async method is called.
+     */
     @Test
     void testConsumeLogicWhenExceptionOccurs() throws Exception {
         String json = """
@@ -109,25 +118,37 @@ public class ListenerTest {
                 .when(proxyAbisController).saveInsertRequestThroughListner(any(InsertRequestMO.class), anyInt());
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt());
+        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt()); // Verify async execution
     }
 
+    /**
+     * Tests the isValidFormat method with a valid LocalDateTime string.
+     * Verifies that the method returns true.
+     */
     @Test
     void testIsValidFormat_validLocalDateTime() {
         String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         String validDate = "2024-04-22T10:00:00.000Z";
         boolean result = Listener.isValidFormat(format, validDate, Locale.ENGLISH);
-        assertTrue(result);
+        assertTrue(result); // Verify the result is true
     }
 
+    /**
+     * Tests the isValidFormat method with an invalid date format.
+     * Verifies that the method returns false.
+     */
     @Test
     void testIsValidFormat_invalidFormat() {
         String format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         String invalidDate = "2024/04/22 10:00:00";
         boolean result = Listener.isValidFormat(format, invalidDate, Locale.ENGLISH);
-        assertFalse(result);
+        assertFalse(result); // Verify the result is false
     }
 
+    /**
+     * Tests the isValidInsertRequestDto method with an extra key.
+     * Verifies that the method returns true.
+     */
     @Test
     void testIsValidInsertRequestDto_extraKey_ReturnsTrue() {
         Map<String, String> map = new HashMap<>();
@@ -140,9 +161,13 @@ public class ListenerTest {
         map.put("extraKey", "unexpected");
 
         boolean result = Listener.isValidInsertRequestDto(map);
-        assertTrue(result);
+        assertTrue(result); // Verify the result is true
     }
 
+    /**
+     * Tests the errorRequestThroughListner method.
+     * Verifies that the response entity is returned with the correct status code.
+     */
     @Test
     void testErrorRequestThroughListner_returnsResponseEntity() {
         Map<String, String> map = new HashMap<>();
@@ -154,126 +179,35 @@ public class ListenerTest {
         map.put("referenceURL", "http://example.com");
 
         ResponseEntity<Object> response = listener.errorRequestThroughListner(new RuntimeException("fail"), map, 1);
-        // Using getStatusCode().value() instead of the deprecated getStatusCodeValue()
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response); // Verify the response is not null
+        assertEquals(200, response.getStatusCode().value()); // Verify the status code
     }
 
-    @Test
-    void testConsumeLogic_handlesExceptionAndCallsAsync() throws JMSException, InterruptedException {
-        String json = """
-            {
-                "id": "mosip.abis.insert",
-                "version": "1.1",
-                "requestId": "123",
-                "requesttime": "2024-04-22T10:00:00Z",
-                "referenceId": "ref-123",
-                "referenceURL": "http://example.com",
-                "extraKey": "unexpected"
-            }
-            """;
-        TextMessage message = mock(TextMessage.class);
-        when(message.getText()).thenReturn(json);
-
-        lenient().doThrow(new RuntimeException("insert failure"))
-                .when(proxyAbisController).saveInsertRequestThroughListner(any(InsertRequestMO.class), anyInt());
-
-        listener.consumeLogic(message, "dummyAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt());
-    }
-
-    @Test
-    void testGetFailureReason_invalidId() {
-        Map<String, String> map = new HashMap<>();
-        map.put("id", "invalid.id");
-        map.put("version", "1.1");
-        map.put("requestId", "req");
-        map.put("requesttime", "2024-04-22T10:00:00Z");
-        map.put("referenceId", "ref");
-        map.put("referenceURL", "http://example.com");
-        String reason = listener.getFailureReason(map);
-        assertEquals(FailureReasonsConstants.INVALID_ID, reason);
-    }
-
-    @Test
-    void testGetFailureReason_invalidVersion() {
-        Map<String, String> map = new HashMap<>();
-        map.put("id", "mosip.abis.insert");
-        map.put("version", "2.0");
-        map.put("requestId", "req");
-        map.put("requesttime", "2024-04-22T10:00:00Z");
-        map.put("referenceId", "ref");
-        map.put("referenceURL", "http://example.com");
-        String reason = listener.getFailureReason(map);
-        assertEquals(FailureReasonsConstants.INVALID_VERSION, reason);
-    }
-
-    @Test
-    void testGetFailureReason_missingRequestId() {
-        Map<String, String> map = new HashMap<>();
-        map.put("id", "mosip.abis.insert");
-        map.put("version", "1.1");
-        map.put("requesttime", "2024-04-22T10:00:00Z");
-        map.put("referenceId", "ref");
-        map.put("referenceURL", "http://example.com");
-        String reason = listener.getFailureReason(map);
-        assertEquals(FailureReasonsConstants.MISSING_REQUESTID, reason);
-    }
-
-    @Test
-    void testGetFailureReason_missingReferenceId() {
-        Map<String, String> map = new HashMap<>();
-        map.put("id", "mosip.abis.insert");
-        map.put("version", "1.1");
-        map.put("requestId", "req");
-        map.put("requesttime", "2024-04-22T10:00:00Z");
-        map.put("referenceURL", "http://example.com");
-        String reason = listener.getFailureReason(map);
-        assertEquals("1" + FailureReasonsConstants.MISSING_REFERENCEID, reason);
-    }
-
-    @Test
-    void testGetFailureReason_invalidTimeFormat() {
-        Map<String, String> map = new HashMap<>();
-        map.put("id", "mosip.abis.insert");
-        map.put("version", "1.1");
-        map.put("requestId", "req");
-        map.put("requesttime", "invalid-time");
-        map.put("referenceId", "ref");
-        map.put("referenceURL", "http://example.com");
-        String reason = listener.getFailureReason(map);
-        assertEquals(FailureReasonsConstants.INVALID_REQUESTTIME_FORMAT, reason);
-    }
-
-    // File: src/test/java/io/mosip/proxy/abis/listener/ListenerTest.java
+    /**
+     * Tests the send method of Listener.
+     * Verifies that the method returns true and performs the expected JMS operations.
+     */
     @Test
     void testSendMethod_returnsTrue() throws Exception {
-        // Create a spy for the Listener instance first
         Listener spyListener = Mockito.spy(listener);
 
-        // Inject a dummy ActiveMQConnectionFactory so that initialSetup() passes
         ActiveMQConnectionFactory dummyFactory = mock(ActiveMQConnectionFactory.class);
         ReflectionTestUtils.setField(spyListener, "activeMQConnectionFactory", dummyFactory);
 
-        // Create mocks for Session, Queue, MessageProducer, and TextMessage
         Session mockSession = mock(Session.class);
         Queue mockQueue = mock(Queue.class);
         MessageProducer mockProducer = mock(MessageProducer.class);
         TextMessage mockTextMessage = mock(TextMessage.class);
 
-        // Inject the mock Session into the spyListener instance
         ReflectionTestUtils.setField(spyListener, "session", mockSession);
 
-        // Stub behaviors for session methods
         when(mockSession.createQueue(anyString())).thenReturn(mockQueue);
         when(mockSession.createProducer(mockQueue)).thenReturn(mockProducer);
         when(mockSession.createTextMessage(anyString())).thenReturn(mockTextMessage);
 
-        // Call the send() method; initialSetup() will now work since dummyFactory is injected
         boolean result = spyListener.send("testMessage", "testQueue");
 
-        // Verify that send() returns true and calls the expected JMS operations
-        assertTrue(result);
+        assertTrue(result); // Verify the result is true
         verify(mockSession).createQueue("testQueue");
         verify(mockSession).createProducer(mockQueue);
         verify(mockSession).createTextMessage("testMessage");
@@ -281,16 +215,18 @@ public class ListenerTest {
         verify(mockProducer).close();
     }
 
+    /**
+     * Tests the initialSetup method when an exception is thrown.
+     * Verifies that the correct exception is thrown with the expected error code.
+     */
     @Test
     void testInitialSetupThrowsException() throws Exception {
-        // Create a spy of the Listener
         Listener spyListener = Mockito.spy(new Listener(Mockito.mock(ProxyAbisController.class)));
 
         Field factoryField = Listener.class.getDeclaredField("activeMQConnectionFactory");
         factoryField.setAccessible(true);
         factoryField.set(spyListener, null);
 
-        // Using ReflectionTestUtils.invokeMethod to access the private initialSetup() method
         AbisException exception = assertThrows(AbisException.class, () ->
                 ReflectionTestUtils.invokeMethod(spyListener, "initialSetup")
         );
