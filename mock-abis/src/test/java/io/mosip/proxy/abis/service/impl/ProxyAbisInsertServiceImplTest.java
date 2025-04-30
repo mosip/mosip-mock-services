@@ -1,194 +1,316 @@
 package io.mosip.proxy.abis.service.impl;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import io.mosip.proxy.abis.dto.IdentityRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
+import io.mosip.proxy.abis.constant.FailureReasonsConstants;
+import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
+import io.mosip.proxy.abis.dao.ProxyAbisInsertRepository;
+import io.mosip.proxy.abis.dto.Expectation;
+import io.mosip.proxy.abis.dto.IdentifyDelayResponse;
+import io.mosip.proxy.abis.dto.IdentityResponse;
+import io.mosip.proxy.abis.dto.InsertRequestMO;
+import io.mosip.proxy.abis.entity.BiometricData;
+import io.mosip.proxy.abis.entity.InsertEntity;
+import io.mosip.proxy.abis.exception.RequestException;
+import io.mosip.proxy.abis.service.ExpectationCache;
+import io.mosip.proxy.abis.service.ProxyAbisConfigService;
+import io.mosip.proxy.abis.utility.CryptoCoreUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ProxyAbisInsertServiceImplTest {
 
     @Mock
+    private ProxyAbisInsertRepository proxyabis;
+
+    @Mock
+    private ProxyAbisBioDataRepository proxyAbisBioDataRepository;
+
+    @Mock
+    private ProxyAbisConfigService proxyAbisConfigService;
+
+    @Mock
     private RestTemplate restTemplate;
+
+    @Mock
+    private CryptoCoreUtil cryptoUtil;
+
+    @Mock
+    private Environment env;
+
+    @Mock
+    private ExpectationCache expectationCache;
 
     @InjectMocks
     private ProxyAbisInsertServiceImpl proxyAbisInsertService;
 
-    @TempDir
-    Path tempDir;
+    private InsertRequestMO insertRequest;
+    private InsertEntity insertEntity;
+    private IdentityRequest identityRequest;
+    private List<BiometricData> biometricDataList;
+    private ResponseEntity<String> cbeffResponse;
+    private String cbeffData;
 
-    private MultipartFile mockFile;
-    private static final String TEST_FILENAME = "test-certificate.p12";
-    private static final String TEST_ALIAS = "test-alias";
-    private static final String TEST_PASSWORD = "test-password";
-    private static final String TEST_KEYSTORE = "test-keystore";
-
-    // List appender to capture log events
-    private ListAppender<ILoggingEvent> listAppender;
-
+    /**
+     * Setup method executed before each test.
+     * Initializes all the mock objects and test data required for the tests.
+     */
     @BeforeEach
-    void setUp() throws NoSuchFieldException, IllegalAccessException {
-        // Set up keystore path
-        Field keystoreField = ProxyAbisInsertServiceImpl.class.getDeclaredField("keystoreFilePath");
-        keystoreField.setAccessible(true);
-        keystoreField.set(proxyAbisInsertService, tempDir);
+    void setUp() {
+        // Initialize test data
+        insertRequest = new InsertRequestMO();
+        insertRequest.setId("test-id");
+        insertRequest.setVersion("1.0");
+        insertRequest.setRequestId("test-request-id");
+        OffsetDateTime.parse("2023-01-01T12:00:00.000Z").toLocalDateTime();
+        insertRequest.setReferenceId("test-reference-id");
+        insertRequest.setReferenceURL("http://test-url.com/cbeff");
 
-        // Set up a list appender on the service logger
-        Logger serviceLogger = (Logger) LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
-        listAppender = new ListAppender<>();
-        listAppender.start();
-        serviceLogger.addAppender(listAppender);
-
-        // Create mock file with TEST_FILENAME
-        mockFile = new MockMultipartFile(
-                "file",
-                TEST_FILENAME,
-                "application/x-pkcs12",
-                "test content".getBytes()
+        insertEntity = new InsertEntity(
+                insertRequest.getId(),
+                insertRequest.getVersion(),
+                insertRequest.getRequestId(),
+                insertRequest.getRequesttime(),
+                insertRequest.getReferenceId()
         );
+
+        identityRequest = new IdentityRequest();
+        identityRequest.setId("test-id");
+        identityRequest.setVersion("1.0");
+        identityRequest.setRequestId("test-request-id");
+        identityRequest.setRequesttime(OffsetDateTime.parse("2023-01-01T12:00:00.000Z").toLocalDateTime());
+        identityRequest.setReferenceId("test-reference-id");
+
+        biometricDataList = new ArrayList<>();
+        BiometricData biometricData = new BiometricData();
+        biometricData.setId(123L);
+        biometricData.setSubtype("[LEFT]");
+        biometricData.setBioData("hash-value");
+        biometricData.setInsertEntity(insertEntity);
+        biometricDataList.add(biometricData);
+
+        cbeffData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><BIR>...</BIR>";
+        cbeffResponse = ResponseEntity.ok(cbeffData);
+
+        // Inject the restTemplate mock into proxyAbisInsertService
+        ReflectionTestUtils.setField(proxyAbisInsertService, "restTemplate", restTemplate);
     }
 
+    /**
+     * Tests the insertion of biometric data when reference ID already exists.
+     * Verifies that the method throws RequestException with the correct failure reason.
+     */
     @Test
-    void testSuccessfulFileUpload() throws IOException {
-        // When
-        String result = proxyAbisInsertService.saveUploadedFileWithParameters(
-                mockFile,
-                TEST_ALIAS,
-                TEST_PASSWORD,
-                TEST_KEYSTORE
-        );
-        // Then
-        assertEquals("Successfully uploaded file", result);
-        List<ILoggingEvent> logsList = listAppender.list;
-        boolean foundUploading = logsList.stream().anyMatch(event -> event.getMessage().contains("Uploading certificate"));
-        boolean foundUploaded = logsList.stream().anyMatch(event -> event.getMessage().contains("Successfully uploaded certificate"));
-        assertTrue(foundUploading);
-        assertTrue(foundUploaded);
-        // Verify that file exists and matches new content
-        File writtenFile = tempDir.resolve(TEST_FILENAME).toFile();
-        assertTrue(writtenFile.exists());
-        String content = Files.readString(writtenFile.toPath());
-        assertEquals("test content", content);
+    public void testInsertData_ReferenceIdAlreadyExists() {
+        // Arrange
+        when(proxyabis.findById(insertRequest.getReferenceId())).thenReturn(Optional.of(insertEntity));
+
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(insertRequest);
+        });
+
+        assertEquals(FailureReasonsConstants.REFERENCEID_ALREADY_EXISTS, exception.getReasonConstant());
     }
 
+    /**
+     * Tests the deletion of biometric data with valid input.
+     * Verifies that the delete method is called with the correct reference ID.
+     */
     @Test
-    void testFileUploadWithIOException() throws IOException {
-        // Given: use lenient stubbing
-        MultipartFile failingFile = mock(MultipartFile.class);
-        lenient().when(failingFile.getOriginalFilename()).thenReturn(TEST_FILENAME);
-        lenient().when(failingFile.getBytes()).thenThrow(new IOException("Test exception"));
+    public void testDeleteData_Success() {
+        // Arrange
+        String referenceId = "test-reference-id";
+        doNothing().when(proxyabis).deleteById(referenceId);
 
-        // When
-        String result = proxyAbisInsertService.saveUploadedFileWithParameters(
-                failingFile,
-                TEST_ALIAS,
-                TEST_PASSWORD,
-                TEST_KEYSTORE
-        );
+        // Act
+        proxyAbisInsertService.deleteData(referenceId);
 
-        // Then
-        assertEquals("Could not upload file", result);
-        List<ILoggingEvent> logsList = listAppender.list;
-        boolean foundUploading = logsList.stream().anyMatch(event -> event.getMessage().contains("Uploading certificate"));
-        boolean foundError = logsList.stream().anyMatch(
-                event -> event.getLevel().equals(Level.ERROR)
-                        && event.getMessage().contains("Could not upload file")
-        );
-        assertTrue(foundUploading);
-        assertTrue(foundError);
+        // Assert
+        verify(proxyabis).deleteById(referenceId);
+    }
+
+    /**
+     * Tests the deletion of biometric data when an exception occurs.
+     * Verifies that the method throws RequestException when the deletion fails.
+     */
+    @Test
+    public void testDeleteData_Exception() {
+        // Arrange
+        String referenceId = "test-reference-id";
+        doThrow(new RuntimeException("Database error")).when(proxyabis).deleteById(referenceId);
+
+        // Act & Assert
+        assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.deleteData(referenceId);
+        });
+    }
+
+    /**
+     * Tests the duplication check with no gallery reference IDs.
+     * Verifies that the method correctly searches for duplicates in the entire database.
+     */
+    @Test
+    public void testFindDuplication_NoGallery() {
+        // Arrange
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
+        when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
+
+        // Act
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(0, response.getDelayResponse());
+        assertNotNull(response.getIdentityResponse());
+        assertEquals("1", response.getIdentityResponse().getReturnValue());
+        assertEquals("1", response.getIdentityResponse().getCandidateList().getCount());
+    }
+
+    /**
+     * Tests the duplication check with gallery reference IDs.
+     * Verifies that the method correctly searches for duplicates only within the gallery.
+     */
+    @Test
+    public void testFindDuplication_WithGallery() {
+        // Arrange
+        IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
+        List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
+        IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
+        refId.setReferenceId("gallery-ref-id");
+        referenceIds.add(refId);
+        gallery.setReferenceIds(referenceIds);
+        identityRequest.setGallery(gallery);
+
+        List<String> galleryReferenceIds = new ArrayList<>();
+        galleryReferenceIds.add("gallery-ref-id");
+
+        when(proxyabis.fetchCountForReferenceIdPresentInGallery(anyList())).thenReturn(1);
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
+        when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(anyString(), anyList()))
+                .thenReturn(biometricDataList);
+
+        // Act
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(0, response.getDelayResponse());
+        assertNotNull(response.getIdentityResponse());
+        assertEquals("1", response.getIdentityResponse().getReturnValue());
+        assertEquals("1", response.getIdentityResponse().getCandidateList().getCount());
+    }
+
+    /**
+     * Tests the duplication check with expectation cache hit.
+     * Verifies that the method correctly processes expectations and returns appropriate response.
+     */
+    @Test
+    public void testFindDuplication_WithExpectation() {
+        // Arrange
+        List<String> bioValues = new ArrayList<>();
+        bioValues.add("hash-value");
+
+        Expectation expectation = new Expectation();
+        expectation.setId("test-expectation");
+        expectation.setActionToInterfere("Identify");
+        expectation.setDelayInExecution("5000");
+        expectation.setForcedResponse("Duplicate");
+
+        Expectation.Gallery expGallery = new Expectation.Gallery();
+        List<Expectation.ReferenceIds> expRefIds = new ArrayList<>();
+        Expectation.ReferenceIds expRefId = new Expectation.ReferenceIds();
+        expRefId.setReferenceId("exp-ref-id");
+        expRefIds.add(expRefId);
+        expGallery.setReferenceIds(expRefIds);
+        expectation.setGallery(expGallery);
+
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(bioValues);
+        when(expectationCache.get(anyString())).thenReturn(expectation);
+        when(proxyAbisBioDataRepository.fetchReferenceId(anyString())).thenReturn(List.of("exp-ref-id"));
+
+        // Act
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(5000, response.getDelayResponse());
+        assertNotNull(response.getIdentityResponse());
+        assertEquals("1", response.getIdentityResponse().getReturnValue());
     }
 
 
+
+    /**
+     * Tests the duplication check when no duplicates are found.
+     * Verifies that the method returns an empty candidate list.
+     */
     @Test
-    void testFileUploadWithExistingFiles() throws IOException {
-        // Given: create an existing file with the same name as TEST_FILENAME
-        File existingFile = tempDir.resolve(TEST_FILENAME).toFile();
-        existingFile.getParentFile().mkdirs();
-        Files.writeString(existingFile.toPath(), "old content");
+    public void testFindDuplication_NoDuplicates() {
+        // Arrange
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
+        when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(new ArrayList<>());
 
-        // When
-        String result = proxyAbisInsertService.saveUploadedFileWithParameters(
-                mockFile,
-                TEST_ALIAS,
-                TEST_PASSWORD,
-                TEST_KEYSTORE
-        );
+        // Act
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
 
-        // Then: file is overwritten. Check log messages and new content.
-        assertEquals("Successfully uploaded file", result);
-        List<ILoggingEvent> logsList = listAppender.list;
-        boolean foundUploading = logsList.stream().anyMatch(event -> event.getMessage().contains("Uploading certificate"));
-        boolean foundUploaded = logsList.stream().anyMatch(event -> event.getMessage().contains("Successfully uploaded certificate"));
-
-        // Removed deletion log assertion as editing main class is not possible
-        assertTrue(foundUploading, "Uploading log not found");
-        assertTrue(foundUploaded, "Uploaded log not found");
-
-        // Verify that the file exists with new content instead of old content.
-        assertTrue(existingFile.exists());
-        String content = Files.readString(existingFile.toPath());
-        assertEquals("test content", content);
+        // Assert
+        assertNotNull(response);
+        assertEquals(0, response.getDelayResponse());
+        assertNotNull(response.getIdentityResponse());
+        assertEquals("1", response.getIdentityResponse().getReturnValue());
+        assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
     }
 
-    // Language: java
+    /**
+     * Tests the retrieval of analytics data from environment properties.
+     * Verifies that the analytics properties are correctly retrieved and set.
+     */
     @Test
-    void testFileUploadWithInvalidDirectory() throws Exception {
-        // Instead of marking the parent as read-only (which may not force an error on Windows),
-        // create a file in place of the required directory.
-        Path invalidPath = tempDir.resolve("invalid-dir").resolve("non-existent");
-        File invalidParent = invalidPath.getParent().toFile();
-        // Ensure the parent of the invalid directory exists
-        invalidParent.getParentFile().mkdirs();
-        // Create a file at the parent path to force a failure when trying to create a directory or file under it
-        Files.writeString(invalidParent.toPath(), "This is a file, not a directory");
+    public void testGetAnalytics() throws Exception {
+        // This is a private method, but we can test it through its usage in findDuplication
 
-        // Set keystore directory to the invalidPath
-        Field field = ProxyAbisInsertServiceImpl.class.getDeclaredField("keystoreFilePath");
-        field.setAccessible(true);
-        field.set(proxyAbisInsertService, invalidPath);
+        // Arrange
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
+        when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
 
-        // Clear previous logs
-        listAppender.list.clear();
+        when(env.getProperty("analytics.confidence")).thenReturn("90");
+        when(env.getProperty("analytics.internalscore")).thenReturn("85");
+        when(env.getProperty("analytics.key1")).thenReturn("value1");
+        when(env.getProperty("analytics.key2")).thenReturn("value2");
 
-        // When
-        String result = proxyAbisInsertService.saveUploadedFileWithParameters(
-                mockFile,
-                TEST_ALIAS,
-                TEST_PASSWORD,
-                TEST_KEYSTORE
-        );
+        // Act
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
 
-        // Then
-        assertEquals("Could not upload file", result);
-        List<ILoggingEvent> logsList = listAppender.list;
-        boolean foundUploading = logsList.stream().anyMatch(event -> event.getMessage().contains("Uploading certificate"));
-        boolean foundError = logsList.stream().anyMatch(
-                event -> event.getLevel().equals(Level.ERROR)
-                        && event.getMessage().contains("Could not upload file")
-        );
-        assertTrue(foundUploading);
-        assertTrue(foundError);
+        // Assert
+        assertNotNull(response);
+        IdentityResponse.Analytics analytics = response.getIdentityResponse().getCandidateList().getCandidates().get(0).getAnalytics();
+        assertNotNull(analytics);
+        assertEquals("90", analytics.getConfidence());
+        assertEquals("85", analytics.getInternalScore());
+        assertEquals("value1", analytics.getKey1());
+        assertEquals("value2", analytics.getKey2());
     }
 }

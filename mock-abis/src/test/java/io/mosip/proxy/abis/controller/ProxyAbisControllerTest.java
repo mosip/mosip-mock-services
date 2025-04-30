@@ -23,6 +23,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit test class for ProxyAbisController.
+ * This class verifies the behavior of the controller methods
+ * and their interactions with the service layer.
+ */
 @ExtendWith(MockitoExtension.class)
 class ProxyAbisControllerTest {
 
@@ -42,6 +47,9 @@ class ProxyAbisControllerTest {
     private RequestMO validRequest;
     private IdentityRequest validIdentityRequest;
 
+    /**
+     * Sets up the test data and initializes the controller with a mock listener.
+     */
     @BeforeEach
     void setUp() {
         controller.setListener(listener);
@@ -66,6 +74,9 @@ class ProxyAbisControllerTest {
         validIdentityRequest.setReferenceId("test-reference-id");
     }
 
+    /**
+     * Tests the saveInsertRequest method for a successful scenario.
+     */
     @Test
     void testSaveInsertRequest_Success() throws Exception {
         when(bindingResult.hasErrors()).thenReturn(false);
@@ -77,6 +88,9 @@ class ProxyAbisControllerTest {
         assertInstanceOf(ResponseMO.class, response.getBody());
     }
 
+    /**
+     * Tests the saveInsertRequest method for validation failure.
+     */
     @Test
     void testSaveInsertRequest_ValidationFailure() {
         when(bindingResult.hasErrors()).thenReturn(true);
@@ -85,6 +99,9 @@ class ProxyAbisControllerTest {
                 controller.saveInsertRequest(validInsertRequest, bindingResult));
     }
 
+    /**
+     * Tests the deleteRequest method for a successful scenario.
+     */
     @Test
     void testDeleteRequest_Success() {
         doNothing().when(abisInsertService).deleteData(anyString());
@@ -95,6 +112,9 @@ class ProxyAbisControllerTest {
         assertInstanceOf(ResponseMO.class, response.getBody());
     }
 
+    /**
+     * Tests the uploadCertificate method for a successful scenario.
+     */
     @Test
     void testUploadCertificate_Success() {
         MockMultipartFile file = new MockMultipartFile(
@@ -109,6 +129,9 @@ class ProxyAbisControllerTest {
         assertEquals("Success", response.getBody());
     }
 
+    /**
+     * Tests the uploadCertificate method for an empty file scenario.
+     */
     @Test
     void testUploadCertificate_EmptyFile() {
         MockMultipartFile emptyFile = new MockMultipartFile(
@@ -121,12 +144,13 @@ class ProxyAbisControllerTest {
         assertEquals("Please select a file", response.getBody());
     }
 
+    /**
+     * Tests the identityRequest method for a successful scenario.
+     */
     @Test
     void testIdentityRequest_Success() {
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
-        // Create an instance of IdentityResponse properly
         IdentityResponse identityResponseInstance = new IdentityResponse();
-        // Optionally populate fields in identityResponseInstance if needed
         identifyResponse.setIdentityResponse(identityResponseInstance);
         identifyResponse.setDelayResponse(0);
 
@@ -138,6 +162,9 @@ class ProxyAbisControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
+    /**
+     * Tests the identityRequest method for a failure scenario.
+     */
     @Test
     void testIdentityRequest_Failure() {
         when(abisInsertService.findDuplication(any(IdentityRequest.class)))
@@ -146,10 +173,12 @@ class ProxyAbisControllerTest {
         ResponseEntity<Object> response = controller.identityRequest(validIdentityRequest);
 
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
-        // Changed from checking for String to FailureResponse
         assertTrue(response.getBody() instanceof FailureResponse);
     }
 
+    /**
+     * Tests the saveInsertRequestThroughListener method for a successful scenario.
+     */
     @Test
     void testSaveInsertRequestThroughListener_Success() {
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenReturn(0);
@@ -160,6 +189,9 @@ class ProxyAbisControllerTest {
         assertTrue(response.getBody() instanceof ResponseMO);
     }
 
+    /**
+     * Tests the deleteRequestThroughListener method for a successful scenario.
+     */
     @Test
     void testDeleteRequestThroughListener_Success() {
         doNothing().when(abisInsertService).deleteData(anyString());
@@ -170,13 +202,13 @@ class ProxyAbisControllerTest {
         assertTrue(response.getBody() instanceof ResponseMO);
     }
 
+    /**
+     * Tests the identityRequestThroughListener method for a successful scenario.
+     */
     @Test
     void testIdentityRequestThroughListener_Success() {
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
-
         IdentityResponse identityResponse = new IdentityResponse();
-        // Optionally populate fields in identityResponse
-
         identifyResponse.setIdentityResponse(identityResponse);
         identifyResponse.setDelayResponse(0);
 
@@ -188,12 +220,11 @@ class ProxyAbisControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody() instanceof IdentityResponse);
-
-
     }
 
-
-
+    /**
+     * Tests the saveInsertRequestThroughListener method for an invalid ID scenario.
+     */
     @Test
     void testValidateRequest_InvalidId() {
         validInsertRequest.setId("invalid.id");
@@ -204,6 +235,9 @@ class ProxyAbisControllerTest {
         assertTrue(response.getBody() instanceof FailureResponse);
     }
 
+    /**
+     * Tests the executeAsync method to verify asynchronous execution.
+     */
     @Test
     void testAsyncExecution() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
@@ -211,7 +245,6 @@ class ProxyAbisControllerTest {
 
         controller.executeAsync(responseEntity, 0, 1);
 
-        // Verify that listener.sendToQueue is called with correct message type
         verify(listener, timeout(1000)).sendToQueue(any(), msgTypeCaptor.capture());
         assertEquals(1, msgTypeCaptor.getValue());
     }

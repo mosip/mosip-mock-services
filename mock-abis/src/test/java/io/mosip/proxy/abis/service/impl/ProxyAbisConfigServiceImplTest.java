@@ -17,7 +17,11 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
+/**
+ * Unit test class for ProxyAbisConfigServiceImpl.
+ * This class tests the functionality of ProxyAbisConfigServiceImpl, including
+ * managing expectations, biometrics, and duplicate configurations.
+ */
 class ProxyAbisConfigServiceImplTest {
 
     @Mock
@@ -32,34 +36,48 @@ class ProxyAbisConfigServiceImplTest {
     @InjectMocks
     private ProxyAbisConfigServiceImpl proxyAbisConfigService;
 
+    /**
+     * Sets up the test environment before each test.
+     * Initializes mocks and injects them into the ProxyAbisConfigServiceImpl instance.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        proxyAbisConfigService.setDuplicate(true);
+        proxyAbisConfigService.setDuplicate(true); // Set initial duplicate value
     }
 
-    // Test getDuplicate()
+    /**
+     * Tests the getDuplicate method.
+     * Verifies that the duplicate property is returned correctly.
+     */
     @Test
     void testGetDuplicate() {
-        // When the property is set to true
-        assertTrue(proxyAbisConfigService.getDuplicate());
+        assertTrue(proxyAbisConfigService.getDuplicate()); // Verify the duplicate property is true
     }
 
-    // Test setDuplicate()
+    /**
+     * Tests the setDuplicate method.
+     * Verifies that the duplicate property is updated correctly.
+     */
     @Test
     void testSetDuplicate() {
         proxyAbisConfigService.setDuplicate(false);
-        assertFalse(proxyAbisConfigService.getDuplicate());
+        assertFalse(proxyAbisConfigService.getDuplicate()); // Verify the duplicate property is false
     }
 
-    // Test isForceDuplicate()
+    /**
+     * Tests the isForceDuplicate method.
+     * Verifies that the default value of forceDuplicate is false.
+     */
     @Test
     void testIsForceDuplicate() {
-        // Assuming the default value is false
-        assertFalse(proxyAbisConfigService.isForceDuplicate());
+        assertFalse(proxyAbisConfigService.isForceDuplicate()); // Verify the default value is false
     }
 
-    // Test getExpectations()
+    /**
+     * Tests the getExpectations method.
+     * Verifies that expectations are retrieved correctly from the cache.
+     */
     @Test
     void testGetExpectations() {
         Map<String, Expectation> mockExpectations = new HashMap<>();
@@ -68,48 +86,63 @@ class ProxyAbisConfigServiceImplTest {
         when(expectationCache.get()).thenReturn(mockExpectations);
 
         Map<String, Expectation> result = proxyAbisConfigService.getExpectations();
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertNotNull(result); // Verify the result is not null
+        assertEquals(1, result.size()); // Verify the size of the result
     }
 
-    // Test setExpectation()
+    /**
+     * Tests the setExpectation method.
+     * Verifies that an expectation is inserted into the cache.
+     */
     @Test
     void testSetExpectation() {
         Expectation exp = new Expectation();
         proxyAbisConfigService.setExpectation(exp);
 
-        verify(expectationCache, times(1)).insert(exp);
+        verify(expectationCache, times(1)).insert(exp); // Verify the insert method is called once
     }
 
-    // Test deleteExpectation()
+    /**
+     * Tests the deleteExpectation method.
+     * Verifies that an expectation is deleted from the cache.
+     */
     @Test
     void testDeleteExpectation() {
         String expId = "exp1";
         proxyAbisConfigService.deleteExpectation(expId);
 
-        verify(expectationCache, times(1)).delete(expId);
+        verify(expectationCache, times(1)).delete(expId); // Verify the delete method is called once
     }
 
-    // Test deleteExpectations()
+    /**
+     * Tests the deleteExpectations method.
+     * Verifies that all expectations are deleted from the cache.
+     */
     @Test
     void testDeleteExpectations() {
         proxyAbisConfigService.deleteExpectations();
 
-        verify(expectationCache, times(1)).deleteAll();
+        verify(expectationCache, times(1)).deleteAll(); // Verify the deleteAll method is called once
     }
 
-    // Test getCachedBiometrics()
+    /**
+     * Tests the getCachedBiometrics method.
+     * Verifies that all cached biometrics are retrieved correctly.
+     */
     @Test
     void testGetCachedBiometrics() {
         List<String> mockBiometrics = List.of("bio1", "bio2");
         when(proxyAbisBioDataRepository.fetchAllBioData()).thenReturn(mockBiometrics);
 
         List<String> result = proxyAbisConfigService.getCachedBiometrics();
-        assertNotNull(result);
-        assertEquals(2, result.size());
+        assertNotNull(result); // Verify the result is not null
+        assertEquals(2, result.size()); // Verify the size of the result
     }
 
-    // Test getCachedBiometric()
+    /**
+     * Tests the getCachedBiometric method.
+     * Verifies that a specific cached biometric is retrieved correctly.
+     */
     @Test
     void testGetCachedBiometric() {
         String hash = "someHash";
@@ -117,17 +150,19 @@ class ProxyAbisConfigServiceImplTest {
         when(proxyAbisBioDataRepository.fetchByBioData(hash)).thenReturn(mockBiometrics);
 
         List<String> result = proxyAbisConfigService.getCachedBiometric(hash);
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertNotNull(result); // Verify the result is not null
+        assertEquals(1, result.size()); // Verify the size of the result
     }
 
-    // Test deleteAllCachedBiometrics()
+    /**
+     * Tests the deleteAllCachedBiometrics method.
+     * Verifies that all cached biometrics are deleted from the repositories.
+     */
     @Test
     void testDeleteAllCachedBiometrics() {
         proxyAbisConfigService.deleteAllCachedBiometrics();
 
-        verify(proxyAbisBioDataRepository, times(1)).deleteAll();
-        verify(proxyAbisInsertRepository, times(1)).deleteAll();
+        verify(proxyAbisBioDataRepository, times(1)).deleteAll(); // Verify the deleteAll method is called on bioDataRepository
+        verify(proxyAbisInsertRepository, times(1)).deleteAll(); // Verify the deleteAll method is called on insertRepository
     }
 }
-
