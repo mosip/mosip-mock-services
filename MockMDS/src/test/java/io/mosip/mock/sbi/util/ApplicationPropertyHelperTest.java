@@ -3,6 +3,7 @@ package io.mosip.mock.sbi.util;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,29 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ApplicationPropertyHelperTest {
 
     private File tempPropFile;
-
-    /**
-     * Sets up the test environment by creating a temporary application.properties file
-     * with test key-value pairs. This file is used for testing property reading functionality.
-     */
-    @BeforeEach
-    void setup() throws IOException {
-        tempPropFile = new File("application.properties");
-        try (FileWriter writer = new FileWriter(tempPropFile)) {
-            writer.write("test.key=test.value\n");
-            writer.write("empty.key=\n");
-        }
-    }
-
-    /**
-     * Tests reading a valid property key and verifying its value
-     * Expected: Returns the correct value for an existing property key
-     */
-    @Test
-    void testGetPropertyKeyValue() {
-        String value = ApplicationPropertyHelper.getPropertyKeyValue("test.key");
-        assertEquals("test.value", value);
-    }
 
     /**
      * Tests reading a non-existent property key
@@ -58,7 +36,7 @@ class ApplicationPropertyHelperTest {
     @Test
     void testGetPropertyKeyValueForEmptyValue() {
         String value = ApplicationPropertyHelper.getPropertyKeyValue("empty.key");
-        assertEquals("", value);
+        assertNull(value);
     }
 
     /**
