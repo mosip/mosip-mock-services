@@ -58,15 +58,14 @@
 
 			<!--sonar-->
 			<maven.sonar.plugin.version>5.1.0.4751</maven.sonar.plugin.version>
-			<sonar.coverage.exclusions>
-				**/dto/**,
-				**/io.mosip.registration.mdm.dto/**,
-				**/SBIFingerSlapCaptureInfo.java/**,
-				**/SBIBioSubTypeInfo.java/**,
-				**/KernelBioConverterApplication.java
-			</sonar.coverage.exclusions>
-
-
+		<sonar.coverage.exclusions>
+			**/io/mosip/registration/mdm/dto/**,
+			**/BioMetricsDto/**,
+			**/SBIFingerSlapCaptureInfo.java,
+			**/SBIBioSubTypeInfo.java,
+			**/SBIConstant.java,
+			**/KernelBioConverterApplication.java
+		</sonar.coverage.exclusions>
 
 		<mosip.biometrics.util.version>1.3.0-SNAPSHOT</mosip.biometrics.util.version>
 	</properties>
@@ -103,7 +102,6 @@
 			<version>${mockito.inline.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>io.mosip.biometric.util</groupId>
 			<artifactId>biometrics-util</artifactId>

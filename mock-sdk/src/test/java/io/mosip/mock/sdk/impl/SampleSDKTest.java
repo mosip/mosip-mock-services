@@ -118,7 +118,10 @@ public class SampleSDKTest {
 				}
 			};
 
+<<<<<<< Updated upstream
 			// Prepare sample and gallery biometric records
+=======
+>>>>>>> Stashed changes
 			BiometricRecord[] galleryBioRecord = new BiometricRecord[1];
 			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
 			BiometricRecord galleryBioRecord0 = xmlFileToBiometricRecord(sampleIrisNoMatchPath);
