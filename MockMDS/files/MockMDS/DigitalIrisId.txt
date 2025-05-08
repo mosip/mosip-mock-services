@@ -1,10 +1,1 @@
-{
-	"serialNo": "9149798",
-	"make": "EYECOOL",
-	"model": "TCI322",
-	"type": "Iris",
-	"deviceSubType": "Double",
-	"deviceProvider": "MOSIP DEVICE PARTNER",
-	"deviceProviderId": "MOSIPMDS",
-	"dateTime": "2020-03-19T18:21:28.410+05:30"
-}
+{"deviceProvider":"prov","deviceProviderId":"pid","make":"mk","serialNo":"sn","model":"mdl","deviceSubType":"sub","type":"IIR"}

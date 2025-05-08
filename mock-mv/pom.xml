@@ -49,8 +49,13 @@
 		<!-- Active mq -->
 		<activemq.client.version>6.1.2</activemq.client.version>
 
-		<!---->
+		<!--Test-->
 		<mockito.inline.version>5.10.0</mockito.inline.version>
+		<junit.jupiter.version>5.13.0-M3</junit.jupiter.version>
+
+		<!--Sonar-->
+		<sonar.plugin.api.version>5.1</sonar.plugin.api.version>
+
 
 		<!-- Mosip -->
 		<kernel.bom.version>1.3.0-SNAPSHOT</kernel.bom.version>
@@ -157,10 +162,22 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.api.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-inline</artifactId>
 			<version>${mockito.inline.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sonarsource.sonarqube</groupId>
+			<artifactId>sonar-plugin-api</artifactId>
+			<version>${sonar.plugin.api.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.jms</groupId>
@@ -338,7 +355,16 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.exclusions>
+					**/dto/**,**/constant**
+				</sonar.exclusions>
+			</properties>
+		</profile>
+	</profiles>
 	<repositories>
 		<repository>
 			<id>spring-releases</id>

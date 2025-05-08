@@ -33,7 +33,7 @@ import java.util.Map;
 @RestController
 @Tag(name = "Proxy Abis config API", description = "Provides API's for configuring proxy Abis")
 @RequestMapping("config/")
-public class ProxyAbisConfigController {
+public class 	ProxyAbisConfigController {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisConfigController.class);
 
 	private ProxyAbisConfigService proxyAbisConfigService;
@@ -118,7 +118,8 @@ public class ProxyAbisConfigController {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
-		logger.info("Delete expectation: {}", id);
+		logger.info("Delete expectation: {}", sanitizeForLog(id));
+
 		try {
 			proxyAbisConfigService.deleteExpectation(id);
 			return new ResponseEntity<>("Successfully deleted expectation " + id, HttpStatus.OK);
@@ -127,6 +128,12 @@ public class ProxyAbisConfigController {
 			throw new AbisException(AbisErrorCode.DELETE_EXPECTATION_EXCEPTION.getErrorCode(),
 					AbisErrorCode.DELETE_EXPECTATION_EXCEPTION.getErrorMessage() + " " + exp.getLocalizedMessage());
 		}
+	}
+
+	//Helper method to sanitize log messages
+	private String sanitizeForLog(String input) {
+		if (input == null) return null;
+		return input.replaceAll("[\\r\\n]", "_"); // Remove log injection risk
 	}
 
 	/**
@@ -257,7 +264,10 @@ public class ProxyAbisConfigController {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<List<String>> getCacheByHash(@PathVariable String hash) {
-		logger.info("Get cached biometrics by hash: {}", hash);
+
+		String maskedHash = maskHash(hash);
+
+		logger.info("Get cached biometrics by hash: {}", maskedHash);
 		try {
 			return new ResponseEntity<>(proxyAbisConfigService.getCachedBiometric(hash), HttpStatus.OK);
 		} catch (Exception exp) {
@@ -265,6 +275,15 @@ public class ProxyAbisConfigController {
 			throw new AbisException(AbisErrorCode.INVALID_CACHE_EXCEPTION.getErrorCode(),
 					AbisErrorCode.INVALID_CACHE_EXCEPTION.getErrorMessage() + " " + exp.getLocalizedMessage());
 		}
+	}
+
+	//Helper method to mask the hash for logging
+	private String maskHash(String hash) {
+		// Masking the hash by showing only the first 8 characters for visibility
+		if (hash != null && hash.length() > 8) {
+			return hash.substring(0, 8) + "...";  // Show only the first 8 characters and hide the rest
+		}
+		return hash;  // If the hash is short, just return it as is
 	}
 
 	/**

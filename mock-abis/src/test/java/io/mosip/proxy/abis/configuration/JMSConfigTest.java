@@ -1,47 +1,148 @@
 package io.mosip.proxy.abis.configuration;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
+import io.mosip.proxy.abis.exception.AbisException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
+import io.mosip.proxy.abis.utility.Helpers;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.web.client.RestTemplate;
+import java.util.Map;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 
 /**
- * Test class for JMSConfig to verify the configuration of JMS-related beans.
+ * Test class for JMSConfig.
+ * Tests the configuration and behavior of ActiveMQ connection factory and related JSON handling.
+ * Validates the ABIS queue configuration settings and JSON processing functionality.
  */
-@SpringBootTest
-@TestPropertySource(properties = {
-        "config.server.file.storage.uri=http://dummy",
-        "registration.processor.abis.json=/dummy",
-        "local.development=true"
-})
 class JMSConfigTest {
 
-    /**
-     * Mocked RestTemplate bean with the qualifier "selfTokenRestTemplate".
-     * This is used to ensure the application context loads without requiring
-     * the actual RestTemplate bean.
-     */
-    @MockBean(name = "selfTokenRestTemplate")
-    private RestTemplate restTemplate;
-
-    /**
-     * Autowired instance of JMSConfig to test its bean creation methods.
-     */
-    @Autowired
+    /** The JMSConfig instance being tested */
     private JMSConfig jmsConfig;
 
+    /** Mock RestTemplate for testing HTTP requests */
+    private RestTemplate mockRestTemplate;
+
+    /** Valid JSON string representing ABIS configuration */
+    private static final String VALID_JSON = "{\"abis\":[{\"userName\":\"testUser\",\"password\":\"testPass\",\"brokerUrl\":\"tcp://localhost:61616\"}]}";
+
     /**
-     * Test to verify that the ActiveMQConnectionFactory bean is created successfully.
-     * This ensures that the JMS configuration is correctly set up.
+     * Sets up the test environment before each test.
+     * Initializes JMSConfig instance and mocks, and sets default configuration values.
+     * Uses ReflectionTestUtils to set private fields normally set by @Value annotations.
+     */
+    @BeforeEach
+    void setUp() {
+        jmsConfig = new JMSConfig();
+        mockRestTemplate = mock(RestTemplate.class);
+
+        // Set mock values to fields with @Value annotations
+        ReflectionTestUtils.setField(jmsConfig, "configServerFileStorageURL", "http://mock-config/");
+        ReflectionTestUtils.setField(jmsConfig, "registrationProcessorAbisJson", "/mock.json");
+        ReflectionTestUtils.setField(jmsConfig, "localDevelopment", false);
+    }
+
+    /**
+     * Tests ActiveMQ connection factory creation in local development mode.
+     * Verifies that:
+     * - The factory is created successfully
+     * - The factory has the correct username configured
+     * Uses MockedStatic to mock static Helpers class methods
      */
     @Test
-    void testActiveMQConnectionFactory() {
-        ActiveMQConnectionFactory factory = jmsConfig.activeMQConnectionFactory();
-        assertNotNull(factory, "The ActiveMQConnectionFactory bean should be created");
+    void testActiveMQConnectionFactory_LocalDevelopment() {
+        try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
+            // Given
+            ReflectionTestUtils.setField(jmsConfig, "localDevelopment", true);
+            mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(VALID_JSON);
+
+            // When
+            ActiveMQConnectionFactory factory = jmsConfig.activeMQConnectionFactory();
+
+            // Then
+            assertNotNull(factory);
+            assertEquals("testUser", factory.getUserName());
+        }
+    }
+
+    /**
+     * Tests JSON retrieval functionality in local development mode.
+     * Verifies that the correct JSON is read from resources when running locally.
+     * Uses MockedStatic to simulate file reading from resources.
+     */
+    @Test
+    void testGetJson_LocalDevelopment() throws Exception {
+        try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
+            // Given
+            mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(VALID_JSON);
+
+            // When
+            String result = ReflectionTestUtils.invokeMethod(jmsConfig, "getJson",
+                    "http://mock-config/", "/mock.json", true);
+
+            // Then
+            assertEquals(VALID_JSON, result);
+        }
+    }
+
+    /**
+     * Tests successful validation and extraction of values from ABIS queue JSON.
+     * Verifies that the correct value is returned when the requested key exists in the JSON map.
+     * Uses ReflectionTestUtils to access private method.
+     */
+    @Test
+    void testValidateAbisQueueJsonAndReturnValue_Success() {
+        // Given
+        Map<String, String> jsonMap = Map.of("userName", "testUser");
+
+        // When
+        String result = ReflectionTestUtils.invokeMethod(jmsConfig,
+                "validateAbisQueueJsonAndReturnValue", jsonMap, "userName");
+
+        // Then
+        assertEquals("testUser", result);
+    }
+
+    /**
+     * Tests handling of empty ABIS array in configuration.
+     * Verifies that null is returned when the ABIS array in JSON is empty.
+     * Uses MockedStatic to simulate empty JSON response.
+     */
+    @Test
+    void testActiveMQConnectionFactory_EmptyAbisArray() {
+        try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
+            // Given
+            String emptyJson = "{\"abis\":[]}";
+            mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(emptyJson);
+
+            // When
+            ActiveMQConnectionFactory factory = jmsConfig.activeMQConnectionFactory();
+
+            // Then
+            assertNull(factory);
+        }
+    }
+
+    /**
+     * Tests validation behavior when a required key is missing from the JSON.
+     * Verifies that an AbisException is thrown with appropriate error message
+     * when attempting to retrieve a non-existent key.
+     * Uses ReflectionTestUtils to access private method.
+     */
+    @Test
+    void testValidateAbisQueueJsonAndReturnValue_missingKey_shouldThrowAbisException() {
+        // Given
+        Map<String, String> jsonMap = Map.of("brokerUrl", "tcp://localhost:61616");
+
+        // When/Then
+        AbisException thrown = assertThrows(AbisException.class,
+                () -> ReflectionTestUtils.invokeMethod(jmsConfig, "validateAbisQueueJsonAndReturnValue", jsonMap, "userName"));
+
+        // Assert the exception message
+        assertTrue(thrown.getMessage().contains("userName"));
     }
 }

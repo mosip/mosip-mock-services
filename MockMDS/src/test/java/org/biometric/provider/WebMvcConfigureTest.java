@@ -1,4 +1,3 @@
-// Java
 package org.biometric.provider;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,3 @@
-// Java
 package io.mosip.mock.sbi.util;
 
 import io.mosip.biometrics.util.face.FaceBDIR;

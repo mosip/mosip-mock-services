@@ -36,8 +36,11 @@ class ProxyAbisConfigControllerTest {
     private ProxyAbisConfigController controller;
 
     /**
-     * Test to verify the setExpectation method.
-     * Ensures the service is called and the response contains the expected data.
+     * Tests the successful setting of an expectation.
+     * Verifies that:
+     * - The service method is called with correct parameters
+     * - Response contains the expected ID
+     * - HTTP status is OK
      */
     @Test
     void testSetExpectation() {
@@ -52,8 +55,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the getExpectation method.
-     * Ensures the service returns the expected map of expectations.
+     * Tests the retrieval of all expectations.
+     * Verifies that:
+     * - Service returns the expected map of expectations
+     * - Response contains the correct data
+     * - HTTP status is OK
      */
     @Test
     void testGetExpectation() {
@@ -67,8 +73,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the deleteExpectation method.
-     * Ensures the service is called with the correct ID and the response is as expected.
+     * Tests the deletion of a specific expectation.
+     * Verifies that:
+     * - Service is called with the correct ID
+     * - Response contains confirmation message
+     * - HTTP status is OK
      */
     @Test
     void testDeleteExpectation() {
@@ -82,8 +91,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the deleteAllExpectations method.
-     * Ensures the service is called and the response indicates success.
+     * Tests the deletion of all expectations.
+     * Verifies that:
+     * - Service method is called
+     * - Response indicates successful deletion
+     * - HTTP status is OK
      */
     @Test
     void testDeleteAllExpectations() {
@@ -95,8 +107,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the checkConfiguration method.
-     * Ensures the service returns the correct configuration status.
+     * Tests the configuration status check.
+     * Verifies that:
+     * - Service returns correct duplicate detection status
+     * - Response contains proper configuration data
+     * - HTTP status is OK
      */
     @Test
     void testCheckConfiguration() {
@@ -109,8 +124,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the configure method.
-     * Ensures the service is called with the correct configuration and the response indicates success.
+     * Tests the configuration update endpoint.
+     * Verifies that:
+     * - Service is updated with new configuration
+     * - Response indicates successful update
+     * - HTTP status is OK
      */
     @Test
     void testConfigure() {
@@ -125,8 +143,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the getCache method.
-     * Ensures the service returns the expected list of cached biometrics.
+     * Tests the retrieval of cached biometrics.
+     * Verifies that:
+     * - Service returns expected list of cached items
+     * - Response contains correct data
+     * - HTTP status is OK
      */
     @Test
     void testGetCache() {
@@ -140,8 +161,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the getCacheByHash method.
-     * Ensures the service returns the expected cached biometrics for a given hash.
+     * Tests the retrieval of cached biometrics by hash.
+     * Verifies that:
+     * - Service returns correct data for given hash
+     * - Response contains expected items
+     * - HTTP status is OK
      */
     @Test
     void testGetCacheByHash() {
@@ -156,8 +180,11 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the deleteCache method.
-     * Ensures the service is called and the response indicates success.
+     * Tests the cache clearing functionality.
+     * Verifies that:
+     * - Service method for clearing cache is called
+     * - Response indicates successful operation
+     * - HTTP status is OK
      */
     @Test
     void testDeleteCache() {
@@ -169,8 +196,10 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the setExpectation method when an exception is thrown.
-     * Ensures the exception is correctly handled and wrapped in an AbisException.
+     * Tests error handling when setting expectation fails.
+     * Verifies that:
+     * - RuntimeException is properly wrapped in AbisException
+     * - Exception contains appropriate error message
      */
     @Test
     void testSetExpectationWithException() {
@@ -181,8 +210,10 @@ class ProxyAbisConfigControllerTest {
     }
 
     /**
-     * Test to verify the getExpectation method when an exception is thrown.
-     * Ensures the exception is correctly handled and wrapped in an AbisException.
+     * Tests error handling when getting expectations fails.
+     * Verifies that:
+     * - RuntimeException is properly wrapped in AbisException
+     * - Exception handling works as expected
      */
     @Test
     void testGetExpectationWithException() {
@@ -190,4 +221,89 @@ class ProxyAbisConfigControllerTest {
 
         assertThrows(AbisException.class, () -> controller.getExpectation());
     }
+
+    /**
+     * Tests error handling when deleting expectation fails.
+     * Verifies that:
+     * - Service exception is properly handled
+     * - AbisException is thrown with correct message
+     */
+    @Test
+    void testDeleteExpectationWithException() {
+        String id = "test-id";
+        doThrow(new RuntimeException("Test error"))
+                .when(proxyAbisConfigService).deleteExpectation(id);
+
+        assertThrows(AbisException.class, () -> controller.deleteExpectation(id));
+    }
+
+    /**
+     * Tests error handling when deleting all expectations fails.
+     * Verifies that:
+     * - Service exception is properly handled
+     * - AbisException is thrown with correct message
+     */
+    @Test
+    void testDeleteAllExpectationsWithException() {
+        doThrow(new RuntimeException("Test error"))
+                .when(proxyAbisConfigService).deleteExpectations();
+
+        assertThrows(AbisException.class, () -> controller.deleteAllExpectations());
+    }
+
+    /**
+     * Tests error handling when getting cache fails.
+     * Verifies that:
+     * - Service exception is properly handled
+     * - AbisException is thrown with correct message
+     */
+    @Test
+    void testGetCacheWithException() {
+        when(proxyAbisConfigService.getCachedBiometrics())
+                .thenThrow(new RuntimeException("Test error"));
+
+        assertThrows(AbisException.class, () -> controller.getCache());
+    }
+
+    /**
+     * Tests error handling when getting cache by hash fails.
+     * Verifies that:
+     * - Service exception is properly handled
+     * - AbisException is thrown with correct message
+     */
+    @Test
+    void testGetCacheByHashWithException() {
+        String hash = "test-hash";
+        when(proxyAbisConfigService.getCachedBiometric(hash))
+                .thenThrow(new RuntimeException("Test error"));
+
+        assertThrows(AbisException.class, () -> controller.getCacheByHash(hash));
+    }
+
+    /**
+     * Tests error handling when deleting cache fails.
+     * Verifies that:
+     * - Service exception is properly handled
+     * - AbisException is thrown with correct message
+     */
+    @Test
+    void testDeleteCacheWithException() {
+        doThrow(new RuntimeException("Test error"))
+                .when(proxyAbisConfigService).deleteAllCachedBiometrics();
+
+        assertThrows(AbisException.class, () -> controller.deleteCache());
+    }
+
+    /**
+     * Tests validation handling when configure is called with null DTO.
+     * Verifies that:
+     * - Null input is properly validated
+     * - AbisException is thrown with appropriate message
+     */
+    @Test
+    void testConfigureWithNullDto() {
+        assertThrows(AbisException.class, () -> controller.configure(null, bindingResult));
+    }
+
+
 }

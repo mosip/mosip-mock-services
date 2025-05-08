@@ -1,4 +1,3 @@
-// Java
 package org.biometric.provider;
 
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;

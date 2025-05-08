@@ -104,7 +104,7 @@ public class CryptoCoreUtil {
 	private static final String SYMMETRIC_ALGORITHM = "AES/GCM/NoPadding";
 	private static final int GCM_TAG_LENGTH = 128;
 
-	private static final String KEY_SPLITTER = "#KEY_SPLITTER#";
+	static final String KEY_SPLITTER = "#KEY_SPLITTER#";
 
 	private static String certiPassword;
 

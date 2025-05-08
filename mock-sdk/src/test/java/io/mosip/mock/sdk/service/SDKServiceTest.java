@@ -1,3 +1,4 @@
+// java
 package io.mosip.mock.sdk.service;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +15,6 @@ import io.mosip.mock.sdk.exceptions.SDKException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
@@ -25,6 +25,9 @@ import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BDBInfo;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 
+/**
+ * Test class for SDKService implementations using TestSDKService.
+ */
 @ExtendWith(MockitoExtension.class)
 public class SDKServiceTest {
 
@@ -35,16 +38,19 @@ public class SDKServiceTest {
 
     private TestSDKService sdkService; // Service under test
 
-    // Setup method initializing flags and service under test before each test is executed.
+    /**
+     * Setup method initializing flags and the service under test before each test is executed.
+     */
     @BeforeEach
     void setUp() {
         flags = new HashMap<>();
         flags.put("test-key", "test-value");
-
         sdkService = new TestSDKService(environment, flags);
     }
 
-    // Tests getters and setters of the TestSDKService.
+    /**
+     * Tests getters and setters of the TestSDKService.
+     */
     @Test
     void testGettersAndSetters() {
         // Validate getFlags returns non-null and contains expected value.
@@ -69,7 +75,9 @@ public class SDKServiceTest {
         assertEquals(newEnv, sdkService.getEnv());
     }
 
-    // Tests filtering biometric segments when a subset of modalities is provided.
+    /**
+     * Tests filtering biometric segments when a subset of modalities is provided.
+     */
     @Test
     void testGetBioSegmentMap_WithModalitiesToMatch() {
         // Create test BIR objects for different biometric types.
@@ -94,7 +102,9 @@ public class SDKServiceTest {
         assertEquals(1, result.get(BiometricType.FACE).size());
     }
 
-    // Tests filtering biometric segments when no specific modalities are provided.
+    /**
+     * Tests filtering biometric segments when no specific modalities are provided.
+     */
     @Test
     void testGetBioSegmentMap_WithoutModalitiesToMatch() {
         // Create test BIR objects.
@@ -118,7 +128,9 @@ public class SDKServiceTest {
         assertEquals(2, result.size());
     }
 
-    // Tests handling multiple segments of the same biometric type.
+    /**
+     * Tests handling multiple segments of the same biometric type.
+     */
     @Test
     void testGetBioSegmentMap_WithMultipleSegmentsOfSameType() {
         // Create two BIR objects with the same biometric type (FINGER).
@@ -139,7 +151,9 @@ public class SDKServiceTest {
         assertEquals(1, result.get(BiometricType.FACE).size());
     }
 
-    // Tests if valid biometric record (BIR) data passes validation.
+    /**
+     * Tests if valid biometric record (BIR) data passes validation.
+     */
     @Test
     void testIsValidBirData_ValidBir() {
         // Create a valid BIR with proper BDB data.
@@ -158,7 +172,9 @@ public class SDKServiceTest {
         verify(testService).isValidBDBData(eq(PurposeType.VERIFY), eq(BiometricType.FINGER), any(), eq(validBir.getBdb()));
     }
 
-    // Tests if biometric record with invalid BIR parameters fails validation.
+    /**
+     * Tests if biometric record with invalid BIR parameters fails validation.
+     */
     @Test
     void testIsValidBirData_InvalidBirParams() {
         // Create a BIR that will fail parameter validation.
@@ -174,7 +190,9 @@ public class SDKServiceTest {
         verify(testService, never()).isValidBDBData(any(), any(), any(), any());
     }
 
-    // Tests if biometric record with invalid BDB data fails validation.
+    /**
+     * Tests if biometric record with invalid BDB data fails validation.
+     */
     @Test
     void testIsValidBirData_InvalidBDBData() {
         // Create a BIR with invalid BDB data (empty byte array).
@@ -192,7 +210,9 @@ public class SDKServiceTest {
         verify(testService).isValidBDBData(eq(PurposeType.VERIFY), eq(BiometricType.FINGER), any(), eq(birWithInvalidBdb.getBdb()));
     }
 
-    // Tests validation using multiple subtypes combined from the BIR.
+    /**
+     * Tests validation using multiple subtypes combined from the BIR.
+     */
     @Test
     void testIsValidBirData_WithMultipleSubtypes() {
         // Create a BIR and set multiple subtypes.
@@ -212,7 +232,12 @@ public class SDKServiceTest {
         verify(testService).isValidBIRParams(eq(birWithMultipleSubtypes), eq(BiometricType.FINGER), eq("LEFT THUMB"));
     }
 
-    // Helper method to create a BIR with the specified biometric type and proper purpose and types set.
+    /**
+     * Helper method to create a BIR with the specified biometric type and proper purpose and types set.
+     *
+     * @param biometricType the biometric type to set
+     * @return a BIR instance with the specified type and purpose set to VERIFY
+     */
     private BIR createBir(BiometricType biometricType) {
         BIR bir = new BIR();
         BDBInfo bdbInfo = new BDBInfo();
@@ -222,7 +247,9 @@ public class SDKServiceTest {
         return bir;
     }
 
-    // Tests valid BIR parameters for a FINGER subtype that is allowed.
+    /**
+     * Tests valid BIR parameters for a FINGER subtype that is allowed.
+     */
     @Test
     void testIsValidBIRParams_validFingerSubType() {
         BIR bir = mock(BIR.class);
@@ -231,7 +258,9 @@ public class SDKServiceTest {
         assertTrue(service.isValidBIRParams(bir, BiometricType.FINGER, "Left Thumb"));
     }
 
-    // Tests invalid finger subtype which should throw an SDKException.
+    /**
+     * Tests invalid finger subtype which should throw an SDKException.
+     */
     @Test
     void testIsValidBIRParams_invalidFingerSubType_shouldThrowException() {
         BIR bir = mock(BIR.class);
@@ -242,7 +271,9 @@ public class SDKServiceTest {
         assertEquals(ResponseStatus.MISSING_INPUT.getStatusCode() + "", exception.getErrorCode());
     }
 
-    // Tests valid iris subtype, expecting it to pass.
+    /**
+     * Tests valid iris subtype, expecting it to pass.
+     */
     @Test
     void testIsValidBIRParams_validIrisSubType() {
         BIR bir = mock(BIR.class);
@@ -250,18 +281,22 @@ public class SDKServiceTest {
         assertTrue(sdkService.isValidBIRParams(bir, BiometricType.IRIS, "Left"));
     }
 
-    // Tests invalid iris subtype that should throw an SDKException.
+    /**
+     * Tests invalid iris subtype that should throw an SDKException.
+     */
     @Test
     void testIsValidBIRParams_invalidIrisSubType_shouldThrowException() {
         BIR bir = mock(BIR.class);
-        // Expecting exception for an invalid iris subtype.
+        // Expecting an exception for an invalid iris subtype.
         SDKException exception = assertThrows(SDKException.class, () ->
                 sdkService.isValidBIRParams(bir, BiometricType.IRIS, "InvalidIris")
         );
         assertEquals(ResponseStatus.MISSING_INPUT.getStatusCode() + "", exception.getErrorCode());
     }
 
-    // Tests biometric data validation for a valid FINGER using a pre-defined valid subtype.
+    /**
+     * Tests biometric data validation for a valid FINGER using a pre-defined valid subtype.
+     */
     @Test
     void testIsValidBiometricData_validFinger_shouldPass() {
         TestSDKService spyService = spy(sdkService); // Spy on the existing instance.
@@ -272,7 +307,9 @@ public class SDKServiceTest {
         assertTrue(result);
     }
 
-    // Tests valid BDB data for a FACE biometric record.
+    /**
+     * Tests valid BDB data for a FACE biometric record.
+     */
     @Test
     void testIsValidBDBData_validData_shouldPass() {
         byte[] bdbData = "dummyData".getBytes();
@@ -283,7 +320,9 @@ public class SDKServiceTest {
         assertTrue(result);
     }
 
-    // Tests that a null BDB data for a FACE biometric record throws an SDKException.
+    /**
+     * Tests that a null BDB data for a FACE biometric record throws an SDKException.
+     */
     @Test
     void testIsValidBDBData_invalidData_shouldThrowException() {
         SDKException exception = assertThrows(SDKException.class, () ->
@@ -292,7 +331,9 @@ public class SDKServiceTest {
         assertEquals(ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF.getStatusCode() + "", exception.getErrorCode());
     }
 
-    // Tests biometric data validation for a valid FACE biometric record.
+    /**
+     * Tests biometric data validation for a valid FACE biometric record.
+     */
     @Test
     void testIsValidBiometricData_validFace_shouldPass() {
         TestSDKService spyService = spy(sdkService); // Spy on the existing instance.
@@ -303,7 +344,9 @@ public class SDKServiceTest {
         assertTrue(result);
     }
 
-    // Alternative test for valid FINGER biometric data.
+    /**
+     * Alternative test for valid FINGER biometric data.
+     */
     @Test
     void testIsValidBiometricData_validFinger_alternative() {
         TestSDKService spyService = spy(sdkService); // Use the existing instance.
@@ -314,7 +357,9 @@ public class SDKServiceTest {
         assertTrue(result);
     }
 
-    // Tests valid biometric data for an IRIS type.
+    /**
+     * Tests valid biometric data for an IRIS type.
+     */
     @Test
     void testIsValidBiometricData_validIris_shouldPass() {
         TestSDKService spyService = spy(sdkService);  // Use the preconstructed instance.
@@ -325,11 +370,13 @@ public class SDKServiceTest {
         assertTrue(result);
     }
 
-    // Tests that providing a null biometric type results in a NullPointerException.
+    /**
+     * Tests that providing a null biometric type results in a NullPointerException.
+     */
     @Test
     void testIsValidBiometricData_invalidBioType_shouldThrowException() {
         // Validate that null biometric type throws a NullPointerException during validation.
-        NullPointerException exception = assertThrows(NullPointerException.class, () ->
+        assertThrows(NullPointerException.class, () ->
                 sdkService.isValidBiometericData(PurposeType.VERIFY, null, "UNKNOWN", "base64Data")
         );
     }

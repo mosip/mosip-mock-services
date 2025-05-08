@@ -260,4 +260,6 @@ public class SampleSDKV2Test {
 		biometricRecord.setSegments(birSegments);
 		return biometricRecord;
 	}
+
+
 }

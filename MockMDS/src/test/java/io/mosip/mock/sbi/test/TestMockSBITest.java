@@ -2,17 +2,15 @@ package io.mosip.mock.sbi.test;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.service.SBIMockService;
-import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TestMockSBITest {
+class TestMockSBITest {
 
     private static final Logger logger = LoggerFactory.getLogger(TestMockSBITest.class);
 

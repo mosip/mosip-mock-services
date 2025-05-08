@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -193,8 +192,6 @@ public class TestImageCoverterJpgToJP2000Test {
         fingerNameField.setAccessible(true);
         String fingerName = (String) fingerNameField.get(null);
 
-        // Test the output formatting
-        File testFile = new File("image.jpg");
         int fileNumber = 5;
 
         String formattedNumber = String.format("%04d", fileNumber);

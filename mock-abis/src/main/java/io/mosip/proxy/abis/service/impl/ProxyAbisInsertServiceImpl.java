@@ -127,7 +127,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		try {
 			java.util.Optional<InsertEntity> op = proxyabis.findById(ire.getReferenceId());
 			if (!op.isEmpty()) {
-				logger.error("Reference Id already exists {}", ire.getReferenceId());
+				// Logs a masked version of the reference ID to avoid exposing sensitive information.
+				// Only the last 4 characters are shown, and the rest are replaced with asterisks.
+				logger.error("Reference Id already exists ending with ****{}", ire.getReferenceId().substring(Math.max(ire.getReferenceId().length() - 4, 0)));
 				RequestMO re = new RequestMO(ire.getId(), ire.getVersion(), ire.getRequestId(), ire.getRequesttime(),
 						ire.getReferenceId());
 				throw new RequestException(re, FailureReasonsConstants.REFERENCEID_ALREADY_EXISTS);

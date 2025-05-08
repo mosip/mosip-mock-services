@@ -264,7 +264,12 @@ public class ProxyAbisController {
 	 *         FailureResponse with error details.
 	 */
 	private ResponseEntity<Object> processIdentityRequest(IdentityRequest ir, int msgType) {
-		logger.info("Finding duplication for reference ID {}", ir.getReferenceId());
+		// Sanitize the reference ID by masking all but the first 4 characters to avoid logging sensitive information.
+		String sanitizedReferenceId = ir.getReferenceId().substring(0, 4) + "****";
+
+		// Log the sanitized reference ID to ensure security while providing necessary information.
+		logger.info("Finding duplication for reference ID {}", sanitizedReferenceId);
+
 		int delayResponse = 0;
 		ResponseEntity<Object> responseEntity;
 		try {

@@ -1,4 +1,3 @@
-// Language: java
 package io.mosip.mock.mv.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +37,11 @@ class MockMvConfigControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Tests successful configuration of MockMv decision.
+     * Verifies that when a valid configuration is posted,
+     * the service updates it and returns success message.
+     */
     @Test
     void testConfigure_Success() throws Exception {
         ConfigureDto configureDto = new ConfigureDto();
@@ -53,6 +57,12 @@ class MockMvConfigControllerTest {
                 .andExpect(content().string(containsString("Successfully updated the configuration")));
     }
 
+
+    /**
+     * Tests successful retrieval of MockMv configuration.
+     * Verifies that the current configuration can be retrieved
+     * and matches the expected decision value.
+     */
     @Test
     void testCheckConfiguration_Success() throws Exception {
         Mockito.when(mockMvDecisionService.getMockMvDecision()).thenReturn("Decision1");
@@ -62,6 +72,11 @@ class MockMvConfigControllerTest {
                 .andExpect(jsonPath("$.mockMvDescision").value("Decision1"));
     }
 
+    /**
+     * Tests successful setting of MockMv expectation.
+     * Verifies that when a valid expectation is posted,
+     * it is stored and returns success message with the RID.
+     */
     @Test
     void testSetExpectation_Success() throws Exception {
         Expectation expectation = new Expectation();
@@ -76,6 +91,11 @@ class MockMvConfigControllerTest {
                 .andExpect(content().string(containsString("Successfully inserted expectation rid-123")));
     }
 
+    /**
+     * Tests successful retrieval of MockMv expectations.
+     * Verifies that stored expectations can be retrieved
+     * and contain the expected RID and content.
+     */
     @Test
     void testGetExpectation_Success() throws Exception {
         Expectation expectation = new Expectation();
@@ -90,7 +110,11 @@ class MockMvConfigControllerTest {
                 .andExpect(content().string(containsString("rid-123")));
     }
 
-
+    /**
+     * Tests successful deletion of all MockMv expectations.
+     * Verifies that all expectations can be deleted
+     * and returns success message.
+     */
     @Test
     void testDeleteAllExpectations_Success() throws Exception {
         Mockito.doNothing().when(mockMvDecisionService).deleteExpectations();
@@ -99,4 +123,5 @@ class MockMvConfigControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Successfully deleted expectations")));
     }
+
 }

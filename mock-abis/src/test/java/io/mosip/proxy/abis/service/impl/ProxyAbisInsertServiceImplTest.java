@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
@@ -259,8 +260,6 @@ class ProxyAbisInsertServiceImplTest {
         assertEquals("1", response.getIdentityResponse().getReturnValue());
     }
 
-
-
     /**
      * Tests the duplication check when no duplicates are found.
      * Verifies that the method returns an empty candidate list.
@@ -313,4 +312,96 @@ class ProxyAbisInsertServiceImplTest {
         assertEquals("value1", analytics.getKey1());
         assertEquals("value2", analytics.getKey2());
     }
+
+    /**
+     * Tests that the insertData method throws a RequestException when a null request is provided.
+     */
+    @Test
+    public void testInsertData_NullRequest() {
+        // Act & Assert
+        assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(null);
+        });
+    }
+
+    /**
+     * Tests that when an empty reference ID is provided in the insert request,
+     * the insertData method throws a RequestException with the expected failure code.
+     */
+    @Test
+    void testInsertData_EmptyReferenceId() {
+        // Arrange
+        insertRequest.setReferenceId("");
+
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(insertRequest);
+        });
+        assertEquals("1", exception.getReasonConstant());
+    }
+
+    /**
+     * Tests that the insertData method throws a RequestException when a network error occurs
+     * while attempting to fetch CB\-eff XML data.
+     */
+    @Test
+    public void testInsertData_CbeffFetchError() {
+        // Arrange
+        when(proxyabis.findById(insertRequest.getReferenceId())).thenReturn(Optional.empty());
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                isNull(),
+                eq(String.class)))
+                .thenThrow(new RuntimeException("Network error"));
+
+        // Act & Assert
+        assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(insertRequest);
+        });
+    }
+
+    /**
+     * Tests the findDuplication method when duplicate check is disabled.
+     * Verifies that no duplicate search is performed and the candidate list count is zero.
+     */
+    @Test
+    public void testFindDuplication_DuplicateCheckDisabled() {
+        // Arrange
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(false);
+
+        // Act
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
+        verify(proxyAbisBioDataRepository, never()).fetchDuplicatesForReferenceId(anyString());
+    }
+
+    /**
+     * Tests the findDuplication method when the gallery reference count is invalid.
+     * Verifies that a RequestException with the failure constant REFERENCEID_NOT_FOUND is thrown.
+     */
+    @Test
+    public void testFindDuplication_WithInvalidGalleryCount() {
+        // Arrange
+        IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
+        List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
+        IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
+        refId.setReferenceId("gallery-ref-id");
+        referenceIds.add(refId);
+        gallery.setReferenceIds(referenceIds);
+        identityRequest.setGallery(gallery);
+
+        when(proxyabis.fetchCountForReferenceIdPresentInGallery(anyList())).thenReturn(0);
+
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.findDuplication(identityRequest);
+        });
+        assertEquals(FailureReasonsConstants.REFERENCEID_NOT_FOUND, exception.getReasonConstant());
+    }
+
 }

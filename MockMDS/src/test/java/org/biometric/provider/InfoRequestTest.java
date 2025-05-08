@@ -1,4 +1,3 @@
-// Java
 package org.biometric.provider;
 
 import static org.junit.jupiter.api.Assertions.assertNull;

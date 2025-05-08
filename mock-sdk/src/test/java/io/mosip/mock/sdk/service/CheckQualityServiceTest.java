@@ -124,4 +124,57 @@ class CheckQualityServiceTest {
         bir.setBdbInfo(bdbInfo);
         return Collections.singletonList(bir);
     }
+
+    /**
+     * Tests quality check when the biometric type is null.
+     * This test verifies that the service returns a 500 error response
+     * when a biometric segment has a null biometric type.
+     */
+    @Test
+    void testGetCheckQualityInfo_NullBiometricType() {
+        // Create segment with null biometric type
+        BIR bir = new BIR();
+        BDBInfo bdbInfo = new BDBInfo();
+        bdbInfo.setType(null);
+        QualityType quality = new QualityType();
+        quality.setScore(90L);
+        bdbInfo.setQuality(quality);
+        bir.setBdbInfo(bdbInfo);
+
+        when(sample.getSegments()).thenReturn(Collections.singletonList(bir));
+
+        Response<QualityCheck> response = service.getCheckQualityInfo();
+
+        assertAll(
+                () -> assertEquals(500, response.getStatusCode()),
+                () -> assertNull(response.getResponse())
+        );
+    }
+
+    /**
+     * Tests quality check when the biometric type list is empty.
+     * This test verifies that the service returns a 500 error response
+     * when a biometric segment has an empty biometric type list.
+     */
+    @Test
+    void testGetCheckQualityInfo_EmptyBiometricType() {
+        // Create segment with empty biometric type list
+        BIR bir = new BIR();
+        BDBInfo bdbInfo = new BDBInfo();
+        bdbInfo.setType(Collections.emptyList());
+        QualityType quality = new QualityType();
+        quality.setScore(90L);
+        bdbInfo.setQuality(quality);
+        bir.setBdbInfo(bdbInfo);
+
+        when(sample.getSegments()).thenReturn(Collections.singletonList(bir));
+
+        Response<QualityCheck> response = service.getCheckQualityInfo();
+
+        assertAll(
+                () -> assertEquals(500, response.getStatusCode()),
+                () -> assertNull(response.getResponse())
+        );
+    }
+
 }

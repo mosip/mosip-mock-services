@@ -1,8 +1,6 @@
 package io.mosip.mock.sbi.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.io.IOException;
 
 import io.mosip.mock.sbi.exception.SBIException;

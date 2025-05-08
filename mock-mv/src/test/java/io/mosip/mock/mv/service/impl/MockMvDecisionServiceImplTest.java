@@ -14,6 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Test class for MockMvDecisionServiceImpl that validates decision service operations
+ * and its interactions with the expectation cache.
+ */
 class MockMvDecisionServiceImplTest {
 
     private MockMvDecisionServiceImpl service;
@@ -21,24 +25,36 @@ class MockMvDecisionServiceImplTest {
     @Mock
     private ExpectationCache expectationCache;
 
+    /**
+     * Sets up the test environment before each test method.
+     * Initializes Mockito annotations and creates a service instance with mocked cache.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        // initialize service with mocked expectationCache
         service = new MockMvDecisionServiceImpl(expectationCache);
     }
 
+    /**
+     * Tests the getter and setter methods for mock MV decision.
+     * Verifies that:
+     * 1. Initial decision value is set correctly
+     * 2. Updated decision value is reflected properly
+     */
     @Test
     void testGetAndSetMockMvDecision() {
-        // Initially set a default decision via setter.
         service.setMockMvDecision("DECISION_1");
         assertEquals("DECISION_1", service.getMockMvDecision());
 
-        // Update decision value and test again.
         service.setMockMvDecision("DECISION_2");
         assertEquals("DECISION_2", service.getMockMvDecision());
     }
 
+    /**
+     * Tests retrieval of all expectations from the cache.
+     * Verifies that the service correctly delegates to the cache
+     * and returns the expected map of expectations.
+     */
     @Test
     void testGetExpectations() {
         Map<String, Expectation> dummyMap = Collections.singletonMap("id1", new Expectation());
@@ -49,34 +65,46 @@ class MockMvDecisionServiceImplTest {
         verify(expectationCache).get();
     }
 
+    /**
+     * Tests setting a new expectation.
+     * Verifies that the service properly delegates the insert
+     * operation to the cache.
+     */
     @Test
     void testSetExpectation() {
         Expectation exp = new Expectation();
-
-        // Call method
         service.setExpectation(exp);
-        // Verify that insert is called.
         verify(expectationCache).insert(exp);
     }
 
+    /**
+     * Tests deletion of a specific expectation by ID.
+     * Verifies that the service correctly delegates the delete
+     * operation to the cache with the specified ID.
+     */
     @Test
     void testDeleteExpectation() {
         String testId = "rid1";
-
-        // Call method
         service.deleteExpectation(testId);
-        // Verify that delete is called.
         verify(expectationCache).delete(testId);
     }
 
+    /**
+     * Tests deletion of all expectations.
+     * Verifies that the service properly delegates the deleteAll
+     * operation to the cache.
+     */
     @Test
     void testDeleteExpectations() {
-        // Call method
         service.deleteExpectations();
-        // Verify that deleteAll is called.
         verify(expectationCache).deleteAll();
     }
 
+    /**
+     * Tests retrieval of a specific expectation by ID.
+     * Verifies that the service correctly delegates to the cache
+     * and returns the expected expectation object.
+     */
     @Test
     void testGetExpectation() {
         Expectation exp = new Expectation();

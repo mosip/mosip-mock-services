@@ -10,7 +10,6 @@ import org.mockito.MockedStatic;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
-import io.mosip.mock.sbi.util.BioUtilHelper;
 
 /**
  * Test class for SBIIrisSingleHelper that verifies iris capture functionality

@@ -1,4 +1,3 @@
-// Java
 package org.biometric.provider;
 
 import org.junit.jupiter.api.AfterEach;
@@ -6,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
