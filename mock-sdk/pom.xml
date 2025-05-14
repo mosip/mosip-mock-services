@@ -47,8 +47,7 @@
 		<hibernate.validator.version>6.0.12.Final</hibernate.validator.version>
 
 		<!-- Test -->
-		<junit.version>4.13.2</junit.version>
-		<junit.jupiter.version>5.10.2</junit.jupiter.version>
+		<junit.jupiter.api.version>5.13.0-M3</junit.jupiter.api.version>
 		<mockito.inline.version>5.2.0</mockito.inline.version>
 
 		<!-- Mosip kernel -->
@@ -170,20 +169,14 @@
 		</dependency>
 		<!-- Test Dependencies -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.api.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-inline</artifactId>
-			<version>${mockito.inline.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
 			<version>${mockito.inline.version}</version>
 			<scope>test</scope>
 		</dependency>

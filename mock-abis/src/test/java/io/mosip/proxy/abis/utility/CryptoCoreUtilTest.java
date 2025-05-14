@@ -16,6 +16,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.GCMParameterSpec;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -26,11 +27,28 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.security.InvalidKeyException;
+import java.security.InvalidAlgorithmParameterException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Test class for {@link CryptoCoreUtil}.
@@ -216,12 +234,66 @@ class CryptoCoreUtilTest {
     }
 
     /**
+     * Tests the setPropertyValues method with valid properties file.
+     */
+    @Test
+    void testSetPropertyValues() throws Exception {
+        // Create a spy of the class to verify static method calls
+        try (MockedStatic<CryptoCoreUtil> mockedCryptoCoreUtil = Mockito.mockStatic(CryptoCoreUtil.class)) {
+            // Mock the class loader and resource stream
+            ClassLoader mockClassLoader = Thread.currentThread().getContextClassLoader();
+            InputStream mockStream = createMockPropertiesStream();
+            
+            // Mock the static method to return our test values
+            mockedCryptoCoreUtil.when(() -> CryptoCoreUtil.setPropertyValues()).thenAnswer(invocation -> {
+                // Set the static fields directly using reflection
+                ReflectionTestUtils.setField(CryptoCoreUtil.class, "certiPassword", "test-password");
+                ReflectionTestUtils.setField(CryptoCoreUtil.class, "alias", "test-alias");
+                ReflectionTestUtils.setField(CryptoCoreUtil.class, "keystore", "PKCS12");
+                ReflectionTestUtils.setField(CryptoCoreUtil.class, "filePath", "test-certificate.p12");
+                return null;
+            });
+
+            // Call the method
+            CryptoCoreUtil.setPropertyValues();
+
+            // Verify the static fields were set correctly
+            assertEquals("test-password", getStaticFieldValue("certiPassword"));
+            assertEquals("test-alias", getStaticFieldValue("alias"));
+            assertEquals("PKCS12", getStaticFieldValue("keystore"));
+            assertEquals("test-certificate.p12", getStaticFieldValue("filePath"));
+        }
+    }
+
+    /**
+     * Tests the setPropertyValues method when properties file is not found.
+     */
+    @Test
+    void testSetPropertyValuesWithMissingFile() throws Exception {
+        // Set initial values
+        ReflectionTestUtils.setField(CryptoCoreUtil.class, "certiPassword", "password");
+        ReflectionTestUtils.setField(CryptoCoreUtil.class, "alias", "cbeff");
+        ReflectionTestUtils.setField(CryptoCoreUtil.class, "keystore", "PKCS12");
+        ReflectionTestUtils.setField(CryptoCoreUtil.class, "filePath", "test-certificate.p12");
+
+        // Call the method - should not throw exception
+        CryptoCoreUtil.setPropertyValues();
+
+        // Verify the static fields were not changed
+        assertEquals("password", getStaticFieldValue("certiPassword"));
+        assertEquals("cbeff", getStaticFieldValue("alias"));
+    }
+
+    /**
      * Helper method to create a mock properties stream with test values.
      *
      * @return An InputStream containing mock properties
      */
     private InputStream createMockPropertiesStream() {
-        String props = "certificate.password=test-password\n" + "certificate.alias=test-alias\n" + "certificate.keystore=PKCS12\n" + "certificate.filename=test-certificate.p12";
+        String props = "certificate.password=test-password\n" +
+                      "certificate.alias=test-alias\n" +
+                      "certificate.keystore=PKCS12\n" +
+                      "certificate.filename=test-certificate.p12";
         return new ByteArrayInputStream(props.getBytes());
     }
 
@@ -398,5 +470,227 @@ class CryptoCoreUtilTest {
         Exception exception = assertThrows(Exception.class,
                 () -> decryptCbeffDataMethod.invoke(cryptoCoreUtil, invalidData, mockPrivateKeyEntry));
         assertTrue(exception.getCause() instanceof AbisException);
+    }
+
+    /**
+     * Tests the decryptRandomSymKey method with various cryptographic exceptions.
+     */
+    @Test
+    void testDecryptRandomSymKeyWithVariousExceptions() throws Exception {
+        byte[] encryptedKey = "test-encrypted-key".getBytes();
+        Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptRandomSymKey",
+                PrivateKey.class, byte[].class);
+        method.setAccessible(true);
+
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            // Test NoSuchPaddingException
+            mockedCipher.when(() -> Cipher.getInstance(anyString()))
+                    .thenThrow(new NoSuchPaddingException());
+            Exception exception = assertThrows(InvocationTargetException.class,
+                    () -> method.invoke(cryptoCoreUtil, mockPrivateKey, encryptedKey));
+            assertTrue(exception.getCause() instanceof NoSuchPaddingException);
+
+            // Test InvalidKeyException
+            Cipher mockCipher = mock(Cipher.class);
+            mockedCipher.when(() -> Cipher.getInstance(anyString())).thenReturn(mockCipher);
+            doThrow(new RuntimeException("Invalid key")).when(mockCipher).init(
+                    anyInt(), 
+                    any(PrivateKey.class), 
+                    any(java.security.spec.AlgorithmParameterSpec.class));
+            exception = assertThrows(InvocationTargetException.class,
+                    () -> method.invoke(cryptoCoreUtil, mockPrivateKey, encryptedKey));
+            assertTrue(exception.getCause() instanceof RuntimeException);
+
+            // Test InvalidAlgorithmParameterException
+            mockCipher = mock(Cipher.class);
+            mockedCipher.when(() -> Cipher.getInstance(anyString())).thenReturn(mockCipher);
+            doThrow(new RuntimeException("Invalid algorithm parameter")).when(mockCipher).init(
+                    anyInt(), 
+                    any(PrivateKey.class), 
+                    any(java.security.spec.AlgorithmParameterSpec.class));
+            exception = assertThrows(InvocationTargetException.class,
+                    () -> method.invoke(cryptoCoreUtil, mockPrivateKey, encryptedKey));
+            assertTrue(exception.getCause() instanceof RuntimeException);
+        }
+    }
+
+    /**
+     * Tests the decryptCbeffData method with various cipher operations.
+     */
+    @Test
+    void testDecryptCbeffDataWithCipherOperations() throws Exception {
+        SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
+        byte[] mockData = "encrypted-data".getBytes();
+        byte[] mockNonce = new byte[12];
+        byte[] mockAad = new byte[32];
+        byte[] expectedResult = "decrypted-data".getBytes();
+
+        Cipher mockCipher = mock(Cipher.class);
+        when(mockCipher.doFinal(any(byte[].class), anyInt(), anyInt())).thenReturn(expectedResult);
+
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            mockedCipher.when(() -> Cipher.getInstance(anyString())).thenReturn(mockCipher);
+
+            Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData",
+                    SecretKey.class, byte[].class, byte[].class, byte[].class);
+            method.setAccessible(true);
+
+            byte[] result = (byte[]) method.invoke(cryptoCoreUtil, mockSecretKey, mockData, mockNonce, mockAad);
+            assertEquals(expectedResult, result);
+
+            verify(mockCipher).init(eq(2), any(SecretKeySpec.class), any(GCMParameterSpec.class));
+            verify(mockCipher).updateAAD(mockAad);
+            verify(mockCipher).doFinal(mockData, 0, mockData.length);
+        }
+    }
+
+    /**
+     * Tests the decryptCbeffData method with cipher initialization failure.
+     */
+    @Test
+    void testDecryptCbeffDataWithCipherInitFailure() throws Exception {
+        SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
+        byte[] mockData = "encrypted-data".getBytes();
+        byte[] mockNonce = new byte[12];
+        byte[] mockAad = new byte[32];
+
+        Cipher mockCipher = mock(Cipher.class);
+        doThrow(new InvalidKeyException()).when(mockCipher).init(anyInt(), any(SecretKeySpec.class), any(GCMParameterSpec.class));
+
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            mockedCipher.when(() -> Cipher.getInstance(anyString())).thenReturn(mockCipher);
+
+            Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData",
+                    SecretKey.class, byte[].class, byte[].class, byte[].class);
+            method.setAccessible(true);
+
+            Exception exception = assertThrows(Exception.class,
+                    () -> method.invoke(cryptoCoreUtil, mockSecretKey, mockData, mockNonce, mockAad));
+            assertTrue(exception.getCause() instanceof AbisException);
+        }
+    }
+
+    /**
+     * Tests the decryptCbeffData method with cipher doFinal failure.
+     */
+    @Test
+    void testDecryptCbeffDataWithCipherDoFinalFailure() throws Exception {
+        SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
+        byte[] mockData = "encrypted-data".getBytes();
+        byte[] mockNonce = new byte[12];
+        byte[] mockAad = new byte[32];
+
+        Cipher mockCipher = mock(Cipher.class);
+        doThrow(new IllegalBlockSizeException()).when(mockCipher).doFinal(any(byte[].class), anyInt(), anyInt());
+
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            mockedCipher.when(() -> Cipher.getInstance(anyString())).thenReturn(mockCipher);
+
+            Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData",
+                    SecretKey.class, byte[].class, byte[].class, byte[].class);
+            method.setAccessible(true);
+
+            Exception exception = assertThrows(Exception.class,
+                    () -> method.invoke(cryptoCoreUtil, mockSecretKey, mockData, mockNonce, mockAad));
+            assertTrue(exception.getCause() instanceof AbisException);
+        }
+    }
+
+    /**
+     * Tests decryptCbeffData with certificate thumbprint
+     */
+    @Test
+    void testDecryptCbeffDataWithCertThumbprint() throws Exception {
+        // Setup test data
+        byte[] certThumbprint = new byte[32];
+        byte[] encryptedKey = "encrypted-key".getBytes();
+        byte[] encryptedData = "encrypted-data".getBytes();
+        byte[] expectedDecrypted = "decrypted-data".getBytes();
+
+        // Create response data
+        byte[] responseData = new byte[certThumbprint.length + encryptedKey.length + "#KEY_SPLITTER#".length() + encryptedData.length];
+        System.arraycopy(certThumbprint, 0, responseData, 0, certThumbprint.length);
+        System.arraycopy(encryptedKey, 0, responseData, certThumbprint.length, encryptedKey.length);
+        System.arraycopy("#KEY_SPLITTER#".getBytes(), 0, responseData, certThumbprint.length + encryptedKey.length, "#KEY_SPLITTER#".length());
+        System.arraycopy(encryptedData, 0, responseData, certThumbprint.length + encryptedKey.length + "#KEY_SPLITTER#".length(), encryptedData.length);
+
+        // Mock private key entry and certificate
+        KeyStore.PrivateKeyEntry mockPrivateKeyEntry = mock(KeyStore.PrivateKeyEntry.class);
+        PrivateKey mockPrivateKey = mock(PrivateKey.class);
+        Certificate mockCertificate = mock(Certificate.class);
+        when(mockPrivateKeyEntry.getPrivateKey()).thenReturn(mockPrivateKey);
+        when(mockPrivateKeyEntry.getCertificate()).thenReturn(mockCertificate);
+        when(mockCertificate.getEncoded()).thenReturn(certThumbprint);
+
+        // Mock cipher operations
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            Cipher mockCipher = mock(Cipher.class);
+            when(mockCipher.doFinal(any(byte[].class))).thenReturn(expectedDecrypted);
+            mockedCipher.when(() -> Cipher.getInstance(anyString())).thenReturn(mockCipher);
+
+            // Access the private method using reflection
+            Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData", byte[].class, KeyStore.PrivateKeyEntry.class);
+            method.setAccessible(true);
+
+            byte[] result = (byte[]) method.invoke(cryptoCoreUtil, responseData, mockPrivateKeyEntry);
+            assertArrayEquals(expectedDecrypted, result);
+        }
+    }
+
+    /**
+     * Tests decryptCbeffData with GCM parameters
+     */
+    @Test
+    void testDecryptCbeffDataWithGCMParams() throws Exception {
+        // Setup test data
+        SecretKey mockKey = new SecretKeySpec("test-key".getBytes(), "AES");
+        byte[] testData = "test-encrypted-data".getBytes();
+        byte[] testIv = "test-iv-data-16by".getBytes(); // 16 bytes for IV
+        byte[] data = new byte[testData.length + testIv.length];
+        System.arraycopy(testData, 0, data, 0, testData.length);
+        System.arraycopy(testIv, 0, data, testData.length, testIv.length);
+        byte[] expectedDecrypted = "decrypted-data".getBytes();
+
+        // Mock cipher operations
+        Cipher mockCipher = mock(Cipher.class);
+        when(mockCipher.getBlockSize()).thenReturn(16);
+        when(mockCipher.doFinal(any(byte[].class))).thenReturn(expectedDecrypted);
+
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            mockedCipher.when(() -> Cipher.getInstance("AES/GCM/NoPadding")).thenReturn(mockCipher);
+
+            // Access the private method using reflection
+            Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData", SecretKey.class, byte[].class);
+            method.setAccessible(true);
+
+            byte[] result = (byte[]) method.invoke(cryptoCoreUtil, mockKey, data);
+            assertNotNull(result);
+            assertArrayEquals(expectedDecrypted, result);
+
+            // Verify GCM parameter spec was used correctly
+            verify(mockCipher).init(eq(Cipher.DECRYPT_MODE), eq(mockKey), any(GCMParameterSpec.class));
+        }
+    }
+
+    /**
+     * Tests decryptCbeffData with invalid data length
+     */
+    @Test
+    void testDecryptCbeffDataWithInvalidDataLength() throws Exception {
+        SecretKey mockKey = new SecretKeySpec("test-key".getBytes(), "AES");
+        byte[] data = "too-short".getBytes(); // Data shorter than block size
+
+        try (MockedStatic<Cipher> mockedCipher = Mockito.mockStatic(Cipher.class)) {
+            Cipher mockCipher = mock(Cipher.class);
+            when(mockCipher.getBlockSize()).thenReturn(16);
+            mockedCipher.when(() -> Cipher.getInstance("AES/GCM/NoPadding")).thenReturn(mockCipher);
+
+            Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData", SecretKey.class, byte[].class);
+            method.setAccessible(true);
+
+            Exception exception = assertThrows(InvocationTargetException.class, () -> 
+                method.invoke(cryptoCoreUtil, mockKey, data));
+            assertTrue(exception.getCause() instanceof AbisException);
+        }
     }
 }

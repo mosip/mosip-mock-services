@@ -10,7 +10,9 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class KeyPairTest {
     private static final String PRIVATE_KEY_PATH = "C:\\Users\\m1048290\\Desktop\\keys\\private.pem";

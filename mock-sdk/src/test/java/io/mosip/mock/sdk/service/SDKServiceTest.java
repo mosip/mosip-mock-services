@@ -1,8 +1,17 @@
-// java
 package io.mosip.mock.sdk.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +38,7 @@ import io.mosip.kernel.biometrics.entities.BiometricRecord;
  * Test class for SDKService implementations using TestSDKService.
  */
 @ExtendWith(MockitoExtension.class)
-public class SDKServiceTest {
+class SDKServiceTest {
 
     @Mock
     private Environment environment; // Mocked Spring Environment

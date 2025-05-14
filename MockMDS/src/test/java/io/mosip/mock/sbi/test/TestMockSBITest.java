@@ -4,20 +4,24 @@ import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.service.SBIMockService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 class TestMockSBITest {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestMockSBITest.class);
+     static final Logger logger = LoggerFactory.getLogger(TestMockSBITest.class);
 
-    private SBIMockService mockService;
+     @Mock
+     private SBIMockService mockService;
 
     @BeforeEach
-    public void setUp() {
+     void setUp() {
         // Initialize the mock service before each test
         mockService = mock(SBIMockService.class);
     }
@@ -26,7 +30,7 @@ class TestMockSBITest {
      * Test if the purpose is valid.
      */
     @Test
-    public void testIsValidPurpose_ValidPurpose() {
+     void testIsValidPurpose_ValidPurpose() {
         String validPurpose = SBIConstant.MOSIP_PURPOSE_REGISTRATION;
         assertTrue(isValidPurpose(validPurpose), "Valid purpose should return true.");
     }
@@ -35,7 +39,7 @@ class TestMockSBITest {
      * Test if the biometric type is valid.
      */
     @Test
-    public void testIsValidBiometricType_ValidBiometricType() {
+    void testIsValidBiometricType_ValidBiometricType() {
         String validBiometricType = SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER;
         assertTrue(isValidBiometricType(validBiometricType), "Valid biometric type should return true.");
     }
@@ -44,7 +48,7 @@ class TestMockSBITest {
      * Test if the biometric image type is valid.
      */
     @Test
-    public void testIsValidBiometricImageType_ValidBiometricImageType() {
+    void testIsValidBiometricImageType_ValidBiometricImageType() {
         String validBiometricImageType = SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000;
         assertTrue(isValidBiometricImageType(SBIConstant.MOSIP_PURPOSE_REGISTRATION, validBiometricImageType),
                 "Valid biometric image type should return true.");
@@ -55,7 +59,7 @@ class TestMockSBITest {
      * Test if the `SBIMockService` handles invalid purposes correctly.
      */
     @Test
-    public void testMain_InvalidPurpose() {
+    void testMain_InvalidPurpose() {
         // Arrange
         String[] args = new String[]{
                 "mosip.mock.sbi.device.purpose=InvalidPurpose",
@@ -76,7 +80,7 @@ class TestMockSBITest {
      * Test if the `SBIMockService` handles invalid biometric types correctly.
      */
     @Test
-    public void testMain_InvalidBiometricType() {
+    void testMain_InvalidBiometricType() {
         // Arrange
         String[] args = new String[]{
                 "mosip.mock.sbi.device.purpose=Registration",
@@ -95,7 +99,7 @@ class TestMockSBITest {
      * Test if the `SBIMockService` handles invalid biometric image types correctly.
      */
     @Test
-    public void testMain_InvalidBiometricImageType() {
+    void testMain_InvalidBiometricImageType() {
         // Arrange
         String[] args = new String[]{
                 "mosip.mock.sbi.device.purpose=Registration",
@@ -114,7 +118,7 @@ class TestMockSBITest {
      * Helper method to validate the purpose.
      * You can mock this method to test various scenarios in your actual test class.
      */
-    private boolean isValidPurpose(String purpose) {
+     boolean isValidPurpose(String purpose) {
         if (purpose == null || purpose.trim().length() == 0)
             return false;
 
@@ -126,7 +130,7 @@ class TestMockSBITest {
     /**
      * Helper method to validate the biometric type.
      */
-    private boolean isValidBiometricType(String biometricType) {
+    boolean isValidBiometricType(String biometricType) {
         if (biometricType == null || biometricType.trim().length() == 0)
             return false;
         return (biometricType.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_TYPE_BIOMETRIC_DEVICE)
@@ -138,9 +142,9 @@ class TestMockSBITest {
     /**
      * Helper method to validate the biometric image type.
      */
-    private boolean isValidBiometricImageType(String purpose, String biometricImageType) {
-        if (purpose == null || purpose.trim().length() == 0 || biometricImageType == null
-                || biometricImageType.trim().length() == 0)
+    boolean isValidBiometricImageType(String purpose, String biometricImageType) {
+        if (purpose == null || purpose.trim().isEmpty() || biometricImageType == null
+                || biometricImageType.trim().isEmpty())
             return false;
 
         return ((biometricImageType.equalsIgnoreCase(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ)

@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  * Test class for SDKException to verify custom exception handling behavior
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SDKExceptionTest {
+class SDKExceptionTest {
 
     // Constants used for testing
     private static final String ERROR_CODE = "ERR-001";
@@ -22,7 +22,7 @@ public class SDKExceptionTest {
      * Verifies that the exception correctly stores and returns these values
      */
     @Test
-    public void testConstructorWithCodeAndMessage() {
+    void testConstructorWithCodeAndMessage() {
         // When: Creating a new SDKException with code and message
         SDKException exception = new SDKException(ERROR_CODE, ERROR_MESSAGE);
 
@@ -37,7 +37,7 @@ public class SDKExceptionTest {
      * Verifies the inheritance hierarchy is correct
      */
     @Test
-    public void testInheritance() {
+    void testInheritance() {
         // When: Creating a new SDKException instance
         SDKException exception = new SDKException(ERROR_CODE, ERROR_MESSAGE);
 

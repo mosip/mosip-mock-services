@@ -1,7 +1,14 @@
 package io.mosip.proxy.abis.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.mosip.proxy.abis.dto.*;
+import io.mosip.proxy.abis.dto.FailureResponse;
+import io.mosip.proxy.abis.dto.IdentityRequest;
+import io.mosip.proxy.abis.dto.IdentifyDelayResponse;
+import io.mosip.proxy.abis.dto.IdentityResponse;
+import io.mosip.proxy.abis.dto.InsertRequestMO;
+import io.mosip.proxy.abis.dto.RequestMO;
+import io.mosip.proxy.abis.dto.ResponseMO;
+
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.listener.Listener;
@@ -23,10 +30,21 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Timer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 
 /**
  * Unit test class for ProxyAbisController.
@@ -447,16 +465,61 @@ class ProxyAbisControllerTest {
     }
 
     /**
+     * Tests validation errors in saveInsertRequestThroughListner method.
+     */
+    @Test
+    void testSaveInsertRequestThroughListner_ValidationErrors() {
+        // Arrange
+        InsertRequestMO request = new InsertRequestMO();
+        // Set ID but leave other required fields empty to trigger MISSING_REQUESTID error
+        request.setId("mosip.abis.insert");
+
+        // Act
+        ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(request, 1);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        assertTrue(response.getBody() instanceof FailureResponse);
+        FailureResponse failureResponse = (FailureResponse) response.getBody();
+        assertEquals(FailureReasonsConstants.MISSING_REQUESTID, failureResponse.getFailureReason());
+    }
+
+    /**
+     * Tests identityRequestThroughListner with delayed response.
+     */
+    @Test
+    void testIdentityRequestThroughListner_WithDelay() {
+        // Arrange
+        IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
+        IdentityResponse identityResponse = new IdentityResponse();
+        identifyResponse.setIdentityResponse(identityResponse);
+        identifyResponse.setDelayResponse(5); // Set delay of 5 seconds
+
+        when(abisInsertService.findDuplication(any(IdentityRequest.class)))
+                .thenReturn(identifyResponse);
+
+        // Act
+        ResponseEntity<Object> response = controller.identityRequestThroughListner(validIdentityRequest, 1);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof IdentityResponse);
+    }
+
+    /**
      * Tests executeAsync with JsonProcessingException.
      */
     @Test
     void testExecuteAsync_JsonProcessingException() throws Exception {
+        // Arrange
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
-        doThrow(JsonProcessingException.class)
+        doThrow(new JsonProcessingException("Test error") {})
                 .when(listener).sendToQueue(any(), anyInt());
 
+        // Act
         controller.executeAsync(responseEntity, 0, 1);
 
+        // Assert
         verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
     }
 
@@ -721,4 +784,60 @@ class ProxyAbisControllerTest {
         assertEquals(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, response.getBody());
         verify(mockException).getReasonConstant();
     }
+
+    /**
+     * Tests exception handling in saveInsertRequest when RequestException has null reason constant.
+     */
+    @Test
+    void testSaveInsertRequest_RequestExceptionWithNullReasonConstant() throws Exception {
+        // Arrange
+        InsertRequestMO request = new InsertRequestMO();
+        request.setId("mosip.abis.insert");
+        request.setVersion("1.0");
+        request.setRequestId("test-request-id");
+        request.setRequesttime(LocalDateTime.now());
+        request.setReferenceId("test-reference-id");
+
+        when(bindingResult.hasErrors()).thenReturn(false);
+        RequestException mockException = new RequestException(null);
+        when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
+
+        // Act
+        ResponseEntity<Object> response = controller.saveInsertRequest(request, bindingResult);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof FailureResponse);
+        FailureResponse failureResponse = (FailureResponse) response.getBody();
+        assertEquals(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, failureResponse.getFailureReason());
+    }
+
+    /**
+     * Tests exception handling in saveInsertRequest when RequestException has a custom reason constant.
+     */
+    @Test
+    void testSaveInsertRequest_RequestExceptionWithCustomReason() throws Exception {
+        // Arrange
+        InsertRequestMO request = new InsertRequestMO();
+        request.setId("mosip.abis.insert");
+        request.setVersion("1.0");
+        request.setRequestId("test-request-id");
+        request.setRequesttime(LocalDateTime.now());
+        request.setReferenceId("test-reference-id");
+
+        String customReason = "CUSTOM_ERROR_REASON";
+        when(bindingResult.hasErrors()).thenReturn(false);
+        RequestException mockException = new RequestException(customReason);
+        when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
+
+        // Act
+        ResponseEntity<Object> response = controller.saveInsertRequest(request, bindingResult);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof FailureResponse);
+        FailureResponse failureResponse = (FailureResponse) response.getBody();
+        assertEquals(customReason, failureResponse.getFailureReason());
+    }
+
 }
