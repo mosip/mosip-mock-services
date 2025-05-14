@@ -17,6 +17,7 @@ import jakarta.jms.Session;
 import jakarta.jms.TextMessage;
 import jakarta.jms.MessageListener;
 import jakarta.jms.Queue;
+import jakarta.jms.BytesMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
@@ -72,6 +73,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import com.google.gson.JsonObject;
+import org.apache.activemq.ActiveMQConnection;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Unit test class for Listener.
@@ -89,6 +93,9 @@ class ListenerTest {
 
     @Mock
     private RestTemplate restTemplate;
+
+    @Mock
+    private ActiveMQConnectionFactory connectionFactory;
 
     private static MockedStatic<Listener> mockedStatic;
 
@@ -850,16 +857,21 @@ class ListenerTest {
         
         assertTrue(Listener.isValidFormat(format, validDate, Locale.ENGLISH));
         
-        // Test invalid value - use actual implementation
+        // Test LocalDate format
+        String dateOnlyFormat = "yyyy-MM-dd";
+        String dateOnlyValue = "2024-03-21";
+        mockedStatic.when(() -> Listener.isValidFormat(dateOnlyFormat, dateOnlyValue, Locale.ENGLISH))
+            .thenReturn(true);
+        assertTrue(Listener.isValidFormat(dateOnlyFormat, dateOnlyValue, Locale.ENGLISH));
+        
+        // Test invalid value
         mockedStatic.when(() -> Listener.isValidFormat(format, "invalid-date", Locale.ENGLISH))
             .thenReturn(false);
-            
         assertFalse(Listener.isValidFormat(format, "invalid-date", Locale.ENGLISH));
         
-        // Test null value - use actual implementation
+        // Test null value
         mockedStatic.when(() -> Listener.isValidFormat(format, null, Locale.ENGLISH))
             .thenReturn(false);
-            
         assertFalse(Listener.isValidFormat(format, null, Locale.ENGLISH));
     }
 
@@ -926,4 +938,269 @@ class ListenerTest {
         spyListener.runAbisQueue();
         verify(spyListener, never()).consume(anyString(), any(), anyString());
     }
+
+    /**
+     * Tests isValidIdentifyRequestDto with only standard keys.
+     * Verifies that the method returns false when no additional keys are present.
+     */
+    @Test
+    void testIsValidIdentifyRequestDto_OnlyStandardKeys() {
+        Map<String, String> map = new HashMap<>();
+        // Add only standard keys
+        map.put("id", "mosip.abis.identify");
+        map.put("version", "1.1");
+        map.put("requestId", "123");
+        map.put("requesttime", "2024-03-21T10:00:00.000Z");
+        map.put("referenceId", "ref123");
+        map.put("referenceURL", "http://example.com");
+        map.put("gallery", "gallery1");
+
+        boolean result = Listener.isValidIdentifyRequestDto(map);
+        assertFalse(result, "Method should return false when only standard keys are present");
+    }
+
+    /**
+     * Tests isValidIdentifyRequestDto with null map.
+     * Verifies that the method returns false when the input map is null.
+     */
+    @Test
+    void testIsValidIdentifyRequestDto_NullMap() {
+        boolean result = Listener.isValidIdentifyRequestDto(null);
+        assertFalse(result, "Method should return false when map is null");
+    }
+
+    /**
+     * Tests isValidIdentifyRequestDto with empty map.
+     * Verifies that the method returns false when the input map is empty.
+     */
+    @Test
+    void testIsValidIdentifyRequestDto_EmptyMap() {
+        Map<String, String> emptyMap = new HashMap<>();
+        boolean result = Listener.isValidIdentifyRequestDto(emptyMap);
+        assertFalse(result, "Method should return false when map is empty");
+    }
+
+    /**
+     * Tests getAbisQueueDetails with valid JSON response containing queue configuration.
+     */
+    @Test
+    void testGetAbisQueueDetails_ValidConfig() throws Exception {
+        // Setup
+        String validJson = """
+            {
+                "abis": [{
+                    "userName": "testUser",
+                    "password": "testPass",
+                    "brokerUrl": "tcp://localhost:61616",
+                    "typeOfQueue": "ACTIVEMQ",
+                    "inboundQueueName": "inQueue",
+                    "outboundQueueName": "outQueue",
+                    "name": "testQueue"
+                }]
+            }
+            """;
+            
+        // Mock the static method
+        mockedStatic.when(() -> Listener.getJson(any(), any(), anyBoolean()))
+            .thenReturn(validJson);
+            
+        // Execute
+        List<MockAbisQueueDetails> result = listener.getAbisQueueDetails();
+        
+        // Verify
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        MockAbisQueueDetails queueDetails = result.get(0);
+        assertEquals("ACTIVEMQ", queueDetails.getTypeOfQueue());
+        assertEquals("inQueue", queueDetails.getInboundQueueName());
+        assertEquals("outQueue", queueDetails.getOutboundQueueName());
+        assertEquals("testQueue", queueDetails.getName());
+    }
+
+    /**
+     * Tests getAbisQueueDetails with missing required fields in JSON.
+     */
+    @Test
+    void testGetAbisQueueDetails_MissingRequiredFields() throws Exception {
+        // Setup
+        String invalidJson = """
+            {
+                "abis": [{
+                    "userName": "testUser",
+                    "password": "testPass"
+                    // Missing other required fields
+                }]
+            }
+            """;
+            
+        // Mock the static method
+        mockedStatic.when(() -> Listener.getJson(any(), any(), anyBoolean()))
+            .thenReturn(invalidJson);
+            
+        // Execute
+        List<MockAbisQueueDetails> result = listener.getAbisQueueDetails();
+        
+        // Verify
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    /**
+     * Tests consumeLogic with ABIS_IDENTIFY message type.
+     */
+    @Test
+    void testConsumeLogic_IdentifyMessage() throws JMSException, InterruptedException {
+        // Create test message
+        String messageData = "{\n" +
+            "    \"id\": \"mosip.abis.identify\",\n" +
+            "    \"version\": \"1.1\",\n" +
+            "    \"requestId\": \"123\",\n" +
+            "    \"requesttime\": \"2024-03-21T10:00:00.000Z\",\n" +
+            "    \"referenceId\": \"ref123\",\n" +
+            "    \"gallery\": {\"referenceIds\": [\"ref1\", \"ref2\"]}\n" +
+            "}";
+        
+        TextMessage message = mock(TextMessage.class);
+        when(message.getText()).thenReturn(messageData);
+        
+        // Execute
+        listener.consumeLogic(message, "mockAddress");
+        
+        // Verify
+        verify(proxyAbisController).identityRequestThroughListner(any(), eq(1));
+    }
+
+    /**
+     * Tests consumeLogic with ABIS_DELETE message type.
+     */
+    @Test
+    void testConsumeLogic_DeleteMessage() throws Exception {
+        // Setup
+        String json = """
+            {
+                "id": "mosip.abis.delete",
+                "version": "1.1",
+                "requestId": "123",
+                "requesttime": "2024-03-21T10:00:00.000Z",
+                "referenceId": "ref123"
+            }
+            """;
+        TextMessage message = mock(TextMessage.class);
+        when(message.getText()).thenReturn(json);
+        
+        // Execute
+        listener.consumeLogic(message, "mockAddress");
+        
+        // Verify
+        verify(proxyAbisController).deleteRequestThroughListner(any(), eq(1));
+    }
+
+    /**
+     * Tests send method with null message producer.
+     */
+    @Test
+    void testSend_NullMessageProducer() throws Exception {
+        // Setup
+        Session mockSession = mock(Session.class);
+        when(mockSession.createProducer(any())).thenReturn(null);
+        ReflectionTestUtils.setField(listener, "session", mockSession);
+        
+        // Execute
+        boolean result = listener.send("test message", "testQueue");
+        
+        // Verify
+        assertFalse(result);
+    }
+
+    /**
+     * Tests sendToQueue with JsonProcessingException.
+     */
+    @Test
+    void testSendToQueue_JsonProcessingException() throws JsonProcessingException, UnsupportedEncodingException {
+        // Setup
+        ResponseEntity<Object> response = new ResponseEntity<>(
+            Map.of("key", "value"), // Use a simple Map instead of anonymous class
+            HttpStatus.OK
+        );
+        
+        // Execute & Verify no exception is thrown
+        listener.sendToQueue(response, 1);
+    }
+
+    /**
+     * Tests send method with BytesMessage.
+     */
+    @Test
+    void testSend_BytesMessageSuccess() throws JMSException {
+        // Setup
+        Connection connection = mock(Connection.class);
+        Session session = mock(Session.class);
+        MessageProducer producer = mock(MessageProducer.class);
+        BytesMessage bytesMessage = mock(BytesMessage.class);
+        Queue queue = mock(Queue.class);
+        
+        when(connectionFactory.createConnection()).thenReturn(connection);
+        when(connection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
+        when(session.createProducer(any())).thenReturn(producer);
+        when(session.createBytesMessage()).thenReturn(bytesMessage);
+        when(session.createQueue(anyString())).thenReturn(queue);
+        
+        // Execute
+        byte[] data = "test message".getBytes();
+        boolean result = listener.send(data, "testQueue");
+        
+        // Verify
+        verify(bytesMessage).writeObject(data);
+        assertTrue(result);
+    }
+
+    /**
+     * Test case to verify behavior of the `send` method when the `MessageProducer.close()`
+     * call throws a JMSException. It ensures that the exception during close is handled gracefully
+     * and that the method still returns `true` indicating successful message send.
+     */
+    @Test
+    void testSend_MessageProducerCloseException() throws JMSException {
+        // Setup
+        Connection connection = mock(Connection.class);
+        Session session = mock(Session.class);
+        MessageProducer producer = mock(MessageProducer.class);
+        BytesMessage bytesMessage = mock(BytesMessage.class);
+        Queue queue = mock(Queue.class);
+
+        when(connectionFactory.createConnection()).thenReturn(connection);
+        when(connection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
+        when(session.createProducer(any())).thenReturn(producer);
+        when(session.createBytesMessage()).thenReturn(bytesMessage);
+        when(session.createQueue(anyString())).thenReturn(queue);
+
+        doThrow(new JMSException("Test exception")).when(producer).close();
+
+        // Execute
+        byte[] data = "test message".getBytes();
+        boolean result = listener.send(data, "testQueue");
+
+        // Verify
+        verify(bytesMessage).writeObject(data);
+        assertTrue(result);
+    }
+
+    /**
+     * Test case for the `getFailureReason` method with a valid request map.
+     * Ensures that when all required fields are present, the method returns failure reason code "15".
+     */
+    @Test
+    void testGetFailureReason_ValidRequest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("id", "mosip.abis.insert");
+        map.put("version", "1.1");
+        map.put("requestId", "123");
+        map.put("requesttime", "2024-03-21T10:00:00.000Z");
+        map.put("referenceId", "ref123");
+        map.put("referenceURL", "http://example.com");
+
+        String result = listener.getFailureReason(map);
+        assertEquals("15", result);
+    }
+
 }

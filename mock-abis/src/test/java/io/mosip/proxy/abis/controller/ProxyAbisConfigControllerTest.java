@@ -313,6 +313,4 @@ class ProxyAbisConfigControllerTest {
     void testConfigureWithNullDto() {
         assertThrows(AbisException.class, () -> controller.configure(null, bindingResult));
     }
-
-
 }

@@ -49,11 +49,9 @@ class ExceptionInterceptorTest {
     void testHandleInsertRequestException() {
         RequestException exception = new RequestException(requestMO, FailureReasonsConstants.INVALID_ID);
         ResponseEntity<Object> response = exceptionInterceptor.handleInsertRequestException(exception);
-
         assertNotNull(response); // Verify the response is not null
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()); // Verify the status code
         assertNotNull(response.getBody()); // Verify the response body is not null
-
         FailureResponse failureResponse = (FailureResponse) response.getBody();
         assertEquals("test-id", failureResponse.getId()); // Verify the id in the response
         assertEquals("test-request-id", failureResponse.getRequestId()); // Verify the requestId in the response
@@ -68,7 +66,6 @@ class ExceptionInterceptorTest {
     void testHandleInsertRequestExceptionWithNullEntity() {
         RequestException exception = new RequestException(null, null);
         ResponseEntity<Object> response = exceptionInterceptor.handleInsertRequestException(exception);
-
         assertNotNull(response); // Verify the response is not null
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()); // Verify the status code
         assertNotNull(response.getBody()); // Verify the response body is not null
@@ -84,14 +81,11 @@ class ExceptionInterceptorTest {
         FieldError fieldError = new FieldError("objectName", "field", "error message");
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
         when(bindingResult.hasErrors()).thenReturn(true);
-
         BindingException exception = new BindingException(requestMO, bindingResult);
         ResponseEntity<Object> response = exceptionInterceptor.handleBindingErrors(exception);
-
         assertNotNull(response); // Verify the response is not null
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()); // Verify the status code
         assertNotNull(response.getBody()); // Verify the response body is not null
-
         FailureResponse failureResponse = (FailureResponse) response.getBody();
         assertEquals("test-id", failureResponse.getId()); // Verify the id in the response
         assertEquals("test-request-id", failureResponse.getRequestId()); // Verify the requestId in the response

@@ -1,9 +1,12 @@
 package io.mosip.proxy.abis.service.impl;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,6 +17,12 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import io.mosip.proxy.abis.dto.IdentityRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +38,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.mosip.proxy.abis.constant.FailureReasonsConstants;
 import io.mosip.proxy.abis.dao.ProxyAbisBioDataRepository;
@@ -46,6 +56,7 @@ import io.mosip.proxy.abis.utility.CryptoCoreUtil;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BDBInfo;
 import io.mosip.kernel.biometrics.constant.BiometricType;
+import org.apache.commons.io.FileUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ProxyAbisInsertServiceImplTest {
@@ -767,5 +778,415 @@ class ProxyAbisInsertServiceImplTest {
         assertEquals(FailureReasonsConstants.INVALID_CBEFF_FORMAT, exception.getReasonConstant());
     }
 
+    /**
+     * Tests the saveUploadedFileWithParameters method for successful certificate upload.
+     * Verifies that the certificate file is saved, properties are written, and old certificates are cleaned up.
+     */
+    @Test
+    void testSaveUploadedFileWithParameters_Success() throws Exception {
+        // Arrange
+        String fileName = "test-cert.p12";
+        String alias = "test-alias";
+        String password = "test-password";
+        String keystore = "test-keystore";
+        byte[] fileContent = "test certificate content".getBytes();
 
+        MultipartFile uploadedFile = new MultipartFile() {
+            @Override
+            public String getName() {
+                return "file";
+            }
+
+            @Override
+            public String getOriginalFilename() {
+                return fileName;
+            }
+
+            @Override
+            public String getContentType() {
+                return "application/x-pkcs12";
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return fileContent.length == 0;
+            }
+
+            @Override
+            public long getSize() {
+                return fileContent.length;
+            }
+
+            @Override
+            public byte[] getBytes() throws IOException {
+                return fileContent;
+            }
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                return new ByteArrayInputStream(fileContent);
+            }
+
+            @Override
+            public void transferTo(File dest) throws IOException, IllegalStateException {
+                Files.write(dest.toPath(), fileContent);
+            }
+        };
+
+        // Create a temporary directory structure for testing
+        Path tempKeystorePath = Files.createTempDirectory("keystore");
+        ReflectionTestUtils.setField(proxyAbisInsertService, "keystoreFilePath", tempKeystorePath);
+
+        try {
+            // Act
+            String result = proxyAbisInsertService.saveUploadedFileWithParameters(uploadedFile, alias, password, keystore);
+
+            // Assert
+            assertEquals("Successfully uploaded file", result);
+
+            // Verify certificate file was created
+            Path certPath = tempKeystorePath.resolve(fileName);
+            assertTrue(Files.exists(certPath));
+            assertArrayEquals(fileContent, Files.readAllBytes(certPath));
+
+            // Verify properties file was created with correct content
+            Path propsPath = tempKeystorePath.resolve("partner.properties");
+            assertTrue(Files.exists(propsPath));
+            List<String> propsContent = Files.readAllLines(propsPath);
+            assertTrue(propsContent.contains("certificate.alias=" + alias));
+            assertTrue(propsContent.contains("certificate.password=" + password));
+            assertTrue(propsContent.contains("certificate.keystore=" + keystore));
+            assertTrue(propsContent.contains("certificate.filename=" + fileName));
+
+        } finally {
+            // Cleanup
+            FileUtils.deleteDirectory(tempKeystorePath.toFile());
+        }
+    }
+
+    /**
+     * Tests the saveUploadedFileWithParameters method when an exception occurs during file operations.
+     * Verifies that the method handles errors gracefully and returns appropriate error message.
+     */
+    @Test
+    void testSaveUploadedFileWithParameters_Error() throws Exception {
+        // Arrange
+        String fileName = "test-cert.p12";
+        byte[] fileContent = "test content".getBytes();
+
+        MultipartFile uploadedFile = new MultipartFile() {
+            @Override
+            public String getName() {
+                return "file";
+            }
+
+            @Override
+            public String getOriginalFilename() {
+                return fileName;
+            }
+
+            @Override
+            public String getContentType() {
+                return "application/x-pkcs12";
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return fileContent.length == 0;
+            }
+
+            @Override
+            public long getSize() {
+                return fileContent.length;
+            }
+
+            @Override
+            public byte[] getBytes() throws IOException {
+                throw new IOException("Simulated file read error");
+            }
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                throw new IOException("Simulated file read error");
+            }
+
+            @Override
+            public void transferTo(File dest) throws IOException, IllegalStateException {
+                throw new IOException("Simulated file transfer error");
+            }
+        };
+
+        // Act
+        String result = proxyAbisInsertService.saveUploadedFileWithParameters(uploadedFile, "alias", "password", "keystore");
+
+        // Assert
+        assertEquals("Could not upload file", result);
+    }
+
+    /**
+     * Tests validateCBEFFData method with data share URL expired error.
+     * Verifies that the method throws RequestException with DATA_SHARE_URL_EXPIRED constant.
+     */
+    @Test
+    void testValidateCBEFFData_DataShareUrlExpired() throws Exception {
+        // Arrange
+        String cbeffWithExpiredError = "{\"errors\":[{\"errorCode\":\"DAT-SER-006\",\"message\":\"Data share URL expired\"}]}";
+        
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", cbeffWithExpiredError);
+        });
+        
+        assertEquals(FailureReasonsConstants.DATA_SHARE_URL_EXPIRED, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests validateCBEFFData method with unexpected error.
+     * Verifies that the method throws RequestException with UNEXPECTED_ERROR constant.
+     */
+    @Test
+    void testValidateCBEFFData_UnexpectedError() throws Exception {
+        // Arrange
+        String cbeffWithError = "{\"errors\":[{\"errorCode\":\"DAT-SER-001\",\"message\":\"Some unexpected error\"}]}";
+        
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", cbeffWithError);
+        });
+        
+        assertEquals(FailureReasonsConstants.UNEXPECTED_ERROR, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests validateCBEFFData method with invalid JSON.
+     * Verifies that the method handles invalid JSON gracefully.
+     */
+    @Test
+    void testValidateCBEFFData_InvalidJson() throws Exception {
+        // Arrange
+        String invalidJson = "invalid json content";
+        
+        // Act & Assert
+        // Should not throw any exception for invalid JSON
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", invalidJson);
+    }
+
+    /**
+     * Tests validateCBEFFData method with valid JSON without errors.
+     * Verifies that the method handles valid JSON without throwing exceptions.
+     */
+    @Test
+    void testValidateCBEFFData_ValidJson() throws Exception {
+        // Arrange
+        String validJson = "{\"data\":\"some valid data\"}";
+        
+        // Act & Assert
+        // Should not throw any exception for valid JSON without errors
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", validJson);
+    }
+
+    /**
+     * Tests validateCBEFFData method with null errors array.
+     * Verifies that the method handles null errors gracefully.
+     */
+    @Test
+    void testValidateCBEFFData_NullErrors() throws Exception {
+        // Arrange
+        String jsonWithNullErrors = "{\"errors\":null}";
+        
+        // Act & Assert
+        // Should not throw any exception for null errors
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", jsonWithNullErrors);
+    }
+
+    /**
+     * Tests addBirs method with valid BIR data.
+     * Verifies that BiometricData entries are correctly created and added to the list.
+     */
+    @Test
+    void testAddBirs_ValidData() throws Exception {
+        // Arrange
+        InsertEntity ie = new InsertEntity();
+        List<BiometricData> lst = new ArrayList<>();
+        BIR birInfo = new BIR();
+        List<BIR> birs = new ArrayList<>();
+        
+        // Create a valid BIR
+        BIR bir = new BIR();
+        BDBInfo bdbInfo = new BDBInfo();
+        List<BiometricType> types = new ArrayList<>();
+        types.add(BiometricType.FINGER);
+        bdbInfo.setType(types);
+        List<String> subtypes = new ArrayList<>();
+        subtypes.add("Left IndexFinger");
+        bdbInfo.setSubtype(subtypes);
+        bir.setBdbInfo(bdbInfo);
+        bir.setBdb("test biometric data".getBytes());
+        birs.add(bir);
+        birInfo.setBirs(birs);
+
+        // Act
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
+
+        // Assert
+        assertEquals(1, lst.size());
+        BiometricData bd = lst.get(0);
+        assertEquals(BiometricType.FINGER.value(), bd.getType());
+        assertEquals("[Left IndexFinger]", bd.getSubtype());
+        assertNotNull(bd.getBioData());
+        assertEquals(ie, bd.getInsertEntity());
+    }
+
+    /**
+     * Tests addBirs method with multiple valid BIRs.
+     * Verifies that multiple BiometricData entries are correctly created and added.
+     */
+    @Test
+    void testAddBirs_MultipleValidBirs() throws Exception {
+        // Arrange
+        InsertEntity ie = new InsertEntity();
+        List<BiometricData> lst = new ArrayList<>();
+        BIR birInfo = new BIR();
+        List<BIR> birs = new ArrayList<>();
+        
+        // Create first BIR (Finger)
+        BIR bir1 = new BIR();
+        BDBInfo bdbInfo1 = new BDBInfo();
+        List<BiometricType> types1 = new ArrayList<>();
+        types1.add(BiometricType.FINGER);
+        bdbInfo1.setType(types1);
+        List<String> subtypes1 = new ArrayList<>();
+        subtypes1.add("Left IndexFinger");
+        bdbInfo1.setSubtype(subtypes1);
+        bir1.setBdbInfo(bdbInfo1);
+        bir1.setBdb("finger data".getBytes());
+        
+        // Create second BIR (Face)
+        BIR bir2 = new BIR();
+        BDBInfo bdbInfo2 = new BDBInfo();
+        List<BiometricType> types2 = new ArrayList<>();
+        types2.add(BiometricType.FACE);
+        bdbInfo2.setType(types2);
+        bir2.setBdbInfo(bdbInfo2);
+        bir2.setBdb("face data".getBytes());
+        
+        birs.add(bir1);
+        birs.add(bir2);
+        birInfo.setBirs(birs);
+
+        // Act
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
+
+        // Assert
+        assertEquals(2, lst.size());
+        assertEquals(BiometricType.FINGER.value(), lst.get(0).getType());
+        assertEquals("[Left IndexFinger]", lst.get(0).getSubtype());
+        assertEquals(BiometricType.FACE.value(), lst.get(1).getType());
+        assertNull(lst.get(1).getSubtype());
+    }
+
+    /**
+     * Tests addBirs method with null BDBInfo.
+     * Verifies that the method throws RequestException with CBEFF_HAS_NO_DATA.
+     */
+    @Test
+    void testAddBirs_NullBdbInfo() throws Exception {
+        // Arrange
+        InsertEntity ie = new InsertEntity();
+        List<BiometricData> lst = new ArrayList<>();
+        BIR birInfo = new BIR();
+        List<BIR> birs = new ArrayList<>();
+        
+        BIR bir = new BIR();
+        bir.setBdbInfo(null);
+        bir.setBdb(new byte[0]); // Empty BDB to trigger the first check
+        birs.add(bir);
+        birInfo.setBirs(birs);
+
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
+        });
+        
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests addBirs method with empty BDB (biometric data).
+     * Verifies that the method throws RequestException with CBEFF_HAS_NO_DATA.
+     */
+    @Test
+    void testAddBirs_EmptyBdb() throws Exception {
+        // Arrange
+        InsertEntity ie = new InsertEntity();
+        List<BiometricData> lst = new ArrayList<>();
+        BIR birInfo = new BIR();
+        List<BIR> birs = new ArrayList<>();
+        
+        BIR bir = new BIR();
+        BDBInfo bdbInfo = new BDBInfo();
+        List<BiometricType> types = new ArrayList<>();
+        types.add(BiometricType.FINGER);
+        bdbInfo.setType(types);
+        bir.setBdbInfo(bdbInfo);
+        bir.setBdb(new byte[0]);
+        birs.add(bir);
+        birInfo.setBirs(birs);
+
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
+        });
+        
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests addBirs method with null BDB (biometric data).
+     * Verifies that the method throws RequestException with CBEFF_HAS_NO_DATA.
+     */
+    @Test
+    void testAddBirs_NullBdb() throws Exception {
+        // Arrange
+        InsertEntity ie = new InsertEntity();
+        List<BiometricData> lst = new ArrayList<>();
+        BIR birInfo = new BIR();
+        List<BIR> birs = new ArrayList<>();
+        
+        BIR bir = new BIR();
+        BDBInfo bdbInfo = new BDBInfo();
+        List<BiometricType> types = new ArrayList<>();
+        types.add(BiometricType.FINGER);
+        bdbInfo.setType(types);
+        bir.setBdbInfo(bdbInfo);
+        bir.setBdb(null);
+        birs.add(bir);
+        birInfo.setBirs(birs);
+
+        // Act & Assert
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
+        });
+        
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests addBirs method with empty BIRs list.
+     * Verifies that no BiometricData entries are added to the list.
+     */
+    @Test
+    void testAddBirs_EmptyBirsList() throws Exception {
+        // Arrange
+        InsertEntity ie = new InsertEntity();
+        List<BiometricData> lst = new ArrayList<>();
+        BIR birInfo = new BIR();
+        birInfo.setBirs(new ArrayList<>());
+
+        // Act
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
+
+        // Assert
+        assertTrue(lst.isEmpty());
+    }
 }

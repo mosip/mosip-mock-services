@@ -1,6 +1,5 @@
 package io.mosip.proxy.abis.exception;
 
-
 import io.mosip.kernel.core.exception.BaseUncheckedException;
 
 /**

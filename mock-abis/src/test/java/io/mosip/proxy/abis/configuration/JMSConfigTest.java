@@ -60,14 +60,9 @@ class JMSConfigTest {
     @Test
     void testActiveMQConnectionFactory_LocalDevelopment() {
         try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
-            // Given
             ReflectionTestUtils.setField(jmsConfig, "localDevelopment", true);
             mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(VALID_JSON);
-
-            // When
             ActiveMQConnectionFactory factory = jmsConfig.activeMQConnectionFactory();
-
-            // Then
             assertNotNull(factory);
             assertEquals("testUser", factory.getUserName());
         }
@@ -81,14 +76,9 @@ class JMSConfigTest {
     @Test
     void testGetJson_LocalDevelopment() throws Exception {
         try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
-            // Given
             mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(VALID_JSON);
-
-            // When
             String result = ReflectionTestUtils.invokeMethod(jmsConfig, "getJson",
                     "http://mock-config/", "/mock.json", true);
-
-            // Then
             assertEquals(VALID_JSON, result);
         }
     }
@@ -100,14 +90,9 @@ class JMSConfigTest {
      */
     @Test
     void testValidateAbisQueueJsonAndReturnValue_Success() {
-        // Given
         Map<String, String> jsonMap = Map.of("userName", "testUser");
-
-        // When
         String result = ReflectionTestUtils.invokeMethod(jmsConfig,
                 "validateAbisQueueJsonAndReturnValue", jsonMap, "userName");
-
-        // Then
         assertEquals("testUser", result);
     }
 
@@ -119,14 +104,9 @@ class JMSConfigTest {
     @Test
     void testActiveMQConnectionFactory_EmptyAbisArray() {
         try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
-            // Given
             String emptyJson = "{\"abis\":[]}";
             mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(emptyJson);
-
-            // When
             ActiveMQConnectionFactory factory = jmsConfig.activeMQConnectionFactory();
-
-            // Then
             assertNull(factory);
         }
     }
@@ -139,14 +119,9 @@ class JMSConfigTest {
      */
     @Test
     void testValidateAbisQueueJsonAndReturnValue_missingKey_shouldThrowAbisException() {
-        // Given
         Map<String, String> jsonMap = Map.of("brokerUrl", "tcp://localhost:61616");
-
-        // When/Then
         AbisException thrown = assertThrows(AbisException.class,
                 () -> ReflectionTestUtils.invokeMethod(jmsConfig, "validateAbisQueueJsonAndReturnValue", jsonMap, "userName"));
-
-        // Assert the exception message
         assertTrue(thrown.getMessage().contains("userName"));
     }
 }

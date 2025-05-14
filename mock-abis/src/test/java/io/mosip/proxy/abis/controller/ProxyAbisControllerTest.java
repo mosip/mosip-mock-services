@@ -266,9 +266,7 @@ class ProxyAbisControllerTest {
     @Test
     void testValidateRequest_InvalidId() {
         validInsertRequest.setId("invalid.id");
-
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -282,9 +280,7 @@ class ProxyAbisControllerTest {
     void testAsyncExecution() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         ArgumentCaptor<Integer> msgTypeCaptor = ArgumentCaptor.forClass(Integer.class);
-
         controller.executeAsync(responseEntity, 0, 1);
-
         verify(listener, timeout(1000)).sendToQueue(any(), msgTypeCaptor.capture());
         assertEquals(1, msgTypeCaptor.getValue());
     }
@@ -297,9 +293,7 @@ class ProxyAbisControllerTest {
     void testDeleteRequestThroughListener_Exception() {
         doThrow(new RequestException("Delete failed"))
                 .when(abisInsertService).deleteData(anyString());
-
         ResponseEntity<Object> response = controller.deleteRequestThroughListner(validRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -313,9 +307,7 @@ class ProxyAbisControllerTest {
     void testIdentityRequestThroughListener_ServiceException() {
         when(abisInsertService.findDuplication(any(IdentityRequest.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
-
         ResponseEntity<Object> response = controller.identityRequestThroughListner(validIdentityRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -354,9 +346,7 @@ class ProxyAbisControllerTest {
     @Test
     void testValidateRequest_MissingRequestId() {
         validInsertRequest.setRequestId(null);
-
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -368,9 +358,7 @@ class ProxyAbisControllerTest {
     @Test
     void testValidateRequest_MissingReferenceId() {
         validInsertRequest.setReferenceId(null);
-
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -382,10 +370,8 @@ class ProxyAbisControllerTest {
     void testUploadCertificate_MissingAlias() {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.cert", "application/x-x509-ca-cert", "test content".getBytes());
-
         ResponseEntity<String> response = controller.uploadcertificate(
                 file, "password", "", "keystore");
-
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertEquals("Please enter alias", response.getBody());
     }
@@ -397,10 +383,8 @@ class ProxyAbisControllerTest {
     void testUploadCertificate_MissingPassword() {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.cert", "application/x-x509-ca-cert", "test content".getBytes());
-
         ResponseEntity<String> response = controller.uploadcertificate(
                 file, "", "alias", "keystore");
-
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertEquals("Please enter password", response.getBody());
     }
@@ -411,9 +395,7 @@ class ProxyAbisControllerTest {
     @Test
     void testValidateRequest_InvalidVersion() {
         validInsertRequest.setVersion("invalid");
-
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -424,9 +406,7 @@ class ProxyAbisControllerTest {
     @Test
     void testValidateRequest_MissingRequestTime() {
         validInsertRequest.setRequesttime(null);
-
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
-
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
     }
@@ -458,9 +438,7 @@ class ProxyAbisControllerTest {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new UnsupportedEncodingException())
                 .when(listener).sendToQueue(any(), anyInt());
-
         controller.executeAsync(responseEntity, 0, 1);
-
         verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
     }
 
@@ -469,14 +447,9 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testSaveInsertRequestThroughListner_ValidationErrors() {
-        // Arrange
         InsertRequestMO request = new InsertRequestMO();
-        // Set ID but leave other required fields empty to trigger MISSING_REQUESTID error
         request.setId("mosip.abis.insert");
-
-        // Act
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(request, 1);
-
         // Assert
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
@@ -493,15 +466,10 @@ class ProxyAbisControllerTest {
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
         IdentityResponse identityResponse = new IdentityResponse();
         identifyResponse.setIdentityResponse(identityResponse);
-        identifyResponse.setDelayResponse(5); // Set delay of 5 seconds
-
+        identifyResponse.setDelayResponse(5);
         when(abisInsertService.findDuplication(any(IdentityRequest.class)))
                 .thenReturn(identifyResponse);
-
-        // Act
         ResponseEntity<Object> response = controller.identityRequestThroughListner(validIdentityRequest, 1);
-
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof IdentityResponse);
     }
@@ -511,15 +479,10 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testExecuteAsync_JsonProcessingException() throws Exception {
-        // Arrange
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new JsonProcessingException("Test error") {})
                 .when(listener).sendToQueue(any(), anyInt());
-
-        // Act
         controller.executeAsync(responseEntity, 0, 1);
-
-        // Assert
         verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
     }
 
@@ -538,9 +501,7 @@ class ProxyAbisControllerTest {
     @Test
     void testProcessDeleteRequest_WithDelay() {
         doNothing().when(abisInsertService).deleteData(anyString());
-
         ResponseEntity<Object> response = controller.deleteRequestThroughListner(validRequest, 2);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof ResponseMO);
         verify(abisInsertService).deleteData(validRequest.getReferenceId());
@@ -554,15 +515,12 @@ class ProxyAbisControllerTest {
     @Test
     void testSaveInsertRequest_RequestExceptionWithNullReason() throws Exception {
         when(bindingResult.hasErrors()).thenReturn(false);
-
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
         when(mockException.getDelayResponse()).thenReturn(0);
         when(abisInsertService.insertData(any(InsertRequestMO.class)))
                 .thenThrow(mockException);
-
         ResponseEntity<Object> response = controller.saveInsertRequest(validInsertRequest, bindingResult);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -579,9 +537,7 @@ class ProxyAbisControllerTest {
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
         doThrow(mockException).when(abisInsertService).deleteData(anyString());
-
         ResponseEntity<Object> response = controller.deleteRequest(validRequest);
-
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, response.getBody());
     }
@@ -599,9 +555,7 @@ class ProxyAbisControllerTest {
         when(mockException.getDelayResponse()).thenReturn(5);
         when(abisInsertService.insertData(any(InsertRequestMO.class)))
                 .thenThrow(mockException);
-
         ResponseEntity<Object> response = controller.processInsertRequest(validInsertRequest, 1);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -622,9 +576,7 @@ class ProxyAbisControllerTest {
         when(mockException.getDelayResponse()).thenReturn(5);
         when(abisInsertService.insertData(any(InsertRequestMO.class)))
                 .thenThrow(mockException);
-
         ResponseEntity<Object> response = controller.processInsertRequest(validInsertRequest, 1);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -646,17 +598,12 @@ class ProxyAbisControllerTest {
         request.setRequesttime(LocalDateTime.now());
         request.setReferenceId("ref123");
         request.setVersion("1.0");
-
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
-        when(mockException.getDelayResponse()).thenReturn(0); // Add delay response
+        when(mockException.getDelayResponse()).thenReturn(0);
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
-
-        // Act
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(request, 1);
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode()); // Changed to OK since that's what the implementation returns
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
         assertEquals(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, failureResponse.getFailureReason());
@@ -678,17 +625,12 @@ class ProxyAbisControllerTest {
         request.setRequesttime(LocalDateTime.now());
         request.setReferenceId("ref123");
         request.setVersion("1.0");
-
         String customReason = "Custom error reason";
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(customReason);
         when(mockException.getDelayResponse()).thenReturn(0); // Add delay response
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
-
-        // Act
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(request, 1);
-
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode()); // Changed to OK to match implementation
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -704,7 +646,6 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testSaveInsertRequest_RequestExceptionHandling() throws Exception {
-        // Arrange
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setRequestId("123");
@@ -717,11 +658,7 @@ class ProxyAbisControllerTest {
         when(mockException.getReasonConstant()).thenReturn(null);
         when(mockException.getDelayResponse()).thenReturn(0);
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
-
-        // Act
         ResponseEntity<Object> response = controller.saveInsertRequest(request, bindingResult);
-
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -736,7 +673,6 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testIdentityRequest_RequestExceptionHandling() {
-        // Arrange
         IdentityRequest request = new IdentityRequest();
         request.setId("test-id");
         request.setRequestId("123");
@@ -746,11 +682,7 @@ class ProxyAbisControllerTest {
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
         when(abisInsertService.findDuplication(any(IdentityRequest.class))).thenThrow(mockException);
-
-        // Act
         ResponseEntity<Object> response = controller.identityRequest(request);
-
-        // Assert
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -765,21 +697,15 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testDeleteRequest_RequestExceptionHandling() {
-        // Arrange
         RequestMO request = new RequestMO();
         request.setId("test-id");
         request.setRequestId("123");
         request.setRequesttime(LocalDateTime.now());
         request.setReferenceId("ref123");
-
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
         doThrow(mockException).when(abisInsertService).deleteData(anyString());
-
-        // Act
         ResponseEntity<Object> response = controller.deleteRequest(request);
-
-        // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(FailureReasonsConstants.INTERNAL_ERROR_UNKNOWN, response.getBody());
         verify(mockException).getReasonConstant();
@@ -790,22 +716,16 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testSaveInsertRequest_RequestExceptionWithNullReasonConstant() throws Exception {
-        // Arrange
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setVersion("1.0");
         request.setRequestId("test-request-id");
         request.setRequesttime(LocalDateTime.now());
         request.setReferenceId("test-reference-id");
-
         when(bindingResult.hasErrors()).thenReturn(false);
         RequestException mockException = new RequestException(null);
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
-
-        // Act
         ResponseEntity<Object> response = controller.saveInsertRequest(request, bindingResult);
-
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -824,16 +744,11 @@ class ProxyAbisControllerTest {
         request.setRequestId("test-request-id");
         request.setRequesttime(LocalDateTime.now());
         request.setReferenceId("test-reference-id");
-
         String customReason = "CUSTOM_ERROR_REASON";
         when(bindingResult.hasErrors()).thenReturn(false);
         RequestException mockException = new RequestException(customReason);
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenThrow(mockException);
-
-        // Act
         ResponseEntity<Object> response = controller.saveInsertRequest(request, bindingResult);
-
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();

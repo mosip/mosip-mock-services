@@ -23,17 +23,14 @@ class InsertEntityTest {
      */
     @Test
     void testDefaultConstructor() {
-        // When
         InsertEntity entity = new InsertEntity();
-
-        // Then
-        assertNotNull(entity); // Verify the object is not null
-        assertNull(entity.getId()); // Verify the id field is null
-        assertNull(entity.getVersion()); // Verify the version field is null
-        assertNull(entity.getRequestId()); // Verify the requestId field is null
-        assertNull(entity.getRequesttime()); // Verify the requesttime field is null
-        assertNull(entity.getReferenceId()); // Verify the referenceId field is null
-        assertNull(entity.getBiometricList()); // Verify the biometricList field is null
+        assertNotNull(entity);
+        assertNull(entity.getId());
+        assertNull(entity.getVersion());
+        assertNull(entity.getRequestId());
+        assertNull(entity.getRequesttime());
+        assertNull(entity.getReferenceId());
+        assertNull(entity.getBiometricList());
     }
 
     /**
@@ -42,17 +39,12 @@ class InsertEntityTest {
      */
     @Test
     void testParameterizedConstructor() {
-        // Given
         String id = "test-id";
         String version = "1.0";
         String requestId = "req-123";
         LocalDateTime requestTime = LocalDateTime.now();
         String referenceId = "ref-456";
-
-        // When
         InsertEntity entity = new InsertEntity(id, version, requestId, requestTime, referenceId);
-
-        // Then
         assertEquals(id, entity.getId()); // Verify the id field is set correctly
         assertEquals(version, entity.getVersion()); // Verify the version field is set correctly
         assertEquals(requestId, entity.getRequestId()); // Verify the requestId field is set correctly
@@ -76,16 +68,12 @@ class InsertEntityTest {
         String referenceId = "ref-456";
         List<BiometricData> biometricList = new ArrayList<>();
         biometricList.add(new BiometricData());
-
-        // When
         entity.setId(id);
         entity.setVersion(version);
         entity.setRequestId(requestId);
         entity.setRequesttime(requestTime);
         entity.setReferenceId(referenceId);
         entity.setBiometricList(biometricList);
-
-        // Then
         assertEquals(id, entity.getId()); // Verify the id field is set correctly
         assertEquals(version, entity.getVersion()); // Verify the version field is set correctly
         assertEquals(requestId, entity.getRequestId()); // Verify the requestId field is set correctly
@@ -101,13 +89,10 @@ class InsertEntityTest {
      */
     @Test
     void testEqualsAndHashCode() {
-        // Given
         LocalDateTime requestTime = LocalDateTime.now();
         InsertEntity entity1 = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
         InsertEntity entity2 = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
         InsertEntity entity3 = new InsertEntity("id2", "2.0", "req2", requestTime, "ref2");
-
-        // Then
         assertEquals(entity1, entity1); // Reflexive: an object is equal to itself
         assertEquals(entity1, entity2); // Symmetric: two objects with the same values are equal
         assertNotEquals(entity1, entity3); // Different objects with different values are not equal
@@ -124,11 +109,7 @@ class InsertEntityTest {
         // Given
         LocalDateTime requestTime = LocalDateTime.now();
         InsertEntity entity = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
-
-        // When
         String toString = entity.toString();
-
-        // Then
         assertNotNull(toString); // Verify the toString result is not null
         assertTrue(toString.contains("id=id1")); // Verify the id field is included in the string
         assertTrue(toString.contains("version=1.0")); // Verify the version field is included in the string
@@ -142,17 +123,12 @@ class InsertEntityTest {
      */
     @Test
     void testBiometricListRelationship() {
-        // Given
         InsertEntity entity = new InsertEntity();
         List<BiometricData> biometricList = new ArrayList<>();
         BiometricData bioData = new BiometricData();
         bioData.setInsertEntity(entity); // Set the relationship
         biometricList.add(bioData);
-
-        // When
         entity.setBiometricList(biometricList);
-
-        // Then
         assertNotNull(entity.getBiometricList()); // Verify the biometricList is not null
         assertEquals(1, entity.getBiometricList().size()); // Verify the size of the list
         assertEquals(entity, entity.getBiometricList().get(0).getInsertEntity()); // Verify the relationship
