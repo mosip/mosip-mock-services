@@ -420,10 +420,8 @@ class ProxyAbisControllerTest {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         controller.executeAsync(responseEntity, 0, 1);
 
-        // Wait for async execution
         Thread.sleep(1500);
 
-        // Verify timer still active
         Field timerField = ProxyAbisController.class.getDeclaredField("timer");
         timerField.setAccessible(true);
         Timer timer = (Timer) timerField.get(controller);
@@ -450,7 +448,6 @@ class ProxyAbisControllerTest {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(request, 1);
-        // Assert
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertTrue(response.getBody() instanceof FailureResponse);
         FailureResponse failureResponse = (FailureResponse) response.getBody();
@@ -462,7 +459,6 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testIdentityRequestThroughListner_WithDelay() {
-        // Arrange
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
         IdentityResponse identityResponse = new IdentityResponse();
         identifyResponse.setIdentityResponse(identityResponse);
@@ -591,7 +587,6 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testSaveInsertRequestThroughListner_RequestExceptionWithNullReason() {
-        // Arrange
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setRequestId("123");
@@ -618,7 +613,6 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testSaveInsertRequestThroughListner_RequestExceptionWithCustomReason() {
-        // Arrange
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setRequestId("123");
@@ -737,7 +731,6 @@ class ProxyAbisControllerTest {
      */
     @Test
     void testSaveInsertRequest_RequestExceptionWithCustomReason() throws Exception {
-        // Arrange
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setVersion("1.0");

@@ -36,15 +36,12 @@ class ExpectationCacheImplTest {
      */
     @Test
     void testInsertAndGet() {
-        // Given
         Expectation ex = new Expectation();
         ex.setId("123");
 
-        // When
         cache.insert(ex);
         Expectation result = cache.get("123");
 
-        // Then
         assertNotNull(result); // Verify the result is not null
         assertEquals("123", result.getId()); // Verify the ID matches
     }
@@ -55,10 +52,8 @@ class ExpectationCacheImplTest {
      */
     @Test
     void testGetNonExistingReturnsEmptyObject() {
-        // When
         Expectation result = cache.get("nonexistent");
 
-        // Then
         assertNotNull(result); // Verify the result is not null
         assertNull(result.getId()); // Verify the ID is null
     }
@@ -69,15 +64,11 @@ class ExpectationCacheImplTest {
      */
     @Test
     void testDeleteExisting() {
-        // Given
         Expectation ex = new Expectation();
         ex.setId("abc");
         cache.insert(ex);
-
-        // When
         boolean deleted = cache.delete("abc");
 
-        // Then
         assertTrue(deleted); // Verify the deletion was successful
         assertNull(cache.get("abc").getId()); // Verify a new Expectation is returned
     }
@@ -88,10 +79,7 @@ class ExpectationCacheImplTest {
      */
     @Test
     void testDeleteNonExisting() {
-        // When
         boolean deleted = cache.delete("not-there");
-
-        // Then
         assertFalse(deleted); // Verify the deletion was unsuccessful
     }
 
@@ -101,7 +89,6 @@ class ExpectationCacheImplTest {
      */
     @Test
     void testDeleteAll() {
-        // Given
         Expectation e1 = new Expectation();
         e1.setId("1");
         Expectation e2 = new Expectation();
@@ -109,11 +96,8 @@ class ExpectationCacheImplTest {
 
         cache.insert(e1);
         cache.insert(e2);
-
-        // When
         cache.deleteAll();
 
-        // Then
         assertEquals(0, cache.get().size()); // Verify the cache is empty
     }
 
@@ -123,15 +107,11 @@ class ExpectationCacheImplTest {
      */
     @Test
     void testGetAll() {
-        // Given
         Expectation e1 = new Expectation();
         e1.setId("one");
         cache.insert(e1);
-
-        // When
         Map<String, Expectation> all = cache.get();
 
-        // Then
         assertEquals(1, all.size()); // Verify the size of the map
         assertTrue(all.containsKey("one")); // Verify the key exists
     }

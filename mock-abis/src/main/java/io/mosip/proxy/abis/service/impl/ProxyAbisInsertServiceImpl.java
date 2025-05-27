@@ -9,12 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -70,7 +65,8 @@ import io.mosip.proxy.abis.utility.CryptoCoreUtil;
 public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyAbisInsertServiceImpl.class);
 
-	private static Path currentPath = Paths.get(System.getProperty("user.dir"));
+	//Changed a current directory path to a home directory path
+	private static Path currentPath = Paths.get(System.getProperty("user.home"), "files");
 	private static Path keystoreFilePath = Paths.get(currentPath.toString(), "keystore");
 
 	private static final String PROPERTIES_FILE_NAME = "partner.properties";
@@ -528,7 +524,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	 * @throws AbisException If an error occurs during data access or processing.
 	 */
 	@Override
-	@SuppressWarnings({ "java:S2139", "java:S3776", "java:S6541" })
+	@SuppressWarnings({ "java:S2139", "java:S3776", "java:S6541","java:S5145" })
 	public IdentifyDelayResponse findDuplication(IdentityRequest ir) {
 		int delayResponse = 0;
 		try {
@@ -571,7 +567,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							referenceIds);
 				}
 			} else {
-				logger.info("checking for duplication in entire DB of reference ID {}", refId);
+				logger.info("checking for duplication in entire DB");
 				List<String> bioValues = proxyAbisBioDataRepository.fetchBioDataByRefId(refId);
 				if (!bioValues.isEmpty()) {
 					for (String bioValue : bioValues) {
@@ -693,7 +689,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			response.setCandidateList(cl);
 			return response;
 		}
-		logger.info("Duplicates found for referenceID {}", ir.getReferenceId());
+		logger.info("Duplicates found for referenceID");
 		try {
 			Map<String, IdentityResponse.Candidates> mp = new HashMap<>();
 			lst.stream().forEach(bio -> {
@@ -789,7 +785,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		try {
 			logger.info("Uploading certificate");
 			byte[] bytes = uploadedFile.getBytes();
-			Path path = Paths.get(keystoreFilePath.toString(), uploadedFile.getOriginalFilename());
+			String fileExtension = uploadedFile.getOriginalFilename().substring(uploadedFile.getOriginalFilename().lastIndexOf('.'));
+			String randomFilename = UUID.randomUUID().toString().replace("-", "").substring(0, 8) + fileExtension;
+			Path path = Paths.get(keystoreFilePath.toString(), randomFilename);
 
 			File keyFile = new File(path.toString());
 			File parent = keyFile.getParentFile();
@@ -803,14 +801,14 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 			try (FileWriter myWriter = new FileWriter(path.toString())) {
 				myWriter.write("certificate.alias=" + alias + "\n" + "certificate.password=" + password + "\n");
 				myWriter.write("certificate.keystore=" + keystore + "\n" + "certificate.filename="
-						+ uploadedFile.getOriginalFilename());
+						+ randomFilename);
 			}
 			CryptoCoreUtil.setCertificateValues(uploadedFile.getOriginalFilename(), keystore, password, alias);
 
 			File dir = new File(keystoreFilePath.toString());
 			File[] fileList = dir.listFiles();
 			for (File file : fileList) {
-				if (!file.getName().equalsIgnoreCase(uploadedFile.getOriginalFilename())
+				if (!file.getName().equalsIgnoreCase(randomFilename)
 						&& file.getName().endsWith(".p12")) {
 					logger.info("Deleting file {}", file.getName());
 					file.delete();

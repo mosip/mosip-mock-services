@@ -36,34 +36,28 @@ class SwaggerConfigTest {
      */
     @BeforeEach
     void setUp() {
-        // Create mocks
         openApiProperties = mock(OpenApiProperties.class);
         infoProperty = mock(InfoProperty.class);
         licenseProperty = mock(LicenseProperty.class);
         group = mock(Group.class);
         service = mock(Service.class);
 
-        // Configure license property
         when(licenseProperty.getName()).thenReturn("Test License");
         when(licenseProperty.getUrl()).thenReturn("http://test-license.com");
 
-        // Configure info property
         when(infoProperty.getTitle()).thenReturn("Test API");
         when(infoProperty.getVersion()).thenReturn("1.0");
         when(infoProperty.getDescription()).thenReturn("Test Description");
         when(infoProperty.getLicense()).thenReturn(licenseProperty);
 
-        // Configure service property
         Server server = mock(Server.class);
         when(server.getDescription()).thenReturn("Test Server");
         when(server.getUrl()).thenReturn("http://test-server.com");
         when(service.getServers()).thenReturn(List.of(server));
 
-        // Configure group property
         when(group.getName()).thenReturn("abis");
         when(group.getPaths()).thenReturn(Arrays.asList("/abis/**"));
 
-        // Configure main properties
         when(openApiProperties.getInfo()).thenReturn(infoProperty);
         when(openApiProperties.getService()).thenReturn(service);
         when(openApiProperties.getGroup()).thenReturn(group);

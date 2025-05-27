@@ -1,26 +1,22 @@
 package io.mosip.proxy.abis.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
-import java.time.OffsetDateTime;
+        import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.io.File;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -98,7 +94,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @BeforeEach
     void setUp() {
-        // Initialize test data
         insertRequest = new InsertRequestMO();
         insertRequest.setId("test-id");
         insertRequest.setVersion("1.0");
@@ -137,7 +132,6 @@ class ProxyAbisInsertServiceImplTest {
         cbeffData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><BIR>...</BIR>";
         cbeffResponse = ResponseEntity.ok(cbeffData);
 
-        // Inject the restTemplate mock into proxyAbisInsertService
         ReflectionTestUtils.setField(proxyAbisInsertService, "restTemplate", restTemplate);
     }
 
@@ -147,10 +141,7 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_ReferenceIdAlreadyExists() {
-        // Arrange
         when(proxyabis.findById(insertRequest.getReferenceId())).thenReturn(Optional.of(insertEntity));
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -164,14 +155,9 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testDeleteData_Success() {
-        // Arrange
         String referenceId = "test-reference-id";
         doNothing().when(proxyabis).deleteById(referenceId);
-
-        // Act
         proxyAbisInsertService.deleteData(referenceId);
-
-        // Assert
         verify(proxyabis).deleteById(referenceId);
     }
 
@@ -181,11 +167,9 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testDeleteData_Exception() {
-        // Arrange
         String referenceId = "test-reference-id";
         doThrow(new RuntimeException("Database error")).when(proxyabis).deleteById(referenceId);
 
-        // Act & Assert
         assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.deleteData(referenceId);
         });
@@ -197,15 +181,12 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_NoGallery() {
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
 
-        // Assert
         assertNotNull(response);
         assertEquals(0, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -219,7 +200,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithGallery() {
-        // Arrange
         IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
         List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
         IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
@@ -237,10 +217,7 @@ class ProxyAbisInsertServiceImplTest {
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceIdBasedOnGalleryIds(anyString(), anyList()))
                 .thenReturn(biometricDataList);
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(0, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -254,7 +231,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithExpectation() {
-        // Arrange
         List<String> bioValues = new ArrayList<>();
         bioValues.add("hash-value");
 
@@ -276,10 +252,8 @@ class ProxyAbisInsertServiceImplTest {
         when(expectationCache.get(anyString())).thenReturn(expectation);
         when(proxyAbisBioDataRepository.fetchReferenceId(anyString())).thenReturn(List.of("exp-ref-id"));
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
 
-        // Assert
         assertNotNull(response);
         assertEquals(5000, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -292,15 +266,11 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_NoDuplicates() {
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(new ArrayList<>());
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(0, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -314,9 +284,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testGetAnalytics() {
-        // This is a private method, but we can test it through its usage in findDuplication
-
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
@@ -326,10 +293,7 @@ class ProxyAbisInsertServiceImplTest {
         when(env.getProperty("analytics.key1")).thenReturn("value1");
         when(env.getProperty("analytics.key2")).thenReturn("value2");
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         IdentityResponse.Analytics analytics = response.getIdentityResponse().getCandidateList().getCandidates().getFirst().getAnalytics();
         assertNotNull(analytics);
@@ -344,7 +308,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_NullRequest() {
-        // Act & Assert
         assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(null);
         });
@@ -356,10 +319,7 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_EmptyReferenceId() {
-        // Arrange
         insertRequest.setReferenceId("");
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -372,7 +332,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_CbeffFetchError() {
-        // Arrange
         when(proxyabis.findById(insertRequest.getReferenceId())).thenReturn(Optional.empty());
         when(restTemplate.exchange(
                 anyString(),
@@ -381,7 +340,6 @@ class ProxyAbisInsertServiceImplTest {
                 eq(String.class)))
                 .thenThrow(new RuntimeException("Network error"));
 
-        // Act & Assert
         assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -393,14 +351,10 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_DuplicateCheckDisabled() {
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(false);
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
         verify(proxyAbisBioDataRepository, never()).fetchDuplicatesForReferenceId(anyString());
@@ -412,7 +366,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithInvalidGalleryCount() {
-        // Arrange
         IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
         List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
         IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
@@ -422,8 +375,6 @@ class ProxyAbisInsertServiceImplTest {
         identityRequest.setGallery(gallery);
 
         when(proxyabis.fetchCountForReferenceIdPresentInGallery(anyList())).thenReturn(0);
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.findDuplication(identityRequest);
         });
@@ -436,12 +387,10 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_DataShareExpired() {
-        // Arrange
         String errorResponse = "{\"errors\":[{\"errorCode\":\"DAT-SER-006\",\"message\":\"Data share usuage expired\"}]}";
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(errorResponse));
 
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -454,7 +403,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_WithInvalidCBEFF() throws Exception {
-        // Arrange
         String invalidCbeff = "invalid-cbeff-data";
         ReflectionTestUtils.setField(proxyAbisInsertService, "cbeffURL", "http://test-url.com/cbeff");
         ReflectionTestUtils.setField(proxyAbisInsertService, "encryption", false);
@@ -463,7 +411,6 @@ class ProxyAbisInsertServiceImplTest {
                 .thenReturn(ResponseEntity.ok(invalidCbeff));
         when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
 
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -476,7 +423,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_WithEmptyCBEFF() throws Exception {
-        // Arrange
         String emptyCbeff = "";
         ReflectionTestUtils.setField(proxyAbisInsertService, "cbeffURL", "http://test-url.com/cbeff");
         ReflectionTestUtils.setField(proxyAbisInsertService, "encryption", false);
@@ -484,8 +430,6 @@ class ProxyAbisInsertServiceImplTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(emptyCbeff));
         when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -498,7 +442,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_WithDataShareError() throws Exception {
-        // Arrange
         String errorResponse = "{\"errors\":[{\"errorCode\":\"DAT-SER-001\",\"message\":\"Data Encryption failed\"}]}";
         ReflectionTestUtils.setField(proxyAbisInsertService, "cbeffURL", "http://test-url.com/cbeff");
         ReflectionTestUtils.setField(proxyAbisInsertService, "encryption", false);
@@ -507,7 +450,6 @@ class ProxyAbisInsertServiceImplTest {
                 .thenReturn(ResponseEntity.ok(errorResponse));
         when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
 
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -520,21 +462,16 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithAnalytics() {
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
-
-        // Mock analytics properties
         when(env.getProperty("analytics.confidence")).thenReturn("90");
         when(env.getProperty("analytics.internalscore")).thenReturn("85");
         when(env.getProperty("analytics.key1")).thenReturn("value1");
         when(env.getProperty("analytics.key2")).thenReturn("value2");
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
 
-        // Assert
         assertNotNull(response);
         assertNotNull(response.getIdentityResponse());
         assertNotNull(response.getIdentityResponse().getCandidateList());
@@ -550,11 +487,8 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_HttpClientError() {
-        // Arrange
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -567,7 +501,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithExpectationError() throws Exception {
-        // Arrange
         List<String> bioValues = new ArrayList<>();
         bioValues.add("hash-value");
 
@@ -581,7 +514,6 @@ class ProxyAbisInsertServiceImplTest {
         when(expectationCache.get(anyString())).thenReturn(expectation);
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(bioValues);
 
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.findDuplication(identityRequest);
         });
@@ -593,7 +525,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithEmptyGallery() throws Exception {
-        // Arrange
         IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
         gallery.setReferenceIds(new ArrayList<>());
         identityRequest.setGallery(gallery);
@@ -601,11 +532,7 @@ class ProxyAbisInsertServiceImplTest {
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
-
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(0, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -618,7 +545,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testInsertData_WithEmptyBiometricList() throws Exception {
-        // Arrange
         String encryptedCbeff = "encrypted-cbeff-data";
         String decryptedCbeff = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><BIR><Version>1.0</Version><CBEFFVersion>1.0</CBEFFVersion>"
                 + "<BIRInfo><Integrity>false</Integrity></BIRInfo><BDBInfo><Format>ISO_19794_4_2011</Format>"
@@ -633,8 +559,6 @@ class ProxyAbisInsertServiceImplTest {
                 .thenReturn(ResponseEntity.ok(encryptedCbeff));
         when(cryptoUtil.decryptCbeff(encryptedCbeff)).thenReturn(decryptedCbeff);
         when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             proxyAbisInsertService.insertData(insertRequest);
         });
@@ -647,16 +571,12 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithForceDuplicate() throws Exception {
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(false);
         when(proxyAbisConfigService.isForceDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(biometricDataList);
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(0, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -670,15 +590,11 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testFindDuplication_WithEmptyBiometricData() throws Exception {
-        // Arrange
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
         when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(new ArrayList<>());
 
-        // Act
         IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(0, response.getDelayResponse());
         assertNotNull(response.getIdentityResponse());
@@ -691,13 +607,8 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testGetSHA() throws Exception {
-        // Arrange
         String testData = "test-data";
-
-        // Act
         String result = ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "getSHA", testData);
-
-        // Assert
         assertNotNull(result);
         assertEquals(64, result.length()); // SHA-256 produces 64 character hex string
     }
@@ -707,13 +618,8 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testGetSHAFromBytes() throws Exception {
-        // Arrange
         byte[] testData = "test-data".getBytes();
-
-        // Act
         String result = ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "getSHAFromBytes", testData);
-
-        // Assert
         assertNotNull(result);
         assertEquals(64, result.length()); // SHA-256 produces 64 character hex string
     }
@@ -723,13 +629,8 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testBytesToHex() throws Exception {
-        // Arrange
         byte[] testData = new byte[]{(byte)0xFF, (byte)0x00, (byte)0xAB};
-
-        // Act
         String result = ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "bytesToHex", testData);
-
-        // Assert
         assertNotNull(result);
         assertEquals("ff00ab", result.toLowerCase());
     }
@@ -739,7 +640,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testAddBirs_EmptyBDB() throws Exception {
-        // Arrange
         InsertEntity ie = new InsertEntity();
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
@@ -754,7 +654,6 @@ class ProxyAbisInsertServiceImplTest {
         birs.add(bir);
         birInfo.setBirs(birs);
 
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
         });
@@ -767,102 +666,13 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testGetBirs_InvalidCBEFF() throws Exception {
-        // Arrange
         String invalidCbeff = "invalid-cbeff-data";
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "getBirs", invalidCbeff);
         });
-
         assertEquals(FailureReasonsConstants.INVALID_CBEFF_FORMAT, exception.getReasonConstant());
     }
 
-    /**
-     * Tests the saveUploadedFileWithParameters method for successful certificate upload.
-     * Verifies that the certificate file is saved, properties are written, and old certificates are cleaned up.
-     */
-    @Test
-    void testSaveUploadedFileWithParameters_Success() throws Exception {
-        // Arrange
-        String fileName = "test-cert.p12";
-        String alias = "test-alias";
-        String password = "test-password";
-        String keystore = "test-keystore";
-        byte[] fileContent = "test certificate content".getBytes();
-
-        MultipartFile uploadedFile = new MultipartFile() {
-            @Override
-            public String getName() {
-                return "file";
-            }
-
-            @Override
-            public String getOriginalFilename() {
-                return fileName;
-            }
-
-            @Override
-            public String getContentType() {
-                return "application/x-pkcs12";
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return fileContent.length == 0;
-            }
-
-            @Override
-            public long getSize() {
-                return fileContent.length;
-            }
-
-            @Override
-            public byte[] getBytes() throws IOException {
-                return fileContent;
-            }
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                return new ByteArrayInputStream(fileContent);
-            }
-
-            @Override
-            public void transferTo(File dest) throws IOException, IllegalStateException {
-                Files.write(dest.toPath(), fileContent);
-            }
-        };
-
-        // Create a temporary directory structure for testing
-        Path tempKeystorePath = Files.createTempDirectory("keystore");
-        ReflectionTestUtils.setField(proxyAbisInsertService, "keystoreFilePath", tempKeystorePath);
-
-        try {
-            // Act
-            String result = proxyAbisInsertService.saveUploadedFileWithParameters(uploadedFile, alias, password, keystore);
-
-            // Assert
-            assertEquals("Successfully uploaded file", result);
-
-            // Verify certificate file was created
-            Path certPath = tempKeystorePath.resolve(fileName);
-            assertTrue(Files.exists(certPath));
-            assertArrayEquals(fileContent, Files.readAllBytes(certPath));
-
-            // Verify properties file was created with correct content
-            Path propsPath = tempKeystorePath.resolve("partner.properties");
-            assertTrue(Files.exists(propsPath));
-            List<String> propsContent = Files.readAllLines(propsPath);
-            assertTrue(propsContent.contains("certificate.alias=" + alias));
-            assertTrue(propsContent.contains("certificate.password=" + password));
-            assertTrue(propsContent.contains("certificate.keystore=" + keystore));
-            assertTrue(propsContent.contains("certificate.filename=" + fileName));
-
-        } finally {
-            // Cleanup
-            FileUtils.deleteDirectory(tempKeystorePath.toFile());
-        }
-    }
 
     /**
      * Tests the saveUploadedFileWithParameters method when an exception occurs during file operations.
@@ -870,7 +680,6 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testSaveUploadedFileWithParameters_Error() throws Exception {
-        // Arrange
         String fileName = "test-cert.p12";
         byte[] fileContent = "test content".getBytes();
 
@@ -915,11 +724,7 @@ class ProxyAbisInsertServiceImplTest {
                 throw new IOException("Simulated file transfer error");
             }
         };
-
-        // Act
         String result = proxyAbisInsertService.saveUploadedFileWithParameters(uploadedFile, "alias", "password", "keystore");
-
-        // Assert
         assertEquals("Could not upload file", result);
     }
 
@@ -929,14 +734,11 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testValidateCBEFFData_DataShareUrlExpired() throws Exception {
-        // Arrange
         String cbeffWithExpiredError = "{\"errors\":[{\"errorCode\":\"DAT-SER-006\",\"message\":\"Data share URL expired\"}]}";
-        
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", cbeffWithExpiredError);
         });
-        
+
         assertEquals(FailureReasonsConstants.DATA_SHARE_URL_EXPIRED, exception.getReasonConstant());
     }
 
@@ -946,14 +748,11 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testValidateCBEFFData_UnexpectedError() throws Exception {
-        // Arrange
         String cbeffWithError = "{\"errors\":[{\"errorCode\":\"DAT-SER-001\",\"message\":\"Some unexpected error\"}]}";
-        
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", cbeffWithError);
         });
-        
+
         assertEquals(FailureReasonsConstants.UNEXPECTED_ERROR, exception.getReasonConstant());
     }
 
@@ -962,12 +761,8 @@ class ProxyAbisInsertServiceImplTest {
      * Verifies that the method handles invalid JSON gracefully.
      */
     @Test
-    void testValidateCBEFFData_InvalidJson() throws Exception {
-        // Arrange
+    void testValidateCBEFFData_InvalidJson() {
         String invalidJson = "invalid json content";
-        
-        // Act & Assert
-        // Should not throw any exception for invalid JSON
         ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", invalidJson);
     }
 
@@ -977,11 +772,7 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testValidateCBEFFData_ValidJson() throws Exception {
-        // Arrange
         String validJson = "{\"data\":\"some valid data\"}";
-        
-        // Act & Assert
-        // Should not throw any exception for valid JSON without errors
         ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", validJson);
     }
 
@@ -991,11 +782,7 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testValidateCBEFFData_NullErrors() throws Exception {
-        // Arrange
         String jsonWithNullErrors = "{\"errors\":null}";
-        
-        // Act & Assert
-        // Should not throw any exception for null errors
         ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", jsonWithNullErrors);
     }
 
@@ -1010,8 +797,7 @@ class ProxyAbisInsertServiceImplTest {
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
         List<BIR> birs = new ArrayList<>();
-        
-        // Create a valid BIR
+
         BIR bir = new BIR();
         BDBInfo bdbInfo = new BDBInfo();
         List<BiometricType> types = new ArrayList<>();
@@ -1024,11 +810,8 @@ class ProxyAbisInsertServiceImplTest {
         bir.setBdb("test biometric data".getBytes());
         birs.add(bir);
         birInfo.setBirs(birs);
-
-        // Act
         ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
 
-        // Assert
         assertEquals(1, lst.size());
         BiometricData bd = lst.get(0);
         assertEquals(BiometricType.FINGER.value(), bd.getType());
@@ -1043,13 +826,10 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testAddBirs_MultipleValidBirs() throws Exception {
-        // Arrange
         InsertEntity ie = new InsertEntity();
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
         List<BIR> birs = new ArrayList<>();
-        
-        // Create first BIR (Finger)
         BIR bir1 = new BIR();
         BDBInfo bdbInfo1 = new BDBInfo();
         List<BiometricType> types1 = new ArrayList<>();
@@ -1060,8 +840,6 @@ class ProxyAbisInsertServiceImplTest {
         bdbInfo1.setSubtype(subtypes1);
         bir1.setBdbInfo(bdbInfo1);
         bir1.setBdb("finger data".getBytes());
-        
-        // Create second BIR (Face)
         BIR bir2 = new BIR();
         BDBInfo bdbInfo2 = new BDBInfo();
         List<BiometricType> types2 = new ArrayList<>();
@@ -1069,15 +847,11 @@ class ProxyAbisInsertServiceImplTest {
         bdbInfo2.setType(types2);
         bir2.setBdbInfo(bdbInfo2);
         bir2.setBdb("face data".getBytes());
-        
+
         birs.add(bir1);
         birs.add(bir2);
         birInfo.setBirs(birs);
-
-        // Act
         ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
-
-        // Assert
         assertEquals(2, lst.size());
         assertEquals(BiometricType.FINGER.value(), lst.get(0).getType());
         assertEquals("[Left IndexFinger]", lst.get(0).getSubtype());
@@ -1091,23 +865,20 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testAddBirs_NullBdbInfo() throws Exception {
-        // Arrange
         InsertEntity ie = new InsertEntity();
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
         List<BIR> birs = new ArrayList<>();
-        
+
         BIR bir = new BIR();
         bir.setBdbInfo(null);
         bir.setBdb(new byte[0]); // Empty BDB to trigger the first check
         birs.add(bir);
         birInfo.setBirs(birs);
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
         });
-        
+
         assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
     }
 
@@ -1117,12 +888,11 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testAddBirs_EmptyBdb() throws Exception {
-        // Arrange
         InsertEntity ie = new InsertEntity();
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
         List<BIR> birs = new ArrayList<>();
-        
+
         BIR bir = new BIR();
         BDBInfo bdbInfo = new BDBInfo();
         List<BiometricType> types = new ArrayList<>();
@@ -1132,12 +902,10 @@ class ProxyAbisInsertServiceImplTest {
         bir.setBdb(new byte[0]);
         birs.add(bir);
         birInfo.setBirs(birs);
-
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
         });
-        
+
         assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
     }
 
@@ -1147,12 +915,11 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testAddBirs_NullBdb() throws Exception {
-        // Arrange
         InsertEntity ie = new InsertEntity();
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
         List<BIR> birs = new ArrayList<>();
-        
+
         BIR bir = new BIR();
         BDBInfo bdbInfo = new BDBInfo();
         List<BiometricType> types = new ArrayList<>();
@@ -1163,11 +930,10 @@ class ProxyAbisInsertServiceImplTest {
         birs.add(bir);
         birInfo.setBirs(birs);
 
-        // Act & Assert
         RequestException exception = assertThrows(RequestException.class, () -> {
             ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
         });
-        
+
         assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
     }
 
@@ -1177,16 +943,90 @@ class ProxyAbisInsertServiceImplTest {
      */
     @Test
     void testAddBirs_EmptyBirsList() throws Exception {
-        // Arrange
         InsertEntity ie = new InsertEntity();
         List<BiometricData> lst = new ArrayList<>();
         BIR birInfo = new BIR();
         birInfo.setBirs(new ArrayList<>());
-
-        // Act
         ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "addBirs", ie, lst, birInfo);
-
-        // Assert
         assertTrue(lst.isEmpty());
+    }
+
+    /**
+     * Tests finding duplication with null reference ID.
+     */
+    @Test
+    void testFindDuplication_NullReferenceId() {
+        identityRequest.setReferenceId(null);
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(false);
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(null)).thenReturn(new ArrayList<>());
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+        assertNotNull(response);
+        assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
+    }
+
+    /**
+     * Tests finding duplication with empty reference ID.
+     */
+    @Test
+    void testFindDuplication_EmptyReferenceId() {
+        identityRequest.setReferenceId("");
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(false);
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId("")).thenReturn(new ArrayList<>());
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+        assertNotNull(response);
+        assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
+    }
+
+    /**
+     * Tests the saveUploadedFileWithParameters method with a valid file.
+     */
+    @Test
+    void testSaveUploadedFileWithParameters_Success() throws Exception {
+        String fileName = "test-cert.p12";
+        byte[] fileContent = "test content".getBytes();
+
+        MultipartFile uploadedFile = new MultipartFile() {
+            @Override
+            public String getName() {
+                return "file";
+            }
+
+            @Override
+            public String getOriginalFilename() {
+                return fileName;
+            }
+
+            @Override
+            public String getContentType() {
+                return "application/x-pkcs12";
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return fileContent.length == 0;
+            }
+
+            @Override
+            public long getSize() {
+                return fileContent.length;
+            }
+
+            @Override
+            public byte[] getBytes() throws IOException {
+                return fileContent;
+            }
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                return new java.io.ByteArrayInputStream(fileContent);
+            }
+
+            @Override
+            public void transferTo(File dest) throws IOException, IllegalStateException {
+                FileUtils.writeByteArrayToFile(dest, fileContent);
+            }
+        };
+        String result = proxyAbisInsertService.saveUploadedFileWithParameters(uploadedFile, "alias", "password", "keystore");
+        assertNotNull(result);
     }
 }

@@ -106,7 +106,6 @@ class InsertEntityTest {
      */
     @Test
     void testToString() {
-        // Given
         LocalDateTime requestTime = LocalDateTime.now();
         InsertEntity entity = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
         String toString = entity.toString();
