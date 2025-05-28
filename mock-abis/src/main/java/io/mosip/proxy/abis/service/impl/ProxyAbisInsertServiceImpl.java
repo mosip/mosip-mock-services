@@ -531,7 +531,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		int delayResponse = 0;
 		try {
 			String refId = ir.getReferenceId();
-			logger.info("Checking for duplication of reference ID {}", refId);
+			logger.info("Checking for duplication of reference ID");
 			List<BiometricData> lst = null;
 			logger.info("find duplicate property set to {}", proxyAbisConfigService.getDuplicate());
 			logger.info("force duplicate property set to {}", proxyAbisConfigService.isForceDuplicate());
@@ -686,7 +686,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		response.setResponsetime(ir.getRequesttime());
 		IdentityResponse.CandidateList cl = new IdentityResponse.CandidateList();
 		if (null == lst || lst.isEmpty()) {
-			logger.info("No duplicates found for referenceID {}", ir.getReferenceId());
+			logger.info("No duplicates found for referenceID ");
 			cl.setCount(0 + "");
 			response.setCandidateList(cl);
 			return response;
