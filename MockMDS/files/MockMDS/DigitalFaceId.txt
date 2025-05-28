@@ -1,1 +1,10 @@
-{"deviceProvider":"prov","deviceProviderId":"pid","make":"mk","serialNo":"sn","model":"mdl","deviceSubType":"sub","type":"FACE"}
+{
+	"serialNo": "273125570",
+	"make": "MOSIP",
+	"model": "DactyScan84c",
+	"type": "Face",
+	"deviceSubType": "Full face",
+	"deviceProvider": "MOSIP DEVICE PARTNER",
+	"deviceProviderId": "MOSIPMDS",
+	"dateTime": "2020-03-19T18:21:34.729+05:30"
+}

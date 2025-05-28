@@ -1,1 +1,22 @@
-{"callbackId":"cb_face","certification":"cert","deviceCode":"code_face","deviceId":"id","deviceStatus":"status","deviceSubId":"subid","purpose":"purpose","serviceVersion":"1.0","specVersion":"1.0","error":null}
+{
+	"deviceId": "1",
+	"deviceStatus": "Ready",
+	"certification": "L0",
+	"serviceVersion": "MOSIP.MDS.001",
+	"deviceSubId": [
+		1,
+		2,
+		3
+	],
+	"callbackId": "http://127.0.0.1:4501/",
+	"digitalId": "eyJzZXJpYWxObyI6IjkxNDk3NzQiLCJtYWtlIjoiRVlFQ09PTCIsIm1vZGVsIjoiVENJMzIyIiwidHlwZSI6IklyaXMiLCJkZXZpY2VTdWJUeXBlIjoiRG91YmxlIiwiZGV2aWNlUHJvdmlkZXIiOiJTWU5DQllURSIsImRldmljZVByb3ZpZGVySWQiOiJTWU5DQllURS5UQ0kzMjIiLCJkYXRlVGltZSI6IjIwMjAtMDUtMTlUMTI6NTA6MTIuODA1KzA1OjMwIn0",
+	"deviceCode": "48390d24-19f1-41b7-a674-390ff8c621f9",
+	"specVersion": [
+		"0.9.5"
+	],
+	"purpose": "Registration",
+	"error": {
+		"errorCode": "0",
+		"errorInfo": "Success"
+	}
+}

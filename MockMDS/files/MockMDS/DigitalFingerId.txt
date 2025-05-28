@@ -1,1 +1,10 @@
-{"deviceProvider":"prov","deviceProviderId":"pid","make":"mk","serialNo":"sn","model":"mdl","deviceSubType":"sub","type":"FIR"}
+{
+	"serialNo": "C8R1CP11441",
+	"make": "Greenbit",
+	"model": "DactyScan84c",
+	"type": "Finger",
+	"deviceSubType": "Slab",
+	"deviceProvider": "MOSIP DEVICE PARTNER",
+	"deviceProviderId": "MOSIPMDS",
+	"dateTime": "2020-06-03T15:06:44.535+05:30"
+}
