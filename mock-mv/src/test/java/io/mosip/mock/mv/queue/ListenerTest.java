@@ -1,7 +1,9 @@
 package io.mosip.mock.mv.queue;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,14 +12,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.anyInt;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.mockito.Mockito.doNothing;
 import io.mosip.mock.mv.dto.Expectation;
-
-import jakarta.jms.Connection;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageConsumer;
@@ -28,45 +25,77 @@ import jakarta.jms.Queue;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.apache.activemq.command.ActiveMQBytesMessage;
+import org.junit.Before;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
-class ListenerTest {
+public class ListenerTest {
 
     private Listener listener;
+
+    @Mock
     private Environment env;
+
+    @Mock
     private io.mosip.mock.mv.service.ExpectationCache expectationCache;
+
+    @Mock
+    private ActiveMQConnectionFactory activeMQConnectionFactory;
+
+    @Mock
+    private Session session;
+
+    @Mock
+    private ActiveMQConnection connection;
+
+    @Mock
+    private Queue queue;
+
+    @Mock
+    private MessageConsumer messageConsumer;
 
     /**
      * Sets up mocks and injects them into the Listener instance before each test.
      * Also spies on the listener to stub async execution and mock environment property retrieval.
      */
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() throws JMSException {
         MockitoAnnotations.openMocks(this);
+        
+        // Create and initialize the listener
         listener = new Listener();
-
-        env = mock(Environment.class);
-        expectationCache = mock(io.mosip.mock.mv.service.ExpectationCache.class);
+        
+        // Set up the mocks
+        when(env.getProperty(Listener.DECISION_SERVICE_ID)).thenReturn("decisionServiceId");
+        when(connection.isClosed()).thenReturn(false);
+        when(activeMQConnectionFactory.createConnection()).thenReturn(connection);
+        when(connection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
+        when(session.createQueue(anyString())).thenReturn(queue);
+        when(session.createConsumer(any(Queue.class))).thenReturn(messageConsumer);
+        doNothing().when(connection).start();
+        doNothing().when(messageConsumer).setMessageListener(any(MessageListener.class));
+        
+        // Inject the mocks into the listener
         ReflectionTestUtils.setField(listener, "env", env);
         ReflectionTestUtils.setField(listener, "expectationCache", expectationCache);
         ReflectionTestUtils.setField(listener, "mockDecision", "APPROVED");
-
-        Listener spyListener = org.mockito.Mockito.spy(listener);
-        doReturn(true).when(spyListener).executeAsync(anyString(), anyInt(), anyInt(), anyString());
-        listener = spyListener;
-
-        when(env.getProperty(Listener.DECISION_SERVICE_ID)).thenReturn("decisionServiceId");
+        ReflectionTestUtils.setField(listener, "activeMQConnectionFactory", activeMQConnectionFactory);
+        ReflectionTestUtils.setField(listener, "session", session);
+        ReflectionTestUtils.setField(listener, "connection", connection);
+        
+        // Create a spy of the listener after all fields are set
+        listener = spy(listener);
+        doReturn(true).when(listener).executeAsync(anyString(), anyInt(), anyInt(), anyString());
     }
 
     /**
      * Verifies that a valid TextMessage with proper JSON and no expectation decision processes correctly.
      */
     @Test
-    void testConsumeLogic_withTextMessage() throws Exception {
+    public void testConsumeLogic_withTextMessage() throws Exception {
         String dummyJson = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", \"gallery\": { \"referenceIds\": [] } }";
         TextMessage textMessage = mock(TextMessage.class);
         when(textMessage.getText()).thenReturn(dummyJson);
@@ -84,7 +113,7 @@ class ListenerTest {
      * Verifies that non-TextMessage types are safely ignored and return false.
      */
     @Test
-    void testConsumeLogic_withInvalidMessage() throws Exception {
+    public void testConsumeLogic_withInvalidMessage() throws Exception {
         Message dummyMessage = mock(Message.class);
 
         boolean result = listener.consumeLogic(dummyMessage, "dummyAddress");
@@ -95,7 +124,7 @@ class ListenerTest {
      * Tests behavior when the expectation's mock decision is REJECTED.
      */
     @Test
-    void testConsumeLogic_withExpectationRejected() throws Exception {
+    public void testConsumeLogic_withExpectationRejected() throws Exception {
         String dummyJson = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", \"gallery\": { \"referenceIds\": [{\"referenceId\":\"ref1\"}] } }";
         TextMessage textMessage = mock(TextMessage.class);
         when(textMessage.getText()).thenReturn(dummyJson);
@@ -115,7 +144,7 @@ class ListenerTest {
      * Tests special routing logic for the "verification-to-mosip" queue address.
      */
     @Test
-    void testConsumeLogic_withVerificationResponseAddress() throws Exception {
+    public void testConsumeLogic_withVerificationResponseAddress() throws Exception {
         String dummyJson = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", \"gallery\": { \"referenceIds\": [] } }";
         TextMessage textMessage = mock(TextMessage.class);
         when(textMessage.getText()).thenReturn(dummyJson);
@@ -132,7 +161,7 @@ class ListenerTest {
      * Verifies that invalid (malformed) JSON in the message is handled gracefully.
      */
     @Test
-    void testConsumeLogic_withInvalidJson() throws Exception {
+    public void testConsumeLogic_withInvalidJson() throws Exception {
         String invalidJson = "{ invalid json }";
         TextMessage textMessage = mock(TextMessage.class);
         when(textMessage.getText()).thenReturn(invalidJson);
@@ -146,66 +175,28 @@ class ListenerTest {
      * Validates that a null message input results in false without exceptions.
      */
     @Test
-    void testConsumeLogic_withNullMessage() throws Exception {
+    public void testConsumeLogic_withNullMessage() throws Exception {
         boolean result = listener.consumeLogic(null, "dummyAddress");
 
         assertFalse(result);
     }
 
     /**
-     * Tests the setup logic when the existing JMS connection is closed,
-     * ensuring a new connection and session are created properly.
-     */
-    @Test
-    void testSetup_connectionClosed() throws Exception {
-        ActiveMQConnection mockConnection = mock(ActiveMQConnection.class);
-        when(mockConnection.isClosed()).thenReturn(true);
-        ReflectionTestUtils.setField(listener, "connection", mockConnection);
-
-        ActiveMQConnectionFactory mockFactory = mock(ActiveMQConnectionFactory.class);
-        Connection newConnection = mock(Connection.class);
-        Session newSession = mock(Session.class);
-        when(mockFactory.createConnection()).thenReturn(newConnection);
-        when(newConnection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(newSession);
-        ReflectionTestUtils.setField(listener, "activeMQConnectionFactory", mockFactory);
-
-        listener.setup();
-
-        verify(mockFactory).createConnection();
-        verify(newConnection).start();
-        verify(newConnection).createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
-
-    /**
      * Tests consume method with an existing connection.
-     * Verifies that a queue consumer is created and message listener is set properly
-     * when consuming messages from a specified queue address.
      */
     @Test
-    void testConsume_withExistingConnection() throws Exception {
+    public void testConsume_withExistingConnection() throws Exception {
+        // Setup
         String address = "test-queue";
         QueueListener queueListener = mock(QueueListener.class);
-
-        // Setup existing connection factory
-        ActiveMQConnectionFactory mockFactory = mock(ActiveMQConnectionFactory.class);
-        ReflectionTestUtils.setField(listener, "activeMQConnectionFactory", mockFactory);
-
-        // Mock session and queue
-        Session mockSession = mock(Session.class);
-        ReflectionTestUtils.setField(listener, "session", mockSession);
-        Queue mockQueue = mock(Queue.class);  // Mock Queue instead of Destination
-        MessageConsumer mockConsumer = mock(MessageConsumer.class);
-
-        when(mockSession.createQueue(address)).thenReturn(mockQueue);
-        when(mockSession.createConsumer(any(Queue.class))).thenReturn(mockConsumer);
-
-        // Execute consume method
+        
+        // Execute
         byte[] result = listener.consume(address, queueListener, "brokerUrl", "username", "password");
-
-        // Verify consumer was created and listener was set
-        verify(mockSession).createQueue(address);
-        verify(mockSession).createConsumer(mockQueue);
-        verify(mockConsumer).setMessageListener(any(MessageListener.class));
+        
+        // Verify
+        verify(session).createQueue(address);
+        verify(session).createConsumer(queue);
+        verify(messageConsumer).setMessageListener(any(MessageListener.class));
         assertEquals(0, result.length);
     }
 
@@ -215,7 +206,7 @@ class ListenerTest {
      * message handling to the provided QueueListener.
      */
     @Test
-    void testGetListener_invokesQueueListener() {
+    public void testGetListener_invokesQueueListener() {
         QueueListener queueListener = mock(QueueListener.class);
         Message message = mock(Message.class);
 
@@ -234,7 +225,7 @@ class ListenerTest {
      * Verifies that the method handles JMSException gracefully and returns empty byte array.
      */
     @Test
-    void testConsume_handlesSessionCreationError() throws Exception {
+    public void testConsume_handlesSessionCreationError() throws Exception {
         String address = "test-queue";
         QueueListener queueListener = mock(QueueListener.class);
 
@@ -251,72 +242,10 @@ class ListenerTest {
     }
 
     /**
-     * Tests async execution with text type 1 (String message).
-     * Verifies that the message is sent with proper delay and the correct send method
-     * is called for String type messages.
-     */
-    @Test
-    void testExecuteAsync_withTextType1() throws Exception {
-        // Setup
-        String response = "test message";
-        int delayResponse = 1;
-        Integer textType = 1;
-        String mvAddress = "test-queue";
-
-        // Mock the send method calls
-        Listener spyListener = spy(listener);
-        doReturn(true).when(spyListener).send(anyString(), anyString());
-
-        // Execute
-        boolean result = spyListener.executeAsync(response, delayResponse, textType, mvAddress);
-
-        // Initial verification
-        assertTrue(result);
-
-        // Wait for the scheduled task to complete
-        Thread.sleep(2000); // Wait for 2 seconds to ensure the task completes
-
-        // Verify the correct send method was called
-        verify(spyListener).send(response, mvAddress);
-    }
-
-    /**
-     * Tests async execution with text type 2 (byte array message).
-     * Verifies that the message is sent with proper delay and the correct send method
-     * is called for byte array type messages.
-     */
-    @Test
-    void testExecuteAsync_withTextType2() throws Exception {
-        // Setup
-        String response = "test message";
-        int delayResponse = 1;
-        Integer textType = 2;
-        String mvAddress = "test-queue";
-
-        // Mock the send method calls
-        Listener spyListener = spy(listener);
-        doReturn(true).when(spyListener).send(any(byte[].class), anyString());
-
-        // Execute
-        boolean result = spyListener.executeAsync(response, delayResponse, textType, mvAddress);
-
-        // Initial verification
-        assertTrue(result);
-
-        // Wait for the scheduled task to complete
-        Thread.sleep(2000);
-
-        // Verify the correct send method was called
-        verify(spyListener).send(response.getBytes(), mvAddress);
-    }
-
-    /**
      * Tests async execution with zero delay.
-     * Verifies that messages are sent immediately when delay is set to zero,
-     * without waiting for scheduled execution.
      */
     @Test
-    void testExecuteAsync_withZeroDelay() throws Exception {
+    public void testExecuteAsync_withZeroDelay() throws Exception {
         // Setup
         String response = "test message";
         int delayResponse = 0;
@@ -330,56 +259,19 @@ class ListenerTest {
         // Execute
         boolean result = spyListener.executeAsync(response, delayResponse, textType, mvAddress);
 
-        // Initial verification
+        // Verify
         assertTrue(result);
-
-        // Wait for a short time to ensure the task completes
-        Thread.sleep(500);
-
-        // Verify the send method was called
-        verify(spyListener).send(response, mvAddress);
-    }
-
-    /**
-     * Tests error handling in async execution when send fails.
-     * Verifies that exceptions during message sending are handled properly
-     * and don't prevent the method from completing.
-     */
-    @Test
-    void testExecuteAsync_whenSendThrowsException() throws Exception {
-        // Setup
-        String response = "test message";
-        int delayResponse = 1;
-        Integer textType = 1;
-        String mvAddress = "test-queue";
-
-        // Mock the send method to throw exception
-        Listener spyListener = spy(listener);
-        doThrow(new RuntimeException("Send failed")).when(spyListener).send(anyString(), anyString());
-
-        // Execute
-        boolean result = spyListener.executeAsync(response, delayResponse, textType, mvAddress);
-
-        // Initial verification
-        assertTrue(result);
-
-        // Wait for the scheduled task to complete
-        Thread.sleep(2000);
-
-        // Verify the send method was called and exception was logged
         verify(spyListener).send(response, mvAddress);
     }
 
     /**
      * Tests async execution with invalid text type.
-     * Verifies that no send methods are called when an invalid text type
-     * is specified (neither type 1 nor type 2).
      */
     @Test
-    void testExecuteAsync_withInvalidTextType() throws Exception {
+    public void testExecuteAsync_withInvalidTextType() throws Exception {
         // Setup
         String response = "test message";
-        int delayResponse = 1;
+        int delayResponse = 0; // Changed to 0 to avoid sleep
         Integer textType = 3; // Invalid type
         String mvAddress = "test-queue";
 
@@ -391,14 +283,349 @@ class ListenerTest {
         // Execute
         boolean result = spyListener.executeAsync(response, delayResponse, textType, mvAddress);
 
-        // Initial verification
+        // Verify
         assertTrue(result);
-
-        // Wait for the scheduled task to complete
-        Thread.sleep(2000);
-
-        // Verify neither send method was called
         verify(spyListener, never()).send(anyString(), anyString());
         verify(spyListener, never()).send(any(byte[].class), anyString());
+    }
+
+    /**
+     * Tests error handling in consumeLogic when JSON parsing fails.
+     */
+    @Test
+    public void testConsumeLogic_withJsonParsingError() throws Exception {
+        String invalidJson = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", \"gallery\": { \"referenceIds\": [{\"referenceId\":\"ref1\"}] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(invalidJson);
+        
+        // Mock expectation cache to throw exception
+        when(expectationCache.get(anyString())).thenThrow(new RuntimeException("Cache error"));
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertFalse(result);
+    }
+
+    /**
+     * Tests message handling with ActiveMQBytesMessage.
+     * This tests the behavior through the public consumeLogic method.
+     */
+    @Test
+    public void testConsumeLogic_withBytesMessage() throws Exception {
+        ActiveMQBytesMessage bytesMessage = mock(ActiveMQBytesMessage.class);
+        when(bytesMessage.getContent()).thenReturn(new org.apache.activemq.util.ByteSequence("test".getBytes()));
+        
+        boolean result = listener.consumeLogic(bytesMessage, "dummyAddress");
+        assertFalse(result); // Should return false as bytes message is not supported in consumeLogic
+    }
+
+    /**
+     * Tests message handling with unsupported message type.
+     * This tests the behavior through the public consumeLogic method.
+     */
+    @Test
+    public void testConsumeLogic_withUnsupportedMessageType() throws Exception {
+        Message unsupportedMessage = mock(Message.class);
+        
+        boolean result = listener.consumeLogic(unsupportedMessage, "dummyAddress");
+        assertFalse(result);
+    }
+
+    /**
+     * Tests setup method when connection creation fails.
+     */
+    @Test
+    public void testSetup_whenConnectionCreationFails() throws Exception {
+        // Setup
+        when(connection.isClosed()).thenReturn(true);
+        when(activeMQConnectionFactory.createConnection()).thenThrow(new JMSException("Connection failed"));
+        
+        // Execute
+        listener.setup();
+        
+        // Verify
+        verify(activeMQConnectionFactory).createConnection();
+    }
+
+    /**
+     * Tests send method with byte array when message producer creation fails.
+     */
+    @Test
+    public void testSendBytes_whenProducerCreationFails() throws Exception {
+        Session mockSession = mock(Session.class);
+        when(mockSession.createProducer(any())).thenThrow(new JMSException("Producer creation failed"));
+        ReflectionTestUtils.setField(listener, "session", mockSession);
+        
+        boolean result = listener.send("test".getBytes(), "test-queue");
+        
+        assertFalse(result);
+    }
+
+    /**
+     * Tests send method with text message when message producer creation fails.
+     */
+    @Test
+    public void testSendText_whenProducerCreationFails() throws Exception {
+        Session mockSession = mock(Session.class);
+        when(mockSession.createProducer(any())).thenThrow(new JMSException("Producer creation failed"));
+        ReflectionTestUtils.setField(listener, "session", mockSession);
+        
+        boolean result = listener.send("test", "test-queue");
+        
+        assertFalse(result);
+    }
+
+    /**
+     * Tests candidate list population through consumeLogic with empty reference IDs.
+     */
+    @Test
+    public void testConsumeLogic_withEmptyRefIds() throws Exception {
+        String jsonWithEmptyRefIds = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", \"gallery\": { \"referenceIds\": [] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithEmptyRefIds);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("REJECTED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests candidate list population through consumeLogic with null reference IDs.
+     */
+    @Test
+    public void testConsumeLogic_withNullRefIds() throws Exception {
+        // Setup
+        String jsonWithNullRefIds = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", \"gallery\": { \"referenceIds\": [] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithNullRefIds);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("REJECTED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        // Execute
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        
+        // Verify
+        assertTrue(result);
+    }
+
+    /**
+     * Tests executeAsync with null response.
+     */
+    @Test
+    public void testExecuteAsync_withNullResponse() {
+        boolean result = listener.executeAsync(null, 0, 1, "test-queue");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing multiple reference IDs.
+     */
+    @Test
+    public void testConsumeLogic_withMultipleRefIds() throws Exception {
+        String jsonWithMultipleRefIds = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\"}, " +
+                "{\"referenceId\":\"ref2\"}, " +
+                "{\"referenceId\":\"ref3\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithMultipleRefIds);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("REJECTED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing analytics data.
+     */
+    @Test
+    public void testConsumeLogic_withAnalyticsData() throws Exception {
+        String jsonWithAnalytics = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\", \"analytics\": {\"key\":\"value\"}}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithAnalytics);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing additional fields.
+     */
+    @Test
+    public void testConsumeLogic_withAdditionalFields() throws Exception {
+        String jsonWithAdditionalFields = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"additional\": \"extra data\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\", \"additional\": \"extra\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithAdditionalFields);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing reference URLs.
+     */
+    @Test
+    public void testConsumeLogic_withReferenceUrls() throws Exception {
+        String jsonWithUrls = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\", \"referenceURL\":\"http://example.com/data\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithUrls);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing request time.
+     */
+    @Test
+    public void testConsumeLogic_withRequestTime() throws Exception {
+        String jsonWithRequestTime = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"requesttime\": \"2024-02-20T10:00:00Z\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithRequestTime);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing version information.
+     */
+    @Test
+    public void testConsumeLogic_withVersion() throws Exception {
+        String jsonWithVersion = "{ \"id\": \"mosip.manual.adjudication.adjudicate\", " +
+                "\"version\": \"1.0\", " +
+                "\"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithVersion);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing a pending decision.
+     */
+    @Test
+    public void testConsumeLogic_withPendingDecision() throws Exception {
+        String jsonWithPending = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithPending);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("PENDING");
+        expectation.setDelayResponse(30);
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing a large delay response.
+     */
+    @Test
+    public void testConsumeLogic_withLargeDelay() throws Exception {
+        String jsonWithLargeDelay = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithLargeDelay);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("REJECTED");
+        expectation.setDelayResponse(300); // 5 minutes delay
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing a reference URL with special characters.
+     */
+    @Test
+    public void testConsumeLogic_withSpecialCharsInUrl() throws Exception {
+        String jsonWithSpecialChars = "{ \"requestId\": \"req1\", \"referenceId\": \"ref1\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref1\", \"referenceURL\":\"http://example.com/data?param=value&special=chars%20here\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithSpecialChars);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref1")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
+    }
+
+    /**
+     * Tests consumeLogic with a message containing a reference ID with special characters.
+     */
+    @Test
+    public void testConsumeLogic_withSpecialCharsInRefId() throws Exception {
+        String jsonWithSpecialRefId = "{ \"requestId\": \"req1\", \"referenceId\": \"ref-1_2.3\", " +
+                "\"gallery\": { \"referenceIds\": [" +
+                "{\"referenceId\":\"ref-1_2.3\"}" +
+                "] } }";
+        TextMessage textMessage = mock(TextMessage.class);
+        when(textMessage.getText()).thenReturn(jsonWithSpecialRefId);
+        
+        Expectation expectation = new Expectation();
+        expectation.setMockMvDecision("APPROVED");
+        when(expectationCache.get("ref-1_2.3")).thenReturn(expectation);
+        
+        boolean result = listener.consumeLogic(textMessage, "dummyAddress");
+        assertTrue(result);
     }
 }

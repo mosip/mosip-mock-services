@@ -118,7 +118,7 @@ public class 	ProxyAbisConfigController {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
-		logger.info("Delete expectation: {}", sanitizeForLog(id));
+		logger.info("Delete expectation");
 
 		try {
 			proxyAbisConfigService.deleteExpectation(id);
@@ -128,12 +128,6 @@ public class 	ProxyAbisConfigController {
 			throw new AbisException(AbisErrorCode.DELETE_EXPECTATION_EXCEPTION.getErrorCode(),
 					AbisErrorCode.DELETE_EXPECTATION_EXCEPTION.getErrorMessage() + " " + exp.getLocalizedMessage());
 		}
-	}
-
-	//Helper method to sanitize log messages
-	private String sanitizeForLog(String input) {
-		if (input == null) return null;
-		return input.replaceAll("[\\r\\n]", "_"); // Remove log injection risk
 	}
 
 	/**
@@ -265,9 +259,7 @@ public class 	ProxyAbisConfigController {
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<List<String>> getCacheByHash(@PathVariable String hash) {
 
-		String maskedHash = maskHash(hash);
-
-		logger.info("Get cached biometrics by hash: {}", maskedHash);
+		logger.info("Get cached biometrics by hash: {}", hash);
 		try {
 			return new ResponseEntity<>(proxyAbisConfigService.getCachedBiometric(hash), HttpStatus.OK);
 		} catch (Exception exp) {
@@ -275,15 +267,6 @@ public class 	ProxyAbisConfigController {
 			throw new AbisException(AbisErrorCode.INVALID_CACHE_EXCEPTION.getErrorCode(),
 					AbisErrorCode.INVALID_CACHE_EXCEPTION.getErrorMessage() + " " + exp.getLocalizedMessage());
 		}
-	}
-
-	//Helper method to mask the hash for logging
-	private String maskHash(String hash) {
-		// Masking the hash by showing only the first 8 characters for visibility
-		if (hash != null && hash.length() > 8) {
-			return hash.substring(0, 8) + "...";  // Show only the first 8 characters and hide the rest
-		}
-		return hash;  // If the hash is short, just return it as is
 	}
 
 	/**
