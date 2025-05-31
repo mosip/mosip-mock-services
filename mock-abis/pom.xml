@@ -53,7 +53,7 @@
 
         <!-- Sonar -->
         <sonar.exclusions>
-            **/dto/**,**/entity/**,**/dao/**,**/exception/**,**/configuration/**,**/OpenApiProperties.java
+            **/dto/**,**/entity/**,**/dao/**,**/exception/**,**/configuration/**
         </sonar.exclusions>
 
         <!-- Mosip -->

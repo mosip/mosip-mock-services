@@ -55,7 +55,7 @@
 
 		<!-- Sonar -->
 		<sonar.exclusions>
-			**/constant/**,**/dto/**,**/exception/**,**/config/**
+			**/constant/**,**/dto/**
 		</sonar.exclusions>
 
 		<!-- Mosip -->
