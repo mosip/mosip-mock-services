@@ -6,12 +6,6 @@ import org.mockito.Mockito;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-
 class ProxyMvApplicationTest {
 
     /**
@@ -22,17 +16,22 @@ class ProxyMvApplicationTest {
      */
     @Test
     void main_ValidInvocation_CallsExpectedMethods() {
-        ConfigurableApplicationContext mockContext = mock(ConfigurableApplicationContext.class);
-        Listener mockListener = mock(Listener.class);
+        ConfigurableApplicationContext mockContext = Mockito.mock(ConfigurableApplicationContext.class);
+        Listener mockListener = Mockito.mock(Listener.class);
 
-        try (var mockedSpringApp = Mockito.mockStatic(SpringApplication.class)) {
-            mockedSpringApp.when(() -> SpringApplication.run(eq(ProxyMvApplication.class), any(String[].class)))
-                    .thenReturn(mockContext);
+        try (MockedStatic<SpringApplication> mockedSpringApp = Mockito.mockStatic(SpringApplication.class)) {
+            mockedSpringApp
+                .when(() -> SpringApplication.run(Mockito.eq(ProxyMvApplication.class), Mockito.any(String[].class)))
+                .thenReturn(mockContext);
 
-            when(mockContext.getBean(Listener.class)).thenReturn(mockListener);
+            Mockito.when(mockContext.getBean(Listener.class)).thenReturn(mockListener);
+
+            // Call the main method
             ProxyMvApplication.main(new String[]{});
-            verify(mockListener).runAdjudicationQueue();
-            verify(mockListener).runVerificationQueue();
+
+            // Verify expected method calls
+            Mockito.verify(mockListener).runAdjudicationQueue();
+            Mockito.verify(mockListener).runVerificationQueue();
         }
     }
 }

@@ -73,6 +73,7 @@
 		<kernel.biometrics.api.version>1.3.0-beta.1</kernel.biometrics.api.version>
 	</properties>
 
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -84,6 +85,11 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+        <!-- Sonar -->
+        <sonar.exclusions>
+            **/dto/**,**/entity/**,**/dao/**,**/exception/**,**/configuration/**
+        </sonar.exclusions>
 
 	<dependencies>
 		<dependency>
