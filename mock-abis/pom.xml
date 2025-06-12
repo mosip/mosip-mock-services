@@ -38,6 +38,26 @@
 		<nexus.staging.maven.plugin.version>1.6.14</nexus.staging.maven.plugin.version>
 		<spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
 
+        <!-- maven -->
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
+        <maven.war.plugin.version>3.1.0</maven.war.plugin.version>
+        <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+        <maven.shade.plugin.version>2.3</maven.shade.plugin.version>
+        <jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>
+        <maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
+        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+        <maven.gpg.plugin.version>3.2.3</maven.gpg.plugin.version>
+        <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
+        <maven.war.plugin.version>3.1.0</maven.war.plugin.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+        <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
+        <nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
+        <spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
+
 		<!-- git -->
 		<git.commit.id.plugin.version>3.0.1</git.commit.id.plugin.version>
 
@@ -355,6 +375,7 @@
 		</repository>
 	</repositories>
 
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -372,6 +393,51 @@
 			<url>https://www.mozilla.org/en-US/MPL/2.0/</url>
 		</license>
 	</licenses>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <skipTests>${skipTests}</skipTests>
+                    <skip>false</skip>
+                    <argLine>
+                        --add-modules=ALL-SYSTEM
+                        --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.lang.stream=ALL-UNNAMED
+                        --add-opens java.base/java.time=ALL-UNNAMED
+                        --add-opens java.base/java.time.LocalDate=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.time.LocalDateTime=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.time.LocalDateTime.date=ALL-UNNAMED
+                        --enable-preview
+                    </argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven.gpg.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 	<scm>
 		<connection>scm:git:git://github.com/mosip/mosip-mock-services.git</connection>
