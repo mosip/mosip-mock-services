@@ -655,7 +655,8 @@ public class Listener {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("An unexpected error occurred.", e); // Logs stack trace securely if configured
+			// Optionally rethrow or handle the exception gracefully
 		}
 
 	}
