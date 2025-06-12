@@ -33,7 +33,7 @@
         <maven.gpg.plugin.version>3.2.3</maven.gpg.plugin.version>
         <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
         <maven.war.plugin.version>3.1.0</maven.war.plugin.version>
-        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
         <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
         <nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
         <spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
@@ -310,7 +310,6 @@
                     <skipTests>${skipTests}</skipTests>
                     <skip>false</skip>
                     <argLine>
-                        ${argLine}
                         --add-modules=ALL-SYSTEM
                         --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
                         --add-opens java.base/java.lang.reflect=ALL-UNNAMED
