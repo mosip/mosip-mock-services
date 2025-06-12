@@ -35,83 +35,83 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests the port getter and setter methods
-     * Verifies that port value is correctly set and retrieved
+     * Tests port getter and setter
+     * Verifies the port value is correctly set and retrieved
      */
     @Test
-    void testPortGetterAndSetter() {
+    void portGetterAndSetter_ReturnsCorrectPortValue() {
         serviceResponse.setPort(9090);
         assertEquals(9090, serviceResponse.getPort());
     }
 
     /**
-     * Tests the request getter and setter methods
-     * Verifies correct storage and retrieval of JSON request string
+     * Tests JSON request setter and getter
+     * Verifies the correct storage and retrieval of JSON request string
      */
     @Test
-    void testRequestGetterAndSetter() {
+    void requestGetterAndSetter_StoresAndRetrievesJsonRequest() {
         String testRequest = "{\"key\":\"value\"}";
         serviceResponse.setRequest(testRequest);
         assertEquals(testRequest, serviceResponse.getRequest());
     }
 
     /**
-     * Tests the static semaphore getter and setter methods
-     * Verifies thread synchronization mechanism is working correctly
+     * Tests static semaphore getter and setter
+     * Verifies the thread synchronization mechanism is working correctly
      */
     @Test
-    void testSemaphoreGetterAndSetter() {
+    void semaphoreGetterAndSetter_ValidatesThreadSynchronization() {
         Semaphore newSemaphore = new Semaphore(2);
         SBIServiceResponse.setSemaphore(newSemaphore);
         assertEquals(newSemaphore, SBIServiceResponse.getSemaphore());
     }
 
     /**
-     * Tests handling of null requests in getRequestJson method
-     * Verifies null is returned when request is null
+     * Tests getRequestJson behavior when the request is null
+     * Expects null to be returned
      */
     @Test
-    void testGetRequestJsonWithNullRequest() {
+    void getRequestJson_WithNullRequest_ReturnsNull() {
         serviceResponse.setRequest(null);
         assertNull(serviceResponse.getRequestJson("ANY_VERB"));
     }
 
     /**
-     * Tests handling of invalid JSON in getRequestJson method
-     * Verifies null is returned for malformed JSON
+     * Tests getRequestJson behavior with invalid JSON string
+     * Expects null to be returned
      */
     @Test
-    void testGetRequestJsonWithInvalidRequest() {
+    void getRequestJson_WithInvalidRequest_ReturnsNull() {
         serviceResponse.setRequest("invalid json");
         assertNull(serviceResponse.getRequestJson("ANY_VERB"));
     }
 
     /**
-     * Tests response generation for empty requests
-     * Verifies 405 status code is returned
+     * Tests service response generation with empty request string
+     * Verifies HTTP 405 response is returned
      */
     @Test
-    void testGetServiceresponseWithEmptyRequest() {
+    void getServiceresponse_WithEmptyRequest_Returns405() {
         String response = serviceResponse.getServiceresponse(mockService, socket, "");
         assertTrue(response.contains("HTTP/1.1 405 OK"));
     }
 
     /**
-     * Tests response generation for unknown HTTP verbs
-     * Verifies 500 status code is returned
+     * Tests service response with an unknown HTTP verb
+     * Verifies HTTP 500 status is returned
      */
     @Test
-    void testGetServiceresponseWithUnknownVerb() {
+    void getServiceresponse_WithUnknownVerb_Returns500() {
         String response = serviceResponse.getServiceresponse(mockService, socket, "UNKNOWN_VERB");
         assertTrue(response.contains("500"));
     }
 
     /**
-     * Tests handling of valid JSON requests
-     * Verifies proper HTTP response is generated
+     * Tests service response with valid JSON and matching HTTP verb
+     * Verifies non-null HTTP response containing status line
      */
     @Test
-    void testGetServiceresponseWithValidJson() {
+    void getServiceresponse_WithValidJson_ReturnsHttpResponse() {
         String validJson = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\"}}";
         serviceResponse.setRequest(validJson);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -120,11 +120,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of mismatched HTTP verb and JSON method
-     * Verifies 500 status code is returned
+     * Tests service response with mismatched HTTP verb and JSON method
+     * Verifies HTTP 500 status is returned
      */
     @Test
-    void testGetServiceresponseWithMismatchedVerb() {
+    void getServiceresponse_WithMismatchedVerb_Returns500() {
         String validJson = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\"}}";
         serviceResponse.setRequest(validJson);
         String response = serviceResponse.getServiceresponse(mockService, socket, "INFO");
@@ -132,11 +132,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of malformed JSON requests
-     * Verifies 500 status code is returned for invalid JSON syntax
+     * Tests service response with malformed JSON input
+     * Expects HTTP 500 response due to malformed syntax
      */
     @Test
-    void testGetServiceresponseWithMalformedJson() {
+    void getServiceresponse_WithMalformedJson_Returns500() {
         String invalidJson = "{method:CAPTURE,data:{}}";
         serviceResponse.setRequest(invalidJson);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -144,11 +144,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of null socket parameter
-     * Verifies 500 status code is returned
+     * Tests service response behavior when socket parameter is null
+     * Verifies HTTP 500 error response
      */
     @Test
-    void testGetServiceresponseWithNullSocket() {
+    void getServiceresponse_WithNullSocket_Returns500() {
         String validJson = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\"}}";
         serviceResponse.setRequest(validJson);
         String response = serviceResponse.getServiceresponse(mockService, null, "CAPTURE");
@@ -156,11 +156,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of null mock service
-     * Verifies 500 status code is returned
+     * Tests service response behavior when mock service parameter is null
+     * Verifies HTTP 500 error response
      */
     @Test
-    void testGetServiceresponseWithNullMockService() {
+    void getServiceresponse_WithNullMockService_Returns500() {
         String validJson = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\"}}";
         serviceResponse.setRequest(validJson);
         String response = serviceResponse.getServiceresponse(null, socket, "CAPTURE");
@@ -168,11 +168,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of JSON without required method field
-     * Verifies 500 status code is returned
+     * Tests service response for JSON without required "method" field
+     * Verifies HTTP 500 error response
      */
     @Test
-    void testGetServiceresponseWithoutMethod() {
+    void getServiceresponse_WithoutMethod_Returns500() {
         String jsonWithoutMethod = "{\"data\":{\"type\":\"Finger\"}}";
         serviceResponse.setRequest(jsonWithoutMethod);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -180,11 +180,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of empty JSON objects
-     * Verifies 500 status code is returned
+     * Tests service response with empty JSON object
+     * Verifies HTTP 500 error response
      */
     @Test
-    void testGetServiceresponseWithEmptyJson() {
+    void getServiceresponse_WithEmptyJson_Returns500() {
         String emptyJson = "{}";
         serviceResponse.setRequest(emptyJson);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -192,11 +192,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of large JSON requests
-     * Verifies proper handling of requests with large payload
+     * Tests handling of a large JSON request payload
+     * Verifies that the service responds properly without exceptions
      */
     @Test
-    void testGetServiceresponseWithLargeRequest() {
+    void getServiceresponse_WithLargeRequest_HandlesLargePayload() {
         StringBuilder largeJson = new StringBuilder("{\"method\":\"CAPTURE\",\"data\":{\"value\":\"");
         for (int i = 0; i < 10000; i++) {
             largeJson.append("x");
@@ -208,11 +208,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests concurrent access to service response
-     * Verifies thread safety using semaphore
+     * Tests concurrent access to SBIServiceResponse using semaphore
+     * Verifies thread-safety when multiple threads invoke the service
      */
     @Test
-    void testConcurrentSemaphoreAccess() throws InterruptedException {
+    void concurrentSemaphoreAccess_VerifiesThreadSafety() throws InterruptedException {
         Semaphore sem = new Semaphore(1);
         SBIServiceResponse.setSemaphore(sem);
 
@@ -233,32 +233,32 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of non-JSON string requests
-     * Verifies null is returned for plain text input
+     * Tests getRequestJson behavior with plain non-JSON string input
+     * Verifies that null is returned
      */
     @Test
-    void testGetRequestJsonWithNonJsonString() {
+    void getRequestJson_WithNonJsonString_ReturnsNull() {
         serviceResponse.setRequest("plain text");
         assertNull(serviceResponse.getRequestJson("CAPTURE"));
     }
 
     /**
-     * Tests response generation with null request content
-     * Verifies 500 status code is returned
+     * Tests service response with valid HTTP verb but null request content
+     * Expects HTTP 500 error response
      */
     @Test
-    void testGetServiceresponseWithValidVerbNullRequest() {
+    void getServiceresponse_WithValidVerbAndNullRequest_Returns500() {
         serviceResponse.setRequest(null);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
         assertTrue(response.contains("500"));
     }
 
     /**
-     * Tests handling of JSON with special characters
-     * Verifies proper handling of special characters in request
+     * Tests handling of special characters within JSON request
+     * Verifies that service returns a valid HTTP response
      */
     @Test
-    void testGetServiceresponseWithSpecialCharacters() {
+    void getServiceresponse_WithSpecialCharacters_HandlesSpecialChars() {
         String jsonWithSpecialChars = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\",\"value\":\"!@#$%^&*()\"}}}";
         serviceResponse.setRequest(jsonWithSpecialChars);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -266,11 +266,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of nested JSON objects
-     * Verifies proper handling of complex JSON structures
+     * Tests handling of nested JSON objects in request payload
+     * Verifies service responds correctly with complex JSON
      */
     @Test
-    void testGetServiceresponseWithNestedJson() {
+    void getServiceresponse_WithNestedJson_HandlesComplexStructures() {
         String nestedJson = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\",\"nested\":{\"key\":\"value\"}}}";
         serviceResponse.setRequest(nestedJson);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -278,11 +278,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of JSON arrays in request
-     * Verifies proper handling of array data structures
+     * Tests request containing JSON arrays
+     * Verifies service handles array data without error
      */
     @Test
-    void testGetServiceresponseWithJsonArray() {
+    void getServiceresponse_WithJsonArray_HandlesArrayStructures() {
         String jsonWithArray = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\",\"values\":[1,2,3]}}";
         serviceResponse.setRequest(jsonWithArray);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -290,11 +290,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of Unicode characters in JSON
-     * Verifies proper handling of Unicode encoded strings
+     * Tests handling of Unicode-encoded strings in JSON request
+     * Verifies proper decoding and processing
      */
     @Test
-    void testGetServiceresponseWithUnicodeCharacters() {
+    void getServiceresponse_WithUnicodeCharacters_HandlesUnicode() {
         String jsonWithUnicode = "{\"method\":\"CAPTURE\",\"data\":{\"type\":\"Finger\",\"value\":\"\\u0041\\u0042\\u0043\"}}";
         serviceResponse.setRequest(jsonWithUnicode);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -302,11 +302,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests case sensitivity of method field
-     * Verifies proper handling of case-sensitive method names
+     * Tests case sensitivity of JSON "method" field
+     * Verifies service returns error for lowercase method
      */
     @Test
-    void testGetServiceresponseWithCaseSensitiveMethod() {
+    void getServiceresponse_WithCaseSensitiveMethod_Returns500() {
         String lowerCaseJson = "{\"method\":\"capture\",\"data\":{\"type\":\"Finger\"}}";
         serviceResponse.setRequest(lowerCaseJson);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -314,11 +314,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests handling of whitespace in JSON
-     * Verifies proper handling of formatted JSON with extra whitespace
+     * Tests handling of JSON with extra whitespace and formatting
+     * Verifies service processes formatted JSON correctly
      */
     @Test
-    void testGetServiceresponseWithWhitespace() {
+    void getServiceresponse_WithWhitespace_HandlesFormattedJson() {
         String jsonWithWhitespace = "   {  \"method\"  :  \"CAPTURE\" , \"data\" : { \"type\" : \"Finger\" }  }   ";
         serviceResponse.setRequest(jsonWithWhitespace);
         String response = serviceResponse.getServiceresponse(mockService, socket, "CAPTURE");
@@ -326,11 +326,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests trimBeginEnd method with various certificate formats
-     * Verifies proper trimming of certificate headers and footers
+     * Tests trimming of certificate strings for various header/footer formats
+     * Verifies that only the body content remains
      */
     @Test
-    void testTrimBeginEndWithVariousFormats() throws Exception {
+    void trimBeginEnd_WithVariousFormats_TrimsCertificateHeaders() throws Exception {
         java.lang.reflect.Method trimMethod = SBIServiceResponse.class.getDeclaredMethod("trimBeginEnd", String.class);
         trimMethod.setAccessible(true);
 
@@ -344,11 +344,11 @@ class SBIServiceResponseTest {
     }
 
     /**
-     * Tests delay method with thread interruption
-     * Verifies proper handling of interrupted delay operations
+     * Tests the delay method handling interruption correctly
+     * Verifies that InterruptedException does not propagate unexpectedly
      */
     @Test
-    void testDelayWithInterruption() throws Exception {
+    void delay_WithInterruption_HandlesInterruptedDelay() throws Exception {
         java.lang.reflect.Method delayMethod = SBIServiceResponse.class.getDeclaredMethod("delay", long.class);
         delayMethod.setAccessible(true);
 

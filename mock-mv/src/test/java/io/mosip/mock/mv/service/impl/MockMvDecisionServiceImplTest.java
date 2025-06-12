@@ -42,7 +42,7 @@ class MockMvDecisionServiceImplTest {
      * 2. Updated decision value is reflected properly
      */
     @Test
-    void testGetAndSetMockMvDecision() {
+    void getAndSetMockMvDecision_ValidDecisions_ReturnsExpectedValues() {
         service.setMockMvDecision("DECISION_1");
         assertEquals("DECISION_1", service.getMockMvDecision());
 
@@ -56,7 +56,7 @@ class MockMvDecisionServiceImplTest {
      * and returns the expected map of expectations.
      */
     @Test
-    void testGetExpectations() {
+    void getExpectations_ValidCache_ReturnsExpectationMap() {
         Map<String, Expectation> dummyMap = Collections.singletonMap("id1", new Expectation());
         when(expectationCache.get()).thenReturn(dummyMap);
 
@@ -71,7 +71,7 @@ class MockMvDecisionServiceImplTest {
      * operation to the cache.
      */
     @Test
-    void testSetExpectation() {
+    void setExpectation_ValidExpectation_InsertsIntoCache() {
         Expectation exp = new Expectation();
         service.setExpectation(exp);
         verify(expectationCache).insert(exp);
@@ -83,7 +83,7 @@ class MockMvDecisionServiceImplTest {
      * operation to the cache with the specified ID.
      */
     @Test
-    void testDeleteExpectation() {
+    void deleteExpectation_ValidId_DeletesFromCache() {
         String testId = "rid1";
         service.deleteExpectation(testId);
         verify(expectationCache).delete(testId);
@@ -95,7 +95,7 @@ class MockMvDecisionServiceImplTest {
      * operation to the cache.
      */
     @Test
-    void testDeleteExpectations() {
+    void deleteExpectations_CallsDeleteAllOnCache() {
         service.deleteExpectations();
         verify(expectationCache).deleteAll();
     }
@@ -106,7 +106,7 @@ class MockMvDecisionServiceImplTest {
      * and returns the expected expectation object.
      */
     @Test
-    void testGetExpectation() {
+    void getExpectation_ValidId_ReturnsExpectedValue() {
         Expectation exp = new Expectation();
         String testId = "rid2";
         when(expectationCache.get(testId)).thenReturn(exp);

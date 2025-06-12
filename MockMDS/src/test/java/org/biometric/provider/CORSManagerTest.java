@@ -14,7 +14,7 @@ class CORSManagerTest {
      * Tests that the CORS configuration allows the expected origin, methods, and headers.
      */
     @Test
-    void testCorsConfiguration() {
+    void corsConfiguration_success() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedMethod("GET");

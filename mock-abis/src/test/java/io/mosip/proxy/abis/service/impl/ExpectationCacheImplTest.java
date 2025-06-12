@@ -35,7 +35,7 @@ class ExpectationCacheImplTest {
      * Verifies that an inserted expectation can be retrieved correctly.
      */
     @Test
-    void testInsertAndGet() {
+    void insertAndGet_validExpectation_returnsInsertedExpectation() {
         Expectation ex = new Expectation();
         ex.setId("123");
 
@@ -51,7 +51,7 @@ class ExpectationCacheImplTest {
      * Verifies that it returns a new empty Expectation object.
      */
     @Test
-    void testGetNonExistingReturnsEmptyObject() {
+    void get_nonExistingKey_returnsEmptyExpectationObject() {
         Expectation result = cache.get("nonexistent");
 
         assertNotNull(result); // Verify the result is not null
@@ -63,7 +63,7 @@ class ExpectationCacheImplTest {
      * Verifies that the key is deleted and a new empty Expectation is returned.
      */
     @Test
-    void testDeleteExisting() {
+    void delete_existingKey_returnsTrueAndReturnsEmptyExpectation() {
         Expectation ex = new Expectation();
         ex.setId("abc");
         cache.insert(ex);
@@ -78,7 +78,7 @@ class ExpectationCacheImplTest {
      * Verifies that it returns false.
      */
     @Test
-    void testDeleteNonExisting() {
+    void delete_nonExistingKey_returnsFalse() {
         boolean deleted = cache.delete("not-there");
         assertFalse(deleted); // Verify the deletion was unsuccessful
     }
@@ -88,7 +88,7 @@ class ExpectationCacheImplTest {
      * Verifies that all expectations are cleared from the cache.
      */
     @Test
-    void testDeleteAll() {
+    void deleteAll_multipleExpectations_cacheIsEmptyAfterDeletion() {
         Expectation e1 = new Expectation();
         e1.setId("1");
         Expectation e2 = new Expectation();
@@ -106,7 +106,7 @@ class ExpectationCacheImplTest {
      * Verifies that all inserted expectations are returned.
      */
     @Test
-    void testGetAll() {
+    void get_allExpectations_returnsMapWithInsertedKeys() {
         Expectation e1 = new Expectation();
         e1.setId("one");
         cache.insert(e1);

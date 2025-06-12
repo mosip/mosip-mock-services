@@ -102,7 +102,7 @@ class ProxyAbisControllerTest {
      * Verifies that the controller properly handles valid insert requests and returns OK status.
      */
     @Test
-    void testSaveInsertRequest_Success() throws Exception {
+    void testSaveInsertRequest_WhenValidRequest_ShouldReturnSuccessResponse() throws Exception {
         when(bindingResult.hasErrors()).thenReturn(false);
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenReturn(0);
 
@@ -117,7 +117,7 @@ class ProxyAbisControllerTest {
      * Ensures that requests with validation errors are properly rejected.
      */
     @Test
-    void testSaveInsertRequest_ValidationFailure() {
+    void testSaveInsertRequest_WhenValidationFails_ShouldThrowException() {
         when(bindingResult.hasErrors()).thenReturn(true);
 
         assertThrows(Exception.class, () ->
@@ -129,7 +129,7 @@ class ProxyAbisControllerTest {
      * Verifies proper handling of delete requests and response generation.
      */
     @Test
-    void testDeleteRequest_Success() {
+    void testDeleteRequest_WhenValidRequest_ShouldReturnSuccessResponse() {
         doNothing().when(abisInsertService).deleteData(anyString());
 
         ResponseEntity<Object> response = controller.deleteRequest(validRequest);
@@ -143,7 +143,7 @@ class ProxyAbisControllerTest {
      * Verifies that valid certificate files are properly processed and stored.
      */
     @Test
-    void testUploadCertificate_Success() {
+    void testUploadCertificate_WhenValidFileAndParamsProvided_ShouldReturnSuccessResponse() {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.cert", "application/x-x509-ca-cert", "test content".getBytes());
         when(abisInsertService.saveUploadedFileWithParameters(any(), anyString(), anyString(), anyString()))
@@ -162,7 +162,7 @@ class ProxyAbisControllerTest {
      * Ensures proper error handling when no file content is provided.
      */
     @Test
-    void testUploadCertificate_EmptyFile() {
+    void testUploadCertificate_WhenEmptyFileProvided_ShouldReturnNoContentWithMessage() {
         MockMultipartFile emptyFile = new MockMultipartFile(
                 "file", "empty.cert", "application/x-x509-ca-cert", new byte[0]);
 
@@ -178,7 +178,7 @@ class ProxyAbisControllerTest {
      * Verifies proper handling of biometric identity verification requests.
      */
     @Test
-    void testIdentityRequest_Success() {
+    void testIdentityRequest_WhenValidRequestProvided_ShouldReturnSuccessResponse() {
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
         IdentityResponse identityResponseInstance = new IdentityResponse();
         identifyResponse.setIdentityResponse(identityResponseInstance);
@@ -197,7 +197,7 @@ class ProxyAbisControllerTest {
      * Ensures proper error responses when identity verification fails.
      */
     @Test
-    void testIdentityRequest_Failure() {
+    void testIdentityRequest_WhenServiceThrowsException_ShouldReturnFailureResponse() {
         when(abisInsertService.findDuplication(any(IdentityRequest.class)))
                 .thenThrow(new RequestException("Error"));
 
@@ -212,7 +212,7 @@ class ProxyAbisControllerTest {
      * Verifies proper queuing and processing of insert requests via message listener.
      */
     @Test
-    void testSaveInsertRequestThroughListener_Success() {
+    void testSaveInsertRequestThroughListener_WhenValidRequest_ShouldReturnSuccessResponse() {
         when(abisInsertService.insertData(any(InsertRequestMO.class))).thenReturn(0);
 
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
@@ -227,7 +227,7 @@ class ProxyAbisControllerTest {
      * and returns a valid ResponseMO object.
      */
     @Test
-    void testDeleteRequestThroughListener_Success() {
+    void testDeleteRequestThroughListener_WhenValidRequest_ShouldReturnSuccessResponse() {
         doNothing().when(abisInsertService).deleteData(anyString());
 
         ResponseEntity<Object> response = controller.deleteRequestThroughListner(validRequest, 1);
@@ -242,7 +242,7 @@ class ProxyAbisControllerTest {
      * the controller responds with HTTP OK and returns an IdentityResponse.
      */
     @Test
-    void testIdentityRequestThroughListener_Success() {
+    void testIdentityRequestThroughListener_WhenSuccess_ShouldReturnIdentityResponse() {
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
         IdentityResponse identityResponse = new IdentityResponse();
         identifyResponse.setIdentityResponse(identityResponse);
@@ -264,7 +264,7 @@ class ProxyAbisControllerTest {
      * with HTTP NOT_ACCEPTABLE and returns a FailureResponse.
      */
     @Test
-    void testValidateRequest_InvalidId() {
+    void testSaveInsertRequestThroughListener_InvalidId_ReturnsFailureResponse() {
         validInsertRequest.setId("invalid.id");
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
@@ -277,7 +277,7 @@ class ProxyAbisControllerTest {
      * that the listener's sendToQueue method is invoked with the correct msgType.
      */
     @Test
-    void testAsyncExecution() throws Exception {
+    void testExecuteAsync_SendsMessageToQueue_WithCorrectMsgType() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         ArgumentCaptor<Integer> msgTypeCaptor = ArgumentCaptor.forClass(Integer.class);
         controller.executeAsync(responseEntity, 0, 1);
@@ -290,7 +290,7 @@ class ProxyAbisControllerTest {
      * Verifies that the service is called with the correct ID and the response contains a confirmation message with HTTP OK status.
      */
     @Test
-    void testDeleteRequestThroughListener_Exception() {
+    void testDeleteRequestThroughListener_ExceptionThrown_ReturnsFailureResponse() {
         doThrow(new RequestException("Delete failed"))
                 .when(abisInsertService).deleteData(anyString());
         ResponseEntity<Object> response = controller.deleteRequestThroughListner(validRequest, 1);
@@ -304,7 +304,7 @@ class ProxyAbisControllerTest {
      * responds with HTTP NOT_ACCEPTABLE and returns a FailureResponse.
      */
     @Test
-    void testIdentityRequestThroughListener_ServiceException() {
+    void testIdentityRequestThroughListener_ServiceException_ReturnsFailureResponse() {
         when(abisInsertService.findDuplication(any(IdentityRequest.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
         ResponseEntity<Object> response = controller.identityRequestThroughListner(validIdentityRequest, 1);
@@ -316,7 +316,7 @@ class ProxyAbisControllerTest {
      * Tests that saveInsertRequest throws a NullPointerException when a null request is provided.
      */
     @Test
-    void testSaveInsertRequest_NullRequest() {
+    void testSaveInsertRequest_NullRequest_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class, () ->
                 controller.saveInsertRequest(null, bindingResult));
     }
@@ -325,7 +325,7 @@ class ProxyAbisControllerTest {
      * Tests that deleteRequest throws a NullPointerException when a null request is provided.
      */
     @Test
-    void testDeleteRequest_NullRequest() {
+    void testDeleteRequest_NullRequest_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class, () ->
                 controller.deleteRequest(null));
     }
@@ -334,7 +334,7 @@ class ProxyAbisControllerTest {
      * Tests that identityRequest throws a NullPointerException when a null request is provided.
      */
     @Test
-    void testIdentityRequest_NullRequest() {
+    void testIdentityRequest_NullRequest_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class, () ->
                 controller.identityRequest(null));
     }
@@ -344,7 +344,7 @@ class ProxyAbisControllerTest {
      * The test verifies that the controller returns a NOT_ACCEPTABLE status along with a FailureResponse.
      */
     @Test
-    void testValidateRequest_MissingRequestId() {
+    void testSaveInsertRequestThroughListener_MissingRequestId_ReturnsFailureResponse() {
         validInsertRequest.setRequestId(null);
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
@@ -356,7 +356,7 @@ class ProxyAbisControllerTest {
      * Verifies that the controller returns a NOT_ACCEPTABLE status along with a FailureResponse.
      */
     @Test
-    void testValidateRequest_MissingReferenceId() {
+    void testSaveInsertRequestThroughListener_MissingReferenceId_ReturnsFailureResponse() {
         validInsertRequest.setReferenceId(null);
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
@@ -367,7 +367,7 @@ class ProxyAbisControllerTest {
      * Tests the uploadCertificate method with missing alias.
      */
     @Test
-    void testUploadCertificate_MissingAlias() {
+    void testUploadCertificate_MissingAlias_ReturnsNoContent() {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.cert", "application/x-x509-ca-cert", "test content".getBytes());
         ResponseEntity<String> response = controller.uploadcertificate(
@@ -380,7 +380,7 @@ class ProxyAbisControllerTest {
      * Tests the uploadCertificate method with missing password.
      */
     @Test
-    void testUploadCertificate_MissingPassword() {
+    void testUploadCertificate_MissingPassword_ReturnsNoContent() {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.cert", "application/x-x509-ca-cert", "test content".getBytes());
         ResponseEntity<String> response = controller.uploadcertificate(
@@ -393,7 +393,7 @@ class ProxyAbisControllerTest {
      * Tests validation of invalid version format.
      */
     @Test
-    void testValidateRequest_InvalidVersion() {
+    void testValidateRequest_InvalidVersion_ReturnsNotAcceptable() {
         validInsertRequest.setVersion("invalid");
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
@@ -404,7 +404,7 @@ class ProxyAbisControllerTest {
      * Tests validation of missing request time.
      */
     @Test
-    void testValidateRequest_MissingRequestTime() {
+    void testSaveInsertRequestThroughListener_MissingRequestTime_ReturnsNotAcceptable() {
         validInsertRequest.setRequesttime(null);
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(validInsertRequest, 1);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
@@ -416,7 +416,7 @@ class ProxyAbisControllerTest {
      * Tests timer cleanup in controller.
      */
     @Test
-    void testTimerCleanup() throws Exception {
+    void testExecuteAsync_TimerInitializedAndNotNullAfterDelay() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         controller.executeAsync(responseEntity, 0, 1);
 
@@ -432,7 +432,7 @@ class ProxyAbisControllerTest {
      * Tests executeAsync with UnsupportedEncodingException.
      */
     @Test
-    void testExecuteAsync_UnsupportedEncodingException() throws Exception {
+    void testExecuteAsync_WhenUnsupportedEncodingExceptionThrown() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new UnsupportedEncodingException())
                 .when(listener).sendToQueue(any(), anyInt());
@@ -444,7 +444,7 @@ class ProxyAbisControllerTest {
      * Tests validation errors in saveInsertRequestThroughListner method.
      */
     @Test
-    void testSaveInsertRequestThroughListner_ValidationErrors() {
+    void testSaveInsertRequestThroughListener_WhenValidationFailsDueToMissingFields() {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         ResponseEntity<Object> response = controller.saveInsertRequestThroughListner(request, 1);
@@ -458,7 +458,7 @@ class ProxyAbisControllerTest {
      * Tests identityRequestThroughListner with delayed response.
      */
     @Test
-    void testIdentityRequestThroughListner_WithDelay() {
+    void testIdentityRequestThroughListener_WithArtificialDelay() {
         IdentifyDelayResponse identifyResponse = new IdentifyDelayResponse();
         IdentityResponse identityResponse = new IdentityResponse();
         identifyResponse.setIdentityResponse(identityResponse);
@@ -474,7 +474,7 @@ class ProxyAbisControllerTest {
      * Tests executeAsync with JsonProcessingException.
      */
     @Test
-    void testExecuteAsync_JsonProcessingException() throws Exception {
+    void testExecuteAsync_WhenJsonProcessingExceptionThrownInSendToQueue() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new JsonProcessingException("Test error") {})
                 .when(listener).sendToQueue(any(), anyInt());
@@ -486,7 +486,7 @@ class ProxyAbisControllerTest {
      * Tests getListener method.
      */
     @Test
-    void testGetListener() {
+    void testGetListener_ReturnsExpectedListenerInstance() {
         Listener result = controller.getListener();
         assertEquals(listener, result);
     }
@@ -495,7 +495,7 @@ class ProxyAbisControllerTest {
      * Tests processDeleteRequest with delayed execution.
      */
     @Test
-    void testProcessDeleteRequest_WithDelay() {
+    void testProcessDeleteRequest_WithDelay_ReturnsOkStatusAndResponseMO() {
         doNothing().when(abisInsertService).deleteData(anyString());
         ResponseEntity<Object> response = controller.deleteRequestThroughListner(validRequest, 2);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -509,7 +509,7 @@ class ProxyAbisControllerTest {
      * a FailureResponse that has the default INTERNAL_ERROR_UNKNOWN failure reason.
      */
     @Test
-    void testSaveInsertRequest_RequestExceptionWithNullReason() throws Exception {
+    void testSaveInsertRequest_RequestExceptionWithNullReason_InternalError() throws Exception {
         when(bindingResult.hasErrors()).thenReturn(false);
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
@@ -529,7 +529,7 @@ class ProxyAbisControllerTest {
      * INTERNAL_ERROR_UNKNOWN failure reason as the response body.
      */
     @Test
-    void testDeleteRequest_RequestExceptionWithNullReason() {
+    void testDeleteRequest_RequestExceptionWithNullReason_ReturnsInternalServerErrorAndUnknown() {
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
         doThrow(mockException).when(abisInsertService).deleteData(anyString());
@@ -545,7 +545,7 @@ class ProxyAbisControllerTest {
      * the default INTERNAL_ERROR_UNKNOWN failure reason.
      */
     @Test
-    void testProcessInsertRequest_RequestExceptionWithNullReason() {
+    void testProcessInsertRequest_RequestExceptionWithNullReason_ReturnsOkStatusAndInternalErrorFailureResponse() {
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(null);
         when(mockException.getDelayResponse()).thenReturn(5);
@@ -565,7 +565,7 @@ class ProxyAbisControllerTest {
      * the provided custom error reason.
      */
     @Test
-    void testProcessInsertRequest_RequestExceptionWithCustomReason() {
+    void testProcessInsertRequest_RequestExceptionWithCustomReason_ReturnsOkStatusAndCustomFailureResponse() {
         String customReason = "Custom error reason";
         RequestException mockException = mock(RequestException.class);
         when(mockException.getReasonConstant()).thenReturn(customReason);
@@ -586,7 +586,7 @@ class ProxyAbisControllerTest {
      * and a return value of "2".
      */
     @Test
-    void testSaveInsertRequestThroughListner_RequestExceptionWithNullReason() {
+    void testSaveInsertRequestThroughListner_RequestExceptionWithNullReason_ReturnsOkStatusAndInternalErrorFailureResponse() {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setRequestId("123");
@@ -612,7 +612,7 @@ class ProxyAbisControllerTest {
      * the provided custom error reason and a return value of "2".
      */
     @Test
-    void testSaveInsertRequestThroughListner_RequestExceptionWithCustomReason() {
+    void testSaveInsertRequestThroughListner_RequestExceptionWithCustomReason_ReturnsOkStatusAndCustomFailureResponse() {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setRequestId("123");
@@ -639,7 +639,7 @@ class ProxyAbisControllerTest {
      * and a return value of "2".
      */
     @Test
-    void testSaveInsertRequest_RequestExceptionHandling() throws Exception {
+    void testSaveInsertRequest_RequestExceptionWithNullReason_ReturnsOkStatusAndInternalErrorFailureResponse() throws Exception {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setRequestId("123");
@@ -666,7 +666,7 @@ class ProxyAbisControllerTest {
      * containing the default INTERNAL_ERROR_UNKNOWN failure reason.
      */
     @Test
-    void testIdentityRequest_RequestExceptionHandling() {
+    void testIdentityRequest_RequestExceptionWithNullReason_ReturnsNotAcceptableStatusAndInternalErrorFailureResponse() {
         IdentityRequest request = new IdentityRequest();
         request.setId("test-id");
         request.setRequestId("123");
@@ -690,7 +690,7 @@ class ProxyAbisControllerTest {
      * status with the default INTERNAL_ERROR_UNKNOWN failure reason.
      */
     @Test
-    void testDeleteRequest_RequestExceptionHandling() {
+    void testDeleteRequest_RequestExceptionWithNullReason_ReturnsInternalServerErrorAndUnknownFailureReason() {
         RequestMO request = new RequestMO();
         request.setId("test-id");
         request.setRequestId("123");
@@ -709,7 +709,7 @@ class ProxyAbisControllerTest {
      * Tests exception handling in saveInsertRequest when RequestException has null reason constant.
      */
     @Test
-    void testSaveInsertRequest_RequestExceptionWithNullReasonConstant() throws Exception {
+    void testSaveInsertRequest_RequestExceptionWithNullReasonConstant_ReturnsOkStatusAndInternalErrorFailureResponse() throws Exception {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setVersion("1.0");
@@ -730,7 +730,7 @@ class ProxyAbisControllerTest {
      * Tests exception handling in saveInsertRequest when RequestException has a custom reason constant.
      */
     @Test
-    void testSaveInsertRequest_RequestExceptionWithCustomReason() throws Exception {
+    void testSaveInsertRequest_RequestExceptionWithCustomReason_ReturnsOkStatusWithCustomReasonFailureResponse() throws Exception {
         InsertRequestMO request = new InsertRequestMO();
         request.setId("mosip.abis.insert");
         request.setVersion("1.0");

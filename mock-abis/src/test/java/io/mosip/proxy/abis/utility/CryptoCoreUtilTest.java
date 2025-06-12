@@ -85,7 +85,7 @@ class CryptoCoreUtilTest {
      * Verifies that the static fields are updated with the provided certificate parameters.
      */
     @Test
-    void testSetCertificateValues() {
+    void testSetCertificateValues_UpdatesStaticFields() {
         CryptoCoreUtil.setCertificateValues("new-path", "JKS", "new-password", "new-alias");
 
         assertEquals("new-alias", getStaticFieldValue("alias"));
@@ -100,7 +100,7 @@ class CryptoCoreUtilTest {
      * certificate's getEncoded method is called exactly once.
      */
     @Test
-    void testGetCertificateThumbprint() throws Exception {
+    void testCertificateThumbprint_ReturnsNonNullThumbprintAndCallsGetEncodedOnce() throws Exception {
         byte[] encodedCert = "test-certificate".getBytes();
         when(mockCertificate.getEncoded()).thenReturn(encodedCert);
 
@@ -115,7 +115,7 @@ class CryptoCoreUtilTest {
      * Verifies that when the method throws a RuntimeException, it is correctly propagated.
      */
     @Test
-    void testDecryptCbeffWithException() throws Exception {
+    void testDecryptCbeffWithException_PropagatesRuntimeException() throws Exception {
         CryptoCoreUtil spyCryptoCoreUtil = spy(cryptoCoreUtil);
 
         RuntimeException exception = new RuntimeException("Test exception");
@@ -131,7 +131,7 @@ class CryptoCoreUtilTest {
      * when provided with invalid data and a mock PrivateKeyEntry.
      */
     @Test
-    void testDecryptCbeffDataWithNonceAndAad() throws Exception {
+    void testDecryptCbeffDataWithNonceAndAad_ValidData_ReturnsDecryptedData() throws Exception {
         SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] mockData = "encrypted-data".getBytes();
         byte[] mockNonce = new byte[12];
@@ -163,7 +163,7 @@ class CryptoCoreUtilTest {
      * when the underlying {@code Cipher.getInstance} call fails by throwing a runtime exception.
      */
     @Test
-    void testDecryptCbeffDataThrowsAbisException() throws Exception {
+    void testDecryptCbeffDataThrowsAbisException_CipherGetInstanceThrowsException_ThrowsAbisException() throws Exception {
         SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] mockData = "encrypted-data".getBytes();
 
@@ -184,9 +184,12 @@ class CryptoCoreUtilTest {
         }
     }
 
-    // Tests the parsing of the encryption key header using the VERSION_RSA_2048 value from CryptoCoreUtil.
+    /**
+     * Tests the parsing of the encryption key header using the VERSION_RSA_2048 value from CryptoCoreUtil.
+     * Verifies that the method correctly extracts the version bytes from the encrypted key.
+     */
     @Test
-    void testParseEncryptKeyHeader() throws Exception {
+    void testParseEncryptKeyHeader_ValidHeader_ReturnsVersionBytes() throws Exception {
         byte[] versionRsa2048 = "VER_R2".getBytes();
         byte[] encryptedKey = new byte[versionRsa2048.length + 10];
         System.arraycopy(versionRsa2048, 0, encryptedKey, 0, versionRsa2048.length);
@@ -207,7 +210,7 @@ class CryptoCoreUtilTest {
      * Tests the setPropertyValues method with valid properties file.
      */
     @Test
-    void testSetPropertyValues() throws Exception {
+    void testSetPropertyValues_ValidProperties_UpdatesStaticFields() throws Exception {
         try (MockedStatic<CryptoCoreUtil> mockedCryptoCoreUtil = Mockito.mockStatic(CryptoCoreUtil.class)) {
             ClassLoader mockClassLoader = Thread.currentThread().getContextClassLoader();
             InputStream mockStream = createMockPropertiesStream();
@@ -231,7 +234,7 @@ class CryptoCoreUtilTest {
      * Tests the setPropertyValues method when properties file is not found.
      */
     @Test
-    void testSetPropertyValuesWithMissingFile() throws Exception {
+    void testSetPropertyValues_MissingFile_RetainsExistingValues() throws Exception {
         ReflectionTestUtils.setField(CryptoCoreUtil.class, "certiPassword", "password");
         ReflectionTestUtils.setField(CryptoCoreUtil.class, "alias", "cbeff");
         ReflectionTestUtils.setField(CryptoCoreUtil.class, "keystore", "PKCS12");
@@ -284,7 +287,7 @@ class CryptoCoreUtilTest {
      * Tests the getSplitterIndex method with various inputs.
      */
     @Test
-    void testGetSplitterIndex() throws Exception {
+    void testGetSplitterIndex_SplitterPresent_ReturnsCorrectIndex() throws Exception {
         Method method = CryptoCoreUtil.class.getDeclaredMethod("getSplitterIndex",
                 byte[].class, int.class, String.class);
         method.setAccessible(true);
@@ -306,7 +309,7 @@ class CryptoCoreUtilTest {
      * Tests parsing encrypt key header with invalid version.
      */
     @Test
-    void testParseEncryptKeyHeaderWithInvalidVersion() throws Exception {
+    void testParseEncryptKeyHeader_InvalidVersion_ReturnsEmptyArray() throws Exception {
         byte[] invalidVersion = "INVALID_VERSION".getBytes();
         byte[] encryptedKey = new byte[invalidVersion.length + 10];
         System.arraycopy(invalidVersion, 0, encryptedKey, 0, invalidVersion.length);
@@ -322,7 +325,7 @@ class CryptoCoreUtilTest {
      * Tests decryption with null input data.
      */
     @Test
-    void testDecryptCbeffWithNullInput() {
+    void testDecryptCbeff_NullInput_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class, () -> cryptoCoreUtil.decryptCbeff(null));
     }
 
@@ -330,7 +333,7 @@ class CryptoCoreUtilTest {
      * Tests certificate thumbprint generation with null certificate.
      */
     @Test
-    void testGetCertificateThumbprintWithNullCertificate() {
+    void testGetCertificateThumbprint_NullCertificate_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class,
                 () -> cryptoCoreUtil.getCertificateThumbprint(null));
     }
@@ -339,7 +342,7 @@ class CryptoCoreUtilTest {
      * Tests handling of KeyStore exceptions during private key retrieval.
      */
     @Test
-    void testGetPrivateKeyEntryWithKeyStoreException() throws Exception {
+    void testDecryptCbeff_KeyStoreException_ThrowsException() throws Exception {
         try (MockedStatic<KeyStore> mockedKeyStore = Mockito.mockStatic(KeyStore.class)) {
             mockedKeyStore.when(() -> KeyStore.getInstance(anyString()))
                     .thenThrow(new KeyStoreException("KeyStore error"));
@@ -353,7 +356,7 @@ class CryptoCoreUtilTest {
      * wrapping a NoSuchAlgorithmException when Cipher.getInstance fails.
      */
     @Test
-    void testDecryptRandomSymKey_WithSpecificExceptions() throws Exception {
+    void testDecryptRandomSymKey_NoSuchAlgorithmException_ThrowsInvocationTargetException() throws Exception {
         byte[] encryptedKey = "test-encrypted-key".getBytes();
         Method decryptRandomSymKeyMethod = CryptoCoreUtil.class.getDeclaredMethod("decryptRandomSymKey",
                 PrivateKey.class, byte[].class);
@@ -375,7 +378,7 @@ class CryptoCoreUtilTest {
      * when provided with invalid data and a mock PrivateKeyEntry.
      */
     @Test
-    void testDecryptCbeffDataWithException() throws Exception {
+    void testDecryptCbeffData_InvalidData_ThrowsAbisException() throws Exception {
         byte[] invalidData = "invalid-data".getBytes();
         KeyStore.PrivateKeyEntry mockPrivateKeyEntry = mock(KeyStore.PrivateKeyEntry.class);
         Method decryptCbeffDataMethod = CryptoCoreUtil.class.getDeclaredMethod("decryptCbeffData",
@@ -390,7 +393,7 @@ class CryptoCoreUtilTest {
      * Tests the decryptRandomSymKey method with various cryptographic exceptions.
      */
     @Test
-    void testDecryptRandomSymKeyWithVariousExceptions() throws Exception {
+    void testDecryptRandomSymKey_NoSuchPaddingException_ThrowsInvocationTargetException() throws Exception {
         byte[] encryptedKey = "test-encrypted-key".getBytes();
         Method method = CryptoCoreUtil.class.getDeclaredMethod("decryptRandomSymKey",
                 PrivateKey.class, byte[].class);
@@ -427,7 +430,7 @@ class CryptoCoreUtilTest {
      * Tests the decryptCbeffData method with various cipher operations.
      */
     @Test
-    void testDecryptCbeffDataWithCipherOperations() throws Exception {
+    void testDecryptCbeffData_SuccessfulDecryption_ReturnsDecryptedData() throws Exception {
         SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] mockData = "encrypted-data".getBytes();
         byte[] mockNonce = new byte[12];
@@ -457,7 +460,7 @@ class CryptoCoreUtilTest {
      * Tests the decryptCbeffData method with cipher initialization failure.
      */
     @Test
-    void testDecryptCbeffDataWithCipherInitFailure() throws Exception {
+    void testDecryptCbeffData_CipherInitInvalidKey_ThrowsAbisException() throws Exception {
         SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] mockData = "encrypted-data".getBytes();
         byte[] mockNonce = new byte[12];
@@ -483,7 +486,7 @@ class CryptoCoreUtilTest {
      * Tests the decryptCbeffData method with cipher doFinal failure.
      */
     @Test
-    void testDecryptCbeffDataWithCipherDoFinalFailure() throws Exception {
+    void testDecryptCbeffData_CipherDoFinalIllegalBlockSize_ThrowsAbisException() throws Exception {
         SecretKey mockSecretKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] mockData = "encrypted-data".getBytes();
         byte[] mockNonce = new byte[12];
@@ -509,7 +512,7 @@ class CryptoCoreUtilTest {
      * Tests decryptCbeffData with certificate thumbprint
      */
     @Test
-    void testDecryptCbeffDataWithCertThumbprint() throws Exception {
+    void testDecryptCbeffData_ValidCertThumbprint_ReturnsDecryptedData() throws Exception {
         byte[] certThumbprint = new byte[32];
         byte[] encryptedKey = "encrypted-key".getBytes();
         byte[] encryptedData = "encrypted-data".getBytes();
@@ -541,7 +544,7 @@ class CryptoCoreUtilTest {
      * Tests decryptCbeffData with GCM parameters
      */
     @Test
-    void testDecryptCbeffDataWithGCMParams() throws Exception {
+    void testDecryptCbeffData_GCMParams_ReturnsDecryptedData() throws Exception {
         SecretKey mockKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] testData = "test-encrypted-data".getBytes();
         byte[] testIv = "test-iv-data-16by".getBytes(); // 16 bytes for IV
@@ -569,7 +572,7 @@ class CryptoCoreUtilTest {
      * Tests decryptCbeffData with invalid data length
      */
     @Test
-    void testDecryptCbeffDataWithInvalidDataLength() throws Exception {
+    void testDecryptCbeffData_InvalidDataLength_ThrowsAbisException() throws Exception {
         SecretKey mockKey = new SecretKeySpec("test-key".getBytes(), "AES");
         byte[] data = "too-short".getBytes(); // Data shorter than block size
 

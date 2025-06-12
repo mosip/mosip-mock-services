@@ -15,17 +15,14 @@ import io.mosip.mock.sbi.SBIConstant;
 class SBIIrisDoubleHelperTest {
 
     private SBIIrisDoubleHelper irisHelper;
-    // Constants for device configuration
     private static final int PORT = 4501;
     private static final String PURPOSE = SBIConstant.PURPOSE_AUTH;
     private static final String KEYSTORE_PATH = "keystore.p12";
     private static final String BIOMETRIC_IMAGE_TYPE = "ISO";
     private static final String PROFILE_ID = "default";
-
-    // Device sub IDs for different iris capture modes
-    private static final int LEFT_IRIS = 1;    // Left iris capture
-    private static final int RIGHT_IRIS = 2;   // Right iris capture
-    private static final int BOTH_IRIS = 3;    // Both irises capture
+    private static final int LEFT_IRIS = 1;
+    private static final int RIGHT_IRIS = 2;
+    private static final int BOTH_IRIS = 3;
 
     /**
      * Sets up the test environment before each test method.
@@ -43,7 +40,7 @@ class SBIIrisDoubleHelperTest {
      * Verifies that the helper is properly initialized with correct configuration values.
      */
     @Test
-    void testGetInstance() {
+    void getInstance_AfterCreation_ReturnsInitializedProperties() {
         assertNotNull(irisHelper);
         assertEquals(PORT, irisHelper.getPort());
         assertEquals(PURPOSE, irisHelper.getPurpose());
@@ -55,7 +52,7 @@ class SBIIrisDoubleHelperTest {
      * Verifies that the device is properly initialized and capture info is created.
      */
     @Test
-    void testInitDevice() {
+    void initDevice_DeviceInitialization_ReturnsZeroAndInitializesCaptureInfoInstance() {
         long result = irisHelper.initDevice();
         assertEquals(0, result);
         assertNotNull(irisHelper.getCaptureInfo());
@@ -67,7 +64,7 @@ class SBIIrisDoubleHelperTest {
      * Ensures that the device is properly shut down and capture info is cleared.
      */
     @Test
-    void testDeInitDevice() {
+    void deInitDevice_AfterInitialization_ReturnsZeroAndClearsCaptureInfo() {
         irisHelper.initDevice();
         int result = irisHelper.deInitDevice();
         assertEquals(0, result);
@@ -79,7 +76,7 @@ class SBIIrisDoubleHelperTest {
      * Expects a -1 return value indicating no stream is available.
      */
     @Test
-    void testGetLiveStream() {
+    void getLiveStream_WithoutImage_ReturnsMinusOne() {
         irisHelper.initDevice();
         int result = irisHelper.getLiveStream();
         assertEquals(-1, result);
@@ -90,7 +87,7 @@ class SBIIrisDoubleHelperTest {
      * Verifies successful capture with proper initialization and flags set.
      */
     @Test
-    void testGetBioCapture_LeftIris() throws Exception {
+    void getBioCapture_ForLeftIris_CaptureStarted_ReturnsZero() throws Exception {
         irisHelper.initDevice();
         irisHelper.setDeviceSubId(LEFT_IRIS);
         SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo) irisHelper.getCaptureInfo();
@@ -104,7 +101,7 @@ class SBIIrisDoubleHelperTest {
      * Verifies successful capture with proper initialization and flags set.
      */
     @Test
-    void testGetBioCapture_RightIris() throws Exception {
+    void getBioCapture_ForRightIris_CaptureStarted_ReturnsZero() throws Exception {
         irisHelper.initDevice();
         irisHelper.setDeviceSubId(RIGHT_IRIS);
         SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo) irisHelper.getCaptureInfo();
@@ -118,7 +115,7 @@ class SBIIrisDoubleHelperTest {
      * Verifies successful capture with proper initialization and flags set.
      */
     @Test
-    void testGetBioCapture_BothIris() throws Exception {
+    void getBioCapture_ForBothIris_CaptureStarted_ReturnsZero() throws Exception {
         irisHelper.initDevice();
         irisHelper.setDeviceSubId(BOTH_IRIS);
         SBIIrisDoubleCaptureInfo captureInfo = (SBIIrisDoubleCaptureInfo) irisHelper.getCaptureInfo();

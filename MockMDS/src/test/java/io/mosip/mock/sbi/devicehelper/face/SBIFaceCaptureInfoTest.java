@@ -22,11 +22,9 @@ class SBIFaceCaptureInfoTest {
      * Verifies that all fields are properly reset to their default values
      */
     @Test
-    void testInitCaptureInfo() {
-        // When
+    void init_CaptureInfo_DefaultStateAfterInitialization() {
         captureInfo.initCaptureInfo();
 
-        // Then
         assertNull(captureInfo.getImage());
         assertFalse(captureInfo.isLiveStreamStarted());
         assertFalse(captureInfo.isLiveStreamCompleted());
@@ -40,15 +38,12 @@ class SBIFaceCaptureInfoTest {
      * Verifies that all fields are properly cleared
      */
     @Test
-    void testDeInitCaptureInfo() {
-        // Given
+    void deInit_CaptureInfo_DefaultStateAfterDeinitialization() {
         captureInfo.setLiveStreamStarted(true);
         captureInfo.setCaptureStarted(true);
 
-        // When
         captureInfo.deInitCaptureInfo();
 
-        // Then
         assertNull(captureInfo.getImage());
         assertFalse(captureInfo.isLiveStreamStarted());
         assertFalse(captureInfo.isLiveStreamCompleted());
@@ -61,21 +56,18 @@ class SBIFaceCaptureInfoTest {
      * Test face biometric value getters and setters
      */
     @Test
-    void testFaceBioValueProperties() {
-        // Given
+    void test_FaceBioValue_PropertiesSetCorrectly() {
         String bioValue = "test-bio-value";
         String bioSubType = "test-sub-type";
         float requestScore = 90.5f;
         float captureScore = 85.0f;
 
-        // When
         captureInfo.setBioValueFace(bioValue);
         captureInfo.setBioSubTypeFace(bioSubType);
         captureInfo.setRequestScoreFace(requestScore);
         captureInfo.setCaptureScoreFace(captureScore);
         captureInfo.setCaptureFace(true);
 
-        // Then
         assertEquals(bioValue, captureInfo.getBioValueFace());
         assertEquals(bioSubType, captureInfo.getBioSubTypeFace());
         assertEquals(requestScore, captureInfo.getRequestScoreFace());
@@ -87,21 +79,18 @@ class SBIFaceCaptureInfoTest {
      * Test exception photo properties getters and setters
      */
     @Test
-    void testExceptionPhotoProperties() {
-        // Given
+    void test_ExceptionPhoto_PropertiesSetCorrectly() {
         String bioValue = "test-exception-photo";
         String bioSubType = "exception-type";
         int requestScore = 90;
         int captureScore = 85;
 
-        // When
         captureInfo.setBioValueExceptionPhoto(bioValue);
         captureInfo.setBioSubTypeExceptionPhoto(bioSubType);
         captureInfo.setRequestScoreExceptionPhoto(requestScore);
         captureInfo.setCaptureScoreExceptionPhoto(captureScore);
         captureInfo.setCaptureExceptionPhoto(true);
 
-        // Then
         assertEquals(bioValue, captureInfo.getBioValueExceptionPhoto());
         assertEquals(bioSubType, captureInfo.getBioSubTypeExceptionPhoto());
         assertEquals(requestScore, captureInfo.getRequestScoreExceptionPhoto());
@@ -113,7 +102,7 @@ class SBIFaceCaptureInfoTest {
      * Test default values after constructor
      */
     @Test
-    void testDefaultValues() {
+    void test_DefaultValues_PropertiesInitializedCorrectly() {
         assertNull(captureInfo.getBioValueFace());
         assertNull(captureInfo.getBioSubTypeFace());
         assertEquals(0.0f, captureInfo.getRequestScoreFace());

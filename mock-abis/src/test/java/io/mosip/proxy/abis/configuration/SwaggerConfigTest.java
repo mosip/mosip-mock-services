@@ -74,7 +74,7 @@ class SwaggerConfigTest {
      * - Components are initialized
      */
     @Test
-    void testOpenApi() {
+    void testOpenApi_DefaultConfiguration_ReturnsPopulatedOpenAPIObject() {
         OpenAPI openAPI = swaggerConfig.openApi();
         assertNotNull(openAPI);
         assertNotNull(openAPI.getInfo());
@@ -89,7 +89,7 @@ class SwaggerConfigTest {
      * - API paths are properly grouped according to configuration
      */
     @Test
-    void testGroupedOpenApi() {
+    void testGroupedOpenApi_DefaultConfiguration_ReturnsNonNullGroupedOpenApi() {
         GroupedOpenApi groupedOpenApi = swaggerConfig.groupedOpenApi();
         assertNotNull(groupedOpenApi);
     }

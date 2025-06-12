@@ -27,7 +27,6 @@ class SBIFingerSIngleHelperTest {
     @BeforeEach
     void setUp() {
         helper = SBIFingerSingleHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
-        // Set required profile ID
         helper.setProfileId(SBIConstant.PROFILE_AUTOMATIC);
     }
 
@@ -36,7 +35,7 @@ class SBIFingerSIngleHelperTest {
      * Should create new capture info and return 0 on success.
      */
     @Test
-    void testInitDevice() {
+    void initDevice_ReturnsZeroAndInitializesCaptureInfo() {
         long result = helper.initDevice();
         assertEquals(0, result, "Device initialization should return 0");
         assertNotNull(helper.getCaptureInfo(), "CaptureInfo should be initialized");
@@ -47,7 +46,7 @@ class SBIFingerSIngleHelperTest {
      * Should clear capture info and return 0 on success.
      */
     @Test
-    void testDeInitDevice() {
+    void deInitDevice_ReturnsZeroAndClearsCaptureInfo() {
         helper.initDevice();
         int result = helper.deInitDevice();
         assertEquals(0, result, "Device deinitialization should return 0");
@@ -59,7 +58,7 @@ class SBIFingerSIngleHelperTest {
      * Should return -1 when no image is available.
      */
     @Test
-    void testGetLiveStreamWithNoImage() {
+    void getLiveStream_NoImageAvailable_ReturnsMinusOne() {
         int result = helper.getLiveStream();
         assertEquals(-1, result, "Should return -1 when no image is available");
     }
@@ -69,7 +68,7 @@ class SBIFingerSIngleHelperTest {
      * Should process fingerprint images and update capture info accordingly.
      */
     @Test
-    void testGetBioCaptureForAuthentication() throws Exception {
+    void getBioCapture_forAuthentication_ReturnsZeroOnSuccess() throws Exception {
         try (MockedStatic<ApplicationPropertyHelper> mockedStatic = mockStatic(ApplicationPropertyHelper.class)) {
             // Mock static method calls
             mockedStatic.when(() -> ApplicationPropertyHelper.getPropertyKeyValue(anyString()))
@@ -88,7 +87,7 @@ class SBIFingerSIngleHelperTest {
      * Should return new instance with correct initialization parameters.
      */
     @Test
-    void testGetInstance() {
+    void getInstance_ValidParameters_ReturnsInitializedInstance() {
         SBIFingerSingleHelper instance = SBIFingerSingleHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
         assertNotNull(instance, "getInstance should return a non-null instance");
         assertEquals(PORT, instance.getPort(), "Port should match constructor parameter");
@@ -100,7 +99,7 @@ class SBIFingerSIngleHelperTest {
      * Should return different instances due to non-singleton implementation.
      */
     @Test
-    void testMultipleInstances() {
+    void getInstance_MultipleCalls_ReturnsDifferentInstances() {
         SBIFingerSingleHelper instance1 = SBIFingerSingleHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
         SBIFingerSingleHelper instance2 = SBIFingerSingleHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
         assertNotSame(instance1, instance2, "getInstance should return different instances");

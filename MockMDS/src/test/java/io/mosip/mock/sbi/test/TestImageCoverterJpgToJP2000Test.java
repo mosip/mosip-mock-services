@@ -41,18 +41,11 @@ public class TestImageCoverterJpgToJP2000Test {
      */
     @Before
     public void setup() throws IOException {
-        // Create temp test directory
         testDirPath = Files.createTempDirectory("image_converter_test");
-
-        // Create a nested directory structure
         Path nestedDir = Files.createDirectory(testDirPath.resolve("nested"));
-
-        // Create sample JPG files
         Files.createFile(testDirPath.resolve("sample1.jpg"));
         Files.createFile(testDirPath.resolve("sample2.jpg"));
         Files.createFile(nestedDir.resolve("nested_sample.jpg"));
-
-        // Create an existing JP2 file to test file counting
         Files.createFile(testDirPath.resolve("0001Left_Ring.jp2"));
     }
 
@@ -62,7 +55,6 @@ public class TestImageCoverterJpgToJP2000Test {
      */
     @After
     public void cleanup() throws IOException {
-        // Delete all test files and directories
         deleteDirectory(testDirPath.toFile());
     }
 
@@ -85,14 +77,10 @@ public class TestImageCoverterJpgToJP2000Test {
      * Tests the listFileTree method to ensure it correctly lists all files recursively
      */
     @Test
-    public void testListFileTree() {
-        // Get all files in the test directory
+    public void listFileTree_success() {
         Collection<File> files = TestImageCoverterJpgToJP2000.listFileTree(testDirPath.toFile());
-
-        // Assert we have 4 files (3 JPGs + 1 JP2)
         assertEquals("Should find 4 files", 4, files.size());
 
-        // Verify it includes files from nested directories
         boolean foundNestedFile = false;
         for (File file : files) {
             if (file.getPath().contains("nested_sample.jpg")) {
@@ -107,7 +95,7 @@ public class TestImageCoverterJpgToJP2000Test {
      * Tests the listFileTree method with a null directory
      */
     @Test
-    public void testListFileTreeWithNullDirectory() {
+    public void listFileTreeWithNullDirectory_success() {
         Collection<File> files = TestImageCoverterJpgToJP2000.listFileTree(null);
         assertNotNull("Should return empty collection for null directory", files);
         assertTrue("Collection should be empty for null directory", files.isEmpty());
@@ -117,14 +105,11 @@ public class TestImageCoverterJpgToJP2000Test {
      * Tests the FileNameFilter implementation to correctly filter files by extension
      */
     @Test
-    public void testMyFileNameFilter() {
+    public void myFileNameFilter_success() {
         TestImageCoverterJpgToJP2000.MyFileNameFilter filter =
                 new TestImageCoverterJpgToJP2000.MyFileNameFilter("Left_Ring.jp2");
 
-        // Should accept matching files
         assertTrue(filter.accept(new File("."), "0001Left_Ring.jp2"));
-
-        // Should reject non-matching files
         assertFalse(filter.accept(new File("."), "image.jpg"));
         assertFalse(filter.accept(new File("."), "Left_Thumb.jp2"));
     }
@@ -134,14 +119,12 @@ public class TestImageCoverterJpgToJP2000Test {
      * This is a direct implementation of the logic instead of using reflection
      */
     @Test
-    public void testGetFileNameWithoutExtensionLogic() {
-        // Test with a file path - we don't need the file to actually exist for this test
+    public void getFileNameWithoutExtensionLogic_success() {
         String filePath = "sample.jpg";
         File testFile = new File(filePath);
         String fileName = "";
 
         try {
-            // Remove the check for file.exists() since we only need to test the name parsing logic
             String name = testFile.getName();
             fileName = name.replaceFirst("[.][^.]+$", "");
         } catch (Exception e) {
@@ -150,7 +133,6 @@ public class TestImageCoverterJpgToJP2000Test {
 
         assertEquals("File name without extension should be 'sample'", "sample", fileName);
 
-        // Test with null file - should return empty string
         File nullFile = null;
         fileName = "";
 
@@ -171,13 +153,11 @@ public class TestImageCoverterJpgToJP2000Test {
      * This uses the static fingerName field value from the original class
      */
     @Test
-    public void testGetFileNameChangeIrisLogic() throws Exception {
-        // Get the fingerName value using reflection
+    public void getFileNameChangeIrisLogic_success() throws Exception {
         Field fingerNameField = TestImageCoverterJpgToJP2000.class.getDeclaredField("fingerName");
         fingerNameField.setAccessible(true);
         String fingerName = (String) fingerNameField.get(null);
 
-        // For any file name input, it should return the fingerName value
         assertEquals("Should return the static fingerName value", "Left_Ring", fingerName);
     }
 
@@ -186,14 +166,12 @@ public class TestImageCoverterJpgToJP2000Test {
      * This is a direct implementation of the logic instead of using reflection
      */
     @Test
-    public void testChangeOutputFileExtensionLogic() throws Exception {
-        // Get fingerName value using reflection
+    public void changeOutputFileExtensionLogic_success() throws Exception {
         Field fingerNameField = TestImageCoverterJpgToJP2000.class.getDeclaredField("fingerName");
         fingerNameField.setAccessible(true);
         String fingerName = (String) fingerNameField.get(null);
 
         int fileNumber = 5;
-
         String formattedNumber = String.format("%04d", fileNumber);
         String output = formattedNumber + fingerName + ".jp2";
 
@@ -205,35 +183,27 @@ public class TestImageCoverterJpgToJP2000Test {
      * @throws Exception if execution fails
      */
     @Test
-    public void testMainConversionWorkflow() throws Exception {
-        // Create a special directory for this test
+    public void mainConversionWorkflow_success() throws Exception {
         Path conversionTestDir = Files.createTempDirectory("conversion_test");
         File jpgFile = new File(conversionTestDir.toFile(), "test.jpg");
         jpgFile.createNewFile();
 
-        // Count JP2 files before
         File[] jp2FilesBefore = conversionTestDir.toFile().listFiles(
                 new TestImageCoverterJpgToJP2000.MyFileNameFilter("Left_Ring.jp2"));
         int countBefore = (jp2FilesBefore != null) ? jp2FilesBefore.length : 0;
 
-        // Run a simplified version of the main method logic
         File root = conversionTestDir.toFile();
         Collection<File> list = TestImageCoverterJpgToJP2000.listFileTree(root);
 
-        // Here we would normally run the conversion, but since we can't easily mock ImageHelper.toJ2000,
-        // we'll just create the expected output file manually
         File outputFile = new File(conversionTestDir.toFile(), "0001Left_Ring.jp2");
         outputFile.createNewFile();
 
-        // Count JP2 files after
         File[] jp2FilesAfter = conversionTestDir.toFile().listFiles(
                 new TestImageCoverterJpgToJP2000.MyFileNameFilter("Left_Ring.jp2"));
         int countAfter = (jp2FilesAfter != null) ? jp2FilesAfter.length : 0;
 
-        // Verify one new JP2 file was created
         assertEquals("Should have one more JP2 file after conversion", countBefore + 1, countAfter);
 
-        // Clean up
         deleteDirectory(conversionTestDir.toFile());
     }
 
@@ -242,18 +212,14 @@ public class TestImageCoverterJpgToJP2000Test {
      * This demonstrates how to subclass and expose protected methods for testing
      */
     @Test
-    public void testWithTestableSubclass() {
-        // Create a testable subclass instance
+    public void withTestableSubclass_success() {
         TestableImageConverter testConverter = new TestableImageConverter();
 
-        // Test getFileNameWithoutExtension
         assertEquals("sample", testConverter.getFileNameWithoutExtensionForTest(new File("sample.jpg")));
         assertEquals("", testConverter.getFileNameWithoutExtensionForTest(null));
 
-        // Test getFileNameChangeIris
         assertEquals("Left_Ring", testConverter.getFileNameChangeIrisForTest("anyFileName"));
 
-        // Test changeOutputFileExtension
         assertEquals("0005Left_Ring.jp2", testConverter.changeOutputFileExtensionForTest(new File("image.jpg"), 5));
     }
 
@@ -267,7 +233,6 @@ public class TestImageCoverterJpgToJP2000Test {
         public String getFileNameWithoutExtensionForTest(File file) {
             String fileName = "";
             try {
-                // Remove the file.exists() check since we want to test the name parsing logic
                 if (file != null) {
                     String name = file.getName();
                     fileName = name.replaceFirst("[.][^.]+$", "");

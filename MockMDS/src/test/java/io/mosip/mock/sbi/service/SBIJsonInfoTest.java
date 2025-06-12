@@ -27,7 +27,7 @@ class SBIJsonInfoTest {
      * - The exception message
      */
     @Test
-    void testGetErrorJson() {
+    void getErrorJson_WithLangCodeErrorCodeAndMessage_ReturnsValidJsonContainingInputs() {
         String errorJson = SBIJsonInfo.getErrorJson(LANG, ERROR_CODE, EXCEPTION_MESSAGE);
         assertNotNull(errorJson);
         assertTrue(errorJson.contains(ERROR_CODE));
@@ -41,7 +41,7 @@ class SBIJsonInfoTest {
      * - The exception message
      */
     @Test
-    void testGetAdminApiErrorJson() {
+    void getAdminApiErrorJson_WithLangCodeErrorCodeAndMessage_ReturnsValidJsonContainingInputs() {
         String errorJson = SBIJsonInfo.getAdminApiErrorJson(LANG, ERROR_CODE, EXCEPTION_MESSAGE);
         assertNotNull(errorJson);
         assertTrue(errorJson.contains(ERROR_CODE));
@@ -55,7 +55,7 @@ class SBIJsonInfoTest {
      * - The exception message
      */
     @Test
-    void testGetStreamErrorJson() {
+    void getStreamErrorJson_WithLangCodeErrorCodeAndMessage_ReturnsValidJsonContainingInputs() {
         String errorJson = SBIJsonInfo.getStreamErrorJson(LANG, ERROR_CODE, EXCEPTION_MESSAGE);
         assertNotNull(errorJson);
         assertTrue(errorJson.contains(ERROR_CODE));
@@ -70,7 +70,7 @@ class SBIJsonInfoTest {
      * - The spec version
      */
     @Test
-    void testGetCaptureErrorJson() {
+    void getCaptureErrorJson_WithSpecVersionLangErrorCodeMessage_ReturnsValidJsonContainingInputs () {
         String specVersion = "1.0";
         String errorJson = SBIJsonInfo.getCaptureErrorJson(specVersion, LANG, ERROR_CODE, EXCEPTION_MESSAGE, true);
         assertNotNull(errorJson);
@@ -86,7 +86,7 @@ class SBIJsonInfoTest {
      * - The property helper returns a valid description
      */
     @Test
-    void testGetErrorDescription_WithValidLang() {
+    void getErrorDescription_WithValidLang_ReturnsErrorDescriptionFromProperties() {
         try (MockedStatic<ApplicationPropertyHelper> mockedStatic = mockStatic(ApplicationPropertyHelper.class)) {
             mockedStatic.when(() -> ApplicationPropertyHelper.getPropertyKeyValue(anyString()))
                     .thenReturn(ERROR_DESCRIPTION);
@@ -104,7 +104,7 @@ class SBIJsonInfoTest {
      * - Correct error description is returned
      */
     @Test
-    void testGetErrorDescription_WithNullLang() {
+    void getErrorDescription_WithNullLang_ReturnsErrorDescriptionFromProperties() {
         try (MockedStatic<ApplicationPropertyHelper> mockedStatic = mockStatic(ApplicationPropertyHelper.class)) {
             mockedStatic.when(() -> ApplicationPropertyHelper.getPropertyKeyValue(anyString()))
                     .thenReturn(ERROR_DESCRIPTION);
@@ -121,7 +121,7 @@ class SBIJsonInfoTest {
      * - Default "No Description available." message is returned
      */
     @Test
-    void testGetErrorDescription_WithEmptyDescription() {
+    void getErrorDescription_WithEmptyDescription_ReturnsDefaultMessage() {
         try (MockedStatic<ApplicationPropertyHelper> mockedStatic = mockStatic(ApplicationPropertyHelper.class)) {
             mockedStatic.when(() -> ApplicationPropertyHelper.getPropertyKeyValue(anyString()))
                     .thenReturn("");

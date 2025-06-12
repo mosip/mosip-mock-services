@@ -15,8 +15,7 @@ class SBIFaceHelperTest {
      * The test ensures that the method executes successfully and returns the expected result.
      */
     @Test
-    void testGetBioCapture_UsingReflection() throws Exception {
-
+    void getBioCapture_UsingReflection_ExecutesSuccessfully() throws Exception {
         SBIFaceHelper helper = SBIFaceHelper.getInstance(8080, "registration", "dummyPath", "jpeg");
 
         Field profileIdField = helper.getClass().getSuperclass().getDeclaredField("profileId");
@@ -38,16 +37,13 @@ class SBIFaceHelperTest {
         scoreFromIsoField.setAccessible(true);
         scoreFromIsoField.set(helper, false);
 
-        // Set a quality score
         Field qualityScoreField = helper.getClass().getSuperclass().getDeclaredField("qualityScore");
         qualityScoreField.setAccessible(true);
         qualityScoreField.set(helper, 90.0f);
 
-        // Call the getBioCapture method to test if it behaves as expected
         boolean isUsedForAuthentication = false;
         int result = helper.getBioCapture(isUsedForAuthentication);
 
-        // Assert that the result is 0, indicating the method executed successfully
         assertEquals(0, result);
     }
 

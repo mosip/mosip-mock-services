@@ -74,7 +74,7 @@ class SBIMockServiceTest {
      * Verifies that all parameters are correctly set during instantiation
      */
     @Test
-    void testConstructorInitialization() {
+    void constructorInitialization_ValidParameters_PropertiesSetCorrectly() {
         assertEquals(SBIConstant.PURPOSE_REGISTRATION, service.getPurpose());
         assertEquals(SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER, service.getBiometricType());
         assertEquals("test-keystore.p12", service.getKeystoreFilePath());
@@ -88,7 +88,7 @@ class SBIMockServiceTest {
      * for the specified biometric type and subtype
      */
     @Test
-    void testInitDeviceHelpers() {
+    void initDeviceHelpers_AfterInitialization_DeviceHelperForFingerSlapExists() {
         service.initDeviceHelpers();
         assertNotNull(service.getDeviceHelper(
                 SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER + "_" +
@@ -105,7 +105,7 @@ class SBIMockServiceTest {
      * 4. Stopped state is properly set
      */
     @Test
-    void testServiceLifecycle() throws IOException {
+    void serviceLifecycle_StartStop_ThreadManagesSocketAndStopsCorrectly() throws IOException {
         Thread serviceThread = new Thread(service);
         serviceThread.start();
 
@@ -127,7 +127,7 @@ class SBIMockServiceTest {
      * 2. Valid helper is returned after initialization
      */
     @Test
-    void testGetDeviceHelper() {
+    void getDeviceHelper_WithNonExistentAndExistingDevice_ReturnsExpectedResults() {
         assertNull(service.getDeviceHelper("NON_EXISTENT_DEVICE"));
         service.initDeviceHelpers();
         assertNotNull(service.getDeviceHelper(
@@ -141,7 +141,7 @@ class SBIMockServiceTest {
      * Verifies that profile ID can be set and retrieved correctly
      */
     @Test
-    void testProfileIdManagement() {
+    void profileIdManagement_SetAndGetProfileId_ReturnsUpdatedValue() {
         String newProfileId = "TEST_PROFILE";
         service.setProfileId(newProfileId);
         assertEquals(newProfileId, service.getProfileId());
@@ -152,7 +152,7 @@ class SBIMockServiceTest {
      * Verifies that port number can be set and retrieved correctly
      */
     @Test
-    void testPortManagement() {
+    void portManagement_SetAndGetServerPort_ReturnsUpdatedValue() {
         assertEquals(0, service.getServerPort());
         service.setServerPort(8080);
         assertEquals(8080, service.getServerPort());

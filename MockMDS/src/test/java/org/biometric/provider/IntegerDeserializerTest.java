@@ -29,7 +29,7 @@ class IntegerDeserializerTest {
      * Tests that a JSON string value is correctly deserialized to a Java String.
      */
     @Test
-    void testDeserializeString() throws IOException {
+    void deserializeString_success() throws IOException {
         String json = "\"12345\"";
         String result = mapper.readValue(json, String.class);
         assertEquals("12345", result);
@@ -40,7 +40,7 @@ class IntegerDeserializerTest {
      * as only string values are allowed.
      */
     @Test
-    void testDeserializeNumberThrowsException() {
+    void deserializeNumber_throwsIOException() {
         String json = "12345";
         Exception exception = assertThrows(IOException.class, () -> {
             mapper.readValue(json, String.class);

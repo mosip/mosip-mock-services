@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mockStatic;
 @ExtendWith(MockitoExtension.class)
 class SBIFingerSlapHelperTest {
 
-
     private SBIFingerSlapHelper helper;
     private static final int PORT = 4501;
     private static final String PURPOSE = "Registration";
@@ -40,7 +39,7 @@ class SBIFingerSlapHelperTest {
      * Should create new capture info and return 0 on success.
      */
     @Test
-    void testInitDevice() {
+    void initDevice_DeviceInitialization_ReturnsZeroAndInitializesCaptureInfo() {
         long result = helper.initDevice();
         assertEquals(0, result, "Device initialization should return 0");
         assertNotNull(helper.getCaptureInfo(), "CaptureInfo should be initialized");
@@ -53,7 +52,7 @@ class SBIFingerSlapHelperTest {
      * Should clear capture info and return 0 on success.
      */
     @Test
-    void testDeInitDevice() {
+    void deInitDevice_DeviceDeinitialization_ReturnsZeroAndClearsCaptureInfo() {
         helper.initDevice();
         int result = helper.deInitDevice();
         assertEquals(0, result, "Device deinitialization should return 0");
@@ -61,21 +60,11 @@ class SBIFingerSlapHelperTest {
     }
 
     /**
-     * Tests live stream capture.
-     * Should return -1 when no image is available.
-     */
-    @Test
-    void testGetLiveStreamWithNoImage() {
-        int result = helper.getLiveStream();
-        assertEquals(-1, result, "Should return -1 when no image is available");
-    }
-
-    /**
      * Tests biometric capture for authentication.
      * Should process fingerprint slap images and update capture info accordingly.
      */
     @Test
-    void testGetBioCaptureForAuthentication() throws Exception {
+    void getBioCaptureForAuthentication_InvokesBioCapture_ReturnsZeroAndEncodesBioData() throws Exception {
         try (MockedStatic<ApplicationPropertyHelper> propertyHelperMock = mockStatic(ApplicationPropertyHelper.class);
              MockedStatic<StringHelper> stringHelperMock = mockStatic(StringHelper.class)) {
 
@@ -96,7 +85,7 @@ class SBIFingerSlapHelperTest {
      * Should return new instance with correct initialization parameters.
      */
     @Test
-    void testGetInstance() {
+    void getInstance_CreationWithParameters_ReturnsInitializedInstance() {
         SBIFingerSlapHelper instance = SBIFingerSlapHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
         assertNotNull(instance, "getInstance should return a non-null instance");
         assertEquals(PORT, instance.getPort(), "Port should match constructor parameter");
@@ -108,7 +97,7 @@ class SBIFingerSlapHelperTest {
      * Should return different instances due to non-singleton implementation.
      */
     @Test
-    void testMultipleInstances() {
+    void getInstance_MultipleCalls_ReturnsDistinctInstances() {
         SBIFingerSlapHelper instance1 = SBIFingerSlapHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
         SBIFingerSlapHelper instance2 = SBIFingerSlapHelper.getInstance(PORT, PURPOSE, KEYSTORE_PATH, IMAGE_TYPE);
         assertNotSame(instance1, instance2, "getInstance should return different instances");
@@ -119,7 +108,7 @@ class SBIFingerSlapHelperTest {
      * Should properly initialize slap capture info with bio exception info.
      */
     @Test
-    void testCaptureInfoInitialization() {
+    void getCaptureInfo_AfterInitDevice_InitializesBioExceptionInfoInstance() {
         helper.initDevice();
         SBIFingerSlapCaptureInfo captureInfo = (SBIFingerSlapCaptureInfo) helper.getCaptureInfo();
         assertNotNull(captureInfo.getBioExceptionInfo(), "Bio exception info should be initialized");

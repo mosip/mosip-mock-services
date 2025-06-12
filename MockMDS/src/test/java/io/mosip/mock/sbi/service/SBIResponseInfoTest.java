@@ -24,7 +24,7 @@ class SBIResponseInfoTest {
      * - Error code and message in response body
      */
     @Test
-    void testGenerateErrorResponse() {
+    void generateErrorResponse_WithValidInputs_ReturnsFormattedErrorResponse() {
         String response = SBIResponseInfo.generateErrorResponse("eng", 8080, "ERR_001", "Test error");
 
         assertTrue(response.contains("HTTP/1.1 405 OK"));
@@ -41,7 +41,7 @@ class SBIResponseInfoTest {
      * - Admin-specific error code and message
      */
     @Test
-    void testGenerateAdminApiErrorResponse() {
+    void generateAdminApiErrorResponse_WithValidInputs_ReturnsFormattedAdminErrorResponse() {
         String response = SBIResponseInfo.generateAdminApiErrorResponse("eng", 8080, "ADMIN_ERR_001", "Admin error");
 
         assertTrue(response.contains("HTTP/1.1 405 OK"));
@@ -59,7 +59,7 @@ class SBIResponseInfoTest {
      * - JSON response body
      */
     @Test
-    void testGenerateResponse() {
+    void generateResponse_WithValidJson_ReturnsFormattedHttpResponse() {
         String jsonResponse = "{\"status\":\"success\"}";
         String response = SBIResponseInfo.generateResponse("eng", 8080, jsonResponse);
 
@@ -78,7 +78,7 @@ class SBIResponseInfoTest {
      * - Connection keep-alive header
      */
     @Test
-    void testGenerateOptionsResponse() {
+    void generateOptionsResponse_ReturnsExpectedHttpOptionsResponse() {
         String response = SBIResponseInfo.generateOptionsResponse();
 
         assertTrue(response.contains("HTTP/1.1 200 OK"));
@@ -96,7 +96,7 @@ class SBIResponseInfoTest {
      * - Exception message is correct
      */
     @Test
-    void testConstructorThrowsException() throws Exception {
+    void constructor_InvokingPrivateConstructor_ThrowsIllegalStateException() throws Exception {
         Constructor<SBIResponseInfo> constructor = SBIResponseInfo.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
@@ -117,7 +117,7 @@ class SBIResponseInfoTest {
      * - Content-Length header is omitted
      */
     @Test
-    void testGenerateResponseWithNullContent() {
+    void generateResponse_WithNullContent_ReturnsHttpResponseWithoutContentLength() {
         String response = SBIResponseInfo.generateResponse("eng", 8080, null);
 
         assertTrue(response.contains("HTTP/1.1 200 OK"));
@@ -133,7 +133,7 @@ class SBIResponseInfoTest {
      * - Access-Control-Allow-Credentials
      */
     @Test
-    void testResponseContainsCORSHeaders() {
+    void responseContainsCORSHeaders_WithValidResponse_ReturnsExpectedCORSHeaders() {
         String response = SBIResponseInfo.generateResponse("eng", 8080, "test");
 
         assertTrue(response.contains("Access-Control-Allow-Origin: *"));

@@ -56,7 +56,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that the duplicate property is returned correctly.
      */
     @Test
-    void testGetDuplicate() {
+    void getDuplicate_returnsTrue_whenDuplicateIsSet() {
         assertTrue(proxyAbisConfigService.getDuplicate()); // Verify the duplicate property is true
     }
 
@@ -65,7 +65,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that the duplicate property is updated correctly.
      */
     @Test
-    void testSetDuplicate() {
+    void setDuplicate_updatesDuplicatePropertyToFalse() {
         proxyAbisConfigService.setDuplicate(false);
         assertFalse(proxyAbisConfigService.getDuplicate()); // Verify the duplicate property is false
     }
@@ -75,7 +75,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that the default value of forceDuplicate is false.
      */
     @Test
-    void testIsForceDuplicate() {
+    void isForceDuplicate_returnsFalseByDefault() {
         assertFalse(proxyAbisConfigService.isForceDuplicate()); // Verify the default value is false
     }
 
@@ -84,7 +84,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that expectations are retrieved correctly from the cache.
      */
     @Test
-    void testGetExpectations() {
+    void getExpectations_returnsNonNullMapWithExpectedSize() {
         Map<String, Expectation> mockExpectations = new HashMap<>();
         mockExpectations.put("exp1", new Expectation());
 
@@ -100,7 +100,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that an expectation is inserted into the cache.
      */
     @Test
-    void testSetExpectation() {
+    void setExpectation_insertsExpectationIntoCache_successfully() {
         Expectation exp = new Expectation();
         proxyAbisConfigService.setExpectation(exp);
 
@@ -112,7 +112,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that an expectation is deleted from the cache.
      */
     @Test
-    void testDeleteExpectation() {
+    void deleteExpectation_deletesExpectationFromCache_successfully() {
         String expId = "exp1";
         proxyAbisConfigService.deleteExpectation(expId);
 
@@ -124,7 +124,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that all expectations are deleted from the cache.
      */
     @Test
-    void testDeleteExpectations() {
+    void deleteExpectations_deletesAllExpectationsFromCache_successfully() {
         proxyAbisConfigService.deleteExpectations();
 
         verify(expectationCache, times(1)).deleteAll(); // Verify the deleteAll method is called once
@@ -135,7 +135,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that all cached biometrics are retrieved correctly.
      */
     @Test
-    void testGetCachedBiometrics() {
+    void getCachedBiometrics_returnsAllCachedBiometrics_successfully() {
         List<String> mockBiometrics = List.of("bio1", "bio2");
         when(proxyAbisBioDataRepository.fetchAllBioData()).thenReturn(mockBiometrics);
 
@@ -149,7 +149,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that a specific cached biometric is retrieved correctly.
      */
     @Test
-    void testGetCachedBiometric() {
+    void getCachedBiometric_returnsBiometricListForGivenHash_successfully() {
         String hash = "someHash";
         List<String> mockBiometrics = List.of("bio1");
         when(proxyAbisBioDataRepository.fetchByBioData(hash)).thenReturn(mockBiometrics);
@@ -164,7 +164,7 @@ class ProxyAbisConfigServiceImplTest {
      * Verifies that all cached biometrics are deleted from the repositories.
      */
     @Test
-    void testDeleteAllCachedBiometrics() {
+    void deleteAllCachedBiometrics_deletesAllBiometricsFromBothRepositories_successfully() {
         proxyAbisConfigService.deleteAllCachedBiometrics();
 
         verify(proxyAbisBioDataRepository, times(1)).deleteAll(); // Verify the deleteAll method is called on bioDataRepository

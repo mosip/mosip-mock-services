@@ -32,7 +32,6 @@ class CryptoUtilityTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Initialize RSA key pair for testing
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         keyPair = keyGen.generateKeyPair();
@@ -46,7 +45,7 @@ class CryptoUtilityTest {
      * Verifies that the encryption result contains required fields.
      */
     @Test
-    void testEncrypt() {
+    void encrypt_dataWithPublicKey_success() {
         byte[] testData = "Test data".getBytes(StandardCharsets.UTF_8);
         String transactionId = "test-transaction";
 
@@ -57,22 +56,20 @@ class CryptoUtilityTest {
         assertNotNull(result.get("TIMESTAMP"), "Timestamp should not be null");
     }
 
+    /**
+     * Tests decryption with invalid parameters.
+     * Verifies that the result is null when decryption fails.
+     */
     @Test
-    void testDecrypt_Exception() {
+    void decrypt_invalidParameters_returnsNull() {
         PrivateKey mockPrivateKey = mock(PrivateKey.class);
         String sessionKey = "badSessionKey";
         String encryptedData = "badEncryptedData";
         String timestamp = "invalid";
         String transactionId = "txn";
 
-        try (
-                MockedStatic<CryptoUtility> utils = mockStatic(CryptoUtility.class)
-        ) {
-
-            // When
+        try (MockedStatic<CryptoUtility> utils = mockStatic(CryptoUtility.class)) {
             String result = CryptoUtility.decrypt(mockPrivateKey, sessionKey, encryptedData, timestamp, transactionId);
-
-            // Then
             assertNull(result); // fallback in catch block
         }
     }
@@ -82,7 +79,7 @@ class CryptoUtilityTest {
      * Verifies that generated keys have correct algorithm and size.
      */
     @Test
-    void testGetSymmetricKey() throws Exception {
+    void getSymmetricKey_success() throws Exception {
         SecretKey key = CryptoUtility.getSymmetricKey();
 
         assertNotNull(key, "Generated key should not be null");
@@ -95,16 +92,14 @@ class CryptoUtilityTest {
      * Verifies that decrypted data matches the original input.
      */
     @Test
-    void testSymmetricEncryptDecrypt() throws Exception {
+    void symmetricEncryptDecrypt_success() throws Exception {
         SecretKey key = CryptoUtility.getSymmetricKey();
         byte[] iv = new byte[12];
         byte[] aad = new byte[16];
         byte[] testData = "Test symmetric encryption".getBytes();
 
         byte[] encrypted = CryptoUtility.symmetricEncrypt(key, testData, iv, aad);
-        byte[] decrypted = CryptoUtility.symmetricDecrypt(
-                new SecretKeySpec(key.getEncoded(), "AES"),
-                encrypted, iv, aad);
+        byte[] decrypted = CryptoUtility.symmetricDecrypt(new SecretKeySpec(key.getEncoded(), "AES"), encrypted, iv, aad);
 
         assertArrayEquals(testData, decrypted, "Decrypted data should match original");
     }
@@ -114,7 +109,7 @@ class CryptoUtilityTest {
      * Verifies that decoded data matches the original input.
      */
     @Test
-    void testUrlSafeBase64EncodingDecoding() {
+    void urlSafeBase64EncodingDecoding_success() {
         byte[] testData = "Test URL-safe Base64".getBytes();
 
         String encoded = CryptoUtility.encodeToURLSafeBase64(testData);
@@ -128,7 +123,7 @@ class CryptoUtilityTest {
      * Verifies correct behavior for edge cases.
      */
     @Test
-    void testNullEmptyValidation() {
+    void nullEmptyValidation_edgeCases_success() {
         assertTrue(CryptoUtility.isNullEmpty((String) null), "Null string should be considered empty");
         assertTrue(CryptoUtility.isNullEmpty(""), "Empty string should be considered empty");
         assertTrue(CryptoUtility.isNullEmpty("  "), "Whitespace string should be considered empty");
@@ -144,7 +139,7 @@ class CryptoUtilityTest {
      * Verifies that the signature is properly formatted.
      */
     @Test
-    void testSign() {
+    void sign_dataWithPrivateKey_success() {
         byte[] testData = "Test signing data".getBytes();
 
         String signature = CryptoUtility.sign(testData, privateKey, mockCertificate);

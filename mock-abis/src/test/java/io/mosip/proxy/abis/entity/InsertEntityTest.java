@@ -22,7 +22,7 @@ class InsertEntityTest {
      * Ensures all fields are initialized to null.
      */
     @Test
-    void testDefaultConstructor() {
+    void testInsertEntity_DefaultConstructor_CreatesInstanceWithNullFields() {
         InsertEntity entity = new InsertEntity();
         assertNotNull(entity);
         assertNull(entity.getId());
@@ -38,7 +38,7 @@ class InsertEntityTest {
      * Ensures all fields are correctly initialized with the provided values.
      */
     @Test
-    void testParameterizedConstructor() {
+    void testInsertEntity_ParameterizedConstructor_SetsAllFieldsExceptBiometricList() {
         String id = "test-id";
         String version = "1.0";
         String requestId = "req-123";
@@ -58,7 +58,7 @@ class InsertEntityTest {
      * Ensures all fields can be set and retrieved correctly.
      */
     @Test
-    void testSettersAndGetters() {
+    void testInsertEntity_SettersAndGetters_StoreAndRetrieveValuesCorrectly() {
         // Given
         InsertEntity entity = new InsertEntity();
         String id = "test-id";
@@ -88,7 +88,7 @@ class InsertEntityTest {
      * and have the same hash code.
      */
     @Test
-    void testEqualsAndHashCode() {
+    void testInsertEntity_EqualsAndHashCode_FollowsEqualsContract() {
         LocalDateTime requestTime = LocalDateTime.now();
         InsertEntity entity1 = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
         InsertEntity entity2 = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
@@ -105,7 +105,7 @@ class InsertEntityTest {
      * Ensures the string representation contains all field values.
      */
     @Test
-    void testToString() {
+    void testInsertEntity_ToString_ContainsAllFieldValues() {
         LocalDateTime requestTime = LocalDateTime.now();
         InsertEntity entity = new InsertEntity("id1", "1.0", "req1", requestTime, "ref1");
         String toString = entity.toString();
@@ -121,7 +121,7 @@ class InsertEntityTest {
      * Ensures the BiometricData list is correctly associated with the InsertEntity.
      */
     @Test
-    void testBiometricListRelationship() {
+    void testInsertEntity_BiometricListRelationship_MaintainsBidirectionalAssociation() {
         InsertEntity entity = new InsertEntity();
         List<BiometricData> biometricList = new ArrayList<>();
         BiometricData bioData = new BiometricData();

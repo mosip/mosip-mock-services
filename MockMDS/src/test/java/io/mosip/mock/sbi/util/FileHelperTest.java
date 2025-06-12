@@ -22,7 +22,7 @@ class FileHelperTest {
 
     /**
      * Sets up test environment by creating a temporary directory and file
-     * with test content before each test
+     * with test content before each test.
      */
     @BeforeEach
     void setUp() throws IOException {
@@ -33,7 +33,7 @@ class FileHelperTest {
 
     /**
      * Cleans up test environment by deleting temporary files and directory
-     * after each test
+     * after each test.
      */
     @AfterEach
     void tearDown() throws IOException {
@@ -42,73 +42,73 @@ class FileHelperTest {
     }
 
     /**
-     * Tests file existence check functionality
-     * Verifies both existing and non-existing file cases
+     * Tests file existence check functionality.
+     * Verifies both existing and non-existing file cases.
      */
     @Test
-    void testExists() {
+    void exists_existingFile_returnsTrue() {
         assertTrue(FileHelper.exists(testFile.getAbsolutePath()));
         assertFalse(FileHelper.exists(tempDir + "/nonexistent.txt"));
     }
 
     /**
-     * Tests directory existence check functionality
-     * Verifies both existing and non-existing directory cases
+     * Tests directory existence check functionality.
+     * Verifies both existing and non-existing directory cases.
      */
     @Test
-    void testDirectoryExists() {
+    void directoryExists_existingDirectory_returnsTrue() {
         assertTrue(FileHelper.directoryExists(tempDir.toString()));
         assertFalse(FileHelper.directoryExists(tempDir + "/nonexistent"));
     }
 
     /**
-     * Tests reading file contents as byte array using file path
-     * Verifies correct content reading from file
+     * Tests reading file contents as byte array using file path.
+     * Verifies correct content reading from file.
      */
     @Test
-    void testReadAllBytes() throws IOException {
+    void readAllBytes_validFilePath_returnsContent() throws IOException {
         byte[] content = FileHelper.readAllBytes(testFile.getAbsolutePath());
         assertArrayEquals(TEST_CONTENT.getBytes(), content);
     }
 
     /**
-     * Tests reading file contents as byte array using File object
-     * Verifies correct content reading from file
+     * Tests reading file contents as byte array using File object.
+     * Verifies correct content reading from file.
      */
     @Test
-    void testLoadFile() throws IOException {
+    void loadFile_validFile_returnsContent() throws IOException {
         byte[] content = FileHelper.loadFile(testFile);
         assertArrayEquals(TEST_CONTENT.getBytes(), content);
     }
 
     /**
-     * Tests retrieving canonical path of current directory
-     * Verifies path existence and validity
+     * Tests retrieving canonical path of current directory.
+     * Verifies path existence and validity.
      */
     @Test
-    void testGetCanonicalPath() throws IOException {
+    void getCanonicalPath_success() throws IOException {
         String path = FileHelper.getCanonicalPath();
         assertNotNull(path);
         assertTrue(new File(path).exists());
     }
 
     /**
-     * Tests retrieving system temporary directory path
-     * Verifies path existence and validity
+     * Tests retrieving system temporary directory path.
+     * Verifies path existence and validity.
      */
     @Test
-    void testGetUserTempDirectory() {
+    void TempDirectory_success() {
         String tempDir = FileHelper.getUserTempDirectory();
         assertNotNull(tempDir);
         assertTrue(new File(tempDir).exists());
     }
 
     /**
-     * Tests retrieving operating system architecture
-     * Verifies non-null and non-empty response
+     * Tests retrieving operating system architecture.
+     * Verifies non-null and non-empty response.
      */
     @Test
-    void testGetOS() {
+    void getOS_success() {
         String os = FileHelper.getOS();
         assertNotNull(os);
         assertFalse(os.isEmpty());

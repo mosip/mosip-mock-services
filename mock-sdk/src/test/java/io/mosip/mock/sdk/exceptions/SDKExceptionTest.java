@@ -13,7 +13,6 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 class SDKExceptionTest {
 
-    // Constants used for testing
     private static final String ERROR_CODE = "ERR-001";
     private static final String ERROR_MESSAGE = "Test error message";
 
@@ -22,11 +21,9 @@ class SDKExceptionTest {
      * Verifies that the exception correctly stores and returns these values
      */
     @Test
-    void testConstructorWithCodeAndMessage() {
-        // When: Creating a new SDKException with code and message
+    void constructorWithCodeAndMessage_StoresValuesCorrectly() {
         SDKException exception = new SDKException(ERROR_CODE, ERROR_MESSAGE);
 
-        // Then: Verify the stored values match the input parameters
         assertEquals(ERROR_MESSAGE, exception.getMessage());
         assertEquals(ERROR_CODE, exception.getErrorCode());
         assertEquals(ERROR_MESSAGE, exception.getErrorText());
@@ -37,11 +34,8 @@ class SDKExceptionTest {
      * Verifies the inheritance hierarchy is correct
      */
     @Test
-    void testInheritance() {
-        // When: Creating a new SDKException instance
+    void inheritance_ValidInstance_ChecksBaseClass() {
         SDKException exception = new SDKException(ERROR_CODE, ERROR_MESSAGE);
-
-        // Then: Verify it is an instance of BaseUncheckedException
         assertTrue(exception instanceof BaseUncheckedException);
     }
 
@@ -50,11 +44,9 @@ class SDKExceptionTest {
      * Verifies that null values are properly handled without throwing errors
      */
     @Test
-    public void testNullValues() {
-        // When: Creating a new SDKException with null parameters
+    public void nullValues_NullParameters_ReturnsNullFields() {
         SDKException exception = new SDKException(null, null);
 
-        // Then: Verify null values are handled correctly
         assertNull(exception.getMessage());
         assertNull(exception.getErrorCode());
         assertNull(exception.getErrorText());

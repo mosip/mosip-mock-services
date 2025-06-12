@@ -81,7 +81,7 @@ class SBIWorkerTest {
      * Verifies that all dependencies are properly set
      */
     @Test
-    void testConstructor() {
+    void constructor_initialization_success() {
         assertNotNull(sbiWorker);
         assertEquals(mockService, sbiWorker.getMockService());
         assertEquals(clientSocket, sbiWorker.getClientSocket());
@@ -93,7 +93,7 @@ class SBIWorkerTest {
      * Verifies proper setting and retrieval of worker properties
      */
     @Test
-    void testGetterSetters() {
+    void getterSetter_methods_success() {
         SBIMockService newMockService = mock(SBIMockService.class);
         Socket newSocket = mock(Socket.class);
         int newPort = 9090;
@@ -112,7 +112,7 @@ class SBIWorkerTest {
      * Verifies correct response generation for OPTIONS method
      */
     @Test
-    void testRunWithValidOptionsRequest() throws IOException {
+    void run_withValidOptionsRequest_success() throws IOException {
         String request = "OPTIONS /info HTTP/1.1\r\nContent-Length: 0\r\n\r\n";
         setupInputStreamMock(request);
 
@@ -132,7 +132,7 @@ class SBIWorkerTest {
      * Verifies proper error response for unsupported methods
      */
     @Test
-    void testRunWithInvalidMethod() throws IOException {
+    void run_withInvalidMethod_errorResponse() throws IOException {
         String request = "INVALID /info HTTP/1.1\r\nContent-Length: 0\r\n\r\n";
         setupInputStreamMock(request);
 
@@ -152,16 +152,12 @@ class SBIWorkerTest {
      * Verifies proper error handling for socket operations
      */
     @Test
-    void testRunWithIOException() throws IOException {
-        // Create a new worker instance for this specific test
+    void run_withIOException_handlingSuccess() throws IOException {
         SBIWorker testWorker = new SBIWorker(mockService, clientSocket, TEST_PORT);
-
-        // Setup mock behavior
         String testRequest = "GET / HTTP/1.1\r\n\r\n";
         ByteArrayInputStream bis = new ByteArrayInputStream(testRequest.getBytes(StandardCharsets.UTF_8));
         when(clientSocket.getInputStream()).thenReturn(new BufferedInputStream(bis));
 
-        // Mock OutputStream to throw exception
         ByteArrayOutputStream mockOutput = new ByteArrayOutputStream();
         BufferedOutputStream mockBos = new BufferedOutputStream(mockOutput) {
             @Override
@@ -171,20 +167,14 @@ class SBIWorkerTest {
 
             @Override
             public void close() throws IOException {
-                // Don't throw exception on close
             }
         };
         when(clientSocket.getOutputStream()).thenReturn(mockBos);
-
-        // Don't throw exception on socket close
         doNothing().when(clientSocket).close();
-
-        // Execute and verify
         assertDoesNotThrow(() -> {
             testWorker.run();
         });
 
-        // Verify socket was attempted to be closed
         verify(clientSocket, times(1)).close();
     }
 
@@ -193,7 +183,7 @@ class SBIWorkerTest {
      * Verifies correct processing of capture requests
      */
     @Test
-    void testRunWithValidCaptureRequest() throws IOException {
+    void run_withValidCaptureRequest_success() throws IOException {
         String request = "CAPTURE /capture HTTP/1.1\r\nContent-Length: 2\r\n\r\n{}";
         setupInputStreamMock(request);
 
@@ -213,7 +203,7 @@ class SBIWorkerTest {
      * Verifies proper error response for empty request content
      */
     @Test
-    void testRunWithEmptyRequest() throws IOException {
+    void run_withEmptyRequest_errorResponse() throws IOException {
         String request = "\r\n";
         setupInputStreamMock(request);
 

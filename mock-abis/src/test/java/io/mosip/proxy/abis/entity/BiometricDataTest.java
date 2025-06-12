@@ -19,7 +19,7 @@ class BiometricDataTest {
      * Ensures all fields are initialized to null.
      */
     @Test
-    void testDefaultConstructor() {
+    void testBiometricData_DefaultConstructor_CreatesInstanceWithNullFields() {
         BiometricData bioData = new BiometricData();
         assertNotNull(bioData);
         assertNull(bioData.getId());
@@ -34,7 +34,7 @@ class BiometricDataTest {
      * Ensures all fields are correctly initialized with the provided values.
      */
     @Test
-    void testParameterizedConstructor() {
+    void testBiometricData_ParameterizedConstructor_SetsAllFieldsCorrectly() {
         Long id = 1L;
         String type = "fingerprint";
         String subtype = "left_index";
@@ -53,7 +53,7 @@ class BiometricDataTest {
      * Ensures all fields can be set and retrieved correctly.
      */
     @Test
-    void testSettersAndGetters() {
+    void testBiometricData_SettersAndGetters_StoreAndRetrieveValuesCorrectly() {
         // Given
         BiometricData bioData = new BiometricData();
         Long id = 2L;
@@ -79,7 +79,7 @@ class BiometricDataTest {
      * and have the same hash code.
      */
     @Test
-    void testEqualsAndHashCode() {
+    void testBiometricData_EqualsAndHashCode_FollowsEqualsContract() {
         BiometricData bioData1 = new BiometricData(1L, "fingerprint", "left_index", "data1", new InsertEntity());
         BiometricData bioData2 = new BiometricData(1L, "fingerprint", "left_index", "data1", new InsertEntity());
         BiometricData bioData3 = new BiometricData(2L, "iris", "right_eye", "data2", new InsertEntity());
@@ -95,7 +95,7 @@ class BiometricDataTest {
      * Ensures the string representation contains all field values.
      */
     @Test
-    void testToString() {
+    void testBiometricData_ToString_ContainsAllFieldValues() {
         BiometricData bioData = new BiometricData(1L, "fingerprint", "left_index", "data", new InsertEntity());
         String toString = bioData.toString();
         assertNotNull(toString);

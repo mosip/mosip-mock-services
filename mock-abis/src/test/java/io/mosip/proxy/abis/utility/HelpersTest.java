@@ -29,7 +29,7 @@ class HelpersTest {
      * Verifies that it throws an IllegalStateException when invoked.
      */
     @Test
-    void testPrivateConstructor() throws Exception {
+    void testHelpers_PrivateConstructor_ThrowsIllegalStateException() throws Exception {
         Constructor<Helpers> constructor = Helpers.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         InvocationTargetException exception = assertThrows(InvocationTargetException.class,
@@ -43,7 +43,7 @@ class HelpersTest {
      * Verifies that it throws a NullPointerException.
      */
     @Test
-    void testReadFileFromResources_FileNotFound() {
+    void testReadFileFromResources_FileNotFound_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class,
                 () -> Helpers.readFileFromResources("nonexistent.txt"));
     }
@@ -53,7 +53,7 @@ class HelpersTest {
      * Verifies that it returns null.
      */
     @Test
-    void testReadStreamFromResources_FileNotFound() {
+    void testReadStreamFromResources_FileNotFound_ReturnsNull() {
         InputStream stream = Helpers.readStreamFromResources("nonexistent.txt");
         assertNull(stream);
     }

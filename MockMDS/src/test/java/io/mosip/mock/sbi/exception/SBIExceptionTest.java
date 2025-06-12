@@ -17,7 +17,7 @@ class SBIExceptionTest {
      * 2. Root cause is properly linked
      */
     @Test
-    void testSBIExceptionCreation() {
+    void SBIException_CreationWithErrorCodeAndMessage_ReturnsCorrectValues() {
         String errorCode = "ERR_001";
         String errorMessage = "Test error message";
         Exception rootCause = new RuntimeException("Root cause");
@@ -33,7 +33,7 @@ class SBIExceptionTest {
      * Verifies that SBIException is an instance of Exception class
      */
     @Test
-    void testSBIExceptionInheritance() {
+    void SBIException_Creation_ReturnsInstanceOfException() {
         SBIException exception = new SBIException("ERR_002", "Test message", null);
         assertTrue(exception instanceof Exception);
     }

@@ -21,7 +21,7 @@ class MdsUtilityTest {
      * Verifies that the encrypted data is not null and not equal to the original.
      */
     @Test
-    void testAsymmetricEncrypt() throws Exception {
+    void asymmetricEncrypt_success() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair keyPair = keyGen.generateKeyPair();
@@ -40,7 +40,7 @@ class MdsUtilityTest {
      * Verifies that the generated key is not null and uses the AES algorithm.
      */
     @Test
-    void testGetSymmetricKey() throws Exception {
+    void getSymmetricKey_success() throws Exception {
         SecretKey key = MdsUtility.getSymmetricKey();
 
         assertNotNull(key, "Generated key should not be null");
@@ -52,7 +52,7 @@ class MdsUtilityTest {
      * Mocks symmetricEncrypt() to return dummy encrypted bytes without invoking real Cipher.
      */
     @Test
-    void testSymmetricEncryptWithMock() throws Exception {
+    void symmetricEncryptWithMock_success() throws Exception {
         SecretKey dummyKey = new SecretKeySpec(new byte[32], "AES");
         byte[] input = "Test symmetric encryption".getBytes();
         byte[] aad = "TestAAD".getBytes();
@@ -73,7 +73,7 @@ class MdsUtilityTest {
      * Mocks encryptedData() method to return a fake Base64 string.
      */
     @Test
-    void testEncryptedDataWithMock() throws Exception {
+    void encryptedDataWithMock_success() throws Exception {
         SecretKey dummyKey = new SecretKeySpec(new byte[32], "AES");
         String bioValue = "biometric-data";
         String timestamp = "2024060712345678";

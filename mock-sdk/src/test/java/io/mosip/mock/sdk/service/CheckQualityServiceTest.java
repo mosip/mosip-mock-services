@@ -33,14 +33,12 @@ import java.util.List;
 @ExtendWith(MockitoExtension.class)
 class CheckQualityServiceTest {
 
-    // Mock dependencies
     @Mock
     private Environment env;
 
     @Mock
     private BiometricRecord sample;
 
-    // Service under test
     private CheckQualityService service;
 
     /**
@@ -58,16 +56,13 @@ class CheckQualityServiceTest {
      * Verifies that appropriate error response is returned
      */
     @Test
-    void testGetCheckQualityInfo_NullBDBInfo() {
-        // Create BIR with null BDBInfo
-        BIR bir = new BIR();  // BDBInfo is null
+    void getCheckQualityInfo_nullBDBInfo_returns500Error() {
+        BIR bir = new BIR();
         List<BIR> segments = Collections.singletonList(bir);
         when(sample.getSegments()).thenReturn(segments);
 
-        // Execute quality check
         Response<QualityCheck> response = service.getCheckQualityInfo();
 
-        // Verify error response
         assertAll(
                 () -> assertEquals(500, response.getStatusCode()),
                 () -> assertNull(response.getResponse())
@@ -79,15 +74,12 @@ class CheckQualityServiceTest {
      * Verifies handling of negative quality scores
      */
     @Test
-    void testGetCheckQualityInfo_InvalidQualityScore() {
-        // Create segments with invalid quality score (-1)
+    void getCheckQualityInfo_invalidQualityScore_returns404Error() {
         List<BIR> segments = createValidBiometricSegments(BiometricType.FACE, -1L);
         when(sample.getSegments()).thenReturn(segments);
 
-        // Execute quality check
         Response<QualityCheck> response = service.getCheckQualityInfo();
 
-        // Verify error response for invalid score
         assertAll(
                 () -> assertEquals(404, response.getStatusCode()),
                 () -> assertNull(response.getResponse())
@@ -99,17 +91,14 @@ class CheckQualityServiceTest {
      * Verifies handling of partially valid biometric data
      */
     @Test
-    void testGetCheckQualityInfo_MixedValidInvalidSegments() {
-        // Create mix of valid and invalid segments
+    void getCheckQualityInfo_mixedValidInvalidSegments_returns404Error() {
         List<BIR> segments = new ArrayList<>();
         segments.addAll(createValidBiometricSegments(BiometricType.FACE, 90L));
-        segments.add(new BIR()); // Add invalid segment
+        segments.add(new BIR());
         when(sample.getSegments()).thenReturn(segments);
 
-        // Execute quality check
         Response<QualityCheck> response = service.getCheckQualityInfo();
 
-        // Verify error response for mixed segments
         assertAll(
                 () -> assertEquals(404, response.getStatusCode()),
                 () -> assertNull(response.getResponse())
@@ -135,13 +124,12 @@ class CheckQualityServiceTest {
     }
 
     /**
-     * Tests quality check when the biometric type is null.
+     * Tests quality check when the biometric type is null
      * This test verifies that the service returns a 500 error response
-     * when a biometric segment has a null biometric type.
+     * when a biometric segment has a null biometric type
      */
     @Test
-    void testGetCheckQualityInfo_NullBiometricType() {
-        // Create segment with null biometric type
+    void getCheckQualityInfo_nullBiometricType_returns500Error() {
         BIR bir = new BIR();
         BDBInfo bdbInfo = new BDBInfo();
         bdbInfo.setType(null);
@@ -161,13 +149,12 @@ class CheckQualityServiceTest {
     }
 
     /**
-     * Tests quality check when the biometric type list is empty.
+     * Tests quality check when the biometric type list is empty
      * This test verifies that the service returns a 500 error response
-     * when a biometric segment has an empty biometric type list.
+     * when a biometric segment has an empty biometric type list
      */
     @Test
-    void testGetCheckQualityInfo_EmptyBiometricType() {
-        // Create segment with empty biometric type list
+    void getCheckQualityInfo_emptyBiometricType_returns500Error() {
         BIR bir = new BIR();
         BDBInfo bdbInfo = new BDBInfo();
         bdbInfo.setType(Collections.emptyList());

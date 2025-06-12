@@ -41,11 +41,8 @@ class WebAppInitializerTest {
      * - URL mapping is set to "/"
      */
     @Test
-    void testOnStartup() throws ServletException {
-        // Execute
+    void onStartup_success() throws ServletException {
         webAppInitializer.onStartup(mockServletContext);
-
-        // Verify
         verify(mockServletContext).addServlet(eq("dispatcherExample"), any(DispatcherServlet.class));
         verify(mockServletRegistration).setLoadOnStartup(1);
         verify(mockServletRegistration).addMapping("/");
@@ -56,12 +53,10 @@ class WebAppInitializerTest {
      * Verifies that RuntimeException is properly handled.
      */
     @Test
-    void testOnStartupWithError() {
-        // Setup
+    void onStartupWithError_failure() {
         when(mockServletContext.addServlet(anyString(), any(DispatcherServlet.class)))
                 .thenThrow(new RuntimeException("Servlet registration failed"));
 
-        // Execute & Verify
         assertThrows(RuntimeException.class, () -> {
             webAppInitializer.onStartup(mockServletContext);
         });

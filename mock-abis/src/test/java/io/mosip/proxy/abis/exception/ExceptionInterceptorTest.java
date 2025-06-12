@@ -46,7 +46,7 @@ class ExceptionInterceptorTest {
      * Verifies the response status, body, and failure reason.
      */
     @Test
-    void testHandleInsertRequestException() {
+    void testExceptionInterceptor_HandleInsertRequestException_ReturnsErrorResponseWithCorrectDetails() {
         RequestException exception = new RequestException(requestMO, FailureReasonsConstants.INVALID_ID);
         ResponseEntity<Object> response = exceptionInterceptor.handleInsertRequestException(exception);
         assertNotNull(response); // Verify the response is not null
@@ -63,7 +63,7 @@ class ExceptionInterceptorTest {
      * Verifies the response status and body.
      */
     @Test
-    void testHandleInsertRequestExceptionWithNullEntity() {
+    void testExceptionInterceptor_HandleInsertRequestExceptionWithNullEntity_ReturnsInternalServerErrorResponse() {
         RequestException exception = new RequestException(null, null);
         ResponseEntity<Object> response = exceptionInterceptor.handleInsertRequestException(exception);
         assertNotNull(response); // Verify the response is not null
@@ -76,7 +76,7 @@ class ExceptionInterceptorTest {
      * Verifies the response status, body, and failure reason.
      */
     @Test
-    void testHandleBindingException() {
+    void testExceptionInterceptor_HandleBindingException_ReturnsErrorResponseWithFieldErrorDetails() {
         BindingResult bindingResult = mock(BindingResult.class);
         FieldError fieldError = new FieldError("objectName", "field", "error message");
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
@@ -97,7 +97,7 @@ class ExceptionInterceptorTest {
      * Verifies the response status.
      */
     @Test
-    void testHandleBindingExceptionWithNullEntity() {
+    void testExceptionInterceptor_HandleBindingExceptionWithNullEntity_ReturnsInternalServerErrorResponse() {
         BindingResult bindingResult = mock(BindingResult.class);
         when(bindingResult.getFieldErrors()).thenReturn(List.of());
         when(bindingResult.hasErrors()).thenReturn(false);

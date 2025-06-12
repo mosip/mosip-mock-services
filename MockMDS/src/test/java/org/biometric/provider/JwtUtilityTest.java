@@ -57,7 +57,7 @@ class JwtUtilityTest {
      * and contains the expected dot separators.
      */
     @Test
-    void testGetJwt() throws Exception {
+    void getJwt_success() throws Exception {
         Method getJwtMethod = JwtUtility.class.getDeclaredMethod("getJwt",
                 byte[].class, PrivateKey.class, X509Certificate.class);
         getJwtMethod.setAccessible(true);
@@ -73,7 +73,7 @@ class JwtUtilityTest {
      * and asserting that the returned certificate is null.
      */
     @Test
-    void testGetCertificate() throws Exception {
+    void getCertificate_invalidPemFile_returnsNull() throws Exception {
         Method getCertificateMethod = JwtUtility.class.getDeclaredMethod("getCertificate");
         getCertificateMethod.setAccessible(true);
 
@@ -93,7 +93,7 @@ class JwtUtilityTest {
      * and asserting that the returned private key is null.
      */
     @Test
-    void testGetPrivateKey() throws Exception {
+    void getPrivateKey_invalidPemFile_returnsNull() throws Exception {
         Method getPrivateKeyMethod = JwtUtility.class.getDeclaredMethod("getPrivateKey");
         getPrivateKeyMethod.setAccessible(true);
 
@@ -113,7 +113,7 @@ class JwtUtilityTest {
      * and asserting that the method returns the expected content.
      */
     @Test
-    void testGetFileContent() throws Exception {
+    void getFileContent_tempFileContent_success() throws Exception {
         Method getFileContentMethod = JwtUtility.class.getDeclaredMethod("getFileContent",
                 FileInputStream.class, Charset.class);
         getFileContentMethod.setAccessible(true);
@@ -134,7 +134,7 @@ class JwtUtilityTest {
      * the returned property value matches the expected value.
      */
     @Test
-    void testGetPropertyValue() throws Exception {
+    void getPropertyValue_mockedHelper_success() throws Exception {
         Method getPropertyValueMethod = JwtUtility.class.getDeclaredMethod("getPropertyValue", String.class);
         getPropertyValueMethod.setAccessible(true);
 

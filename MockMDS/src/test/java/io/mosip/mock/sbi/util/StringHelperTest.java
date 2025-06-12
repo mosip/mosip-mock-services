@@ -10,13 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class StringHelperTest {
 
-
     /**
-     * Tests base64UrlEncode method with byte array input
-     * Verifies that byte array is correctly encoded to URL-safe base64 string
+     * Tests base64UrlEncode method with byte array input.
+     * Verifies that byte array is correctly encoded to URL-safe base64 string.
      */
     @Test
-    void testBase64UrlEncodeByteArray() {
+    void base64UrlEncode_byteArray_success() {
         byte[] input = "Test String".getBytes(StandardCharsets.UTF_8);
         String encoded = StringHelper.base64UrlEncode(input);
         assertNotNull(encoded, "Encoded string should not be null");
@@ -24,11 +23,11 @@ class StringHelperTest {
     }
 
     /**
-     * Tests base64UrlEncode method with String input
-     * Verifies that string is correctly encoded to URL-safe base64 string
+     * Tests base64UrlEncode method with String input.
+     * Verifies that string is correctly encoded to URL-safe base64 string.
      */
     @Test
-    void testBase64UrlEncodeString() {
+    void base64UrlEncode_string_success() {
         String input = "Test String";
         String encoded = StringHelper.base64UrlEncode(input);
         assertNotNull(encoded, "Encoded string should not be null");
@@ -36,11 +35,11 @@ class StringHelperTest {
     }
 
     /**
-     * Tests base64UrlDecode method
-     * Verifies that base64 encoded string is correctly decoded back to original bytes
+     * Tests base64UrlDecode method.
+     * Verifies that base64 encoded string is correctly decoded back to original bytes.
      */
     @Test
-    void testBase64UrlDecode() {
+    void base64UrlDecode_success() {
         String original = "Test String";
         String encoded = StringHelper.base64UrlEncode(original);
         byte[] decoded = StringHelper.base64UrlDecode(encoded);
@@ -49,11 +48,11 @@ class StringHelperTest {
     }
 
     /**
-     * Tests toUtf8ByteArray method
-     * Verifies that string is correctly converted to UTF-8 byte array
+     * Tests toUtf8ByteArray method.
+     * Verifies that string is correctly converted to UTF-8 byte array.
      */
     @Test
-    void testToUtf8ByteArray() {
+    void toUtf8ByteArray_success() {
         String input = "Test String";
         byte[] result = StringHelper.toUtf8ByteArray(input);
         assertArrayEquals(input.getBytes(StandardCharsets.UTF_8), result,
@@ -61,11 +60,11 @@ class StringHelperTest {
     }
 
     /**
-     * Tests isValidLength method with various inputs
-     * Verifies length validation works correctly for different scenarios
+     * Tests isValidLength method with various inputs.
+     * Verifies length validation works correctly for different scenarios.
      */
     @Test
-    void testIsValidLength() {
+    void isValidLength_variousInputs_success() {
         assertTrue(StringHelper.isValidLength("test", 2, 6),
                 "String length within range should return true");
         assertFalse(StringHelper.isValidLength("test", 5, 10),
@@ -77,11 +76,11 @@ class StringHelperTest {
     }
 
     /**
-     * Tests isAlphaNumericHyphenWithMinMaxLength method with valid inputs
-     * Verifies that valid alphanumeric strings with hyphens are accepted
+     * Tests isAlphaNumericHyphenWithMinMaxLength method with valid inputs.
+     * Verifies that valid alphanumeric strings with hyphens are accepted.
      */
     @Test
-    void testIsAlphaNumericHyphenWithMinMaxLengthValid() {
+    void isAlphaNumericHyphenWithMinMaxLength_validInputs_success() {
         assertTrue(StringHelper.isAlphaNumericHyphenWithMinMaxLength("a1b2-c3d4"),
                 "Valid alphanumeric with hyphen should return true");
         assertTrue(StringHelper.isAlphaNumericHyphenWithMinMaxLength("abcd"),
@@ -91,11 +90,11 @@ class StringHelperTest {
     }
 
     /**
-     * Tests isAlphaNumericHyphenWithMinMaxLength method with invalid inputs
-     * Verifies that invalid strings are rejected
+     * Tests isAlphaNumericHyphenWithMinMaxLength method with invalid inputs.
+     * Verifies that invalid strings are rejected.
      */
     @Test
-    void testIsAlphaNumericHyphenWithMinMaxLengthInvalid() {
+    void isAlphaNumericHyphenWithMinMaxLength_invalidInputs_failure() {
         assertFalse(StringHelper.isAlphaNumericHyphenWithMinMaxLength("abc"),
                 "String below min length should return false");
         assertFalse(StringHelper.isAlphaNumericHyphenWithMinMaxLength("a b"),

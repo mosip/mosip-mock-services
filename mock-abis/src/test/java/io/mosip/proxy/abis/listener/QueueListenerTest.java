@@ -16,7 +16,7 @@ public class QueueListenerTest {
      * Verifies that no interactions occur with the mock Message object.
      */
     @Test
-    public void testSetListenerIsCalled() {
+    public void setListener_called_noInteractionWithMessage() {
         Message mockMessage = mock(Message.class);
         QueueListener listener = new QueueListener() {
             @Override

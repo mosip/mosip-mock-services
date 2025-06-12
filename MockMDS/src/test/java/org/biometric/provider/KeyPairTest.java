@@ -19,7 +19,9 @@ class KeyPairTest {
     private static final String PUBLIC_KEY_PATH = "C:\\Users\\m1048290\\Desktop\\keys\\public.pem";
     private static final String KEYS_DIR = "C:\\Users\\m1048290\\Desktop\\keys";
 
-    // Sets up the keys directory and deletes any existing key files before each test.
+    /**
+     * Sets up the test environment by creating the keys directory and deleting any existing key files.
+     */
     @BeforeEach
     void setup() {
         File keyDir = new File(KEYS_DIR);
@@ -30,9 +32,11 @@ class KeyPairTest {
         new File(PUBLIC_KEY_PATH).delete();
     }
 
-    // Tests that an RSA key pair is generated successfully and validates algorithm names.
+    /**
+     * Tests that an RSA key pair is generated successfully and validates algorithm names.
+     */
     @Test
-    void testGenerateRSAKeyPair() throws Exception {
+    void generateRSAKeyPair_success() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair keyPair = keyGen.generateKeyPair();
@@ -46,9 +50,11 @@ class KeyPairTest {
         assertEquals("RSA", privateKey.getAlgorithm(), "Algorithm should be RSA");
     }
 
-    // Tests that the generated public and private keys are different.
+    /**
+     * Tests that the generated public and private keys are different.
+     */
     @Test
-    void testKeysAreDifferent() throws Exception {
+    void keysAreDifferent_success() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair keyPair = keyGen.generateKeyPair();
@@ -60,7 +66,9 @@ class KeyPairTest {
         );
     }
 
-    // Cleans up the key files after each test.
+    /**
+     * Cleans up the test environment by deleting the key files after each test.
+     */
     @AfterEach
     void cleanupAfter() {
         new File(PRIVATE_KEY_PATH).delete();

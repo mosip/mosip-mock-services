@@ -58,7 +58,7 @@ class JMSConfigTest {
      * Uses MockedStatic to mock static Helpers class methods
      */
     @Test
-    void testActiveMQConnectionFactory_LocalDevelopment() {
+    void testActiveMQConnectionFactory_LocalDevelopment_ReturnsValidFactory() {
         try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
             ReflectionTestUtils.setField(jmsConfig, "localDevelopment", true);
             mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(VALID_JSON);
@@ -74,7 +74,7 @@ class JMSConfigTest {
      * Uses MockedStatic to simulate file reading from resources.
      */
     @Test
-    void testGetJson_LocalDevelopment() throws Exception {
+    void testGetJson_LocalDevelopment_ReturnsValidJson() throws Exception {
         try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
             mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(VALID_JSON);
             String result = ReflectionTestUtils.invokeMethod(jmsConfig, "getJson",
@@ -89,7 +89,7 @@ class JMSConfigTest {
      * Uses ReflectionTestUtils to access private method.
      */
     @Test
-    void testValidateAbisQueueJsonAndReturnValue_Success() {
+    void testvalidateAbisQueueJsonAndReturnValue_WhenKeyExists_ReturnsValue() {
         Map<String, String> jsonMap = Map.of("userName", "testUser");
         String result = ReflectionTestUtils.invokeMethod(jmsConfig,
                 "validateAbisQueueJsonAndReturnValue", jsonMap, "userName");
@@ -102,7 +102,7 @@ class JMSConfigTest {
      * Uses MockedStatic to simulate empty JSON response.
      */
     @Test
-    void testActiveMQConnectionFactory_EmptyAbisArray() {
+    void testActiveMQConnectionFactory_EmptyAbisArray_ReturnsNull() {
         try (MockedStatic<Helpers> mockedHelpers = Mockito.mockStatic(Helpers.class)) {
             String emptyJson = "{\"abis\":[]}";
             mockedHelpers.when(() -> Helpers.readFileFromResources(anyString())).thenReturn(emptyJson);

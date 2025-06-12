@@ -52,7 +52,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testSetExpectation() {
+    void testSetExpectation_ValidExpectation_ReturnsResponseContainingId() {
         Expectation expectation = new Expectation();
         expectation.setId("test-id");
 
@@ -71,7 +71,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testGetExpectation() {
+    void testGetExpectation_WhenExpectationsExist_ReturnsHttpOkWithMap() {
         Map<String, Expectation> expectations = new HashMap<>();
         when(proxyAbisConfigService.getExpectations()).thenReturn(expectations);
 
@@ -89,7 +89,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testDeleteExpectation() {
+    void testDeleteExpectation_WhenValidId_ReturnsHttpOkWithIdInBody() {
         String id = "test-id";
 
         ResponseEntity<String> response = controller.deleteExpectation(id);
@@ -107,7 +107,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testDeleteAllExpectations() {
+    void testDeleteAllExpectations_WhenCalled_ReturnsHttpOkWithSuccessMessage() {
         ResponseEntity<String> response = controller.deleteAllExpectations();
 
         verify(proxyAbisConfigService).deleteExpectations();
@@ -123,7 +123,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testCheckConfiguration() {
+    void testCheckConfiguration_WhenDuplicateExists_ReturnsHttpOkWithTrueFlag() {
         when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
 
         ResponseEntity<ConfigureDto> response = controller.checkConfiguration();
@@ -140,7 +140,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testConfigure() {
+    void testConfigure_WhenFindDuplicateIsTrue_ReturnsHttpOkWithSuccessMessage() {
         ConfigureDto configureDto = new ConfigureDto();
         configureDto.setFindDuplicate(true);
 
@@ -159,7 +159,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testGetCache() {
+    void testGetCache_WhenCachedBiometricsExist_ReturnsHttpOkWithBiometricList() {
         List<String> cachedBiometrics = Arrays.asList("bio1", "bio2");
         when(proxyAbisConfigService.getCachedBiometrics()).thenReturn(cachedBiometrics);
 
@@ -177,7 +177,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testGetCacheByHash() {
+    void testGetCacheByHash_WhenValidHashProvided_ReturnsHttpOkWithBiometricList() {
         String hash = "test-hash";
         List<String> cachedBiometrics = List.of("bio1");
         when(proxyAbisConfigService.getCachedBiometric(hash)).thenReturn(cachedBiometrics);
@@ -196,7 +196,7 @@ class ProxyAbisConfigControllerTest {
      * - HTTP status is OK
      */
     @Test
-    void testDeleteCache() {
+    void testDeleteCache_WhenInvoked_DeletesAllCachedBiometricsAndReturnsSuccess() {
         ResponseEntity<String> response = controller.deleteCache();
 
         verify(proxyAbisConfigService).deleteAllCachedBiometrics();
@@ -211,7 +211,7 @@ class ProxyAbisConfigControllerTest {
      * - Exception contains appropriate error message
      */
     @Test
-    void testSetExpectationWithException() {
+    void testSetExpectation_WhenServiceThrowsException_ShouldThrowAbisException() {
         Expectation expectation = new Expectation();
         doThrow(new RuntimeException("Test error")).when(proxyAbisConfigService).setExpectation(any());
 
@@ -225,7 +225,7 @@ class ProxyAbisConfigControllerTest {
      * - Exception handling works as expected
      */
     @Test
-    void testGetExpectationWithException() {
+    void testGetExpectation_WhenServiceThrowsException_ShouldThrowAbisException() {
         when(proxyAbisConfigService.getExpectations()).thenThrow(new RuntimeException("Test error"));
 
         assertThrows(AbisException.class, () -> controller.getExpectation());
@@ -238,7 +238,7 @@ class ProxyAbisConfigControllerTest {
      * - AbisException is thrown with correct message
      */
     @Test
-    void testDeleteExpectationWithException() {
+    void testDeleteExpectation_WhenServiceThrowsException_ShouldThrowAbisException() {
         String id = "test-id";
         doThrow(new RuntimeException("Test error"))
                 .when(proxyAbisConfigService).deleteExpectation(id);
@@ -253,7 +253,7 @@ class ProxyAbisConfigControllerTest {
      * - AbisException is thrown with correct message
      */
     @Test
-    void testDeleteAllExpectationsWithException() {
+    void testDeleteAllExpectations_WhenServiceThrowsException_ShouldThrowAbisException() {
         doThrow(new RuntimeException("Test error"))
                 .when(proxyAbisConfigService).deleteExpectations();
 
@@ -267,7 +267,7 @@ class ProxyAbisConfigControllerTest {
      * - AbisException is thrown with correct message
      */
     @Test
-    void testGetCacheWithException() {
+    void testGetCache_WhenServiceThrowsException_ShouldThrowAbisException() {
         when(proxyAbisConfigService.getCachedBiometrics())
                 .thenThrow(new RuntimeException("Test error"));
 
@@ -281,7 +281,7 @@ class ProxyAbisConfigControllerTest {
      * - AbisException is thrown with correct message
      */
     @Test
-    void testGetCacheByHashWithException() {
+    void testGetCacheByHash_WhenServiceThrowsException_ShouldThrowAbisException() {
         String hash = "test-hash";
         when(proxyAbisConfigService.getCachedBiometric(hash))
                 .thenThrow(new RuntimeException("Test error"));
@@ -296,7 +296,7 @@ class ProxyAbisConfigControllerTest {
      * - AbisException is thrown with correct message
      */
     @Test
-    void testDeleteCacheWithException() {
+    void testDeleteCache_WhenServiceThrowsException_ShouldThrowAbisException() {
         doThrow(new RuntimeException("Test error"))
                 .when(proxyAbisConfigService).deleteAllCachedBiometrics();
 
@@ -310,7 +310,7 @@ class ProxyAbisConfigControllerTest {
      * - AbisException is thrown with appropriate message
      */
     @Test
-    void testConfigureWithNullDto() {
+    void testConfigure_WhenDtoIsNull_ShouldThrowAbisException() {
         assertThrows(AbisException.class, () -> controller.configure(null, bindingResult));
     }
 }

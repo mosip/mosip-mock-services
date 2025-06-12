@@ -1,6 +1,7 @@
 package io.mosip.mock.mv.exception;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ class MVExceptionTest {
      * Ensures cause is null when not provided.
      */
     @Test
-    void testConstructorWithErrorCodeAndMessage() {
+    void constructorWithErrorCodeAndMessage_ValidatesMVException_Creation() {
         String errorCode = "ERR-001";
         String errorMessage = "Service failed";
 
@@ -29,7 +30,7 @@ class MVExceptionTest {
      * Ensures cause is accessible via getCause().
      */
     @Test
-    void testConstructorWithErrorCodeMessageAndCause() {
+    void constructorWithErrorCodeMessageAndCause_ValidatesMVException_Creation() {
         String errorCode = "ERR-002";
         String errorMessage = "Database failure";
         Throwable cause = new RuntimeException("Root cause");

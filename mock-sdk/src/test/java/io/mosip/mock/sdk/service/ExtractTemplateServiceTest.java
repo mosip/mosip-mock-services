@@ -51,7 +51,7 @@ class ExtractTemplateServiceTest {
      * a null biometric record, and a non-null status message.
      */
     @Test
-    void testGetExtractTemplateInfo_NullSample() {
+    void getExtractTemplateInfo_nullSample_returns402WithNullResponse() {
         service = new ExtractTemplateService(env, null, modalities, new HashMap<>());
 
         Response<BiometricRecord> response = service.getExtractTemplateInfo();
@@ -69,7 +69,7 @@ class ExtractTemplateServiceTest {
      * a null biometric record, and a non-null status message.
      */
     @Test
-    void testGetExtractTemplateInfo_EmptySegments() {
+    void getExtractTemplateInfo_emptySegments_returns402WithNullResponse() {
         sample.setSegments(Collections.emptyList());
 
         Response<BiometricRecord> response = service.getExtractTemplateInfo();
@@ -87,7 +87,7 @@ class ExtractTemplateServiceTest {
      * a null biometric record, and a non-null status message.
      */
     @Test
-    void testGetExtractTemplateInfo_NullSegments() {
+    void getExtractTemplateInfo_nullSegments_returns402WithNullResponse() {
         sample.setSegments(null);
 
         Response<BiometricRecord> response = service.getExtractTemplateInfo();
@@ -105,7 +105,7 @@ class ExtractTemplateServiceTest {
      * INTERMEDIATE or PROCESSED.
      */
     @Test
-    void testGetRandomLevelType() {
+    void getRandomLevelType_anyCall_returnsIntermediateOrProcessed() {
         ProcessedLevelType level = service.getRandomLevelType();
         assertTrue(Arrays.asList(ProcessedLevelType.INTERMEDIATE, ProcessedLevelType.PROCESSED).contains(level));
     }

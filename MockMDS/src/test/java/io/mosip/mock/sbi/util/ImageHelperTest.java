@@ -24,7 +24,7 @@ class ImageHelperTest {
     private static final int TEST_IMAGE_HEIGHT = 100;
 
     /**
-     * Sets up test environment by creating temporary directory and test image files
+     * Sets up test environment by creating temporary directory and test image files.
      */
     @BeforeEach
     void setUp() throws IOException {
@@ -32,13 +32,11 @@ class ImageHelperTest {
         inputImageFile = new File(tempDir.toFile(), "test_input.png");
         outputImageFile = new File(tempDir.toFile(), "test_output.jp2");
 
-        // Create a test image
         BufferedImage testImage = new BufferedImage(
                 TEST_IMAGE_WIDTH,
                 TEST_IMAGE_HEIGHT,
                 BufferedImage.TYPE_INT_RGB
         );
-        // Add some content to the image
         for (int x = 0; x < TEST_IMAGE_WIDTH; x++) {
             for (int y = 0; y < TEST_IMAGE_HEIGHT; y++) {
                 testImage.setRGB(x, y, (x + y) % 256);
@@ -48,7 +46,7 @@ class ImageHelperTest {
     }
 
     /**
-     * Cleans up test files after each test
+     * Cleans up test files after each test.
      */
     @AfterEach
     void tearDown() {
@@ -68,10 +66,10 @@ class ImageHelperTest {
     }
 
     /**
-     * Tests successful conversion of image to JPEG2000 format
+     * Tests successful conversion of image to JPEG2000 format.
      */
     @Test
-    void testToJ2000Success() {
+    void toJ2000_success() {
         assertDoesNotThrow(() -> {
             ImageHelper.toJ2000(
                     inputImageFile.getAbsolutePath(),
@@ -84,10 +82,10 @@ class ImageHelperTest {
     }
 
     /**
-     * Tests handling of non-existent input file
+     * Tests handling of non-existent input file.
      */
     @Test
-    void testToJ2000WithNonExistentInput() {
+    void toJ2000_nonExistentInput_throwsIOException() {
         String nonExistentFile = tempDir + "/nonexistent.png";
         assertThrows(IOException.class, () ->
                 ImageHelper.toJ2000(nonExistentFile, outputImageFile.getAbsolutePath())
@@ -95,15 +93,13 @@ class ImageHelperTest {
     }
 
     /**
-     * Tests handling of invalid input file format
+     * Tests handling of invalid input file format.
      */
     @Test
-    void testToJ2000WithInvalidInputFile() throws IOException {
-        // Create invalid file
+    void toJ2000_invalidInputFile_throwsIllegalArgumentException() throws IOException {
         File invalidFile = new File(tempDir.toFile(), "invalid.png");
         Files.write(invalidFile.toPath(), "not an image".getBytes());
 
-        // Test the conversion
         assertThrows(IllegalArgumentException.class, () ->
                         ImageHelper.toJ2000(
                                 invalidFile.getAbsolutePath(),
@@ -114,10 +110,10 @@ class ImageHelperTest {
     }
 
     /**
-     * Tests handling of null input parameters
+     * Tests handling of null input parameters.
      */
     @Test
-    void testToJ2000WithNullParameters() {
+    void toJ2000_nullParameters_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () ->
                 ImageHelper.toJ2000(null, outputImageFile.getAbsolutePath())
         );
@@ -126,5 +122,4 @@ class ImageHelperTest {
                 ImageHelper.toJ2000(inputImageFile.getAbsolutePath(), null)
         );
     }
-
 }

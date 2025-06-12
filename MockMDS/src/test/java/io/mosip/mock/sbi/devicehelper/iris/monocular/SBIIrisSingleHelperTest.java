@@ -49,7 +49,7 @@ public class SBIIrisSingleHelperTest {
      * Tests getInstance method to verify proper initialization
      */
     @Test
-    public void testGetInstance() {
+    public void getInstance_InitializedWithPortAndPurpose_ReturnsNonNullInstance() {
         assertNotNull("getInstance should return non-null instance", irisHelper);
         assertEquals("Port should be set correctly", PORT, irisHelper.getPort());
         assertEquals("Purpose should be set correctly", PURPOSE, irisHelper.getPurpose());
@@ -59,7 +59,7 @@ public class SBIIrisSingleHelperTest {
      * Tests device initialization process
      */
     @Test
-    public void testInitDevice() {
+    public void initDevice_Called_ReturnsZeroAndInitializesCaptureInfoInstance() {
         long result = irisHelper.initDevice();
         assertEquals("initDevice should return 0 on success", 0, result);
         assertNotNull("Capture info should be initialized", irisHelper.getCaptureInfo());
@@ -71,7 +71,7 @@ public class SBIIrisSingleHelperTest {
      * Tests device deinitialization process
      */
     @Test
-    public void testDeInitDevice() {
+    public void deInitDevice_AfterInitDevice_ReturnsZeroAndClearsCaptureInfo() {
         irisHelper.initDevice();
         int result = irisHelper.deInitDevice();
         assertEquals("deInitDevice should return 0", 0, result);
@@ -82,7 +82,7 @@ public class SBIIrisSingleHelperTest {
      * Tests getting live stream with no image available
      */
     @Test
-    public void testGetLiveStream() {
+    public void getLiveStream_AfterInitDevice_NoImage_ReturnsMinusOne() {
         irisHelper.initDevice();
         int result = irisHelper.getLiveStream();
         assertEquals("getLiveStream should return -1 when no image", -1, result);
@@ -92,12 +92,11 @@ public class SBIIrisSingleHelperTest {
      * Tests bio capture for authentication purpose
      */
     @Test
-    public void testGetBioCapture_Auth() throws Exception {
+    public void getBioCapture_ForAuthentication_CaptureStarted_ReturnsZero() throws Exception {
         irisHelper.initDevice();
         SBIIrisSingleCaptureInfo captureInfo = (SBIIrisSingleCaptureInfo) irisHelper.getCaptureInfo();
         captureInfo.setCaptureStarted(true);
 
-        // Set device sub ID for single iris
         irisHelper.setDeviceSubId(SBIConstant.DEVICE_IRIS_SINGLE_SUB_TYPE_ID);
 
         int result = irisHelper.getBioCapture(true);
@@ -108,8 +107,7 @@ public class SBIIrisSingleHelperTest {
      * Tests bio capture for registration purpose
      */
     @Test
-    public void testGetBioCapture_Registration() throws Exception {
-        // Create registration purpose helper
+    public void getBioCapture_ForRegistration_CaptureStarted_ReturnsZero() throws Exception {
         SBIIrisSingleHelper registrationHelper = SBIIrisSingleHelper.getInstance(
                 PORT, SBIConstant.PURPOSE_REGISTRATION, KEYSTORE_PATH, BIOMETRIC_IMAGE_TYPE);
 

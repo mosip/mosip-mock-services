@@ -42,7 +42,7 @@ class SegmentServiceTest {
      * and a non-null biometric record when provided with valid inputs.
      */
     @Test
-    void testGetSegmentInfo_Success() {
+    void getSegmentInfo_validInputs_returnsSuccessResponse() {
         Response<BiometricRecord> response = service.getSegmentInfo();
 
         assertAll(
@@ -58,7 +58,7 @@ class SegmentServiceTest {
      * and a non-null biometric record.
      */
     @Test
-    void testGetSegmentInfo_WithNullSample() {
+    void getSegmentInfo_nullSample_returnsValidResponse() {
         service = new SegmentService(env, null, Arrays.asList(BiometricType.FACE), new HashMap<>());
 
         Response<BiometricRecord> response = service.getSegmentInfo();
@@ -75,7 +75,7 @@ class SegmentServiceTest {
      * Ensures that the response is valid with status code 200 and a non-null biometric record.
      */
     @Test
-    void testGetSegmentInfo_WithEmptyModalities() {
+    void getSegmentInfo_emptyModalities_returnsValidResponse() {
         service = new SegmentService(env, sample, Collections.emptyList(), new HashMap<>());
 
         Response<BiometricRecord> response = service.getSegmentInfo();
@@ -93,7 +93,7 @@ class SegmentServiceTest {
      * and a non-null biometric record.
      */
     @Test
-    void testGetSegmentInfo_WithNullModalities() {
+    void getSegmentInfo_nullModalities_returnsValidResponse() {
         service = new SegmentService(env, sample, null, new HashMap<>());
 
         Response<BiometricRecord> response = service.getSegmentInfo();
@@ -110,7 +110,7 @@ class SegmentServiceTest {
      * Ensures that the response is valid with status code 200 and a non-null biometric record.
      */
     @Test
-    void testGetSegmentInfo_WithNullFlags() {
+    void getSegmentInfo_nullFlags_returnsValidResponse() {
         service = new SegmentService(env, sample, Arrays.asList(BiometricType.FACE), null);
 
         Response<BiometricRecord> response = service.getSegmentInfo();
@@ -127,7 +127,7 @@ class SegmentServiceTest {
      * Specifically, verifies that the biometric record's segments are null.
      */
     @Test
-    void testGetSegmentInfo_VerifyResponseStructure() {
+    void getSegmentInfo_responseStructure_returnsExpectedStructure() {
         Response<BiometricRecord> response = service.getSegmentInfo();
 
         assertAll(

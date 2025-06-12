@@ -56,7 +56,7 @@ class SDKInfoServiceTest {
      * Verifies that API version is properly set and not empty
      */
     @Test
-    void testGetSDKInfo_BasicInfo() {
+    void getSDKInfo_basicInfo_returnsValidApiVersion() {
         SDKInfo info = service.getSDKInfo();
 
         assertAll(
@@ -71,7 +71,7 @@ class SDKInfoServiceTest {
      * Verifies that all expected modalities (FINGER, FACE, IRIS) are supported
      */
     @Test
-    void testGetSDKInfo_SupportedModalities() {
+    void getSDKInfo_supportedModalities_returnsAllExpectedModalities() {
         SDKInfo info = service.getSDKInfo();
         List<BiometricType> expectedModalities = Arrays.asList(
                 BiometricType.FINGER,
@@ -92,7 +92,7 @@ class SDKInfoServiceTest {
      * are supported
      */
     @Test
-    void testGetSDKInfo_SupportedMethods() {
+    void getSDKInfo_supportedMethods_returnsAllBiometricFunctions() {
         SDKInfo info = service.getSDKInfo();
         Map<BiometricFunction, List<BiometricType>> methods = info.getSupportedMethods();
 
@@ -111,7 +111,7 @@ class SDKInfoServiceTest {
      * Verifies that each function supports all three modalities (FINGER, FACE, IRIS)
      */
     @Test
-    void testGetSDKInfo_MethodModalities() {
+    void getSDKInfo_methodModalities_returnsAllModalitiesForEachFunction() {
         SDKInfo info = service.getSDKInfo();
         Map<BiometricFunction, List<BiometricType>> methods = info.getSupportedMethods();
 
@@ -132,7 +132,7 @@ class SDKInfoServiceTest {
      * Verifies that service functions correctly even with null environment
      */
     @Test
-    void testGetSDKInfo_WithNullEnvironment() {
+    void getSDKInfo_nullEnvironment_returnsValidSDKInfo() {
         service = new SDKInfoService(null, SPEC_VERSION, ORGANIZATION, TYPE, VERSION);
         SDKInfo info = service.getSDKInfo();
 

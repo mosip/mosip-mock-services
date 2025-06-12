@@ -15,110 +15,93 @@ import static org.mockito.Mockito.verify;
 
 class TestMockSBITest {
 
-     static final Logger logger = LoggerFactory.getLogger(TestMockSBITest.class);
+    static final Logger logger = LoggerFactory.getLogger(TestMockSBITest.class);
 
-     @Mock
-     private SBIMockService mockService;
+    @Mock
+    private SBIMockService mockService;
 
     @BeforeEach
-     void setUp() {
-        // Initialize the mock service before each test
+    void setUp() {
         mockService = mock(SBIMockService.class);
     }
 
     /**
-     * Test if the purpose is valid.
+     * Tests if the purpose is valid.
      */
     @Test
-     void testIsValidPurpose_ValidPurpose() {
+    void isValidPurpose_validPurpose_success() {
         String validPurpose = SBIConstant.MOSIP_PURPOSE_REGISTRATION;
         assertTrue(isValidPurpose(validPurpose), "Valid purpose should return true.");
     }
 
     /**
-     * Test if the biometric type is valid.
+     * Tests if the biometric type is valid.
      */
     @Test
-    void testIsValidBiometricType_ValidBiometricType() {
+    void isValidBiometricType_validBiometricType_success() {
         String validBiometricType = SBIConstant.MOSIP_BIOMETRIC_TYPE_FINGER;
         assertTrue(isValidBiometricType(validBiometricType), "Valid biometric type should return true.");
     }
 
     /**
-     * Test if the biometric image type is valid.
+     * Tests if the biometric image type is valid.
      */
     @Test
-    void testIsValidBiometricImageType_ValidBiometricImageType() {
+    void isValidBiometricImageType_validBiometricImageType_success() {
         String validBiometricImageType = SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000;
         assertTrue(isValidBiometricImageType(SBIConstant.MOSIP_PURPOSE_REGISTRATION, validBiometricImageType),
                 "Valid biometric image type should return true.");
     }
 
-
     /**
-     * Test if the `SBIMockService` handles invalid purposes correctly.
+     * Tests if the SBIMockService handles invalid purposes correctly.
      */
     @Test
-    void testMain_InvalidPurpose() {
-        // Arrange
+    void main_invalidPurpose_success() {
         String[] args = new String[]{
                 "mosip.mock.sbi.device.purpose=InvalidPurpose",
                 "mosip.mock.sbi.biometric.type=Biometric Device",
                 "mosip.mock.sbi.biometric.image.type=JP2000"
         };
 
-        // Act
         TestMockSBI.main(args);
-
-        // Assert
-        // We are verifying that the logger logs the error about invalid arguments
-        // We assume the logging is done inside the `run` method or via logger in the `TestMockSBI` class
-        verify(mockService, never()).run(); // Make sure the run method is never called
+        verify(mockService, never()).run();
     }
 
     /**
-     * Test if the `SBIMockService` handles invalid biometric types correctly.
+     * Tests if the SBIMockService handles invalid biometric types correctly.
      */
     @Test
-    void testMain_InvalidBiometricType() {
-        // Arrange
+    void main_invalidBiometricType_success() {
         String[] args = new String[]{
                 "mosip.mock.sbi.device.purpose=Registration",
                 "mosip.mock.sbi.biometric.type=InvalidBiometricType",
                 "mosip.mock.sbi.biometric.image.type=JP2000"
         };
 
-        // Act
         TestMockSBI.main(args);
-
-        // Assert
-        verify(mockService, never()).run(); // Ensure the run method is never called for invalid biometric type
+        verify(mockService, never()).run();
     }
 
     /**
-     * Test if the `SBIMockService` handles invalid biometric image types correctly.
+     * Tests if the SBIMockService handles invalid biometric image types correctly.
      */
     @Test
-    void testMain_InvalidBiometricImageType() {
-        // Arrange
+    void main_invalidBiometricImageType_success() {
         String[] args = new String[]{
                 "mosip.mock.sbi.device.purpose=Registration",
                 "mosip.mock.sbi.biometric.type=Biometric Device",
                 "mosip.mock.sbi.biometric.image.type=InvalidImageType"
         };
 
-        // Act
         TestMockSBI.main(args);
-
-        // Assert
-        verify(mockService, never()).run(); // Ensure the run method is never called for invalid image type
+        verify(mockService, never()).run();
     }
 
     /**
      * Helper method to validate the purpose.
-     * You can mock this method to test various scenarios in your actual test class.
      */
-     boolean isValidPurpose(String purpose) {
+    boolean isValidPurpose(String purpose) {
         if (purpose == null || purpose.trim().length() == 0)
             return false;
 

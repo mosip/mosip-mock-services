@@ -35,7 +35,7 @@ class ExpectationCacheImplTest {
      * 3. The expectation can be retrieved using its key
      */
     @Test
-    void testInsertAndGetAll() {
+    void insertAndGetAll_ValidInsertion_ReturnsExpectationMap() {
         Expectation expectation = new Expectation();
         expectation.setRId("test1");
         cache.insert(expectation);
@@ -51,7 +51,7 @@ class ExpectationCacheImplTest {
      * Verifies that the retrieved expectation matches the one that was inserted.
      */
     @Test
-    void testGetByIdExisting() {
+    void getById_ExistingId_ReturnsExpectation() {
         Expectation expectation = new Expectation();
         expectation.setRId("test2");
         cache.insert(expectation);
@@ -65,7 +65,7 @@ class ExpectationCacheImplTest {
      * Verifies that a new Expectation instance is returned instead of null.
      */
     @Test
-    void testGetByIdNotExisting() {
+    void getById_NonExistingId_ReturnsNull() {
         Expectation retrieved = cache.get("nonexistent");
         assertNotNull(retrieved);
     }
@@ -75,7 +75,7 @@ class ExpectationCacheImplTest {
      * Verifies that the expectation is properly removed and no longer accessible.
      */
     @Test
-    void testDelete() {
+    void delete_ExistingId_RemovesExpectation() {
         Expectation expectation = new Expectation();
         expectation.setRId("test3");
         cache.insert(expectation);
@@ -90,7 +90,7 @@ class ExpectationCacheImplTest {
      * Verifies that the cache is completely emptied after the operation.
      */
     @Test
-    void testDeleteAll() {
+    void deleteAll_MultipleExpectations_ClearsAllExpectations() {
         Expectation e1 = new Expectation();
         Expectation e2 = new Expectation();
         e1.setRId("id1");

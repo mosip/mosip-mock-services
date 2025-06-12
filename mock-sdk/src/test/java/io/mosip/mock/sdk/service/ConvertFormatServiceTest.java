@@ -57,25 +57,20 @@ public class ConvertFormatServiceTest {
      */
     @Before
     public void setup() {
-        // Initialize common test data
         sourceFormat = "ISO19794_4_2011";
         targetFormat = "ISO19794_5_2011";
         sourceParams = new HashMap<>();
         targetParams = new HashMap<>();
         modalitiesToConvert = List.of(BiometricType.FINGER);
 
-        // Create sample biometric record
         sampleRecord = new BiometricRecord();
         List<BIR> segments = new ArrayList<>();
 
-        // Add a valid finger BIR segment
         BIR fingerBir = createBIR(BiometricType.FINGER, Arrays.asList("RIGHT", "THUMB"), "sampleFingerData".getBytes());
         segments.add(fingerBir);
 
-        // Set segments to biometric record
         sampleRecord.setSegments(segments);
 
-        // Initialize service with mocks
         convertFormatService = new ConvertFormatService(
                 environment, sampleRecord, sourceFormat, targetFormat,
                 sourceParams, targetParams, modalitiesToConvert);
@@ -87,7 +82,7 @@ public class ConvertFormatServiceTest {
      * a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_InvalidBIRData() {
+    public void getConvertFormatInfo_invalidBIRData_returnsMissingInputStatus() {
         List<BIR> segments = new ArrayList<>();
         BIR invalidBir = createBIR(BiometricType.FINGER, Arrays.asList("RIGHT", "THUMB"), null);
         segments.add(invalidBir);
@@ -111,14 +106,12 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the INVALID_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_InvalidBiometricType() {
-        // Create a BIR for FACE when source format is for FINGER
+    public void getConvertFormatInfo_invalidBiometricType_returnsInvalidInputStatus() {
         List<BIR> segments = new ArrayList<>();
         BIR faceBir = createBIR(BiometricType.FACE, List.of("FULL"), "sampleFaceData".getBytes());
         segments.add(faceBir);
         sampleRecord.setSegments(segments);
 
-        // Re-initialize service with invalid biometric type
         convertFormatService = new ConvertFormatService(
                 environment, sampleRecord, sourceFormat, targetFormat,
                 sourceParams, targetParams, modalitiesToConvert);
@@ -136,7 +129,7 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_SDKException_InvalidInput() {
+    public void getConvertFormatInfo_sdkExceptionInvalidInput_returnsMissingInputStatus() {
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
             utilMock.when(() -> Util.encodeToURLSafeBase64(any(byte[].class)))
                     .thenThrow(new SDKException(String.valueOf(ResponseStatus.INVALID_INPUT.getStatusCode()), "Invalid input"));
@@ -155,16 +148,13 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_SDKException_MissingInput() {
+    public void getConvertFormatInfo_sdkExceptionMissingInput_returnsMissingInputStatus() {
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
-            // Mock Util to throw SDKException
             utilMock.when(() -> Util.encodeToURLSafeBase64(any(byte[].class)))
                     .thenThrow(new SDKException(String.valueOf(ResponseStatus.MISSING_INPUT.getStatusCode()), "Missing input"));
 
-            // Execute the method
             Response<BiometricRecord> response = convertFormatService.getConvertFormatInfo();
 
-            // Assertions
             assertNotNull(response);
             assertEquals(Integer.valueOf(ResponseStatus.MISSING_INPUT.getStatusCode()), response.getStatusCode());
             assertNull(response.getResponse());
@@ -177,7 +167,7 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_SDKException_QualityCheckFailed() {
+    public void getConvertFormatInfo_sdkExceptionQualityCheckFailed_returnsMissingInputStatus() {
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
             utilMock.when(() -> Util.encodeToURLSafeBase64(any(byte[].class)))
                     .thenThrow(new SDKException(String.valueOf(ResponseStatus.QUALITY_CHECK_FAILED.getStatusCode()), "Quality check failed"));
@@ -196,7 +186,7 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_ConversionException() {
+    public void getConvertFormatInfo_conversionException_returnsMissingInputStatus() {
         ConverterServiceImpl converterServiceMock = mock(ConverterServiceImpl.class);
 
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
@@ -218,7 +208,7 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_ConversionException_InvalidSource() {
+    public void getConvertFormatInfo_conversionExceptionInvalidSource_returnsMissingInputStatus() {
         ConverterServiceImpl converterServiceMock = mock(ConverterServiceImpl.class);
 
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
@@ -240,7 +230,7 @@ public class ConvertFormatServiceTest {
      * MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_ConversionException_EmptySource() {
+    public void getConvertFormatInfo_conversionExceptionEmptySource_returnsMissingInputStatus() {
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
             utilMock.when(() -> Util.encodeToURLSafeBase64(any(byte[].class))).thenReturn("encodedSampleData");
             Response<BiometricRecord> response = convertFormatService.getConvertFormatInfo();
@@ -256,7 +246,7 @@ public class ConvertFormatServiceTest {
      * the service returns a response with the MISSING_INPUT status code and a null response.
      */
     @Test
-    public void testGetConvertFormatInfo_GenericException() {
+    public void getConvertFormatInfo_genericException_returnsMissingInputStatus() {
         try (MockedStatic<Util> utilMock = mockStatic(Util.class)) {
             utilMock.when(() -> Util.encodeToURLSafeBase64(any(byte[].class)))
                     .thenThrow(new RuntimeException("Generic error"));
@@ -280,17 +270,14 @@ public class ConvertFormatServiceTest {
     private BIR createBIR(BiometricType bioType, List<String> bioSubTypes, byte[] bdb) {
         BIR bir = new BIR();
 
-        // Create BDBInfo
         BDBInfo bdbInfo = new BDBInfo();
         bdbInfo.setType(Collections.singletonList(bioType));
         bdbInfo.setSubtype(bioSubTypes);
         bir.setBdbInfo(bdbInfo);
 
-        // Create BIRInfo
         BIRInfo birInfo = new BIRInfo();
         bir.setBirInfo(birInfo);
 
-        // Set BDB
         bir.setBdb(bdb);
 
         return bir;
@@ -308,7 +295,6 @@ public class ConvertFormatServiceTest {
             converterServiceField.setAccessible(true);
             converterServiceField.set(convertFormatService, mock);
         } catch (Exception e) {
-            // Ignore for testing
         }
     }
 }
