@@ -104,7 +104,6 @@ public abstract class SDKService {
 	 * @return true if "Exception" is present and set to "true" (case-insensitive), false otherwise.
 	 */
 	protected boolean isValidException(Map<String, String> others) {
-		System.out.println("SDKService.isValidException>> " + others);
 		if (others != null && !others.isEmpty() && others.containsKey("EXCEPTION")) {
 			String exceptionValue = others.get("EXCEPTION");
 			return "true".equalsIgnoreCase(exceptionValue);
