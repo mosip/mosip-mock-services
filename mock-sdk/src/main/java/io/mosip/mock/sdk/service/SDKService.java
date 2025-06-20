@@ -141,6 +141,20 @@ public abstract class SDKService {
 	}
 
 	/**
+	 * Checks if the "Exception" key exists in the provided map and its value is "true" (case-insensitive).
+	 *
+	 * @param others The map containing additional attributes.
+	 * @return true if "Exception" is present and set to "true" (case-insensitive), false otherwise.
+	 */
+	protected boolean isValidException(Map<String, String> others) {
+		if (others != null && !others.isEmpty() && others.containsKey("EXCEPTION")) {
+			String exceptionValue = others.get("EXCEPTION");
+			return "true".equalsIgnoreCase(exceptionValue);
+		}
+		return false;
+	}
+
+	/**
 	 * Validates the data within a Biometric Information Record (BIR).
 	 *
 	 * @param bir The Biometric Information Record to validate

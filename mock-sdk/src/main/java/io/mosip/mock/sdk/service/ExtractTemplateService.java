@@ -132,6 +132,9 @@ public class ExtractTemplateService extends SDKService {
 	 */
 	private void doExtractTemplateInfo(BiometricRecord bioRecord) {
 		for (BIR segment : bioRecord.getSegments()) {
+			if (isValidException(segment.getOthers()))
+				break;
+
 			if (!isValidBirData(segment))
 				break;
 
