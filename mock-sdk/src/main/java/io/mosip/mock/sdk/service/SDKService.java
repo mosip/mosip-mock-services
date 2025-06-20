@@ -107,8 +107,6 @@ public abstract class SDKService {
 		System.out.println("SDKService.isValidException>> " + others);
 		if (others != null && !others.isEmpty() && others.containsKey("EXCEPTION")) {
 			String exceptionValue = others.get("EXCEPTION");
-			System.out.println("SDKService.isValidException>> Exception found with value: " + exceptionValue);
-			System.out.println("true".equalsIgnoreCase(exceptionValue));
 			return "true".equalsIgnoreCase(exceptionValue);
 		}
 		return false;
