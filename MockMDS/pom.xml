@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.mock.mds</groupId>
 	<artifactId>mock-mds</artifactId>
-	<version>1.2.1-rc1</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<name>mock-mds</name>
 	<description>A mock project for biometric provider</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
@@ -53,8 +53,8 @@
 		<mockito.inline.version>4.11.0</mockito.inline.version>
 
 		<!-- Mosip -->
-		<kernel.bom.version>1.2.1-rc1</kernel.bom.version>
-		<kernel.core.version>1.2.1-rc1</kernel.core.version>
+		<kernel.bom.version>1.3.0-SNAPSHOT</kernel.bom.version>
+		<kernel.core.version>1.3.0-SNAPSHOT</kernel.core.version>
 
 			<!--sonar-->
 			<maven.sonar.plugin.version>5.1.0.4751</maven.sonar.plugin.version>
@@ -67,7 +67,7 @@
 			**/KernelBioConverterApplication.java
 		</sonar.coverage.exclusions>
 
-		<mosip.biometrics.util.version>1.2.1-rc1</mosip.biometrics.util.version>
+		<mosip.biometrics.util.version>1.3.0-SNAPSHOT</mosip.biometrics.util.version>
 	</properties>
 
 	<dependencyManagement>

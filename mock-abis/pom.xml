@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.mosip.mock.abis</groupId>
     <artifactId>mock-abis</artifactId>
-    <version>1.2.1-rc1</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MockAbis</name>
@@ -57,9 +57,9 @@
         </sonar.exclusions>
 
         <!-- Mosip -->
-        <kernel.bom.version>1.2.1-rc1</kernel.bom.version>
-        <kernel.core.version>1.2.1-rc1</kernel.core.version>
-        <kernel.biometrics.api.version>1.2.1-rc1</kernel.biometrics.api.version>
+        <kernel.bom.version>1.3.0-SNAPSHOT</kernel.bom.version>
+        <kernel.core.version>1.3.0-SNAPSHOT</kernel.core.version>
+        <kernel.biometrics.api.version>1.3.0-SNAPSHOT</kernel.biometrics.api.version>
     </properties>
 
     <dependencyManagement>
