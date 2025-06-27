@@ -239,7 +239,12 @@ public class Listener {
 			return failureReason;
 		}
 
-		if (version == null || version.isBlank() || version.isEmpty() || !(version.equalsIgnoreCase("1.1"))) {
+		if (version == null) {
+			failureReason = FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE; // invalid request structure
+			return failureReason;
+		}
+
+		if (version.isBlank() || version.isEmpty() || !(version.equalsIgnoreCase("1.1"))) {
 			failureReason = FailureReasonsConstants.INVALID_VERSION; // invalid version
 			return failureReason;
 		}
