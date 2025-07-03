@@ -49,7 +49,7 @@ public class ExtractTemplateService extends SDKService {
 				LOGGER.info("extractTemplate segment size {}", sample.getSegments().size());
 				
 			for (BIR segment : sample.getSegments()) {
-				if (isValidException(segment.getOthers()))
+				if (isValidException(segment))
 					break;
 
 				if (!isValidBirData(segment))

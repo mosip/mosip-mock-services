@@ -98,17 +98,27 @@ public abstract class SDKService {
 	}
 
 	/**
-	 * Checks if the "Exception" key exists in the provided map and its value is "true" (case-insensitive).
-	 *
-	 * @param others The map containing additional attributes.
-	 * @return true if "Exception" is present and set to "true" (case-insensitive), false otherwise.
+	 * @return true if the segment has "EXCEPTION" set to "true" (case-insensitive) and no BDB is present.
+	 * Throws an exception if both "EXCEPTION" is true and BDB exists.
+	 * Returns false otherwise.
 	 */
-	protected boolean isValidException(Map<String, String> others) {
-		if (others != null && !others.isEmpty() && others.containsKey("EXCEPTION")) {
-			String exceptionValue = others.get("EXCEPTION");
-			return "true".equalsIgnoreCase(exceptionValue);
+	protected boolean isValidException(BIR segment) {
+		if (segment == null || segment.getOthers() == null || segment.getOthers().isEmpty()) {
+			return false;
 		}
-		return false;
+		Map<String, String> others = segment.getOthers();
+		String exceptionValue = others.get("EXCEPTION");
+		boolean isException = exceptionValue != null && !exceptionValue.isEmpty() && "true".equalsIgnoreCase(exceptionValue);
+		byte[] bdb = segment.getBdb();
+		boolean hasBdb = bdb != null && bdb.length > 0;
+		// If it's an exception and has BDB, throw an exception
+		if (isException && hasBdb) {
+			throw new SDKException(
+					String.valueOf(ResponseStatus.INVALID_INPUT.getStatusCode()),
+					ResponseStatus.INVALID_INPUT.getStatusMessage()
+			);
+		}
+		return isException;
 	}
 
 	protected boolean isValidBirData(BIR bir) {
