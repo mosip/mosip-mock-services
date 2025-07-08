@@ -64,12 +64,36 @@ public class ExtractTemplateService extends SDKService {
 		ResponseStatus responseStatus = null;
 		Response<BiometricRecord> response = new Response<>();
 		try {
-			if (Objects.isNull(sample) || Objects.isNull(sample.getSegments()) || sample.getSegments().isEmpty()) {
+			if (sample == null || sample.getSegments() == null || sample.getSegments().isEmpty()) {
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 			}
 
-			doExtractTemplateInfo(sample);
+			if (sample != null)
+				logger.info("extractTemplate segment size {}", sample.getSegments().size());
+
+			for (BIR segment : sample.getSegments()) {
+				if (isValidException(segment))
+					break;
+
+				if (!isValidBirData(segment))
+					break;
+
+				segment.getBirInfo().setPayload(segment.getBdb());
+				BDBInfo bdbInfo = segment.getBdbInfo();
+				if (bdbInfo != null) {
+					// Update the level to processed
+					bdbInfo.setLevel(getRandomLevelType());
+					if (segment.getBdbInfo().getFormat() != null) {
+						String type = segment.getBdbInfo().getFormat().getType();
+						// Update the fingerprint image to fingerprint minutiae type
+						if (type != null && type.equals(String.valueOf(FORMAT_TYPE_FINGER))) {
+							segment.getBdbInfo().getFormat().setType(String.valueOf(FORMAT_TYPE_FINGER_MINUTIAE));
+						}
+					}
+				}
+				// do actual extraction
+			}
 		} catch (SDKException ex) {
 			logger.error("extractTemplate -- error", ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {

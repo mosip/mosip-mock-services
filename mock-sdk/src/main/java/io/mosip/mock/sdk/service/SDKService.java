@@ -211,6 +211,30 @@ public abstract class SDKService {
 	}
 
 	/**
+	 * @return true if the segment has "EXCEPTION" set to "true" (case-insensitive) and no BDB is present.
+	 * Throws an exception if both "EXCEPTION" is true and BDB exists.
+	 * Returns false otherwise.
+	 */
+	protected boolean isValidException(BIR segment) {
+		if (segment == null || segment.getOthers() == null || segment.getOthers().isEmpty()) {
+			return false;
+		}
+		Map<String, String> others = segment.getOthers();
+		String exceptionValue = others.get("EXCEPTION");
+		boolean isException = exceptionValue != null && !exceptionValue.isEmpty() && "true".equalsIgnoreCase(exceptionValue);
+		byte[] bdb = segment.getBdb();
+		boolean hasBdb = bdb != null && bdb.length > 0;
+		// If it's an exception and has BDB, throw an exception
+		if (isException && hasBdb) {
+			throw new SDKException(
+					String.valueOf(ResponseStatus.INVALID_INPUT.getStatusCode()),
+					ResponseStatus.INVALID_INPUT.getStatusMessage()
+			);
+		}
+		return isException;
+	}
+
+	/**
 	 * Validates the Biometric Data Block (BDB) data associated with a biometric
 	 * type and subtype.
 	 *
