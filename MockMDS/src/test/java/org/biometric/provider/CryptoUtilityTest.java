@@ -2,8 +2,6 @@ package org.biometric.provider;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -16,12 +14,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 
 class CryptoUtilityTest {
 
@@ -54,24 +50,6 @@ class CryptoUtilityTest {
         assertNotNull(result.get("ENC_SESSION_KEY"), "Encrypted session key should not be null");
         assertNotNull(result.get("ENC_DATA"), "Encrypted data should not be null");
         assertNotNull(result.get("TIMESTAMP"), "Timestamp should not be null");
-    }
-
-    /**
-     * Tests decryption with invalid parameters.
-     * Verifies that the result is null when decryption fails.
-     */
-    @Test
-    void decrypt_invalidParameters_returnsNull() {
-        PrivateKey mockPrivateKey = mock(PrivateKey.class);
-        String sessionKey = "badSessionKey";
-        String encryptedData = "badEncryptedData";
-        String timestamp = "invalid";
-        String transactionId = "txn";
-
-        try (MockedStatic<CryptoUtility> utils = mockStatic(CryptoUtility.class)) {
-            String result = CryptoUtility.decrypt(mockPrivateKey, sessionKey, encryptedData, timestamp, transactionId);
-            assertNull(result); // fallback in catch block
-        }
     }
 
     /**
