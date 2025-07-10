@@ -4,16 +4,13 @@ import static java.lang.Integer.parseInt;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import io.mosip.kernel.biometrics.model.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +28,6 @@ import io.mosip.kernel.biometrics.entities.BDBInfo;
 import io.mosip.kernel.biometrics.entities.BIR;
 import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.entities.VersionType;
-import io.mosip.kernel.biometrics.model.Decision;
-import io.mosip.kernel.biometrics.model.MatchDecision;
-import io.mosip.kernel.biometrics.model.Response;
 
 /**
  * Unit tests for SampleSDKV2 class, validating biometric matching scenarios.
@@ -240,5 +234,106 @@ public class SampleSDKV2Test {
 		}
 		biometricRecord.setSegments(birSegments);
 		return biometricRecord;
+	}
+	/**
+	 * Tests the initialization of the SDK.
+	 */
+	@Test
+	public void test_init() {
+		SampleSDKV2 sampleSDK = new SampleSDKV2();
+		SDKInfo sdkInfo = sampleSDK.init(new HashMap<>());
+
+		Assert.assertNotNull(sdkInfo);
+		Assert.assertEquals("0.9", sdkInfo.getApiVersion());
+	}
+
+	/**
+	 * Tests the quality check functionality with expected error.
+	 */
+	@Test
+	public void test_checkQuality() {
+		try {
+			SampleSDKV2 sampleSDK = new SampleSDKV2();
+			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
+			List<BiometricType> modalitiesToCheck = Arrays.asList(BiometricType.FACE, BiometricType.FINGER, BiometricType.IRIS);
+
+			Response<QualityCheck> response = sampleSDK.checkQuality(sampleBioRecord, modalitiesToCheck, new HashMap<>());
+
+			Assert.assertNotNull(response);
+			Assert.assertEquals(401, (int)response.getStatusCode());
+			Assert.assertNull(response.getResponse());
+		} catch (ParserConfigurationException | IOException | SAXException e) {
+			logger.error("test_checkQuality", e);
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	/**
+	 * Tests the template extraction functionality with expected error.
+	 */
+	@Test
+	public void test_extractTemplate() {
+		try {
+			SampleSDKV2 sampleSDK = new SampleSDKV2();
+			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
+			List<BiometricType> modalitiesToExtract = Arrays.asList(BiometricType.FACE, BiometricType.FINGER, BiometricType.IRIS);
+
+			Response<BiometricRecord> response = sampleSDK.extractTemplate(sampleBioRecord, modalitiesToExtract, new HashMap<>());
+
+			Assert.assertNotNull(response);
+			Assert.assertEquals(401, (int)response.getStatusCode());
+			Assert.assertNull(response.getResponse());
+		} catch (ParserConfigurationException | IOException | SAXException e) {
+			logger.error("test_extractTemplate", e);
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	/**
+	 * Tests the format conversion functionality (V2) with expected error.
+	 */
+	@Test
+	public void test_convertFormatV2() {
+		try {
+			SampleSDKV2 sampleSDK = new SampleSDKV2();
+			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
+			List<BiometricType> modalitiesToConvert = Arrays.asList(BiometricType.FACE, BiometricType.FINGER, BiometricType.IRIS);
+
+			Response<BiometricRecord> response = sampleSDK.convertFormatV2(
+					sampleBioRecord,
+					"sourceFormat",
+					"targetFormat",
+					new HashMap<>(),
+					new HashMap<>(),
+					modalitiesToConvert
+			);
+
+			Assert.assertNotNull(response);
+			Assert.assertEquals(401, (int)response.getStatusCode());
+			Assert.assertNull(response.getResponse());
+		} catch (ParserConfigurationException | IOException | SAXException e) {
+			logger.error("test_convertFormatV2", e);
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	/**
+	 * Tests the segmentation functionality.
+	 */
+	@Test
+	public void test_segment() {
+		try {
+			SampleSDKV2 sampleSDK = new SampleSDKV2();
+			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
+			List<BiometricType> modalitiesToSegment = Arrays.asList(BiometricType.FACE, BiometricType.FINGER, BiometricType.IRIS);
+
+			Response<BiometricRecord> response = sampleSDK.segment(sampleBioRecord, modalitiesToSegment, new HashMap<>());
+
+			Assert.assertNotNull(response);
+			Assert.assertEquals(200, (int)response.getStatusCode());
+		} catch (ParserConfigurationException | IOException | SAXException e) {
+			logger.error("test_segment", e);
+			Assert.fail(e.getMessage());
+		}
 	}
 }
