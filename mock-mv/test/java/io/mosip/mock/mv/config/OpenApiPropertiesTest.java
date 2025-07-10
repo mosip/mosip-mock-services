@@ -19,14 +19,14 @@ class OpenApiPropertiesTest {
      */
     @Test
     void openApiProperties_SetAndGet_success() {
-        LicenseProperty license = new LicenseProperty();
+        io.mosip.mock.mv.config.LicenseProperty license = new io.mosip.mock.mv.config.LicenseProperty();
         license.setName("MIT");
         license.setUrl("https://opensource.org/licenses/MIT");
 
         assertEquals("MIT", license.getName());
         assertEquals("https://opensource.org/licenses/MIT", license.getUrl());
 
-        InfoProperty info = new InfoProperty();
+        io.mosip.mock.mv.config.InfoProperty info = new io.mosip.mock.mv.config.InfoProperty();
         info.setTitle("Mock API");
         info.setDescription("Mock description");
         info.setVersion("v1.0");
@@ -37,22 +37,22 @@ class OpenApiPropertiesTest {
         assertEquals("v1.0", info.getVersion());
         assertEquals(license, info.getLicense());
 
-        Server server1 = new Server();
+        io.mosip.mock.mv.config.Server server1 = new io.mosip.mock.mv.config.Server();
         server1.setDescription("Local server");
         server1.setUrl("http://localhost:8080");
 
-        Server server2 = new Server();
+        io.mosip.mock.mv.config.Server server2 = new io.mosip.mock.mv.config.Server();
         server2.setDescription("Prod server");
         server2.setUrl("https://api.example.com");
 
-        Service service = new Service();
+        io.mosip.mock.mv.config.Service service = new io.mosip.mock.mv.config.Service();
         service.setServers(List.of(server1, server2));
 
         assertEquals(2, service.getServers().size());
         assertEquals("Local server", service.getServers().getFirst().getDescription());
         assertEquals("http://localhost:8080", service.getServers().getFirst().getUrl());
 
-        Group group = new Group();
+        io.mosip.mock.mv.config.Group group = new io.mosip.mock.mv.config.Group();
         group.setName("public");
         group.setPaths(List.of("/api/v1/**", "/health"));
 
@@ -60,7 +60,7 @@ class OpenApiPropertiesTest {
         assertEquals(2, group.getPaths().size());
         assertTrue(group.getPaths().contains("/api/v1/**"));
 
-        OpenApiProperties openApiProperties = new OpenApiProperties();
+        io.mosip.mock.mv.config.OpenApiProperties openApiProperties = new io.mosip.mock.mv.config.OpenApiProperties();
         openApiProperties.setInfo(info);
         openApiProperties.setService(service);
         openApiProperties.setGroup(group);

@@ -37,7 +37,7 @@ class MockMvConfigControllerTest {
     private BindingResult bindingResult;
 
     @InjectMocks
-    private MockMvConfigController controller;
+    private io.mosip.mock.mv.controller.MockMvConfigController controller;
 
     /**
      * Sets up the test environment before each test method execution.
@@ -46,7 +46,7 @@ class MockMvConfigControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        controller = new MockMvConfigController(mockMvDecisionService);
+        controller = new io.mosip.mock.mv.controller.MockMvConfigController(mockMvDecisionService);
     }
 
     /**

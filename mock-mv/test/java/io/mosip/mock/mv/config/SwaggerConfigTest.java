@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class SwaggerConfigTest {
 
-    private SwaggerConfig swaggerConfig;
+    private io.mosip.mock.mv.config.SwaggerConfig swaggerConfig;
 
     /**
      * Initializes the SwaggerConfig instance with a fully populated OpenApiProperties object.
@@ -25,37 +25,37 @@ class SwaggerConfigTest {
      */
     @BeforeEach
     void setUp() {
-        LicenseProperty licenseProperty = new LicenseProperty();
+        io.mosip.mock.mv.config.LicenseProperty licenseProperty = new io.mosip.mock.mv.config.LicenseProperty();
         licenseProperty.setName("Apache 2.0");
         licenseProperty.setUrl("https://www.apache.org/licenses/LICENSE-2.0");
 
-        InfoProperty infoProperty = new InfoProperty();
+        io.mosip.mock.mv.config.InfoProperty infoProperty = new io.mosip.mock.mv.config.InfoProperty();
         infoProperty.setTitle("Mock API");
         infoProperty.setDescription("Mock API Description");
         infoProperty.setVersion("1.0.0");
         infoProperty.setLicense(licenseProperty);
 
-        Server mosipServer1 = new Server();
+        io.mosip.mock.mv.config.Server mosipServer1 = new io.mosip.mock.mv.config.Server();
         mosipServer1.setDescription("Localhost");
         mosipServer1.setUrl("http://localhost:8080");
 
-        Server mosipServer2 = new Server();
+        io.mosip.mock.mv.config.Server mosipServer2 = new io.mosip.mock.mv.config.Server();
         mosipServer2.setDescription("Production");
         mosipServer2.setUrl("https://api.example.com");
 
-        Service service = new Service();
+        io.mosip.mock.mv.config.Service service = new io.mosip.mock.mv.config.Service();
         service.setServers(List.of(mosipServer1, mosipServer2));
 
-        Group group = new Group();
+        io.mosip.mock.mv.config.Group group = new io.mosip.mock.mv.config.Group();
         group.setName("mock-group");
         group.setPaths(List.of("/api/**", "/health"));
 
-        OpenApiProperties openApiProperties = new OpenApiProperties();
+        io.mosip.mock.mv.config.OpenApiProperties openApiProperties = new io.mosip.mock.mv.config.OpenApiProperties();
         openApiProperties.setInfo(infoProperty);
         openApiProperties.setService(service);
         openApiProperties.setGroup(group);
 
-        swaggerConfig = new SwaggerConfig(openApiProperties);
+        swaggerConfig = new io.mosip.mock.mv.config.SwaggerConfig(openApiProperties);
     }
 
     /**

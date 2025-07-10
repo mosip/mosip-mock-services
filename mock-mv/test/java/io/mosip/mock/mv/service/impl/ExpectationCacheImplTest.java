@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * for Expectation objects.
  */
 class ExpectationCacheImplTest {
-    private ExpectationCacheImpl cache;
+    private io.mosip.mock.mv.service.impl.ExpectationCacheImpl cache;
 
     /**
      * Initializes a fresh cache instance before each test method execution
@@ -24,7 +24,7 @@ class ExpectationCacheImplTest {
      */
     @BeforeEach
     void setUp() {
-        cache = new ExpectationCacheImpl();
+        cache = new io.mosip.mock.mv.service.impl.ExpectationCacheImpl();
     }
 
     /**

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class JMSConfigTest {
 
-    private JMSConfig jmsConfig;
+    private io.mosip.mock.mv.config.JMSConfig jmsConfig;
 
     /**
      * Set up the test environment before each test method.
@@ -25,7 +25,7 @@ class JMSConfigTest {
      */
     @BeforeEach
     void setUp() {
-        jmsConfig = new JMSConfig();
+        jmsConfig = new io.mosip.mock.mv.config.JMSConfig();
         ReflectionTestUtils.setField(jmsConfig, "mausername", "testuser");
         ReflectionTestUtils.setField(jmsConfig, "mapassword", "testpass");
         ReflectionTestUtils.setField(jmsConfig, "mabrokerUrl", "tcp://localhost:61616");

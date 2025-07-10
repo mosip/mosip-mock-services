@@ -20,7 +20,7 @@ import org.mockito.MockitoAnnotations;
  */
 class MockMvDecisionServiceImplTest {
 
-    private MockMvDecisionServiceImpl service;
+    private io.mosip.mock.mv.service.impl.MockMvDecisionServiceImpl service;
 
     @Mock
     private ExpectationCache expectationCache;
@@ -32,7 +32,7 @@ class MockMvDecisionServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new MockMvDecisionServiceImpl(expectationCache);
+        service = new io.mosip.mock.mv.service.impl.MockMvDecisionServiceImpl(expectationCache);
     }
 
     /**
