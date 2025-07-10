@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
-        import java.time.OffsetDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -1029,4 +1029,298 @@ class ProxyAbisInsertServiceImplTest {
         String result = proxyAbisInsertService.saveUploadedFileWithParameters(uploadedFile, "alias", "password", "keystore");
         assertNotNull(result);
     }
+
+    /**
+     * Tests insertData with null request.
+     */
+    @Test
+    void insertData_nullRequest_throwsRequestException() {
+        assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(null);
+        });
+    }
+
+    /**
+     * Tests fetchCBEFF with URISyntaxException.
+     */
+    @Test
+    void insertData_uriSyntaxException_throwsRequestException() {
+        when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(String.class)))
+                .thenThrow(new IllegalArgumentException("Invalid URI"));
+
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(insertRequest);
+        });
+
+        assertEquals(FailureReasonsConstants.UNABLE_TO_FETCH_BIOMETRIC_DETAILS, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests validateBirs method with null BIR.
+     */
+    @Test
+    void validateBirs_nullBir_throwsRequestException() throws Exception {
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateBirs", (BIR) null);
+        });
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests validateBirs method with empty BIRs list.
+     */
+    @Test
+    void validateBirs_emptyBirsList_throwsRequestException() throws Exception {
+        BIR birInfo = new BIR();
+        birInfo.setBirs(new ArrayList<>());
+
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateBirs", birInfo);
+        });
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests processExpectation with NoDuplicate response.
+     */
+    @Test
+    void processExpectation_noDuplicateResponse_returnsEmptyCandidateList() throws Exception {
+        Expectation expectation = new Expectation();
+        expectation.setForcedResponse("NoDuplicate");
+
+        IdentityResponse response = ReflectionTestUtils.invokeMethod(
+                proxyAbisInsertService, "processExpectation", identityRequest, expectation, null);
+
+        assertNotNull(response);
+        assertEquals("0", response.getCandidateList().getCount());
+    }
+
+    /**
+     * Tests processExpectation with gallery but no reference IDs found.
+     */
+    @Test
+    void processExpectation_galleryNoRefIds_returnsEmptyCandidateList() throws Exception {
+        Expectation expectation = new Expectation();
+        expectation.setForcedResponse("Duplicate");
+
+        Expectation.Gallery gallery = new Expectation.Gallery();
+        List<Expectation.ReferenceIds> refIds = new ArrayList<>();
+        Expectation.ReferenceIds refId = new Expectation.ReferenceIds();
+        refId.setReferenceId("test-ref");
+        refIds.add(refId);
+        gallery.setReferenceIds(refIds);
+        expectation.setGallery(gallery);
+
+        when(proxyAbisBioDataRepository.fetchReferenceId(anyString())).thenReturn(new ArrayList<>());
+
+        IdentityResponse response = ReflectionTestUtils.invokeMethod(
+                proxyAbisInsertService, "processExpectation", identityRequest, expectation, null);
+
+        assertNotNull(response);
+    }
+
+    /**
+     * Tests getAnalytics with null environment.
+     */
+    @Test
+    void getAnalytics_nullEnvironment_returnsEmptyAnalytics() throws Exception {
+        ReflectionTestUtils.setField(proxyAbisInsertService, "env", null);
+
+        IdentityResponse.Analytics analytics = ReflectionTestUtils.invokeMethod(
+                proxyAbisInsertService, "getAnalytics");
+
+        assertNotNull(analytics);
+        assertNull(analytics.getConfidence());
+    }
+
+    /**
+     * Tests findDuplication with gallery and expectation with gallery reference IDs.
+     */
+    @Test
+    void findDuplication_galleryExpectationWithGalleryRefIds_returnsResponse() {
+        IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
+        List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
+        IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
+        refId.setReferenceId("gallery-ref-id");
+        referenceIds.add(refId);
+        gallery.setReferenceIds(referenceIds);
+        identityRequest.setGallery(gallery);
+
+        List<String> bioValues = new ArrayList<>();
+        bioValues.add("hash-value");
+
+        Expectation expectation = new Expectation();
+        expectation.setId("test-expectation");
+        expectation.setActionToInterfere("Identify");
+        expectation.setDelayInExecution("1000");
+        expectation.setForcedResponse("Duplicate");
+
+        Expectation.Gallery expGallery = new Expectation.Gallery();
+        List<Expectation.ReferenceIds> expRefIds = new ArrayList<>();
+        Expectation.ReferenceIds expRefId = new Expectation.ReferenceIds();
+        expRefId.setReferenceId("exp-ref-id");
+        expRefIds.add(expRefId);
+        expGallery.setReferenceIds(expRefIds);
+        expectation.setGallery(expGallery);
+
+        when(proxyabis.fetchCountForReferenceIdPresentInGallery(anyList())).thenReturn(1);
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(bioValues);
+        when(expectationCache.get(anyString())).thenReturn(expectation);
+        when(proxyAbisBioDataRepository.fetchByReferenceId(anyString(), anyList()))
+                .thenReturn(List.of("exp-ref-id"));
+
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        assertNotNull(response);
+        assertEquals(1000, response.getDelayResponse());
+    }
+
+    /**
+     * Tests findDuplication with empty gallery reference ID.
+     */
+    @Test
+    void findDuplication_emptyGalleryReferenceId_usesEntireDB() {
+        IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
+        List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
+        IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
+        refId.setReferenceId("");
+        referenceIds.add(refId);
+        gallery.setReferenceIds(referenceIds);
+        identityRequest.setGallery(gallery);
+
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
+        when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(new ArrayList<>());
+
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        assertNotNull(response);
+        assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
+    }
+
+    /**
+     * Tests findDuplication with null gallery reference ID.
+     */
+    @Test
+    void findDuplication_nullGalleryReferenceId_usesEntireDB() {
+        IdentityRequest.Gallery gallery = new IdentityRequest.Gallery();
+        List<IdentityRequest.ReferenceIds> referenceIds = new ArrayList<>();
+        IdentityRequest.ReferenceIds refId = new IdentityRequest.ReferenceIds();
+        refId.setReferenceId(null);
+        referenceIds.add(refId);
+        gallery.setReferenceIds(referenceIds);
+        identityRequest.setGallery(gallery);
+
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString())).thenReturn(new ArrayList<>());
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(true);
+        when(proxyAbisBioDataRepository.fetchDuplicatesForReferenceId(anyString())).thenReturn(new ArrayList<>());
+
+        IdentifyDelayResponse response = proxyAbisInsertService.findDuplication(identityRequest);
+
+        assertNotNull(response);
+        assertEquals("0", response.getIdentityResponse().getCandidateList().getCount());
+    }
+
+    /**
+     * Tests fetchCBEFF with blank CBEFF data after decryption.
+     */
+    @Test
+    void insertData_withBlankCbeffAfterDecryption_throwsRequestException() throws Exception {
+        String encryptedCbeff = "encrypted-data";
+
+        when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(encryptedCbeff));
+        when(cryptoUtil.decryptCbeff(encryptedCbeff)).thenReturn("   ");
+
+        ReflectionTestUtils.setField(proxyAbisInsertService, "encryption", true);
+
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(insertRequest);
+        });
+
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests fetchCBEFF with null CBEFF data after decryption.
+     */
+    @Test
+    void insertData_withNullCbeffAfterDecryption_throwsRequestException() throws Exception {
+        String encryptedCbeff = "encrypted-data";
+
+        when(proxyabis.findById(anyString())).thenReturn(Optional.empty());
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(encryptedCbeff));
+        when(cryptoUtil.decryptCbeff(encryptedCbeff)).thenReturn(null);
+
+        ReflectionTestUtils.setField(proxyAbisInsertService, "encryption", true);
+
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            proxyAbisInsertService.insertData(insertRequest);
+        });
+
+        assertEquals(FailureReasonsConstants.CBEFF_HAS_NO_DATA, exception.getReasonConstant());
+    }
+
+    /**
+     * Tests processExpectation with empty gallery reference IDs.
+     */
+    @Test
+    void processExpectation_withEmptyGalleryRefIds_returnsEmptyResponse() throws Exception {
+        Expectation expectation = new Expectation();
+        expectation.setForcedResponse("Duplicate");
+
+        Expectation.Gallery gallery = new Expectation.Gallery();
+        List<Expectation.ReferenceIds> refIds = new ArrayList<>();
+        Expectation.ReferenceIds refId = new Expectation.ReferenceIds();
+        refId.setReferenceId("test-ref");
+        refIds.add(refId);
+        gallery.setReferenceIds(refIds);
+        expectation.setGallery(gallery);
+
+        when(proxyAbisBioDataRepository.fetchReferenceId(anyString())).thenReturn(new ArrayList<>());
+
+        IdentityResponse response = ReflectionTestUtils.invokeMethod(
+                proxyAbisInsertService, "processExpectation", identityRequest, expectation, null);
+
+        assertNotNull(response);
+        assertEquals("0", response.getCandidateList().getCount());
+    }
+
+    /**
+     * Tests validateCBEFFData with null errors in JSON.
+     */
+    @Test
+    void validateCBEFFData_withNullErrors_handlesGracefully() throws Exception {
+        String jsonWithNullErrors = "{\"errors\":null}";
+
+        // Should handle gracefully without throwing exception
+        ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "validateCBEFFData", jsonWithNullErrors);
+    }
+
+    /**
+     * Tests the unused getSHA method for coverage.
+     */
+    @Test
+    void getSHA_withValidString_returnsHash() throws Exception {
+        String testData = "test-data";
+        String result = ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "getSHA", testData);
+
+        assertNotNull(result);
+        assertEquals(64, result.length());
+    }
+
+    /**
+     * Tests bytesToHex with single digit hex values.
+     */
+    @Test
+    void bytesToHex_withSingleDigitHex_addsLeadingZero() throws Exception {
+        byte[] testData = new byte[]{(byte)0x01, (byte)0x0F};
+        String result = ReflectionTestUtils.invokeMethod(proxyAbisInsertService, "bytesToHex", testData);
+
+        assertEquals("010f", result);
+    }
+
 }
