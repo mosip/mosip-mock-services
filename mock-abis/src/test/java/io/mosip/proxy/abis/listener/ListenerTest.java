@@ -1118,7 +1118,7 @@ class ListenerTest {
         map.put("referenceURL", "http://example.com");
 
         String result = listener.getFailureReason(map);
-        assertEquals(FailureReasonsConstants.INVALID_VERSION, result);
+        assertEquals(FailureReasonsConstants.UNABLE_TO_SERVE_THE_REQUEST_INVALID_REQUEST_STRUCTURE, result);
     }
 
     /**
