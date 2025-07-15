@@ -44,6 +44,10 @@ public class SampleSDKTest {
 	private String sampleFullMatchPath = "";
 	private String sampleFaceMissing = "";
 
+	/**
+	 * Setup method to initialize file paths for different XML sample files
+	 * before running each test.
+	 */
 	@Before
 	public void Setup() {
 		samplePath = SampleSDKTest.class.getResource("/sample_files/sample.xml").getPath();
@@ -52,9 +56,13 @@ public class SampleSDKTest {
 		sampleFaceMissing = SampleSDKTest.class.getResource("/sample_files/sample_face_missing.xml").getPath();
 	}
 
+	/**
+	 * Test method to validate biometric matching when all modalities (FACE, FINGER, IRIS) are present,
+	 * but IRIS should NOT match.
+	 */
 	@Test
 	@SuppressWarnings({ "deprecation", "removal" })
-	public void match_full() {
+	public void match_FullMatchScenario_VerifiesDecisions() {
 		try {
 			List<BiometricType> modalitiesToMatch = new ArrayList<>() {
 				{
@@ -63,15 +71,16 @@ public class SampleSDKTest {
 					add(BiometricType.IRIS);
 				}
 			};
+
 			BiometricRecord[] galleryBioRecord = new BiometricRecord[1];
 			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
 			BiometricRecord galleryBioRecord0 = xmlFileToBiometricRecord(sampleFullMatchPath);
-
 			galleryBioRecord[0] = galleryBioRecord0;
 
 			SampleSDK sampleSDK = new SampleSDK();
 			Response<MatchDecision[]> response = sampleSDK.match(sampleBioRecord, galleryBioRecord, modalitiesToMatch,
 					new HashMap<>());
+
 			if (response != null && response.getResponse() != null) {
 				for (int i = 0; i < response.getResponse().length; i++) {
 					Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
@@ -88,9 +97,13 @@ public class SampleSDKTest {
 		}
 	}
 
-	// @Test
+	/**
+	 * Test method to validate biometric matching when IRIS is different (should NOT match),
+	 * but FACE and FINGER should match.
+	 */
+	@Test
 	@SuppressWarnings({ "deprecation", "removal", "removal" })
-	public void match_different_iris() {
+	public void match_DifferentIrisScenario_VerifiesDecisions() {
 		try {
 			List<BiometricType> modalitiesToMatch = new ArrayList<>() {
 				{
@@ -99,15 +112,16 @@ public class SampleSDKTest {
 					add(BiometricType.IRIS);
 				}
 			};
+
 			BiometricRecord[] galleryBioRecord = new BiometricRecord[1];
 			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
 			BiometricRecord galleryBioRecord0 = xmlFileToBiometricRecord(sampleIrisNoMatchPath);
-
 			galleryBioRecord[0] = galleryBioRecord0;
 
 			SampleSDK sampleSDK = new SampleSDK();
 			Response<MatchDecision[]> response = sampleSDK.match(sampleBioRecord, galleryBioRecord, modalitiesToMatch,
 					new HashMap<>());
+
 			if (response != null && response.getResponse() != null) {
 				for (int i = 0; i < response.getResponse().length; i++) {
 					Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
@@ -119,19 +133,20 @@ public class SampleSDKTest {
 							decisions.get(BiometricType.IRIS).getMatch().toString(), Match.NOT_MATCHED.toString());
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			logger.error("match_different_iris", e);
-		} catch (IOException e) {
-			logger.error("match_different_iris", e);
-		} catch (SAXException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			logger.error("match_different_iris", e);
 		}
 	}
 
-	// @Test
+	/**
+	 * Test method to validate biometric matching when FACE data is missing in the gallery record.
+	 * FACE should NOT match, but FINGER and IRIS should match.
+	 */
+	@Test
 	@SuppressWarnings({ "deprecation", "removal", "removal" })
-	public void match_face_missing() {
+	public void match_FaceMissingScenario_VerifiesDecisions() {
 		try {
+			// Prepare modalities to match
 			List<BiometricType> modalitiesToMatch = new ArrayList<>() {
 				{
 					add(BiometricType.FACE);
@@ -139,15 +154,17 @@ public class SampleSDKTest {
 					add(BiometricType.IRIS);
 				}
 			};
+
 			BiometricRecord[] galleryBioRecord = new BiometricRecord[1];
 			BiometricRecord sampleBioRecord = xmlFileToBiometricRecord(samplePath);
 			BiometricRecord galleryBioRecord0 = xmlFileToBiometricRecord(sampleFaceMissing);
-
 			galleryBioRecord[0] = galleryBioRecord0;
 
+			// Perform matching
 			SampleSDK sampleSDK = new SampleSDK();
 			Response<MatchDecision[]> response = sampleSDK.match(sampleBioRecord, galleryBioRecord, modalitiesToMatch,
 					new HashMap<>());
+
 			if (response != null && response.getResponse() != null) {
 				for (int i = 0; i < response.getResponse().length; i++) {
 					Map<BiometricType, Decision> decisions = response.getResponse()[i].getDecisions();
@@ -159,40 +176,44 @@ public class SampleSDKTest {
 							decisions.get(BiometricType.IRIS).getMatch().toString(), Match.MATCHED.toString());
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			logger.error("match_face_missing", e);
-		} catch (IOException e) {
-			logger.error("match_face_missing", e);
-		} catch (SAXException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			logger.error("match_face_missing", e);
 		}
 	}
 
+	/**
+	 * Utility method to convert a given XML file into a BiometricRecord object.
+	 *
+	 * @param path - path to the XML file
+	 * @return BiometricRecord created from the XML file
+	 */
 	private BiometricRecord xmlFileToBiometricRecord(String path)
 			throws ParserConfigurationException, IOException, SAXException {
+
 		BiometricRecord biometricRecord = new BiometricRecord();
 		List<BIR> birSegments = new ArrayList<>();
+
 		File fXmlFile = new File(path);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(fXmlFile);
 		doc.getDocumentElement().normalize();
 		logger.debug("Root element : {}", doc.getDocumentElement().getNodeName());
+
 		Node rootBIRElement = doc.getDocumentElement();
 		NodeList childNodes = rootBIRElement.getChildNodes();
+
 		for (int temp = 0; temp < childNodes.getLength(); temp++) {
 			Node childNode = childNodes.item(temp);
 			if (childNode.getNodeName().equalsIgnoreCase("bir")) {
 				BIR.BIRBuilder bd = new BIR.BIRBuilder();
 
-				/* Version */
 				Node nVersion = ((Element) childNode).getElementsByTagName("Version").item(0);
 				String major_version = ((Element) nVersion).getElementsByTagName("Major").item(0).getTextContent();
 				String minor_version = ((Element) nVersion).getElementsByTagName("Minor").item(0).getTextContent();
 				VersionType bir_version = new VersionType(parseInt(major_version), parseInt(minor_version));
 				bd.withVersion(bir_version);
 
-				/* CBEFF Version */
 				Node nCBEFFVersion = ((Element) childNode).getElementsByTagName("Version").item(0);
 				String cbeff_major_version = ((Element) nCBEFFVersion).getElementsByTagName("Major").item(0)
 						.getTextContent();
@@ -202,7 +223,6 @@ public class SampleSDKTest {
 						parseInt(cbeff_minor_version));
 				bd.withCbeffversion(cbeff_bir_version);
 
-				/* BDB Info */
 				Node nBDBInfo = ((Element) childNode).getElementsByTagName("BDBInfo").item(0);
 				String bdb_info_type = "";
 				String bdb_info_subtype = "";
@@ -223,17 +243,15 @@ public class SampleSDKTest {
 				BDBInfo bdbInfo = new BDBInfo(bdbInfoBuilder);
 				bd.withBdbInfo(bdbInfo);
 
-				/* BDB data as base64urlencoded */
 				String nBDB = ((Element) childNode).getElementsByTagName("BDB").item(0).getTextContent();
 				bd.withBdb(nBDB.getBytes());
 
-				/* Prepare BIR */
 				BIR bir = new BIR(bd);
 
-				/* Add BIR to list of segments */
 				birSegments.add(bir);
 			}
 		}
+
 		biometricRecord.setSegments(birSegments);
 		return biometricRecord;
 	}

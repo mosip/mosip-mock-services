@@ -117,6 +117,7 @@ public class ProxyAbisController {
 	 * @param ie RequestMO object containing request details to be deleted.
 	 * @return ResponseEntity with status and response body.
 	 */
+	@SuppressWarnings("java:S5145")
 	@DeleteMapping(value = "deleterequest")
 	@Operation(summary = "Delete Request", description = "Delete Request", tags = { "Proxy Abis API" })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
@@ -188,7 +189,7 @@ public class ProxyAbisController {
 		try {
 			return processIdentityRequest(ir, 1);
 		} catch (RequestException exp) {
-			logger.info("Error while finding duplicates for {}", ir.getReferenceId());
+			logger.info("Error while finding duplicates for id");
 			logger.error("Error while finding duplicates", exp);
 			RequestMO re = new RequestMO(ir.getId(), ir.getVersion(), ir.getRequestId(), ir.getRequesttime(),
 					ir.getReferenceId());

@@ -119,6 +119,7 @@ public class ProxyAbisConfigController {
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
 		logger.info("Delete expectation: {}", id);
+
 		try {
 			proxyAbisConfigService.deleteExpectation(id);
 			return new ResponseEntity<>("Successfully deleted expectation " + id, HttpStatus.OK);

@@ -112,7 +112,7 @@ public abstract class SDKService {
 	 *         corresponding segments
 	 */
 	protected Map<BiometricType, List<BIR>> getBioSegmentMap(BiometricRecord bioRecord,
-			List<BiometricType> modalitiesToMatch) {
+															 List<BiometricType> modalitiesToMatch) {
 		logger.info("getBioSegmentMap {}", modalitiesToMatch);
 		boolean noFilter = false;
 
@@ -181,31 +181,31 @@ public abstract class SDKService {
 	protected boolean isValidBIRParams(BIR segment, BiometricType bioType, String bioSubType) {
 		ResponseStatus responseStatus = null;
 		switch (bioType) {
-		case FACE:
-			break;
-		case FINGER:
-			if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left IndexFinger")
-					|| bioSubType.equals("Left RingFinger") || bioSubType.equals("Left MiddleFinger")
-					|| bioSubType.equals("Left LittleFinger") || bioSubType.equals("Left Thumb")
-					|| bioSubType.equals("Right IndexFinger") || bioSubType.equals("Right RingFinger")
-					|| bioSubType.equals("Right MiddleFinger") || bioSubType.equals("Right LittleFinger")
-					|| bioSubType.equals("Right Thumb"))) {
-				logger.error("isValidBIRParams::BiometricType finger {}, BioSubType {}", bioType, bioSubType);
+			case FACE:
+				break;
+			case FINGER:
+				if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left IndexFinger")
+						|| bioSubType.equals("Left RingFinger") || bioSubType.equals("Left MiddleFinger")
+						|| bioSubType.equals("Left LittleFinger") || bioSubType.equals("Left Thumb")
+						|| bioSubType.equals("Right IndexFinger") || bioSubType.equals("Right RingFinger")
+						|| bioSubType.equals("Right MiddleFinger") || bioSubType.equals("Right LittleFinger")
+						|| bioSubType.equals("Right Thumb"))) {
+					logger.error("isValidBIRParams::BiometricType finger {}, BioSubType {}", bioType, bioSubType);
+					responseStatus = ResponseStatus.MISSING_INPUT;
+					throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
+				}
+				break;
+			case IRIS:
+				if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left") || bioSubType.equals("Right"))) {
+					logger.error("isValidBIRParams::BiometricType iris {}, BioSubType {}", bioType, bioSubType);
+					responseStatus = ResponseStatus.MISSING_INPUT;
+					throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
+				}
+				break;
+			default:
+				logger.error("isValidBIRParams::BiometricType default {}, BioSubType {}", bioType, bioSubType);
 				responseStatus = ResponseStatus.MISSING_INPUT;
 				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
-			}
-			break;
-		case IRIS:
-			if (!(bioSubType.equals("UNKNOWN") || bioSubType.equals("Left") || bioSubType.equals("Right"))) {
-				logger.error("isValidBIRParams::BiometricType iris {}, BioSubType {}", bioType, bioSubType);
-				responseStatus = ResponseStatus.MISSING_INPUT;
-				throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
-			}
-			break;
-		default:
-			logger.error("isValidBIRParams::BiometricType default {}, BioSubType {}", bioType, bioSubType);
-			responseStatus = ResponseStatus.MISSING_INPUT;
-			throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
 		}
 		return true;
 	}
@@ -223,7 +223,7 @@ public abstract class SDKService {
 	 *                      SDKException with the appropriate error message
 	 */
 	protected boolean isValidBDBData(PurposeType purposeType, BiometricType bioType, String bioSubType,
-			byte[] bdbData) {
+									 byte[] bdbData) {
 		ResponseStatus responseStatus = null;
 		if (bdbData != null && bdbData.length != 0) {
 			return isValidBiometericData(purposeType, bioType, bioSubType, Util.encodeToURLSafeBase64(bdbData));
@@ -246,17 +246,17 @@ public abstract class SDKService {
 	 *                      an SDKException with the appropriate error message
 	 */
 	protected boolean isValidBiometericData(PurposeType purposeType, BiometricType bioType, String bioSubType,
-			String bdbData) {
+											String bdbData) {
 		ResponseStatus responseStatus = null;
 		switch (bioType) {
-		case FACE:
-			return isValidFaceBdb(purposeType, bioSubType, bdbData);
-		case FINGER:
-			return isValidFingerBdb(purposeType, bioSubType, bdbData);
-		case IRIS:
-			return isValidIrisBdb(purposeType, bioSubType, bdbData);
-		default:
-			break;
+			case FACE:
+				return isValidFaceBdb(purposeType, bioSubType, bdbData);
+			case FINGER:
+				return isValidFingerBdb(purposeType, bioSubType, bdbData);
+			case IRIS:
+				return isValidIrisBdb(purposeType, bioSubType, bdbData);
+			default:
+				break;
 		}
 		responseStatus = ResponseStatus.INVALID_INPUT;
 		throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
@@ -348,8 +348,8 @@ public abstract class SDKService {
 
 			if (isCheckISOTimestampFormat()
 					&& (!FingerISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
-							bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(),
-							bdir.getCaptureMinute(), bdir.getCaptureSecond(), bdir.getCaptureMilliSecond()))) {
+					bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(),
+					bdir.getCaptureMinute(), bdir.getCaptureSecond(), bdir.getCaptureMilliSecond()))) {
 				message.append(
 						"<BR>Invalid CaptureDateTime for Finger Modality, The capture date and time field shall \r\n"
 								+ "indicate when the capture of this \r\n" + "representation stated in Coordinated \r\n"
@@ -414,7 +414,7 @@ public abstract class SDKService {
 						message.append(
 								"<BR>Invalid Quality Algorithm Vendor Identifier for Finger Modality, expected values between[0x0000 and 0xFFFF], but received input value["
 										+ MessageFormat.format("{0}",
-												qualityBlock.getQualityAlgorithmVendorIdentifier())
+										qualityBlock.getQualityAlgorithmVendorIdentifier())
 										+ "]");
 						isValid = false;
 					}
@@ -436,7 +436,7 @@ public abstract class SDKService {
 						message.append(
 								"<BR>Invalid Certification AuthorityID for Finger Modality, expected values between[0x0000 and 0xFFFF], but received input value["
 										+ MessageFormat.format("{0}",
-												fingerCertificationBlock.getCertificationAuthorityID())
+										fingerCertificationBlock.getCertificationAuthorityID())
 										+ "]");
 						isValid = false;
 					}
@@ -446,7 +446,7 @@ public abstract class SDKService {
 						message.append(
 								"<BR>Invalid Certification Scheme Identifier for Finger Modality, expected values between[0x00 and 0xFF], but received input value["
 										+ MessageFormat.format("{0}",
-												fingerCertificationBlock.getCertificationSchemeIdentifier())
+										fingerCertificationBlock.getCertificationSchemeIdentifier())
 										+ "]");
 						isValid = false;
 					}
@@ -578,30 +578,30 @@ public abstract class SDKService {
 	 */
 	protected boolean isValidFingerPosition(int fingerPosition, String biometricSubType) {
 		switch (biometricSubType) {
-		case "UNKNOWN":
-			return true;
-		case "Left IndexFinger":
-			return (fingerPosition == FingerPosition.LEFT_INDEX_FINGER);
-		case "Left MiddleFinger":
-			return (fingerPosition == FingerPosition.LEFT_MIDDLE_FINGER);
-		case "Left RingFinger":
-			return (fingerPosition == FingerPosition.LEFT_RING_FINGER);
-		case "Left LittleFinger":
-			return (fingerPosition == FingerPosition.LEFT_LITTLE_FINGER);
-		case "Left Thumb":
-			return (fingerPosition == FingerPosition.LEFT_THUMB);
-		case "Right IndexFinger":
-			return (fingerPosition == FingerPosition.RIGHT_INDEX_FINGER);
-		case "Right MiddleFinger":
-			return (fingerPosition == FingerPosition.RIGHT_MIDDLE_FINGER);
-		case "Right RingFinger":
-			return (fingerPosition == FingerPosition.RIGHT_RING_FINGER);
-		case "Right LittleFinger":
-			return (fingerPosition == FingerPosition.RIGHT_LITTLE_FINGER);
-		case "Right Thumb":
-			return (fingerPosition == FingerPosition.RIGHT_THUMB);
-		default:
-			return false;
+			case "UNKNOWN":
+				return true;
+			case "Left IndexFinger":
+				return (fingerPosition == FingerPosition.LEFT_INDEX_FINGER);
+			case "Left MiddleFinger":
+				return (fingerPosition == FingerPosition.LEFT_MIDDLE_FINGER);
+			case "Left RingFinger":
+				return (fingerPosition == FingerPosition.LEFT_RING_FINGER);
+			case "Left LittleFinger":
+				return (fingerPosition == FingerPosition.LEFT_LITTLE_FINGER);
+			case "Left Thumb":
+				return (fingerPosition == FingerPosition.LEFT_THUMB);
+			case "Right IndexFinger":
+				return (fingerPosition == FingerPosition.RIGHT_INDEX_FINGER);
+			case "Right MiddleFinger":
+				return (fingerPosition == FingerPosition.RIGHT_MIDDLE_FINGER);
+			case "Right RingFinger":
+				return (fingerPosition == FingerPosition.RIGHT_RING_FINGER);
+			case "Right LittleFinger":
+				return (fingerPosition == FingerPosition.RIGHT_LITTLE_FINGER);
+			case "Right Thumb":
+				return (fingerPosition == FingerPosition.RIGHT_THUMB);
+			default:
+				return false;
 		}
 	}
 
@@ -700,8 +700,8 @@ public abstract class SDKService {
 
 			if (isCheckISOTimestampFormat()
 					&& (!IrisISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
-							bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(),
-							bdir.getCaptureMinute(), bdir.getCaptureSecond(), bdir.getCaptureMilliSecond()))) {
+					bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(),
+					bdir.getCaptureMinute(), bdir.getCaptureSecond(), bdir.getCaptureMilliSecond()))) {
 				message.append(
 						"<BR>Invalid CaptureDateTime for Iris Modality, The capture date and time field shall \r\n"
 								+ "indicate when the capture of this \r\n" + "representation stated in Coordinated \r\n"
@@ -764,7 +764,7 @@ public abstract class SDKService {
 						message.append(
 								"<BR>Invalid Quality Algorithm Vendor Identifier for Iris Modality, expected values between[0x0000 and 0xFFFF], but received input value["
 										+ MessageFormat.format("{0}",
-												qualityBlock.getQualityAlgorithmVendorIdentifier())
+										qualityBlock.getQualityAlgorithmVendorIdentifier())
 										+ "]");
 						isValid = false;
 					}
@@ -932,19 +932,19 @@ public abstract class SDKService {
 	protected boolean isValidEyeLabel(int eyeLabel, String biometricSubType) {
 		boolean isValid = false;
 		switch (biometricSubType) {
-		case "UNKNOWN":
-			isValid = true;
-			break;
-		case "Left":
-			if (eyeLabel == EyeLabel.LEFT)
+			case "UNKNOWN":
 				isValid = true;
-			break;
-		case "Right":
-			if (eyeLabel == EyeLabel.RIGHT)
-				isValid = true;
-			break;
-		default:
-			break;
+				break;
+			case "Left":
+				if (eyeLabel == EyeLabel.LEFT)
+					isValid = true;
+				break;
+			case "Right":
+				if (eyeLabel == EyeLabel.RIGHT)
+					isValid = true;
+				break;
+			default:
+				break;
 		}
 		return isValid;
 	}
@@ -1034,8 +1034,8 @@ public abstract class SDKService {
 
 			if (isCheckISOTimestampFormat()
 					&& (!FaceISOStandardsValidator.getInstance().isValidCaptureDateTime(bdir.getCaptureYear(),
-							bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(),
-							bdir.getCaptureMinute(), bdir.getCaptureSecond(), bdir.getCaptureMilliSecond()))) {
+					bdir.getCaptureMonth(), bdir.getCaptureDay(), bdir.getCaptureHour(),
+					bdir.getCaptureMinute(), bdir.getCaptureSecond(), bdir.getCaptureMilliSecond()))) {
 				message.append(
 						"<BR>Invalid CaptureDateTime for Face Modality, The capture date and time field shall \r\n"
 								+ "indicate when the capture of this \r\n" + "representation stated in Coordinated \r\n"
@@ -1098,7 +1098,7 @@ public abstract class SDKService {
 						message.append(
 								"<BR>Invalid Quality Algorithm Vendor Identifier for Face Modality, expected values between[0x0000 and 0xFFFF], but received input value["
 										+ MessageFormat.format("{0}",
-												qualityBlock.getQualityAlgorithmVendorIdentifier())
+										qualityBlock.getQualityAlgorithmVendorIdentifier())
 										+ "]");
 						isValid = false;
 					}
