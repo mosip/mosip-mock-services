@@ -25,12 +25,23 @@ public class SegmentService extends SDKService {
 	}
 
 	public Response<BiometricRecord> getSegmentInfo() {
+		long startTime = System.currentTimeMillis();
 		BiometricRecord record = new BiometricRecord();
 		record.setSegments(null);
 		Response<BiometricRecord> response = new Response<>();
 		// do actual Segmentation
 		response.setStatusCode(200);
 		response.setResponse(record);
+
+		int delayInMs = getDelayTime();
+		Long sleepTime = delayInMs - (System.currentTimeMillis() - startTime);
+		if(sleepTime > 0) {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 		return response;
 	}
 }

@@ -155,9 +155,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		try {
 			logger.info("Fetching CBEFF for reference URL-" + CBEFF_URL);
 			ResponseEntity<String> cbeffResp = restTemplate.exchange(CBEFF_URL, HttpMethod.GET, null, String.class);
-			logger.info("CBEFF response-" + cbeffResp);
+			logger.debug("CBEFF response-" + cbeffResp);
 			String cbeff = cbeffResp.getBody();
-			logger.info("CBEFF Data-" + cbeff);
+			logger.debug("CBEFF Data-" + cbeff);
 
 			try {
 				/*
@@ -198,7 +198,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				cbeff = cryptoUtil.decryptCbeff(cbeff);
 			}
 
-			logger.info("CBEFF Data-" + cbeff);
+			logger.debug("CBEFF Data-" + cbeff);
 			if (cbeff == null || cbeff.isBlank() || cbeff.isEmpty()) {
 				logger.info("Error while validating CBEFF");
 				throw new RequestException(FailureReasonsConstants.CBEFF_HAS_NO_DATA);
@@ -431,7 +431,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 				}
 				cdl.setCount(cdl.getCandidates().size() + "");
 				response.setCandidateList(cdl);
-				logger.info("response==" + response);
+				logger.debug("response==" + response);
 				return response;
 			}
 		}
