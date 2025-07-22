@@ -32,6 +32,7 @@ public class CheckQualityService extends SDKService {
 	}
 
 	public Response<QualityCheck> getCheckQualityInfo() {
+		Long startTime = System.currentTimeMillis();
 		ResponseStatus responseStatus = null;
 		Map<BiometricType, QualityScore> scores = null;
 		Response<QualityCheck> response = new Response<>();
@@ -52,6 +53,11 @@ public class CheckQualityService extends SDKService {
 				QualityScore qualityScore = evaluateQuality(modality, segmentMap.get(modality));
 				scores.put(modality, qualityScore);
 			}
+
+			int delayInMs = getDelayTime();
+			long sleepTime = delayInMs - (System.currentTimeMillis() - startTime);
+			if(sleepTime > 0)
+				Thread.sleep(sleepTime);
 		} catch (SDKException ex) {
 			LOGGER.error("checkQuality -- error", ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {

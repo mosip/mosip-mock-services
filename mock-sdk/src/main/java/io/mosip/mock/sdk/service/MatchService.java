@@ -365,6 +365,7 @@ public class MatchService extends SDKService {
 	}
 
 	private Decision compareFaces(List<BIR> sampleSegments, List<BIR> gallerySegments) throws Exception {
+		long startTime = System.currentTimeMillis();
 		List<String> errors = new ArrayList<>();
 		List<Boolean> matched = new ArrayList<>();
 		Decision decision = new Decision();
@@ -436,6 +437,12 @@ public class MatchService extends SDKService {
 			// TODO check the condition: what if no similar type and subtype found
 			decision.setMatch(Match.ERROR);
 		}
+
+		int delayInMs = getDelayTime();
+		long sleepTime = delayInMs - (System.currentTimeMillis() - startTime);
+		if(sleepTime > 0)
+			Thread.sleep(sleepTime);
+
 		return decision;
 	}
 }

@@ -42,6 +42,7 @@ public class ConvertFormatService extends SDKService {
 	}
 
 	public Response<BiometricRecord> getConvertFormatInfo() {
+		Long startTime = System.currentTimeMillis();
 		Response<BiometricRecord> response = new Response<>();
 
 		Map<String, String> responseValues = null;
@@ -100,6 +101,11 @@ public class ConvertFormatService extends SDKService {
 			sample.setSegments(birList);
 			response.setStatusCode(ResponseStatus.SUCCESS.getStatusCode());
 			response.setResponse(sample);
+
+			int delayInMs = getDelayTime();
+			long sleepTime = delayInMs - (System.currentTimeMillis() - startTime);
+			if(sleepTime > 0)
+				Thread.sleep(sleepTime);
 		} catch (SDKException ex) {
 			LOGGER.error("convertFormat -- error", ex);
 			switch (ResponseStatus.fromStatusCode(Integer.parseInt(ex.getErrorCode()))) {

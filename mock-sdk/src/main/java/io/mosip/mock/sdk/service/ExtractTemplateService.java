@@ -37,6 +37,7 @@ public class ExtractTemplateService extends SDKService {
 	}
 
 	public Response<BiometricRecord> getExtractTemplateInfo() {
+		Long startTime = System.currentTimeMillis();
 		ResponseStatus responseStatus = null;
 		Response<BiometricRecord> response = new Response<>();
 		try {
@@ -69,6 +70,11 @@ public class ExtractTemplateService extends SDKService {
 					}
 				}
 				// do actual extraction
+
+				int delayInMs = getDelayTime();
+				long sleepTime = delayInMs - (System.currentTimeMillis() - startTime);
+				if(sleepTime > 0)
+					Thread.sleep(sleepTime);
 			}
 		} catch (SDKException ex) {
 			LOGGER.error("extractTemplate -- error", ex);

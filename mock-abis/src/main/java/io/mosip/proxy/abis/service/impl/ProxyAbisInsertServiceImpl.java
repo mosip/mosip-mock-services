@@ -107,7 +107,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	@Override
 	public int insertData(InsertRequestMO ire) {
-		int delayResponse = 1;
+		int delayResponse = 0;
 		try {
 			java.util.Optional<InsertEntity> op = proxyabis.findById(ire.getReferenceId());
 			if (!op.isEmpty()) {
@@ -314,7 +314,7 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 
 	@Override
 	public IdentifyDelayResponse findDuplication(IdentityRequest ir) {
-		int delayResponse = 5;
+		int delayResponse = 0;
 		try {
 			String refId = ir.getReferenceId();
 			logger.info("Checking for duplication of reference ID " + refId);
