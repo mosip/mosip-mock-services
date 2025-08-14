@@ -60,7 +60,7 @@
 			<maven.sonar.plugin.version>5.1.0.4751</maven.sonar.plugin.version>
 		<sonar.coverage.exclusions>**/io/mosip/registration/mdm/dto/**,**/org/biometric/provider/**,**/BioMetricsDto/**,**/exception/**,**/util/**,**/SBIFingerSlapCaptureInfo.java,**/SBIBioSubTypeInfo.java,**/SBIConstant.javaa</sonar.coverage.exclusions>
 
-		<mosip.biometrics.util.version>1.3.0-SNAPSHOT</mosip.biometrics.util.version>
+		<mosip.biometrics.util.version>1.3.1-SNAPSHOT</mosip.biometrics.util.version>
 	</properties>
 
 	<dependencyManagement>
