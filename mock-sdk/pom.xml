@@ -54,10 +54,10 @@
 		<sonar.coverage.exclusions>**/constant/**,**/exceptions/**,**/utils/**</sonar.coverage.exclusions>
 
 		<!-- Mosip kernel -->
-		<kernel.bom.version>1.2.2-SNAPSHOT</kernel.bom.version>
-		<kernel.core.version>1.2.2-SNAPSHOT</kernel.core.version>
+		<kernel.bom.version>1.3.1-SNAPSHOT</kernel.bom.version>
+		<kernel.core.version>1.3.1-SNAPSHOT</kernel.core.version>
 		<kernel.biometrics.api.version>1.3.1-SNAPSHOT</kernel.biometrics.api.version>
-		<kernel.bioconverter.version>1.3.0-SNAPSHOT</kernel.bioconverter.version>
+		<kernel.bioconverter.version>1.3.1-SNAPSHOT</kernel.bioconverter.version>
 		<mosip.biometrics.util.version>1.3.1-SNAPSHOT</mosip.biometrics.util.version>
 	</properties>
 
