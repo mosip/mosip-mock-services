@@ -37,7 +37,7 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import io.mosip.kernel.core.util.CryptoUtil;
-import io.mosip.kernel.core.util.DateUtils;
+import io.mosip.kernel.core.util.DateUtils2;
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.devicehelper.SBIBioSubTypeInfo;
 import io.mosip.mock.sbi.devicehelper.SBICheckState;
@@ -2308,7 +2308,7 @@ public class SBIServiceResponse {
 				ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.appid"),
 				ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.clientid"),
 				ApplicationPropertyHelper.getPropertyKeyValue("mosip.auth.secretkey"),
-				DateUtils.getUTCCurrentDateTime());
+				DateUtils2.getUTCCurrentDateTime());
 
 		MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
 		RequestBody body = RequestBody.create(mediaType, requestBody);
