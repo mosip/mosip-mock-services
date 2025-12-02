@@ -1,0 +1,116 @@
+NOTICES
+
+This project includes components licensed under various open-source licenses.
+Attributions and required notices for these third-party components are provided
+below in accordance with their respective license terms.
+
+-------------------------------------------------------------------------------
+Project Copyright
+-------------------------------------------------------------------------------
+© 2024 This project includes software developed and maintained by its contributors.
+
+-------------------------------------------------------------------------------
+MOSIP Copyright and MPL-2.0 Notice
+-------------------------------------------------------------------------------
+This project includes components from the MOSIP Platform:
+
+    © 2022 Modular Open Source Identity Platform (MOSIP)
+    All rights reserved.
+
+MOSIP components listed below are licensed under the Mozilla Public License 2.0.
+Original notices from MOSIP are preserved as required:
+
+    • MOSIP Mock Services (release-1.3.x)
+
+The MPL-2.0 license is available at:
+    https://www.mozilla.org/MPL/2.0/
+
+-------------------------------------------------------------------------------
+Apache License 2.0 – Required Notice Attribution
+-------------------------------------------------------------------------------
+This project includes software that is licensed under the Apache License 2.0.
+You may obtain a copy of the license at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Portions of this software include or are derived from the following
+Apache-licensed components:
+
+    • Spring Boot & Spring Security (starter-web, starter-data-jpa,
+      starter-security, starter-batch, starter-test, configuration-processor,
+      spring-boot-maven-plugin)
+    • SpringDoc OpenAPI (Maven Plugin, Starter WebMVC UI)
+    • Apache Maven Plugins:
+        - maven-jar-plugin
+        - maven-surefire-plugin
+        - maven-gpg-plugin
+        - maven-javadoc-plugin
+        - maven-source-plugin
+        - maven-compiler-plugin
+        - maven-war-plugin
+        - maven-resources-plugin
+        - maven-shade-plugin
+        - maven-antrun-plugin
+        - maven-dependency-plugin
+        - maven-assembly-plugin
+    • Jackson Libraries (core, databind, datatypes, XML dataformat,
+      JAXB annotations)
+    • ModelMapper
+    • Log4j API
+    • Apache POI (poi-ooxml)
+    • Google Gson
+    • Git Commit ID Maven Plugin
+
+-------------------------------------------------------------------------------
+BSD License Attribution
+-------------------------------------------------------------------------------
+This project includes components licensed under BSD terms:
+
+    • PostgreSQL JDBC Driver (BSD-2-Clause)
+    • Jakarta Activation API (BSD-3-Clause)
+    • Jakarta Persistence API (BSD-3-Clause / EPL-2.0)
+
+Full license texts for BSD-licensed components are retained in the license/
+directory.
+
+-------------------------------------------------------------------------------
+Eclipse Public License Attribution (EPL-1.0 / EPL-2.0)
+-------------------------------------------------------------------------------
+This project includes software licensed under the Eclipse Public License:
+
+    • H2 Database (EPL-1.0)
+    • JUnit (JUnit 4 – EPL-1.0; Vintage and Jupiter – EPL-2.0)
+    • Jakarta XML Bind API (EPL-2.0)
+
+-------------------------------------------------------------------------------
+MIT License Attribution
+-------------------------------------------------------------------------------
+This project includes MIT-licensed components:
+
+    • SLF4J (slf4j-api, jcl-over-slf4j, jul-to-slf4j)
+    • Mockito (mockito-core, mockito-inline)
+    • Bouncy Castle (bcprov-jdk18on)
+
+Full MIT license texts are available in the license/ directory.
+
+-------------------------------------------------------------------------------
+Apache-like Notices – Derived Libraries
+-------------------------------------------------------------------------------
+Additional Apache-style notices apply to:
+
+    • JSON Simple (Apache-2.0)
+    • Powermock (Apache-2.0)
+
+-------------------------------------------------------------------------------
+Other License Notes
+-------------------------------------------------------------------------------
+Some libraries include NOTICE files of their own. Where required, those NOTICE
+files have been preserved verbatim.
+
+-------------------------------------------------------------------------------
+License Directory
+-------------------------------------------------------------------------------
+Full license texts associated with all the above components are available in the
+`license/` directory of this repository.
+
+You must review those license files to understand your obligations under each.
