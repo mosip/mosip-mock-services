@@ -85,13 +85,6 @@ Homepage: https://code.google.com/archive/p/json-simple/
 ================================================================================
 
 ================================================================================
-Package: Git Commit ID Maven Plugin (pl.project13.maven:git-commit-id-plugin)
-Version: 3.0.1
-License: GNU Lesser General Public License v3.0 (LGPL-3.0)
-Homepage: https://github.com/git-commit-id/git-commit-id-maven-plugin
-================================================================================
-
-================================================================================
 Package: JUnit (junit:junit, org.junit.vintage:junit-vintage-engine, org.junit.jupiter:junit-jupiter)
 Version: Various versions
 License: Eclipse Public License 1.0/2.0 (Inferred from project’s official repository)
