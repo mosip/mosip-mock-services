@@ -22,8 +22,8 @@ There are two primary ways to deploy the `mock-abis` module locally:
 
 ## 📋 Pre requisites
 Before setting up the project, ensure you have the following prerequisites:
--   **Java 21**: The project requires Java 21.
--   **Maven**: For building the project.
+-   **Java 21**: Java 21.
+-   **Maven**: 3.9.x.
 -   **Docker & Docker Compose**: For Docker-based setup.
 -   **ActiveMQ**: A local or remote ActiveMQ instance.
     -   **Local Run**: Navigate to the `activemq` directory and run `docker-compose up`.

@@ -19,8 +19,8 @@ There are two primary ways to deploy the `mock-mv` module locally:
 
 ## 📋 Pre requisites
 Before setting up the project, ensure you have the following prerequisites:
--   **Java**: Version 21.0.3
--   **Maven**: For building the project
+-   **Java**: Version 21 
+-   **Maven**: 3.9.x 
 -   **Git**: To clone the repository
 -   **Postman (optional)**: For testing the APIs
 -   **Docker**: For containerized deployment.
