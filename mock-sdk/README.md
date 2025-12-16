@@ -17,8 +17,8 @@ Since `mock-sdk` is a library, setting it up involves building it and including 
 
 ## 📋 Pre requisites
 Ensure you have the following installed before proceeding:
--   **Java**: Version 21.0.3
--   **Maven**: For building the project
+-   **Java**: Version 21.
+-   **Maven**: 3.9.x
 -   **Git**: To clone the repository
 -   **Postman (optional)**: For testing the APIs
 

@@ -21,8 +21,8 @@ This module is primarily designed to be run locally as a Java application to ser
 
 ### 📋 Pre requisites
 Ensure you have the following installed:
--   **Java**: Version 21.0.3
--   **Maven**: For building the project
+-   **Java**: Version 21.
+-   **Maven**: 3.9.x
 -   **Git**: To clone the repository
 -   **Postman (optional)**: For testing the APIs
 
@@ -42,7 +42,7 @@ Ensure you have the following installed:
     -   Edit `DeviceDiscovery.json`, `DeviceInfo.json`, and `DigitalId.json` if changes are required for devices.
 2.  **Certificates**:
     -   Place the `device-partner.p12` and `ftm-partner.p12` files into the folder:
-        `Biometric Devices\{all different modality}\Keys`
+        `Biometric Devices/{all different modality}/Keys`
 3.  **Update Properties**:
     -   Update the `resources/application.properties` file with the following values:
         ```properties
