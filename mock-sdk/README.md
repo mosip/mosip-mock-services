@@ -1,7 +1,7 @@
 # Mock Biometric SDK
 
 ## 📌 Overview
-The **MockSDK** repository provides a mock implementation of the [IBioAPIV2](https://github.com/mosip/bio-utils/blob/master/kernel-biometrics-api/src/main/java/io/mosip/kernel/biometrics/spi/IBioApiV2.java) interface. It performs operations such as 1:N match, segmentation, extraction, quality analysis, and format conversion. It simulates interactions with SDK components and is designed for testing and integration within the MOSIP ecosystem without requiring actual biometric hardware or proprietary SDKs.
+The **MockSDK** repository provides a mock implementation of [IBioAPIV2](https://github.com/mosip/bio-utils/blob/master/kernel-biometrics-api/src/main/java/io/mosip/kernel/biometrics/spi/IBioApiV2.java) to perform 1:N match, segmentation, extraction, quality, converter etc. It simulates interactions with SDK components and is designed for testing and integration within the MOSIP ecosystem.
 
 ## ✨ Features
 -   **Biometric Operations**: Simulates 1:N matching, segmentation, extraction, and quality checks.
@@ -17,16 +17,18 @@ Since `mock-sdk` is a library, setting it up involves building it and including 
 
 ## 📋 Pre requisites
 Ensure you have the following installed before proceeding:
--   **Java 21**: The project requires Java 21.0.3 or later.
--   **Maven**: For building the project.
--   **Git**: To clone the repository.
+-   **Java**: Version 21.0.3
+-   **Maven**: For building the project
+-   **Git**: To clone the repository
+-   **Postman (optional)**: For testing the APIs
 
 ## 🗄️ Database Setup
 -   **Not Applicable**: This module is a stateless library and does not require a database.
 
-## 📝 Configurations
-To use this mock SDK implementation in other MOSIP modules (e.g., `biosdk-services`), configure the following properties in the consumer application:
+### Running the Application
+Used as reference implementation for [biosdk-services](https://github.com/mosip/biosdk-services).
 
+In `biosdk-services`, the below values are required for mockSDK implementation:
 ```properties
 biosdk_class=io.mosip.mock.sdk.impl.SampleSDKV2
 mosip.role.biosdk.getservicestatus=REGISTRATION_PROCESSOR
@@ -60,8 +62,7 @@ To upgrade:
 ## 📚 Documentation
 
 ### Product Documentation
-For more details on the Biometric SDK specifications:
-[MOSIP Biometric SDK Documentation](https://docs.mosip.io/1.1.5/biometrics/biometric-sdk)
+MockSDK follows implementation based on [Mosip Spec](https://docs.mosip.io/1.1.5/biometrics/biometric-sdk).
 
 ## 🤝 Contribution & Community
 We welcome contributions from everyone!

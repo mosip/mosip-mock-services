@@ -1,7 +1,7 @@
 # MockMDS
 
 ## 📌 Overview
-The **MockMDS** module offers a mock implementation of the MOSIP Device Service (MDS), complying with the [SBI (Secure Biometric Interface) specification](https://docs.mosip.io/1.2.0/modules/partner-management-services/pms-existing/device-provider-partner#sbi-secure-biometric-interface). It allows testing of biometric capture flows (both Registration and Authentication) without requiring actual physical biometric devices. Biometric data for capture is simulated using stored files.
+This module provides a mock implementation of the MOSIP Device Service, designed to comply with the defined [SBI specification](https://docs.mosip.io/1.2.0/modules/partner-management-services/pms-existing/device-provider-partner#sbi-secure-biometric-interface). Biometric data for capture is stored in the files/MockMDS/ directory.
 
 ## ✨ Features
 -   **SBI Compliance**: Implements standard SBI endpoints for device discovery, info, and capture.
@@ -21,9 +21,10 @@ This module is primarily designed to be run locally as a Java application to ser
 
 ### 📋 Pre requisites
 Ensure you have the following installed:
--   **Java 21**: The project requires Java 21.0.3 or later.
--   **Maven**: For building the project.
--   **Git**: To clone the repository.
+-   **Java**: Version 21.0.3
+-   **Maven**: For building the project
+-   **Git**: To clone the repository
+-   **Postman (optional)**: For testing the APIs
 
 ### 🏗️ Build
 1.  **Clone the repository**:
@@ -33,40 +34,49 @@ Ensure you have the following installed:
     ```
 2.  **Build the Project**:
     ```bash
-    mvn clean install -Dgpg.skip=true
+    mvn clean install -Dmaven.test.skip=true -Dgpg.skip=true
     ```
 
 ### 📝 Configurations
-Before running, you may need to adjust configurations:
-1.  **Device Config**: Update `DeviceDiscovery.json`, `DeviceInfo.json`, or `DigitalId.json` if you need to change device properties.
-2.  **Certificates**: Place `device-partner.p12` and `ftm-partner.p12` in:
-    `Biometric Devices\{modality}\Keys`
-3.  **Properties**: Update `src/main/resources/application.properties` (or the one in target) with correct keys and URLs if connecting to a real server:
-    ```properties
-    mosip.mock.sbi.file.{modality}.keys.keyalias={alias}
-    mosip.mock.sbi.file.{modality}.keys.keystorepwd={password}
-    mosip.auth.server.url=https://{env}/v1/authmanager/authenticate/clientidsecretkey
-    # ... other properties
-    ```
+1.  **Modify Configuration Files**:
+    -   Edit `DeviceDiscovery.json`, `DeviceInfo.json`, and `DigitalId.json` if changes are required for devices.
+2.  **Certificates**:
+    -   Place the `device-partner.p12` and `ftm-partner.p12` files into the folder:
+        `Biometric Devices\{all different modality}\Keys`
+3.  **Update Properties**:
+    -   Update the `resources/application.properties` file with the following values:
+        ```properties
+        mosip.mock.sbi.file.{modality}.keys.keyalias={alias}
+        mosip.mock.sbi.file.{modality}.keys.keystorepwd={password}
+
+        mosip.auth.server.url=https://{env}/v1/authmanager/authenticate/clientidsecretkey
+        mosip.auth.appid=regproc
+        mosip.auth.clientid=mosip-regproc-client
+        mosip.auth.secretkey={password}
+
+        mosip.ida.server.url=https://{env}/idauthentication/v1/internal/getCertificate?applicationId=IDA&referenceId=IDA-FIR
+        ```
 
 ## ☕ Running the Application
 You can run the mock service in two modes:
 
 ### 1. For Authentication Devices
--   **Using Script**: Run `run_auth.bat` (Windows) or `run.sh` (Linux/Mac) located in the target folder.
+-   **Using Script**: Use the `run_auth.bat` executable located in the target folder.
 -   **Using Java**:
+    Execute the Main class directly:
     ```bash
-    java -cp "mock-mds-1.3.0-SNAPSHOT.jar;lib*" io.mosip.mock.sbi.test.TestMockSBI \
+    java -cp mock-mds-1.3.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
     "mosip.mock.sbi.device.purpose=Auth" \
     "mosip.mock.sbi.biometric.type=Biometric Device" \
     "mosip.mock.sbi.biometric.image.type=WSQ"
     ```
 
 ### 2. For Registration Devices
--   **Using Script**: Run `run_reg.bat` (Windows) located in the target folder.
+-   **Using Script**: Use the `run_reg.bat` executable located in the target folder.
 -   **Using Java**:
+    Execute the Main class directly:
     ```bash
-    java -cp "mock-mds-1.3.0-SNAPSHOT.jar;lib*" io.mosip.mock.sbi.test.TestMockSBI \
+    java -cp mock-mds-1.3.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
     "mosip.mock.sbi.device.purpose=Registration" \
     "mosip.mock.sbi.biometric.type=Biometric Device"
     ```
@@ -80,12 +90,12 @@ You can run the mock service in two modes:
 ### API Endpoints
 The service exposes specific endpoints for controlling the mock behavior:
 
-| Endpoint | Method | Description | Sample JSON |
+| Endpoint | Method | Description | Json |
 | :--- | :--- | :--- | :--- |
-| `/admin/status` | POST | Set device status | `{"type": "Biometric Device", "deviceStatus": "Ready"}` |
-| `/admin/score` | POST | Set quality score | `{"type": "Biometric Device", "qualityScore": "90", "fromIso": false}` |
-| `/admin/delay` | POST | Set API delay | `{"type": "Biometric Device", "delay": "5000", "method": ["CAPTURE"]}` |
-| `/admin/profile` | POST | Set capture profile | `{"type": "Biometric Device", "profileId": "Profile1"}` |
+| `/admin/status` | POST | Set the device status ["Ready", "Busy", "Not Ready" or "Not Registered"] | `{"type": "Biometric Device","deviceStatus": "Ready"}` |
+| `/admin/score` | POST | Set the biometric quality score | `{"type": "Biometric Device","qualityScore": "44.44",fromIso" : false}` |
+| `/admin/delay` | POST | Set the delay response for api calls [RCAPTURE, CAPTURE, MOSIPDINFO, MOSIPDISC, STREAM] | `{"type": "Biometric Device","delay": "10000","method":["RCAPTURE"]}` |
+| `/admin/profile` | POST | Set the profile to get biometric data ["Default", "Profile1", "Profile2"] | `{"type": "Biometric Device","profileId": "Profile1"}` |
 
 ## 🤝 Contribution & Community
 We welcome contributions from everyone!

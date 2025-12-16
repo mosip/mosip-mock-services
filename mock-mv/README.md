@@ -1,7 +1,7 @@
 # Mock Manual Verification (MV)
 
 ## 📌 Overview
-The `mock-mv` service simulates the Manual Verification (MV) component in MOSIP. It reads requests from a queue and provides mock responses for external "manual adjudication" and "verification" systems. This is useful for testing registration processor flows without connecting to actual manual verification systems.
+The `mock-mv` service reads request from queue and mocks response for external "manual adjudication" and "verification" systems.
 
 ## ✨ Features
 -   **MV Simulation**: Simulates the decision-making process of Manual Verification (Approved/Rejected).
@@ -20,44 +20,44 @@ There are two primary ways to deploy the `mock-mv` module locally:
 
 ## 📋 Pre requisites
 Before setting up the project, ensure you have the following prerequisites:
--   **Java 21**: The project requires Java 21.0.3 or later.
--   **Maven**: For building the project.
+-   **Java**: Version 21.0.3
+-   **Maven**: For building the project
+-   **Git**: To clone the repository
+-   **Postman (optional)**: For testing the APIs
 -   **Docker**: For containerized deployment.
 -   **ActiveMQ**: A local or remote ActiveMQ instance is required for queue operations.
--   **Git**: To clone the repository.
 
 ## 🗄️ Database Setup
 -   **Not Applicable**: This module does not use a standalone database for persistence; it primarily operates using in-memory configurations and message queues.
 
 ## 📝 Configurations
-The service connects to ActiveMQ and other internal components.
--   **ActiveMQ Configuration**:
-    You may need to configure ActiveMQ connection details in `application.properties` or via environment variables if not using default local settings.
--   **Mock Decision**:
-    The default decision can be configured via API or properties (`mock.mv.decision`).
+This section is for the developers, for developing this modules fast & efficiently.
 
-## 🐳 Local Setup using docker image
-To run using an existing Docker image (if available in your registry):
-1.  Run the following command:
-    ```bash
-    docker run -p 8081:8081 mock-mv
-    ```
-    *(Note: Ensure ActiveMQ is running and reachable).*
+1.  The configuration `mock.mv.decision` can be changed to "APPROVED" or "REJECTED" to set expected response.
+2.  ActiveMQ queue need to setup using `application.properties`.
 
-## 🏗️ Local Setup by building docker image
-To build the image locally and run:
-1.  **Build the Project**:
+## 🐳 Server deployment (for sandbox deployment)
+**Docker based**
+
+Steps:
+1.  **Go to Project Root**: Navigate to `mock-mv`.
+2.  **Build the code**:
     ```bash
     mvn clean install -Dgpg.skip=true
     ```
-2.  **Build Docker Image**:
+3.  **Create a docker image**:
     ```bash
-    docker build --file Dockerfile --tag mock-mv .
+    docker build . --file Dockerfile --tag mock-mv
     ```
-3.  **Run Container**:
+4.  **Push the docker image**:
+    Push the image to your docker registry. You can also directly use these images for running mock Manual Verification.
     ```bash
-    docker run -p 8081:8081 mock-mv
+    docker push <your-registry>/mock-mv:latest
     ```
+
+**Note**: Please check `Dockerfile` for passing env properties.
+
+**Swagger URL**: `https://<hostname>/v1/mockmv/swagger-ui.html#/`
 
 ## ☕ Local Setup using JAR
 Recommended for active development.
@@ -88,7 +88,7 @@ Recommended for active development.
     *(Note: Adjust the JAR version and config URI as needed).*
 
 ## 🚀 Deployment
-For deploying in a Kubernetes environment (like Sandbox), the service is deployed as a Docker container. Refer to the specific MOSIP deployment scripts and Helm charts for environmental configuration.
+For deploying in a Kubernetes environment (like Sandbox), the service is deployed as a Docker container. Refer to [Sandbox Deployment](https://docs.mosip.io/1.2.0/deploymentnew/v3-installation).
 
 ## ⬆️ Upgrade
 To upgrade:
@@ -99,9 +99,84 @@ To upgrade:
 
 ## 📚 Documentation
 
+### APIs for configuration and expectation setting
+
+#### Update configuration
+**URL**: `http://{host}/v1/mockmv/config/configureMockMv`
+**Method**: `POST`
+
+**Request**:
+```json
+{
+  "mockMvDescision": "APPROVED"
+}
+```
+
+**Response**:
+```text
+Successfully updated the configuration
+```
+
+#### Get configuration
+**URL**: `http://{host}/v1/mockmv/config/configureMockMv`
+**Method**: `GET`
+
+**Response**:
+```json
+{
+  "mockMvDescision": "APPROVED"
+}
+```
+
+#### Set Expectation
+**URL**: `http://{host}/v1/mockmv/config/expectationMockMv`
+**Method**: `POST`
+
+**Request**:
+```json
+{
+  "mockMvDecision": "REJECTED",
+  "delayResponse": 30,
+  "rid": "10332103161016320241119230824"
+}
+```
+
+**Response**:
+```text
+Successfully inserted expectation $expectation_id
+```
+
+#### Get Expectations
+**URL**: `http://{host}/v1/mockmv/config/expectationMockMv`
+**Method**: `GET`
+
+**Response**:
+```json
+{
+  "10332103161016320241119230824": {
+    "mockMvDecision": "REJECTED",
+    "delayResponse": 0,
+    "rid": "10332103161016320241119230824"
+  },
+  "10332103161009120241119230259": {
+    "mockMvDecision": "REJECTED",
+    "delayResponse": 0,
+    "rid": "10332103161009120241119230259"
+  }
+}
+```
+
+#### Delete Expectation
+**URL**: `http://{host}/v1/mockmv/config/expectation/{id}`
+**Method**: `DELETE`
+
+**Response**:
+```text
+Successfully deleted expectation $expectation_id
+```
+
 ### API Documentation
-API endpoints, base URL (repo name), and mock server details are available via Swagger documentation:
-[Swagger UI Local](http://localhost:8081/v1/mockmv/swagger-ui/index.html#/)
+API documentation is available [here](https://docs.mosip.io/1.1.5/modules/registration-processor/deduplication-and-manual-adjudication#manual-adjudication).
 
 ### Product Documentation
 For more details on Manual Adjudication integration:
