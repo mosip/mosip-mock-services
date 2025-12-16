@@ -26,6 +26,8 @@ Before setting up the project, ensure you have the following prerequisites:
 -   **Maven**: For building the project.
 -   **Docker & Docker Compose**: For Docker-based setup.
 -   **ActiveMQ**: A local or remote ActiveMQ instance.
+    -   **Local Run**: Navigate to the `activemq` directory and run `docker-compose up`.
+    -   **Access**: `http://localhost:8161/`
 -   **Dependencies**:
     -   `kernel-auth-adapter.jar`: Required in the `lib` folder for JAR execution.
 
@@ -47,8 +49,28 @@ For local development, `mock-abis` uses an **H2 in-memory database**.
 The service connects to ActiveMQ and other internal components.
 -   **Queue Configuration**:
     Create `src/main/resources/registration-processor-abis.json` using `registration-processor-abis-sample.json` as a template. Update the `brokerUrl` and queue names as needed.
+    ```json
+    {
+      "abis": [
+        {
+          "name": "ABIS",
+          "host": "",
+          "port": "",
+          "brokerUrl": "tcp://{env}.mosip.net:{port}",
+          "inboundQueueName": "ctk-to-abis",
+          "outboundQueueName": "abis-to-ctk",
+          "pingInboundQueueName": "ctk-to-abis",
+          "pingOutboundQueueName": "abis-to-ctk",
+          "userName": "artemis",
+          "password": "{password}",
+          "typeOfQueue": "ACTIVEMQ",
+          "inboundMessageTTL": 2700
+        }
+      ]
+    }
+    ```
 -   **Partner Certificate**:
-    Place `cbeff.p12` in the `src/main/resources` folder if encryption is enabled.
+    Place `cbeff.p12` in the `resource` folder (or `src/main/resources`) if encryption is enabled. Upload the certificate using the Swagger upload certificate request if needed.
 
 ## 🐳 Local Setup using docker image
 To run using an existing Docker image:
@@ -59,38 +81,59 @@ To run using an existing Docker image:
     ```
     *(Note: Ensure ActiveMQ is running and reachable).*
 
-## 🏗️ Local Setup by building docker image
-To build the image locally and run:
-1.  **Build the Project**:
+## 🐳 Docker based Server deployment (Sandbox)
+To build the image and deploy (or push for sandbox):
+
+1.  **Build the Code**:
     ```bash
     mvn clean install -Dgpg.skip=true
     ```
-2.  **Build Docker Image**:
+2.  **Create Docker Image**:
     ```bash
     docker build --file Dockerfile --tag mock-abis .
     ```
-3.  **Run Container**:
-    Use the `docker-compose.yml` or run manually:
+3.  **Push Image (Optional)**:
+    Push the docker image to your docker registry if deploying to a remote sandbox.
+    ```bash
+    docker push <your-registry>/mock-abis:latest
+    ```
+4.  **Run Container Locally (Optional)**:
+    You can also directly use these images for running mock ABIS locally.
     ```bash
     docker run -p 8081:8081 mock-abis
     ```
+    *Note: Check `Dockerfile` for passing env properties.*
 
-## ☕ Local Setup using JAR
-Recommended for active development.
-1.  **Setup Queue Config**:
+## ☕ Local Development (JAR)
+This section is for developers to run `mock-abis` locally. You can run it against a remote MOSIP server's queue or fully locally with a local ActiveMQ.
+
+### 1. Requirements
+*   **ActiveMQ**:
+    *   **Fully Local**: Run local ActiveMQ.
+        ```bash
+        cd activemq
+        docker-compose up
+        ```
+        Open: `http://localhost:8161/`
+    *   **Against Server**: Ensure you have credentials and connectivity to the Server's ActiveMQ.
+*   **Database**: Uses H2 in-memory DB (already configured).
+
+### 2. Steps
+1.  **Setting ABIS Queue Conf**:
     -   Create `registration-processor-abis.json` in `src/main/resources`.
-    -   Update queue details.
+    -   Copy the contents of `registration-processor-abis-sample.json`.
+    -   Update with correct queue details (refer to [Configurations](#-configurations)).
 2.  **Prepare Libs**:
-    -   Download `kernel-auth-adapter-1.3.0-SNAPSHOT.jar` (or relevant version) and place it in a `lib` folder.
-3.  **Build**:
+    -   Download the latest `kernel-auth-adapter` from Maven Repository and save it into a `lib` folder.
+3.  **Build the Code**:
     ```bash
     mvn clean install -Dgpg.skip=true
     ```
-4.  **Run**:
+4.  **Run the JAR**:
     ```bash
     java -Dloader.path=lib/kernel-auth-adapter-1.3.0-SNAPSHOT.jar \
     -Dlocal.development=true -Dabis.bio.encryption=true \
-    -Dspring.profiles.active=local -Dmosip_host=https://<mosip-server-host> \
+    -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> \
     --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED \
     --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
     --add-opens java.base/java.lang.stream=ALL-UNNAMED \
@@ -102,6 +145,13 @@ Recommended for active development.
     --add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED \
     -jar target/mock-abis-1.3.0-SNAPSHOT.jar
     ```
+
+### 3. Flags
+| Flag | Description |
+| :--- | :--- |
+| `local.development` | `true`: Uses `registration-processor-abis.json` from resources. |
+| `abis.bio.encryption` | `true`: Enables partner based encryption (requires `cbeff.p12`). |
+| `mosip_host` | Hostname of the MOSIP server. |
 
 ## 🚀 Deployment
 For deploying in a Kubernetes environment (like Sandbox), the service is deployed as a Docker container. Refer to the specific MOSIP deployment scripts and Helm charts for environmental configuration.
@@ -116,8 +166,134 @@ To upgrade:
 ## 📚 Documentation
 -   **Expectations Guide**: [Sample Expectations](./docs/sampleExpectations.md)
 
+### APIs for configuration and expectation setting
+
+#### Update configuration
+**URL**: `http://{host}/v1/mock-abis-service/config/configure`  
+**Method**: `POST`  
+**Request**:
+```json
+{
+  "findDuplicate": "false"
+}
+```
+**Response**:
+```text
+Successfully updated the configuration
+```
+
+#### Get configuration
+**URL**: `http://{host}/v1/mock-abis-service/config/configure`  
+**Method**: `GET`  
+**Response**:
+```json
+{
+  "findDuplicate": false
+}
+```
+
+#### Set Expectation
+**URL**: `http://{host}/v1/mock-abis-service/config/expectation`  
+**Method**: `POST`  
+**Request**:
+```json
+{
+  "id": "<Hash of the biometric>",
+  "version": "[xxxxx]",
+  "requesttime": "2021-05-05T05:44:58.525Z",
+  "actionToInterfere": "Identify/Insert",
+  "forcedResponse": "Error",
+  "errorCode": "",
+  "delayInExecution": "",
+  "gallery": {
+    "referenceIds": [
+      {
+        "referenceId": "<Hash of the duplicate biometric>"
+      }
+    ]
+  }
+}
+```
+**Response**:
+```text
+Successfully inserted expectation $expectation_id
+```
+
+#### Get Expectations
+**URL**: `http://{host}/v1/mock-abis-service/config/expectation`  
+**Method**: `GET`  
+**Response**:
+```json
+{
+  "abshd": {
+    "id": "abshd",
+    "version": "xxxxx",
+    "requesttime": "2021-05-05T05:44:58.525Z",
+    "actionToInterfere": "Identify/Insert",
+    "forcedResponse": "Error/Success",
+    "errorCode": "",
+    "delayInExecution": "",
+    "gallery": {
+      "referenceIds": [
+        {
+          "referenceId": "xxxxxx"
+        },
+        {
+          "referenceId": "xxxxxx"
+        }
+      ]
+    }
+  },
+  "dffefe": {
+    "id": "dffefe",
+    "version": "xxxxx",
+    "requesttime": "2021-05-05T05:44:58.525Z",
+    "actionToInterfere": "Identify/Insert",
+    "forcedResponse": "Error/Success",
+    "errorCode": "",
+    "delayInExecution": "",
+    "gallery": {
+      "referenceIds": [
+        {
+          "referenceId": "xxxx"
+        },
+        {
+          "referenceId": "xxxxxx"
+        }
+      ]
+    }
+  }
+}
+```
+
+#### Delete Expectation
+**URL**: `http://{host}/v1/mock-abis-service/config/expectation/{id}`  
+**Method**: `DELETE`  
+**Response**:
+```text
+Successfully deleted expectation $expectation_id
+```
+
+## 💡 Tips & tricks
+1.  While setting the expectation the hash of iso image should be taken, directly taking bdb hash will not work.
+    ```text
+    formula for hash: SHA256_hash(base64_decode(bdb))
+    ```
+2.  Use get cached biometrics to check whether the hashes are proper.
+
+### Developer Tips
+This section is for developers to develop this module fast & efficiently:
+1.  Use local profile: `-Dspring.profiles.active=local`. Pass this as VM options.
+2.  Pass: `mosip_host=https://<mosip host>` as env variable.
+3.  Setting ABIS queue conf:
+    -   Create `registration-processor-abis.json` in resources.
+    -   Copy the contents of `registration-processor-abis-sample.json` to `registration-processor-abis.json`.
+    -   Update `registration-processor-abis.json` with the correct queue details.
+    
+    By performing the above steps, you are ready to run mock-ABIS in local machine.
+
 ### API Documentation
-API endpoints, base URL (repo name), and mock server details are available via Swagger documentation:
+API documentation is available [here](https://mosip.github.io/documentation/) and via Swagger:
 [Swagger UI Local](http://localhost:8081/v1/mock-abis-service/swagger-ui/index.html#/)
 
 ### Product Documentation
