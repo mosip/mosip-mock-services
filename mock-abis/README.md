@@ -16,9 +16,9 @@ The `mock-abis` module is a mock implementation of the Automated Biometric Ident
 
 ## ⚙️ Local Setup
 There are two primary ways to deploy the `mock-abis` module locally:
-1.  **[Local Setup using Docker Image](#local-setup-using-docker-image)**: Recommended for consistent environment setup.
-2.  **[Local Setup by Building Docker Image](#local-setup-by-building-docker-image)**: If you need to build from source.
-3.  **[Local Setup (JAR)](#local-setup-using-jar)**: Useful for development and debugging.
+1.  **[Local Setup using Docker Image](#-local-setup-using-docker-image)**: Recommended for consistent environment setup.
+2.  **[Local Setup by Building Docker Image](#-docker-based-server-deployment-sandbox)**: If you need to build from source.
+3.  **[Local Setup (JAR)](#-local-development-jar)**: Useful for development and debugging.
 
 ## 📋 Pre requisites
 Before setting up the project, ensure you have the following prerequisites:
@@ -29,7 +29,7 @@ Before setting up the project, ensure you have the following prerequisites:
     -   **Local Run**: Navigate to the `activemq` directory and run `docker-compose up`.
     -   **Access**: `http://localhost:8161/`
 -   **Dependencies**:
-    -   `kernel-auth-adapter.jar`: Required in the `lib` folder for JAR execution.
+    -  `kernel-auth-adapter.jar`: Required in the `lib` folder for JAR execution.
 
 ## 🗄️ Database Setup
 For local development, `mock-abis` uses an **H2 in-memory database**.

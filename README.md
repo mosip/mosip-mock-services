@@ -11,19 +11,19 @@ The repository encompasses several modules, each emulating a specific MOSIP comp
 
 ### 🧪 MockMDS
 This module simulates the MOSIP Device Service (MDS) as per the defined Secure Biometric Interface (SBI) specifications. It provides biometric data for capture, facilitating testing and integration without the need for actual biometric devices.  
-[Read more](MockMDS\README.md)
+[Read more](MockMDS/README.md)
 
 ### 🧬 mock-abis
 This module emulates the Automated Biometric Identification System (ABIS) functionality, enabling testing of biometric deduplication and identification processes in non-production MOSIP deployments. It also offers a Swagger API to test INSERT and IDENTIFY operations.  
-[Read more](mock-abis\README.md)
+[Read more](mock-abis/README.md)
 
 ### 🧩 mock-sdk
 This module provides a mock implementation of the MOSIP Software Development Kit (SDK), allowing developers to simulate SDK interactions and test their applications without relying on the actual SDK.
-[Read more](mock-sdk\README.md)
+[Read more](mock-sdk/README.md)
 
 ### 🛂 mock-mv
 This module simulates the Master Data Validator (MV) service, which is responsible for validating master data within the MOSIP ecosystem. It aids in testing validation processes during development.
-[Read more](mock-mv\README.md)
+[Read more](mock-mv/README.md)
 
 ### 🔐 softhsm
 This module offers a mock implementation of a Hardware Security Module (HSM) using SoftHSM. It is used for cryptographic operations in a non-production environment, enabling developers to test security features without requiring physical HSM hardware.
