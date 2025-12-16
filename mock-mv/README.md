@@ -14,9 +14,8 @@ The `mock-mv` service reads request from queue and mocks response for external "
 
 ## ⚙️ Local Setup
 There are two primary ways to deploy the `mock-mv` module locally:
-1.  **[Local Setup using Docker Image](#local-setup-using-docker-image)**: Recommended for consistent environment setup.
-2.  **[Local Setup by Building Docker Image](#local-setup-by-building-docker-image)**: If you need to build from source.
-3.  **[Local Setup (JAR)](#local-setup-using-jar)**: Useful for development and debugging.
+1.  **[Server Deployment using Docker Image](#-server-deployment-for-sandbox-deployment)**: Recommended for consistent environment setup.
+2.  **[Local Setup (JAR)](#-local-setup-using-jar)**: Useful for development and debugging.
 
 ## 📋 Pre requisites
 Before setting up the project, ensure you have the following prerequisites:
@@ -37,7 +36,7 @@ This section is for the developers, for developing this modules fast & efficient
 2.  ActiveMQ queue need to setup using `application.properties`.
 
 ## 🐳 Server deployment (for sandbox deployment)
-**Docker based**
+### Docker based
 
 Steps:
 1.  **Go to Project Root**: Navigate to `mock-mv`.
