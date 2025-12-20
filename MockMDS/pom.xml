@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.mock.mds</groupId>
 	<artifactId>mock-mds</artifactId>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.3.0</version>
 	<name>mock-mds</name>
 	<description>A mock project for biometric provider</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
@@ -49,8 +49,8 @@
 		<org.bitbucket.jose4j.version>0.7.1</org.bitbucket.jose4j.version>
 
 		<!-- Mosip -->
-		<kernel.bom.version>1.3.0-SNAPSHOT</kernel.bom.version>
-		<kernel.core.version>1.3.0-SNAPSHOT</kernel.core.version>
+		<kernel.bom.version>1.3.0</kernel.bom.version>
+		<kernel.core.version>1.3.0</kernel.core.version>
 		
 		<!-- Test -->
 		<junit.jupiter.version>5.10.2</junit.jupiter.version>
@@ -60,7 +60,7 @@
 			<maven.sonar.plugin.version>5.1.0.4751</maven.sonar.plugin.version>
 		<sonar.coverage.exclusions>**/io/mosip/registration/mdm/dto/**,**/org/biometric/provider/**,**/BioMetricsDto/**,**/exception/**,**/util/**,**/SBIFingerSlapCaptureInfo.java,**/SBIBioSubTypeInfo.java,**/SBIConstant.javaa</sonar.coverage.exclusions>
 
-		<mosip.biometrics.util.version>1.3.0-SNAPSHOT</mosip.biometrics.util.version>
+		<mosip.biometrics.util.version>1.3.0</mosip.biometrics.util.version>
 	</properties>
 
 	<dependencyManagement>
