@@ -1,0 +1,195 @@
+================================================================================
+COPYRIGHT NOTICES
+================================================================================
+
+This software incorporates components from the projects listed below. The
+original copyright notices have been preserved in accordance with the terms
+of their respective licenses:
+
+--------------------------------------------------------------------------------
+APACHE LICENSE 2.0 COMPONENTS
+--------------------------------------------------------------------------------
+
+Spring Framework & Spring Boot
+  Copyright © 2002-2024 Pivotal Software, Inc.
+  Copyright © 2002-2024 VMware, Inc. or its affiliates.
+  Licensed under the Apache License, Version 2.0
+
+Spring Cloud
+  Copyright © 2013-2024 Pivotal Software, Inc.
+  Licensed under the Apache License, Version 2.0
+
+SpringDoc OpenAPI
+  Copyright © 2019-2024 springdoc.org
+  Licensed under the Apache License, Version 2.0
+
+Apache Maven Plugins
+  Copyright © 2001-2024 The Apache Software Foundation
+  Licensed under the Apache License, Version 2.0
+
+Apache HttpComponents (HttpClient, HttpMime)
+  Copyright © 2005-2024 The Apache Software Foundation
+  Licensed under the Apache License, Version 2.0
+
+Apache ActiveMQ Client
+  Copyright © 2005-2024 The Apache Software Foundation
+  Licensed under the Apache License, Version 2.0
+
+Apache Commons (Commons Lang3, Commons Codec)
+  Copyright © 2001-2024 The Apache Software Foundation
+  Licensed under the Apache License, Version 2.0
+
+Jackson Libraries (jackson-databind, jackson-annotations, jackson-core)
+  Copyright © 2007-2024 Tatu Saloranta
+  Licensed under the Apache License, Version 2.0
+
+JSON Simple
+  Copyright © 2006 Yidong Fang
+  Licensed under the Apache License, Version 2.0
+
+Micrometer (micrometer-core, micrometer-registry-prometheus)
+  Copyright © 2017-2024 Pivotal Software, Inc.
+  Licensed under the Apache License, Version 2.0
+
+Google Gson
+  Copyright © 2008-2024 Google Inc.
+  Licensed under the Apache License, Version 2.0
+
+Hibernate Validator
+  Copyright © 2007-2024 Red Hat, Inc.
+  Licensed under the Apache License, Version 2.0
+
+Jose4j
+  Copyright © 2012-2019 Brian Campbell
+  Licensed under the Apache License, Version 2.0
+
+OkHttp
+  Copyright © 2013-2024 Square, Inc.
+  Licensed under the Apache License, Version 2.0
+
+JSR105 API
+  Copyright © 2005 Sun Microsystems, Inc.
+  Licensed under the Apache License, Version 2.0
+
+Sonatype Central Publishing Maven Plugin
+  Copyright © 2022-2024 Sonatype, Inc.
+  Licensed under the Apache License, Version 2.0
+
+--------------------------------------------------------------------------------
+MIT LICENSE COMPONENTS
+--------------------------------------------------------------------------------
+
+Project Lombok
+  Copyright © 2009-2021 The Project Lombok Authors
+  Licensed under the MIT License
+
+Mockito
+  Copyright © 2007-2024 Mockito contributors
+  Licensed under the MIT License
+
+SLF4J (jcl-over-slf4j, jul-to-slf4j)
+  Copyright © 2004-2024 QOS.ch
+  Licensed under the MIT License
+
+Bouncy Castle (bcprov-jdk18on)
+  Copyright © 2000-2023 The Legion of the Bouncy Castle Inc.
+  Licensed under the MIT License
+
+--------------------------------------------------------------------------------
+ECLIPSE PUBLIC LICENSE 2.0 COMPONENTS
+--------------------------------------------------------------------------------
+
+JUnit Jupiter
+  Copyright © 2015-2024 the original author or authors
+  Licensed under the Eclipse Public License 2.0
+
+JaCoCo Maven Plugin
+  Copyright © 2009-2024 Mountainminds GmbH & Co. KG and Contributors
+  Licensed under the Eclipse Public License 2.0
+
+Jakarta JMS API
+  Copyright © 2012-2024 Eclipse Foundation, Inc.
+  Licensed under the Eclipse Public License 2.0
+
+Jakarta Servlet API
+  Copyright © 2012-2024 Eclipse Foundation, Inc.
+  Licensed under the Eclipse Public License 2.0
+
+H2 Database Engine
+  Copyright © 2004-2024 H2 Group
+  Dual licensed under the Mozilla Public License 2.0 or the Eclipse Public License 2.0
+
+--------------------------------------------------------------------------------
+BSD LICENSE COMPONENTS
+--------------------------------------------------------------------------------
+
+PostgreSQL JDBC Driver
+  Copyright © 1997-2024 PostgreSQL Global Development Group
+  Licensed under the BSD 2-Clause License
+
+JAI ImageIO Core
+  Copyright © 2005 Sun Microsystems, Inc.
+  Copyright © 2010-2015 University of Manchester and Contributors
+  Licensed under the BSD 3-Clause License
+
+JAI ImageIO JPEG2000
+  Copyright © 1999-2000 JJ2000 Partners
+  Copyright © 2005 Sun Microsystems, Inc.
+  Licensed under the BSD 3-Clause License with Nuclear Restriction
+
+--------------------------------------------------------------------------------
+GNU LGPL 3.0 COMPONENTS
+--------------------------------------------------------------------------------
+
+Git Commit ID Maven Plugin
+  Copyright © 2010-2024 Konrad Malawski and Contributors
+  Licensed under the GNU Lesser General Public License v3.0
+
+Sonar Maven Plugin
+  Copyright © 2007 Free Software Foundation, Inc.
+  Copyright © 2010-2024 SonarSource SA
+  Licensed under the GNU Lesser General Public License v3.0
+
+--------------------------------------------------------------------------------
+MOZILLA PUBLIC LICENSE 2.0 COMPONENTS
+--------------------------------------------------------------------------------
+
+MOSIP Mock Services
+  Copyright © 2021-2024 MOSIP
+  Licensed under the Mozilla Public License 2.0
+
+MOSIP Kernel (kernel-core, kernel-biometrics-api, kernel-bio-converter)
+  Copyright © 2021-2024 MOSIP
+  Licensed under the Mozilla Public License 2.0
+
+MOSIP Biometrics Util
+  Copyright © 2021-2024 MOSIP
+  Licensed under the Mozilla Public License 2.0
+
+--------------------------------------------------------------------------------
+CDDL OR GPL WITH CLASSPATH EXCEPTION
+--------------------------------------------------------------------------------
+
+JAXB API
+  Copyright © 2003-2017 Oracle Corporation and/or its affiliates
+  Dual licensed under the Common Development and Distribution License (CDDL)
+  Version 1.1 or the GNU General Public License (GPL) Version 2 with the
+  Classpath Exception
+
+================================================================================
+
+FULL LICENSE TEXTS
+
+For complete license texts, please refer to:
+- Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0
+- MIT License: https://opensource.org/licenses/MIT
+- Eclipse Public License 2.0: https://www.eclipse.org/legal/epl-2.0/
+- BSD Licenses: https://opensource.org/licenses/BSD-2-Clause and BSD-3-Clause
+- GNU LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.html
+- Mozilla Public License 2.0: https://www.mozilla.org/en-US/MPL/2.0/
+- CDDL 1.1: https://spdx.org/licenses/CDDL-1.1.html
+
+Individual project homepages and license files are available at the URLs
+specified in the THIRD-PARTY-NOTICES.txt file.
+
+================================================================================
