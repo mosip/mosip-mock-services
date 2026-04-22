@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
@@ -49,6 +54,8 @@ import io.mosip.proxy.abis.exception.AbisException;
 import io.mosip.proxy.abis.exception.FailureReasonsConstants;
 import io.mosip.proxy.abis.exception.RequestException;
 import io.mosip.proxy.abis.utility.Helpers;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.jms.BytesMessage;
 import jakarta.jms.Connection;
 import jakarta.jms.Destination;
@@ -72,6 +79,18 @@ public class Listener {
 
 	@Value("${registration.processor.abis.response.delay:0}")
 	private int delayResponse;
+
+	@Value("${registration.processor.abis.listener.worker.core.pool.size:2}")
+	private int workerCorePoolSize;
+
+	@Value("${registration.processor.abis.listener.worker.max.pool.size:4}")
+	private int workerMaxPoolSize;
+
+	@Value("${registration.processor.abis.listener.worker.queue.capacity:100}")
+	private int workerQueueCapacity;
+
+	@Value("${registration.processor.abis.listener.worker.keepalive.seconds:60}")
+	private int workerKeepAliveSeconds;
 
 	/**
 	 * Default UTC pattern.
@@ -129,6 +148,7 @@ public class Listener {
 	private Connection connection;
 	private Session session;
 	private Destination destination;
+	private ExecutorService messageListenerExecutor;
 
 	/**
 	 * This flag is added for development & debugging locally
@@ -140,8 +160,6 @@ public class Listener {
 
 	private ProxyAbisController proxycontroller;
 
-	public String outBoundQueue;
-
 	/**
 	 * Constructor for the Listener class.
 	 *
@@ -150,6 +168,20 @@ public class Listener {
 	@Autowired(required = true)
 	public Listener(ProxyAbisController proxycontroller) {
 		this.proxycontroller = proxycontroller;
+	}
+
+	@PostConstruct
+	public void initMessageListenerExecutor() {
+		final AtomicInteger threadCount = new AtomicInteger(1);
+		messageListenerExecutor = new ThreadPoolExecutor(workerCorePoolSize, workerMaxPoolSize, workerKeepAliveSeconds,
+				TimeUnit.SECONDS, new ArrayBlockingQueue<>(workerQueueCapacity), runnable -> {
+					Thread thread = new Thread(runnable,
+							"abis-listener-worker-" + threadCount.getAndIncrement());
+					return thread;
+				}, new ThreadPoolExecutor.AbortPolicy());
+		logger.info(
+				"Initialized ABIS listener worker pool: corePoolSize={}, maxPoolSize={}, queueCapacity={}, keepAliveSeconds={}",
+				workerCorePoolSize, workerMaxPoolSize, workerQueueCapacity, workerKeepAliveSeconds);
 	}
 	
 	/**
@@ -192,15 +224,15 @@ public class Listener {
 			switch (map.get(ID).toString()) {
 			case ABIS_INSERT:
 				final InsertRequestMO ie = mapper.convertValue(map, InsertRequestMO.class);
-				proxycontroller.saveInsertRequestThroughListner(ie, textType);
+				proxycontroller.saveInsertRequestThroughListner(ie, textType, abismiddlewareaddress);
 				break;
 			case ABIS_IDENTIFY:
 				final IdentityRequest ir = mapper.convertValue(map, IdentityRequest.class);
-				proxycontroller.identityRequestThroughListner(ir, textType);
+				proxycontroller.identityRequestThroughListner(ir, textType, abismiddlewareaddress);
 				break;
 			case ABIS_DELETE:
 				final RequestMO mo = mapper.convertValue(map, RequestMO.class);
-				proxycontroller.deleteRequestThroughListner(mo, textType);
+				proxycontroller.deleteRequestThroughListner(mo, textType, abismiddlewareaddress);
 				break;
 			default:
 				throw new AbisException(AbisErrorCode.INVALID_ID_EXCEPTION.getErrorCode(),
@@ -210,10 +242,27 @@ public class Listener {
 			logger.error("Issue while hitting mock abis API", e);
 			obj = errorRequestThroughListner(e, map, textType);
 			try {
-				proxycontroller.executeAsync(obj, delayResponse, textType);
+				proxycontroller.executeAsync(obj, delayResponse, textType, abismiddlewareaddress);
 			} catch (Exception e1) {
 				logger.error("Issue while hitting mock abis API1", e1);
 			}
+		}
+	}
+
+	private void delegateMessageProcessing(jakarta.jms.Message message, String outboundAddress) {
+		try {
+			messageListenerExecutor.execute(() -> {
+				try {
+					consumeLogic(message, outboundAddress);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					logger.error("ABIS listener worker interrupted for outboundQueue={}", outboundAddress, e);
+				} catch (Exception e) {
+					logger.error("ABIS listener worker failed for outboundQueue={}", outboundAddress, e);
+				}
+			});
+		} catch (RejectedExecutionException e) {
+			logger.error("ABIS listener worker queue is full. Rejected message for outboundQueue={}", outboundAddress, e);
 		}
 	}
 
@@ -466,16 +515,21 @@ public class Listener {
 	 *                 interpretation required).
 	 * @throws JsonProcessingException if an error occurs during JSON serialization.
 	 */
-	public void sendToQueue(ResponseEntity<Object> obj, Integer textType)
+	public void sendToQueue(ResponseEntity<Object> obj, Integer textType, String outboundQueue)
 			throws JsonProcessingException, UnsupportedEncodingException {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.findAndRegisterModules();
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		logger.info("Response: {} ", obj.getBody());
+		String queueToSend = outboundQueue;
+		if (queueToSend == null || queueToSend.isBlank()) {
+			logger.info("Outbound queue is empty, skipping queue publishing for this response");
+			return;
+		}
 		if (textType == 2) {
-			send(mapper.writeValueAsString(obj.getBody()).getBytes(StandardCharsets.UTF_8), outBoundQueue);
+			send(mapper.writeValueAsString(obj.getBody()).getBytes(StandardCharsets.UTF_8), queueToSend);
 		} else if (textType == 1) {
-			send(mapper.writeValueAsString(obj.getBody()), outBoundQueue);
+			send(mapper.writeValueAsString(obj.getBody()), queueToSend);
 		}
 	}
 
@@ -537,6 +591,7 @@ public class Listener {
 			ArrayList<Map> regProcessorAbisArray = (ArrayList<Map>) regProcessorAbisJson.get(ABIS);
 
 			for (int i = 0; i < regProcessorAbisArray.size(); i++) {
+				abisQueueDetails = new MockAbisQueueDetails();
 
 				Map<String, String> json = regProcessorAbisArray.get(i);
 				String userName = validateAbisQueueJsonAndReturnValue(json, USERNAME);
@@ -632,17 +687,11 @@ public class Listener {
 
 				for (int i = 0; i < abisQueueDetails.size(); i++) {
 					String outBoundAddress = abisQueueDetails.get(i).getOutboundQueueName();
-					outBoundQueue = outBoundAddress;
 					QueueListener listener = new QueueListener() {
 
 						@Override
 						public void setListener(jakarta.jms.Message message) {
-							try {
-								consumeLogic(message, outBoundAddress);
-							} catch (JMSException | InterruptedException e) {
-								logger.error("runAbisQueue", e);
-								Thread.currentThread().interrupt();
-							}
+							delegateMessageProcessing(message, outBoundAddress);
 						}
 					};
 					consume(abisQueueDetails.get(i).getInboundQueueName(), listener,
@@ -737,7 +786,7 @@ public class Listener {
 	 * @param address The JMS queue address (name) to send the message to.
 	 * @return True if the message was sent successfully, false otherwise.
 	 */
-	public Boolean send(byte[] message, String address) {
+	public synchronized Boolean send(byte[] message, String address) {
 		boolean flag = false;
 		MessageProducer messageProducer = null;
 		try {
@@ -773,7 +822,7 @@ public class Listener {
 	 * @param address The JMS queue address (name) to send the message to.
 	 * @return True if the message was sent successfully, false otherwise.
 	 */
-	public Boolean send(String message, String address) {
+	public synchronized Boolean send(String message, String address) {
 		boolean flag = false;
 		MessageProducer messageProducer = null;
 		try {
@@ -810,5 +859,20 @@ public class Listener {
 					AbisErrorCode.INVALID_CONNECTION_EXCEPTION.getErrorMessage());
 		}
 		setup();
+	}
+
+	@PreDestroy
+	public void shutdownExecutors() {
+		if (messageListenerExecutor != null) {
+			messageListenerExecutor.shutdown();
+			try {
+				if (!messageListenerExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+					messageListenerExecutor.shutdownNow();
+				}
+			} catch (InterruptedException e) {
+				messageListenerExecutor.shutdownNow();
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 }
