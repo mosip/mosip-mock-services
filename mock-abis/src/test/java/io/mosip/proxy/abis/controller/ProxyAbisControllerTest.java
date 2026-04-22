@@ -17,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -26,9 +25,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.validation.BindingResult;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -63,7 +61,6 @@ class ProxyAbisControllerTest {
     @Mock
     private BindingResult bindingResult;
 
-    @InjectMocks
     private ProxyAbisController controller;
 
     private InsertRequestMO validInsertRequest;
@@ -75,6 +72,7 @@ class ProxyAbisControllerTest {
      */
     @BeforeEach
     void setUp() {
+        controller = new ProxyAbisController(abisInsertService, 1);
         controller.setListener(listener);
 
         validInsertRequest = new InsertRequestMO();
@@ -415,19 +413,18 @@ class ProxyAbisControllerTest {
 
 
     /**
-     * Tests timer cleanup in controller.
+     * Tests scheduler initialization in controller.
      */
     @Test
-    void testExecuteAsync_TimerInitializedAndNotNullAfterDelay() throws Exception {
+    void testExecuteAsync_SchedulerInitializedAndNotNullAfterDelay() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         controller.executeAsync(responseEntity, 0, 1);
 
         Thread.sleep(1500);
 
-        Field timerField = ProxyAbisController.class.getDeclaredField("timer");
-        timerField.setAccessible(true);
-        Timer timer = (Timer) timerField.get(controller);
-        assertNotNull(timer);
+        ScheduledExecutorService scheduler = (ScheduledExecutorService) org.springframework.test.util.ReflectionTestUtils
+                .getField(controller, "responseScheduler");
+        assertNotNull(scheduler);
     }
 
     /**
