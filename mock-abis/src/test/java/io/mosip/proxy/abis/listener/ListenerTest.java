@@ -200,10 +200,10 @@ class ListenerTest {
         when(message.getText()).thenReturn(json);
 
         lenient().doThrow(new RuntimeException("API failure"))
-                .when(proxyAbisController).saveInsertRequestThroughListner(any(InsertRequestMO.class), anyInt());
+                .when(proxyAbisController).saveInsertRequestThroughListner(any(InsertRequestMO.class), anyInt(), anyString());
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt()); // Verify async execution
+        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt(), anyString()); // Verify async execution
     }
 
     /**
@@ -379,7 +379,7 @@ class ListenerTest {
 
         listener.consumeLogic(message, "mockAddress");
 
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2), anyString());
     }
 
     /**
@@ -390,9 +390,9 @@ class ListenerTest {
     void testListener_SendToQueueWithInvalidTextType_DoesNotCallExecuteAsync() throws Exception {
         ResponseEntity<Object> response = new ResponseEntity<>("test", HttpStatus.OK);
 
-        listener.sendToQueue(response, 3);
+        listener.sendToQueue(response, 3, "testQueue");
 
-        verify(proxyAbisController, never()).executeAsync(any(), anyInt(), anyInt());
+        verify(proxyAbisController, never()).executeAsync(any(), anyInt(), anyInt(), anyString());
     }
 
     /**
@@ -520,7 +520,6 @@ class ListenerTest {
         );
 
         spyListener.runAbisQueue();
-        assertEquals("outQueue", spyListener.outBoundQueue);
         verify(spyListener).consume(
                 eq("inQueue"),
                 any(QueueListener.class),
@@ -685,9 +684,9 @@ class ListenerTest {
         when(mockBytesMessage.getContent()).thenReturn(mockSequence);
         doThrow(new RuntimeException("Test exception"))
                 .when(proxyAbisController)
-                .saveInsertRequestThroughListner(any(InsertRequestMO.class), eq(2));
+                .saveInsertRequestThroughListner(any(InsertRequestMO.class), eq(2), anyString());
         listener.consumeLogic(mockBytesMessage, "testAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2), anyString());
     }
 
     /**
@@ -988,7 +987,7 @@ class ListenerTest {
         TextMessage message = mock(TextMessage.class);
         when(message.getText()).thenReturn(json);
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).deleteRequestThroughListner(any(RequestMO.class), eq(1));
+        verify(proxyAbisController).deleteRequestThroughListner(any(RequestMO.class), eq(1), anyString());
     }
 
     /**
@@ -1045,7 +1044,7 @@ class ListenerTest {
         when(message.getText()).thenReturn(invalidJson);
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1), anyString());
     }
 
     /**
@@ -1085,7 +1084,7 @@ class ListenerTest {
         TextMessage message = mock(TextMessage.class);
         when(message.getText()).thenReturn(json);
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1), anyString());
     }
 
     /**
@@ -1465,7 +1464,6 @@ class ListenerTest {
                 anyString()
         );
         spyListener.runAbisQueue();
-        assertEquals("outQueue", spyListener.outBoundQueue);
         verify(spyListener).consume(
                 eq("inQueue"),
                 any(QueueListener.class),
@@ -1520,7 +1518,7 @@ class ListenerTest {
         when(message.getText()).thenReturn(json);
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1), anyString());
     }
 
 
@@ -1560,7 +1558,7 @@ class ListenerTest {
         TextMessage message = mock(TextMessage.class);
         when(message.getText()).thenReturn(json);
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).identityRequestThroughListner(any(IdentityRequest.class), eq(1));
+        verify(proxyAbisController).identityRequestThroughListner(any(IdentityRequest.class), eq(1), anyString());
     }
 
     /**
@@ -1638,11 +1636,10 @@ class ListenerTest {
     void testSendToQueue_WithTextType1_CallsSendWithString() throws Exception {
         ResponseEntity<Object> response = new ResponseEntity<>("test response", HttpStatus.OK);
         Listener spyListener = spy(listener);
-        ReflectionTestUtils.setField(spyListener, "outBoundQueue", "testQueue");
 
         lenient().doReturn(true).when(spyListener).send(anyString(), anyString());
 
-        spyListener.sendToQueue(response, 1);
+        spyListener.sendToQueue(response, 1, "testQueue");
         verify(spyListener).send(anyString(), eq("testQueue"));
     }
 
@@ -1653,11 +1650,10 @@ class ListenerTest {
     void testSendToQueue_WithTextType2_CallsSendWithBytes() throws Exception {
         ResponseEntity<Object> response = new ResponseEntity<>("test response", HttpStatus.OK);
         Listener spyListener = spy(listener);
-        ReflectionTestUtils.setField(spyListener, "outBoundQueue", "testQueue");
 
         lenient().doReturn(true).when(spyListener).send(any(byte[].class), anyString());
 
-        spyListener.sendToQueue(response, 2);
+        spyListener.sendToQueue(response, 2, "testQueue");
         verify(spyListener).send(any(byte[].class), eq("testQueue"));
     }
 

@@ -281,8 +281,10 @@ class ProxyAbisControllerTest {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         ArgumentCaptor<Integer> msgTypeCaptor = ArgumentCaptor.forClass(Integer.class);
         controller.executeAsync(responseEntity, 0, 1);
-        verify(listener, timeout(1000)).sendToQueue(any(), msgTypeCaptor.capture());
+        ArgumentCaptor<String> queueCaptor = ArgumentCaptor.forClass(String.class);
+        verify(listener, timeout(1000)).sendToQueue(any(), msgTypeCaptor.capture(), queueCaptor.capture());
         assertEquals(1, msgTypeCaptor.getValue());
+        assertEquals(null, queueCaptor.getValue());
     }
 
     /**
@@ -435,9 +437,9 @@ class ProxyAbisControllerTest {
     void testExecuteAsync_WhenUnsupportedEncodingExceptionThrown() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new UnsupportedEncodingException())
-                .when(listener).sendToQueue(any(), anyInt());
+                .when(listener).sendToQueue(any(), anyInt(), any());
         controller.executeAsync(responseEntity, 0, 1);
-        verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
+        verify(listener, timeout(1000)).sendToQueue(any(), anyInt(), any());
     }
 
     /**
@@ -477,9 +479,9 @@ class ProxyAbisControllerTest {
     void testExecuteAsync_WhenJsonProcessingExceptionThrownInSendToQueue() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new JsonProcessingException("Test error") {})
-                .when(listener).sendToQueue(any(), anyInt());
+                .when(listener).sendToQueue(any(), anyInt(), any());
         controller.executeAsync(responseEntity, 0, 1);
-        verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
+        verify(listener, timeout(1000)).sendToQueue(any(), anyInt(), any());
     }
 
     /**
