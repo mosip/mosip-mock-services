@@ -35,7 +35,7 @@ mosip.role.biosdk.getservicestatus=REGISTRATION_PROCESSOR
 biosdk_bioapi_impl=io.mosip.mock.sdk.impl.SampleSDKV2
 
 # By default below value should be false and in case of performance testing, set it to true. 
-# Setting it to true will generate random biometric data of specified size for extraction and quality APIs instead of reading from the request.
+# Setting it to true will generate random biometric data of specified size for extraction APIs.
 mosip.mocksdk.extraction=false
 mosip.mocksdk.extraction.finger.size=2000
 mosip.mocksdk.extraction.iris.size=5000
