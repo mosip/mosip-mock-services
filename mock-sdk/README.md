@@ -33,6 +33,13 @@ In `biosdk-services`, the below values are required for mockSDK implementation:
 biosdk_class=io.mosip.mock.sdk.impl.SampleSDKV2
 mosip.role.biosdk.getservicestatus=REGISTRATION_PROCESSOR
 biosdk_bioapi_impl=io.mosip.mock.sdk.impl.SampleSDKV2
+
+# By default below value should be false and in case of performance testing, set it to true. 
+# Setting it to true will generate random biometric data of specified size for extraction and quality APIs instead of reading from the request.
+mosip.mocksdk.extraction=false
+mosip.mocksdk.extraction.finger.size=2000
+mosip.mocksdk.extraction.iris.size=5000
+mosip.mocksdk.extraction.face.size=20000
 ```
 
 ## 🏗️ Build locally
