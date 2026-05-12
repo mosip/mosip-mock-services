@@ -403,7 +403,7 @@ public class Listener {
 	 * This method ensures that the map contains only allowed keys relevant to
 	 * insert requests, rejecting any maps containing unauthorized keys.
 	 *
-	 * @param requestData The map containing insert request data (key-value pairs).
+	 * @param map The map containing insert request data (key-value pairs).
 	 * @return true if the map contains any unauthorized keys, false if the
 	 *         structure is valid (all keys are allowed).
 	 * @throws NullPointerException if the provided requestData map is null.
@@ -432,7 +432,7 @@ public class Listener {
 	 * (`TAG_ID`, `TAG_VERSION`, etc.) and an additional key named "gallery"
 	 * (specific purpose to be clarified).
 	 *
-	 * @param requestData The map containing identify request data (key-value
+	 * @param map The map containing identify request data (key-value
 	 *                    pairs).
 	 * @return true if the map contains any unauthorized keys, false if the
 	 *         structure is valid (all keys are allowed).
@@ -609,7 +609,7 @@ public class Listener {
 				}
 			}
 		} catch (JMSException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Error occured in setup method"+e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -654,8 +654,7 @@ public class Listener {
 
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("Error occured in runAbisQueue ", e.getLocalizedMessage());
 		}
 
 	}
