@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import io.mosip.kernel.core.util.DateUtils2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
@@ -31,14 +32,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import io.mosip.kernel.core.util.CryptoUtil;
-import io.mosip.kernel.core.util.DateUtils2;
 import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
 public class JwtUtility {
@@ -254,7 +254,7 @@ public class JwtUtility {
 				Request idarequest = new Request.Builder().header("cookie", "Authorization=" + authToken)
 						.url(getPropertyValue("mosip.ida.server.url")).get().build();
 
-				Response idaResponse = new OkHttpClient().newCall(idarequest).execute();
+				Response idaResponse = client.newCall(idarequest).execute();
 				if (idaResponse.isSuccessful()) {
 					JSONObject jsonObject = new JSONObject(idaResponse.body().string());
 					jsonObject = jsonObject.getJSONObject("response");
