@@ -118,7 +118,7 @@ public class ProxyAbisConfigController {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
-		logger.info("Delete expectation: {}", id);
+		logger.debug("Delete expectation: {}", id);
 
 		try {
 			proxyAbisConfigService.deleteExpectation(id);
@@ -258,7 +258,7 @@ public class ProxyAbisConfigController {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<List<String>> getCacheByHash(@PathVariable String hash) {
-		logger.info("Get cached biometrics by hash: {}", hash);
+		logger.debug("Get cached biometrics by hash: {}", hash);
 		try {
 			return new ResponseEntity<>(proxyAbisConfigService.getCachedBiometric(hash), HttpStatus.OK);
 		} catch (Exception exp) {
