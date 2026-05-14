@@ -127,16 +127,22 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-    cpu: 150m
-    memory: 1200Mi
+    cpu: 500m
+    memory: 2000Mi
   requests:
-    cpu: 75m
-    memory: 720Mi
+    cpu: 250m
+    memory: 1000Mi
 
 additionalResources:
   ## Specify any JAVA_OPTS string here. These typically will be specified in conjunction with above resources
   ## Example: java_opts: "-Xms500M -Xmx500M"
-  javaOpts: "-Xms540M -Xmx900M"
+  javaOpts: >-
+    -XX:+UseZGC -XX:+ZGenerational -XX:+ZUncommit -XX:+ZProactive
+    -XX:ZUncommitDelay=60 -XX:SoftMaxHeapSize=400m -Xms540m -Xmx1200m
+    -XX:+UseContainerSupport -XX:MaxMetaspaceSize=128m
+    -XX:MetaspaceSize=76m
+    -XX:ReservedCodeCacheSize=114m -XX:InitialCodeCacheSize=28m
+    -XX:+UseCodeCacheFlushing -XX:+HeapDumpOnOutOfMemoryError
 
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## Clamav container already runs as 'mosip' user, so we may not need to enable this
