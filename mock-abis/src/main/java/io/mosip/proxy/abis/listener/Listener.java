@@ -80,6 +80,11 @@ public class Listener {
 	@Value("${registration.processor.abis.response.delay:0}")
 	private int delayResponse;
 
+	@Value("${registration.processor.abis.response.delay.unit:seconds}")
+	private String delayResponseUnit;
+
+	private long delayResponseMillis;
+
 	@Value("${registration.processor.abis.listener.worker.core.pool.size:2}")
 	private int workerCorePoolSize;
 
@@ -170,6 +175,14 @@ public class Listener {
 		this.proxycontroller = proxycontroller;
 	}
 
+	private static final String DELAY_UNIT_SECONDS = "seconds";
+	private static final String DELAY_UNIT_MILLISECONDS = "milliseconds";
+
+	@PostConstruct
+	public void initDelayResponse() {
+		delayResponseMillis = resolveDelayToMillis(delayResponse, delayResponseUnit);
+	}
+
 	@PostConstruct
 	public void initMessageListenerExecutor() {
 		final AtomicInteger threadCount = new AtomicInteger(1);
@@ -182,6 +195,31 @@ public class Listener {
 		logger.info(
 				"Initialized ABIS listener worker pool: corePoolSize={}, maxPoolSize={}, queueCapacity={}, keepAliveSeconds={}",
 				workerCorePoolSize, workerMaxPoolSize, workerQueueCapacity, workerKeepAliveSeconds);
+	}
+
+	static long resolveDelayToMillis(int delay, String unit) {
+		if (delay <= 0) {
+			logger.info("ABIS response delay is disabled (delay={})", delay);
+			return 0L;
+		}
+
+		String configuredUnit = unit == null || unit.isBlank() ? DELAY_UNIT_SECONDS : unit.trim();
+		long delayMillis;
+		if (DELAY_UNIT_MILLISECONDS.equalsIgnoreCase(configuredUnit)) {
+			delayMillis = delay;
+			logger.info("ABIS response delay configured as {} {}", delay, DELAY_UNIT_MILLISECONDS);
+		} else if (DELAY_UNIT_SECONDS.equalsIgnoreCase(configuredUnit)) {
+			delayMillis = delay * 1000L;
+			logger.info("ABIS response delay configured as {} {}", delay, DELAY_UNIT_SECONDS);
+		} else {
+			delayMillis = delay * 1000L;
+			logger.warn(
+					"Invalid ABIS response delay unit '{}'. Supported values are '{}' and '{}'. Defaulting to '{}'.",
+					configuredUnit, DELAY_UNIT_SECONDS, DELAY_UNIT_MILLISECONDS, DELAY_UNIT_SECONDS);
+		}
+
+		logger.info("ABIS response delay effective value: {} ms", delayMillis);
+		return delayMillis;
 	}
 	
 	/**
@@ -216,8 +254,8 @@ public class Listener {
 			mapper.findAndRegisterModules();
 			mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 			
-			logger.info("go on sleep {} ", delayResponse);
-			TimeUnit.SECONDS.sleep(delayResponse);
+			logger.info("go on sleep {} ms", delayResponseMillis);
+			TimeUnit.MILLISECONDS.sleep(delayResponseMillis);
 
 			logger.info("Request type is {} ", map.get("id"));
 
@@ -242,7 +280,8 @@ public class Listener {
 			logger.error("Issue while hitting mock abis API", e);
 			obj = errorRequestThroughListner(e, map, textType);
 			try {
-				proxycontroller.executeAsync(obj, delayResponse, textType, abismiddlewareaddress);
+				proxycontroller.executeAsync(obj, (int) delayResponseMillis, textType, abismiddlewareaddress,
+						TimeUnit.MILLISECONDS);
 			} catch (Exception e1) {
 				logger.error("Issue while hitting mock abis API1", e1);
 			}

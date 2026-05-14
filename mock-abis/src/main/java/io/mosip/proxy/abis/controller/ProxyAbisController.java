@@ -407,8 +407,8 @@ public class ProxyAbisController {
 	 *
 	 * @param finalResponseEntity The final response entity to be sent to the queue
 	 *                            after processing.
-	 * @param delayResponse       The delay in seconds before executing the
-	 *                            asynchronous task.
+	 * @param delayResponse       The delay before executing the asynchronous task
+	 *                            (unit defined by {@code delayUnit}).
 	 * @param msgType             The type of message for identifying the task.
 	 */
 	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType) {
@@ -417,7 +417,12 @@ public class ProxyAbisController {
 
 	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType,
 			String outboundQueue) {
-		logger.info("Adding timed task with scheduler as {} in seconds", delayResponse);
+		executeAsync(finalResponseEntity, delayResponse, msgType, outboundQueue, TimeUnit.SECONDS);
+	}
+
+	public void executeAsync(ResponseEntity<Object> finalResponseEntity, int delayResponse, int msgType,
+			String outboundQueue, TimeUnit delayUnit) {
+		logger.info("Adding timed task with scheduler delay {} {}", delayResponse, delayUnit);
 		responseScheduler.schedule(() -> {
 			try {
 				listener.sendToQueue(finalResponseEntity, msgType, outboundQueue);
@@ -427,7 +432,7 @@ public class ProxyAbisController {
 			} catch (Exception e) {
 				logger.error("executeAsync::unexpected error ", e);
 			}
-		}, delayResponse, TimeUnit.SECONDS);
+		}, delayResponse, delayUnit);
 	}
 
 	/**
