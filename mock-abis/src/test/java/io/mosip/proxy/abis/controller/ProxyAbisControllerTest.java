@@ -17,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -26,9 +25,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.validation.BindingResult;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -63,7 +61,6 @@ class ProxyAbisControllerTest {
     @Mock
     private BindingResult bindingResult;
 
-    @InjectMocks
     private ProxyAbisController controller;
 
     private InsertRequestMO validInsertRequest;
@@ -75,6 +72,7 @@ class ProxyAbisControllerTest {
      */
     @BeforeEach
     void setUp() {
+        controller = new ProxyAbisController(abisInsertService, 1);
         controller.setListener(listener);
 
         validInsertRequest = new InsertRequestMO();
@@ -281,8 +279,10 @@ class ProxyAbisControllerTest {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         ArgumentCaptor<Integer> msgTypeCaptor = ArgumentCaptor.forClass(Integer.class);
         controller.executeAsync(responseEntity, 0, 1);
-        verify(listener, timeout(1000)).sendToQueue(any(), msgTypeCaptor.capture());
+        ArgumentCaptor<String> queueCaptor = ArgumentCaptor.forClass(String.class);
+        verify(listener, timeout(1000)).sendToQueue(any(), msgTypeCaptor.capture(), queueCaptor.capture());
         assertEquals(1, msgTypeCaptor.getValue());
+        assertEquals(null, queueCaptor.getValue());
     }
 
     /**
@@ -413,19 +413,18 @@ class ProxyAbisControllerTest {
 
 
     /**
-     * Tests timer cleanup in controller.
+     * Tests scheduler initialization in controller.
      */
     @Test
-    void testExecuteAsync_TimerInitializedAndNotNullAfterDelay() throws Exception {
+    void testExecuteAsync_SchedulerInitializedAndNotNullAfterDelay() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         controller.executeAsync(responseEntity, 0, 1);
 
         Thread.sleep(1500);
 
-        Field timerField = ProxyAbisController.class.getDeclaredField("timer");
-        timerField.setAccessible(true);
-        Timer timer = (Timer) timerField.get(controller);
-        assertNotNull(timer);
+        ScheduledExecutorService scheduler = (ScheduledExecutorService) org.springframework.test.util.ReflectionTestUtils
+                .getField(controller, "responseScheduler");
+        assertNotNull(scheduler);
     }
 
     /**
@@ -435,9 +434,9 @@ class ProxyAbisControllerTest {
     void testExecuteAsync_WhenUnsupportedEncodingExceptionThrown() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new UnsupportedEncodingException())
-                .when(listener).sendToQueue(any(), anyInt());
+                .when(listener).sendToQueue(any(), anyInt(), any());
         controller.executeAsync(responseEntity, 0, 1);
-        verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
+        verify(listener, timeout(1000)).sendToQueue(any(), anyInt(), any());
     }
 
     /**
@@ -477,9 +476,9 @@ class ProxyAbisControllerTest {
     void testExecuteAsync_WhenJsonProcessingExceptionThrownInSendToQueue() throws Exception {
         ResponseEntity<Object> responseEntity = new ResponseEntity<>("test", HttpStatus.OK);
         doThrow(new JsonProcessingException("Test error") {})
-                .when(listener).sendToQueue(any(), anyInt());
+                .when(listener).sendToQueue(any(), anyInt(), any());
         controller.executeAsync(responseEntity, 0, 1);
-        verify(listener, timeout(1000)).sendToQueue(any(), anyInt());
+        verify(listener, timeout(1000)).sendToQueue(any(), anyInt(), any());
     }
 
     /**

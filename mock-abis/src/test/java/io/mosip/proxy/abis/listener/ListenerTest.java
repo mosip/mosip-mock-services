@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -200,10 +201,10 @@ class ListenerTest {
         when(message.getText()).thenReturn(json);
 
         lenient().doThrow(new RuntimeException("API failure"))
-                .when(proxyAbisController).saveInsertRequestThroughListner(any(InsertRequestMO.class), anyInt());
+                .when(proxyAbisController).saveInsertRequestThroughListner(any(InsertRequestMO.class), anyInt(), anyString());
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt()); // Verify async execution
+        verify(proxyAbisController).executeAsync(any(), anyInt(), anyInt(), anyString(), eq(TimeUnit.MILLISECONDS)); // Verify async execution
     }
 
     /**
@@ -379,7 +380,7 @@ class ListenerTest {
 
         listener.consumeLogic(message, "mockAddress");
 
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2), anyString(), eq(TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -390,9 +391,9 @@ class ListenerTest {
     void testListener_SendToQueueWithInvalidTextType_DoesNotCallExecuteAsync() throws Exception {
         ResponseEntity<Object> response = new ResponseEntity<>("test", HttpStatus.OK);
 
-        listener.sendToQueue(response, 3);
+        listener.sendToQueue(response, 3, "testQueue");
 
-        verify(proxyAbisController, never()).executeAsync(any(), anyInt(), anyInt());
+        verify(proxyAbisController, never()).executeAsync(any(), anyInt(), anyInt(), anyString(), any());
     }
 
     /**
@@ -520,7 +521,6 @@ class ListenerTest {
         );
 
         spyListener.runAbisQueue();
-        assertEquals("outQueue", spyListener.outBoundQueue);
         verify(spyListener).consume(
                 eq("inQueue"),
                 any(QueueListener.class),
@@ -685,9 +685,9 @@ class ListenerTest {
         when(mockBytesMessage.getContent()).thenReturn(mockSequence);
         doThrow(new RuntimeException("Test exception"))
                 .when(proxyAbisController)
-                .saveInsertRequestThroughListner(any(InsertRequestMO.class), eq(2));
+                .saveInsertRequestThroughListner(any(InsertRequestMO.class), eq(2), anyString());
         listener.consumeLogic(mockBytesMessage, "testAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(2), anyString(), eq(TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -988,7 +988,7 @@ class ListenerTest {
         TextMessage message = mock(TextMessage.class);
         when(message.getText()).thenReturn(json);
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).deleteRequestThroughListner(any(RequestMO.class), eq(1));
+        verify(proxyAbisController).deleteRequestThroughListner(any(RequestMO.class), eq(1), anyString());
     }
 
     /**
@@ -1045,7 +1045,7 @@ class ListenerTest {
         when(message.getText()).thenReturn(invalidJson);
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1), anyString(), eq(TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -1085,7 +1085,7 @@ class ListenerTest {
         TextMessage message = mock(TextMessage.class);
         when(message.getText()).thenReturn(json);
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1), anyString(), eq(TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -1465,7 +1465,6 @@ class ListenerTest {
                 anyString()
         );
         spyListener.runAbisQueue();
-        assertEquals("outQueue", spyListener.outBoundQueue);
         verify(spyListener).consume(
                 eq("inQueue"),
                 any(QueueListener.class),
@@ -1520,7 +1519,7 @@ class ListenerTest {
         when(message.getText()).thenReturn(json);
 
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1));
+        verify(proxyAbisController).executeAsync(any(), anyInt(), eq(1), anyString(), eq(TimeUnit.MILLISECONDS));
     }
 
 
@@ -1560,7 +1559,7 @@ class ListenerTest {
         TextMessage message = mock(TextMessage.class);
         when(message.getText()).thenReturn(json);
         listener.consumeLogic(message, "mockAddress");
-        verify(proxyAbisController).identityRequestThroughListner(any(IdentityRequest.class), eq(1));
+        verify(proxyAbisController).identityRequestThroughListner(any(IdentityRequest.class), eq(1), anyString());
     }
 
     /**
@@ -1638,11 +1637,10 @@ class ListenerTest {
     void testSendToQueue_WithTextType1_CallsSendWithString() throws Exception {
         ResponseEntity<Object> response = new ResponseEntity<>("test response", HttpStatus.OK);
         Listener spyListener = spy(listener);
-        ReflectionTestUtils.setField(spyListener, "outBoundQueue", "testQueue");
 
         lenient().doReturn(true).when(spyListener).send(anyString(), anyString());
 
-        spyListener.sendToQueue(response, 1);
+        spyListener.sendToQueue(response, 1, "testQueue");
         verify(spyListener).send(anyString(), eq("testQueue"));
     }
 
@@ -1653,11 +1651,10 @@ class ListenerTest {
     void testSendToQueue_WithTextType2_CallsSendWithBytes() throws Exception {
         ResponseEntity<Object> response = new ResponseEntity<>("test response", HttpStatus.OK);
         Listener spyListener = spy(listener);
-        ReflectionTestUtils.setField(spyListener, "outBoundQueue", "testQueue");
 
         lenient().doReturn(true).when(spyListener).send(any(byte[].class), anyString());
 
-        spyListener.sendToQueue(response, 2);
+        spyListener.sendToQueue(response, 2, "testQueue");
         verify(spyListener).send(any(byte[].class), eq("testQueue"));
     }
 
@@ -1819,6 +1816,36 @@ class ListenerTest {
 
         assertNotNull(result);
         assertEquals(0, result.length);
+    }
+
+    @Test
+    void resolveDelayToMillis_WithSecondsUnit_ReturnsMilliseconds() {
+        mockedStatic.when(() -> Listener.resolveDelayToMillis(5, "seconds")).thenCallRealMethod();
+        assertEquals(5000L, Listener.resolveDelayToMillis(5, "seconds"));
+    }
+
+    @Test
+    void resolveDelayToMillis_WithMillisecondsUnit_ReturnsSameValue() {
+        mockedStatic.when(() -> Listener.resolveDelayToMillis(500, "milliseconds")).thenCallRealMethod();
+        assertEquals(500L, Listener.resolveDelayToMillis(500, "milliseconds"));
+    }
+
+    @Test
+    void resolveDelayToMillis_WithInvalidUnit_DefaultsToSeconds() {
+        mockedStatic.when(() -> Listener.resolveDelayToMillis(2, "minutes")).thenCallRealMethod();
+        assertEquals(2000L, Listener.resolveDelayToMillis(2, "minutes"));
+    }
+
+    @Test
+    void resolveDelayToMillis_WithBlankUnit_DefaultsToSeconds() {
+        mockedStatic.when(() -> Listener.resolveDelayToMillis(3, "")).thenCallRealMethod();
+        assertEquals(3000L, Listener.resolveDelayToMillis(3, ""));
+    }
+
+    @Test
+    void resolveDelayToMillis_WithZeroDelay_ReturnsZero() {
+        mockedStatic.when(() -> Listener.resolveDelayToMillis(0, "seconds")).thenCallRealMethod();
+        assertEquals(0L, Listener.resolveDelayToMillis(0, "seconds"));
     }
 
 }
