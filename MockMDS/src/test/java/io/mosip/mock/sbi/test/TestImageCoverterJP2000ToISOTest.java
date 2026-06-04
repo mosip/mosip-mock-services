@@ -4,10 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockStatic;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
@@ -19,9 +15,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.MockedStatic;
-
-import io.mosip.mock.sbi.util.BioUtilHelper;
 
 /**
  * Test class for TestImageCoverterJP2000ToISO
@@ -35,7 +28,7 @@ public class TestImageCoverterJP2000ToISOTest {
     private File testDir;
     private File fingerImageFile;
     private File irisImageFile;
-    private MockedStatic<BioUtilHelper> mockedBioUtilHelper;
+
 
     private Method getBiometricSubTypeMethod;
     private Method getFileNameWithoutExtensionMethod;
@@ -60,19 +53,15 @@ public class TestImageCoverterJP2000ToISOTest {
         getFileNameWithoutExtensionMethod = TestImageCoverterJP2000ToISO.class.getDeclaredMethod("getFileNameWithoutExtension", File.class);
         getFileNameWithoutExtensionMethod.setAccessible(true);
 
-        mockedBioUtilHelper = mockStatic(BioUtilHelper.class);
-        mockedBioUtilHelper.when(() -> BioUtilHelper.getFingerIsoFromJP2000(anyString(), anyString(), any(byte[].class)))
-                .thenReturn("converted finger data".getBytes());
+
     }
 
     /**
-     * Cleanup mocked static helpers after tests.
+     * Cleanup after tests.
      */
     @After
     public void tearDown() {
-        if (mockedBioUtilHelper != null) {
-            mockedBioUtilHelper.close();
-        }
+        // Cleanup if needed
     }
 
     /**
