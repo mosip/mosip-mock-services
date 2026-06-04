@@ -65,7 +65,7 @@ You can run the mock service in two modes:
 -   **Using Java**:
     Execute the Main class directly:
     ```bash
-    java -cp mock-mds-1.3.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
+    java -cp mock-mds-1.4.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
     "mosip.mock.sbi.device.purpose=Auth" \
     "mosip.mock.sbi.biometric.type=Biometric Device" \
     "mosip.mock.sbi.biometric.image.type=WSQ"
@@ -76,7 +76,7 @@ You can run the mock service in two modes:
 -   **Using Java**:
     Execute the Main class directly:
     ```bash
-    java -cp mock-mds-1.3.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
+    java -cp mock-mds-1.4.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
     "mosip.mock.sbi.device.purpose=Registration" \
     "mosip.mock.sbi.biometric.type=Biometric Device"
     ```

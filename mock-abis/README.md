@@ -131,7 +131,7 @@ This section is for developers to run `mock-abis` locally. You can run it agains
     ```
 4.  **Run the JAR**:
     ```bash
-    java -Dloader.path=lib/kernel-auth-adapter-1.3.0-SNAPSHOT.jar \
+    java -Dloader.path=lib/kernel-auth-adapter-1.4.0-SNAPSHOT.jar \
     -Dlocal.development=true -Dabis.bio.encryption=true \
     -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> \
     --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED \
@@ -143,7 +143,7 @@ This section is for developers to run `mock-abis` locally. You can run it agains
     --add-opens java.base/java.io.Reader=ALL-UNNAMED \
     --add-opens java.base/java.util.Optional=ALL-UNNAMED \
     --add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED \
-    -jar target/mock-abis-1.3.0-SNAPSHOT.jar
+    -jar target/mock-abis-1.4.0-SNAPSHOT.jar
     ```
 
 ### 3. Flags

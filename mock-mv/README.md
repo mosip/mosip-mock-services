@@ -82,7 +82,7 @@ Recommended for active development.
     --add-opens java.base/java.io.Reader=ALL-UNNAMED \
     --add-opens java.base/java.util.Optional=ALL-UNNAMED \
     --add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED \
-    -jar target/mock-mv-1.3.0-SNAPSHOT.jar
+    -jar target/mock-mv-1.4.0-SNAPSHOT.jar
     ```
     *(Note: Adjust the JAR version and config URI as needed).*
 
