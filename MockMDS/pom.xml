@@ -428,9 +428,10 @@
 		<profile>
 			<id>sonar</id>
 			<properties>
-				<sonar.sources>.</sonar.sources>
+				<sonar.sources>src/main/java</sonar.sources>
+				<sonar.tests>src/test/java</sonar.tests>
 				<sonar.inclusions>src/main/java/**,src/main/resources/**</sonar.inclusions>
-				<sonar.exclusions>${sonar.coverage.exclusions}</sonar.exclusions>
+				<sonar.exclusions>${sonar.coverage.exclusions},**/build-wrapper-dump.json</sonar.exclusions>
 				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 			</properties>
 			<activation>

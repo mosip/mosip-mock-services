@@ -53,8 +53,10 @@
 
         <!-- Sonar -->
         <sonar.exclusions>
-            **/dto/**,**/entity/**,**/dao/**,**/exception/**,**/configuration/**
+            **/dto/**,**/entity/**,**/dao/**,**/exception/**,**/configuration/**,**/build-wrapper-dump.json
         </sonar.exclusions>
+        <sonar.sources>src/main/java</sonar.sources>
+        <sonar.tests>src/test/java</sonar.tests>
 
         <!-- Mosip -->
         <kernel.bom.version>1.4.0-SNAPSHOT</kernel.bom.version>
