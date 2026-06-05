@@ -883,7 +883,7 @@ public abstract class SBIDeviceHelper {
 		}
 
 		try (FileInputStream fileInputStream = new FileInputStream(keyStoreFileName)) {
-			logger.info("load keystore into local cache Path#{} filename#{} ", keystoreFilePath, keyStoreFileName);
+			logger.info("loading keystore into local cache Path#{} filename#{} ", keystoreFilePath, keyStoreFileName);
 			KeyStore keystore = KeyStore.getInstance("PKCS12");
 			keystore.load(fileInputStream, keystorePassword.toCharArray());
 

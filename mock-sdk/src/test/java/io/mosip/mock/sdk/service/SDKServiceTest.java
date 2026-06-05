@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.eq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.mosip.biometrics.util.finger.FingerPosition;
 import io.mosip.mock.sdk.constant.ResponseStatus;
 import io.mosip.mock.sdk.exceptions.SDKException;
 import org.junit.jupiter.api.BeforeEach;
@@ -217,21 +218,6 @@ class SDKServiceTest {
     }
 
     /**
-     * Helper method to create a BIR with the specified biometric type and proper purpose and types set.
-     *
-     * @param biometricType the biometric type to set
-     * @return a BIR instance with the specified type and purpose set to VERIFY
-     */
-    private BIR createBir(BiometricType biometricType) {
-        BIR bir = new BIR();
-        BDBInfo bdbInfo = new BDBInfo();
-        bdbInfo.setType(Arrays.asList(biometricType));
-        bdbInfo.setPurpose(PurposeType.VERIFY);
-        bir.setBdbInfo(bdbInfo);
-        return bir;
-    }
-
-    /**
      * Tests valid BIR parameters for a FINGER subtype that is allowed.
      */
     @Test
@@ -354,4 +340,50 @@ class SDKServiceTest {
                 sdkService.isValidBiometericData(PurposeType.VERIFY, null, "UNKNOWN", "base64Data")
         );
     }
+
+    /**
+     * Helper method to create a BIR with the specified biometric type and proper purpose and types set.
+     *
+     * @param biometricType the biometric type to set
+     * @return a BIR instance with the specified type and purpose set to VERIFY
+     */
+    private BIR createBir(BiometricType biometricType) {
+        BIR bir = new BIR();
+        BDBInfo bdbInfo = new BDBInfo();
+        bdbInfo.setType(Arrays.asList(biometricType));
+        bdbInfo.setPurpose(PurposeType.VERIFY);
+        bir.setBdbInfo(bdbInfo);
+        return bir;
+    }
+
+    /**
+     * Tests validation of finger position for all finger subtypes.
+     */
+    @Test
+    void isValidFingerPosition_allValidPositions_returnsTrue() {
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.UNKNOWN, "UNKNOWN"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.LEFT_INDEX_FINGER, "Left IndexFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.LEFT_MIDDLE_FINGER, "Left MiddleFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.LEFT_RING_FINGER, "Left RingFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.LEFT_LITTLE_FINGER, "Left LittleFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.LEFT_THUMB, "Left Thumb"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.RIGHT_INDEX_FINGER, "Right IndexFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.RIGHT_MIDDLE_FINGER, "Right MiddleFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.RIGHT_RING_FINGER, "Right RingFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.RIGHT_LITTLE_FINGER, "Right LittleFinger"));
+        assertTrue(sdkService.isValidFingerPosition(FingerPosition.RIGHT_THUMB, "Right Thumb"));
+    }
+
+    /**
+     * Tests validation of finger position with invalid positions.
+     */
+    @Test
+    void isValidFingerPosition_invalidPositions_returnsFalse() {
+        assertFalse(sdkService.isValidFingerPosition(FingerPosition.LEFT_INDEX_FINGER, "Right IndexFinger"));
+        assertFalse(sdkService.isValidFingerPosition(FingerPosition.RIGHT_THUMB, "Left Thumb"));
+        assertFalse(sdkService.isValidFingerPosition(FingerPosition.LEFT_MIDDLE_FINGER, "Left RingFinger"));
+        assertFalse(sdkService.isValidFingerPosition(FingerPosition.UNKNOWN, "Invalid"));
+        assertFalse(sdkService.isValidFingerPosition(99, "Left IndexFinger")); // Invalid position value
+    }
+
 }
