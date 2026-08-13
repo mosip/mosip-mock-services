@@ -6,3 +6,4 @@ target
 /partner.properties
 /*.p12
 /.metadata/
+.github/keys/
