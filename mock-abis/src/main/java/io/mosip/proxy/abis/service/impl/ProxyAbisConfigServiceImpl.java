@@ -120,9 +120,11 @@ public class ProxyAbisConfigServiceImpl implements ProxyAbisConfigService {
 	 * Deletes an expectation from the cache.
 	 * 
 	 * @param id The identifier of the expectation to delete.
+	 * @return {@code true} if an expectation with the given id was removed,
+	 *         {@code false} if no matching expectation existed.
 	 */
-	public void deleteExpectation(String id) {
-		expectationCache.delete(id);
+	public boolean deleteExpectation(String id) {
+		return expectationCache.delete(id);
 	}
 
 	/**
