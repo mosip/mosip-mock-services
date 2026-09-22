@@ -109,26 +109,22 @@ public class ProxyAbisConfigController {
 	 * @return ResponseEntity indicating the success or failure of the operation.
 	 * @throws AbisException If an error occurs during deleting the expectation.
 	 */
-	@DeleteMapping(value = "expectation/{id:.+}")
-	@Operation(summary = "Delete expectation", description = "Delete a single expectation by biometric hash id", tags = {
-			"Proxy Abis config API" })
+	@DeleteMapping(value = "expectation/{id}")
+	@Operation(summary = "Delete expectation", description = "Delete expectation", tags = { "Proxy Abis config API" })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK"),
 			@ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
-			@ApiResponse(responseCode = "404", description = "Not Found") })
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
 	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
-		String expectationId = id == null ? null : id.trim();
-		logger.debug("Delete expectation: {}", expectationId);
+		logger.debug("Delete expectation: {}", id);
 
 		try {
-			boolean deleted = proxyAbisConfigService.deleteExpectation(expectationId);
-			if (!deleted) {
-				logger.warn("Expectation not found for id: {}", expectationId);
-				return new ResponseEntity<>("Expectation not found: " + expectationId, HttpStatus.NOT_FOUND);
+			if (!proxyAbisConfigService.deleteExpectation(id)) {
+				return new ResponseEntity<>("Expectation not found: " + id, HttpStatus.NOT_FOUND);
 			}
-			return new ResponseEntity<>("Successfully deleted expectation " + expectationId, HttpStatus.OK);
+			return new ResponseEntity<>("Successfully deleted expectation " + id, HttpStatus.OK);
 		} catch (Exception exp) {
 			logger.error("Exception while deleting expectation: ", exp);
 			throw new AbisException(AbisErrorCode.DELETE_EXPECTATION_EXCEPTION.getErrorCode(),

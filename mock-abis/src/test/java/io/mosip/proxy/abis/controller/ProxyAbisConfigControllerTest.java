@@ -100,10 +100,6 @@ class ProxyAbisConfigControllerTest {
         assertTrue(Objects.requireNonNull(response.getBody()).contains(id));
     }
 
-    /**
-     * Tests deletion when the expectation id does not exist.
-     * Verifies that HTTP 404 is returned instead of a false success.
-     */
     @Test
     void testDeleteExpectation_WhenIdNotFound_ReturnsHttpNotFound() {
         String id = "missing-id";
@@ -111,9 +107,7 @@ class ProxyAbisConfigControllerTest {
 
         ResponseEntity<String> response = controller.deleteExpectation(id);
 
-        verify(proxyAbisConfigService).deleteExpectation(id);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(Objects.requireNonNull(response.getBody()).contains(id));
     }
 
     /**

@@ -269,19 +269,10 @@ Successfully inserted expectation $expectation_id
 #### Delete Expectation
 **URL**: `http://{host}/v1/mock-abis-service/config/expectation/{id}`  
 **Method**: `DELETE`  
-
-`{id}` must be the exact biometric hash key returned by `GET /config/expectation`.
-
-**Response (found)**:
+**Response**:
 ```text
 Successfully deleted expectation $expectation_id
 ```
-
-**Response (not found)**:
-```text
-Expectation not found: $expectation_id
-```
-HTTP status: `404`
 
 ## 💡 Tips & tricks
 1.  While setting the expectation the hash of iso image should be taken, directly taking bdb hash will not work.
