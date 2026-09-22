@@ -57,8 +57,10 @@ public interface ProxyAbisConfigService {
 	 *
 	 * @param id A {@link String} representing the identifier of the expectation to
 	 *           be deleted.
+	 * @return {@code true} if an expectation with the given id was removed,
+	 *         {@code false} if no matching expectation existed.
 	 */
-	public void deleteExpectation(String id);
+	public boolean deleteExpectation(String id);
 
 	/**
 	 * Deletes all expectations from the ABIS system.
