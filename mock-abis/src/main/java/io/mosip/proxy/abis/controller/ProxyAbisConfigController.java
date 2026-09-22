@@ -121,7 +121,9 @@ public class ProxyAbisConfigController {
 		logger.debug("Delete expectation: {}", id);
 
 		try {
-			proxyAbisConfigService.deleteExpectation(id);
+			if (!proxyAbisConfigService.deleteExpectation(id)) {
+				return new ResponseEntity<>("Expectation not found: " + id, HttpStatus.NOT_FOUND);
+			}
 			return new ResponseEntity<>("Successfully deleted expectation " + id, HttpStatus.OK);
 		} catch (Exception exp) {
 			logger.error("Exception while deleting expectation: ", exp);

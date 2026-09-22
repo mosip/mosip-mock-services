@@ -91,12 +91,23 @@ class ProxyAbisConfigControllerTest {
     @Test
     void testDeleteExpectation_WhenValidId_ReturnsHttpOkWithIdInBody() {
         String id = "test-id";
+        when(proxyAbisConfigService.deleteExpectation(id)).thenReturn(true);
 
         ResponseEntity<String> response = controller.deleteExpectation(id);
 
         verify(proxyAbisConfigService).deleteExpectation(id);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).contains(id));
+    }
+
+    @Test
+    void testDeleteExpectation_WhenIdNotFound_ReturnsHttpNotFound() {
+        String id = "missing-id";
+        when(proxyAbisConfigService.deleteExpectation(id)).thenReturn(false);
+
+        ResponseEntity<String> response = controller.deleteExpectation(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     /**
@@ -240,8 +251,7 @@ class ProxyAbisConfigControllerTest {
     @Test
     void testDeleteExpectation_WhenServiceThrowsException_ShouldThrowAbisException() {
         String id = "test-id";
-        doThrow(new RuntimeException("Test error"))
-                .when(proxyAbisConfigService).deleteExpectation(id);
+        when(proxyAbisConfigService.deleteExpectation(id)).thenThrow(new RuntimeException("Test error"));
 
         assertThrows(AbisException.class, () -> controller.deleteExpectation(id));
     }
