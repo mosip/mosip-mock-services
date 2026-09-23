@@ -1,4 +1,4 @@
-[![Maven Package upon a push](https://github.com/mosip/mosip-mock-services/actions/workflows/push-trigger.yml/badge.svg?branch=release-1.3.x)](https://github.com/mosip/mosip-mock-services/actions/workflows/push-trigger.yml)
+[![Maven Package upon a push](https://github.com/mosip/mosip-mock-services/actions/workflows/push-trigger.yml/badge.svg?branch=master)](https://github.com/mosip/mosip-mock-services/actions/workflows/push-trigger.yml)
 
 
 # MOSIP Mock Services
