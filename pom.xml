@@ -18,13 +18,17 @@
 
 	<name>mosip-mock-services</name>
 	<description>
-		MOSIP non-production mock services: ABIS, Manual Verification, BioSDK sample, and MDS/SBI.
-		Boot 4.1.1, Java 21, no kernel-bom. Depends on kernel-core / bio-utils / kernel-bio-converter
-		1.4.1-SNAPSHOT.
+		MOSIP non-production mock services reactor: ABIS (ActiveMQ insert/identify + H2), Manual
+		Verification (ActiveMQ decision queue), BioSDK sample library (IBioApiV2 SampleSDKV2), and
+		MDS/SBI standalone device mock (ports 4501–4600). Spring Boot 4.1.1, Java 21, Jackson2 via
+		spring-boot-jackson2 — no kernel-bom. Depends on commons kernel-core, bio-utils
+		(kernel-biometrics-api / biometrics-util), and converters kernel-bio-converter at
+		1.4.1-SNAPSHOT. For lab / integration / certification only — not for production ABIS or MDS.
 	</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<modules>
+		<!-- Boot apps first; mock-sdk is a published lib; MockMDS is standalone SBI -->
 		<module>mock-abis</module>
 		<module>mock-mv</module>
 		<module>mock-sdk</module>

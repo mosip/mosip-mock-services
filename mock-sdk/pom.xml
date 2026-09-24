@@ -17,7 +17,12 @@
 	<packaging>jar</packaging>
 
 	<name>mock-sdk</name>
-	<description>Sample implementation of biometrics SDK</description>
+	<description>
+		Sample BioSDK library implementing IBioApiV2 (SampleSDKV2): check quality, match, extract
+		template, convert format, and segment. Published plain JAR — no Spring Boot repackage.
+		Depends on kernel-biometrics-api and kernel-bio-converter. For MOSIP lab / SDK integration
+		tests only.
+	</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<!-- Inherits Boot 4.1.1 / no kernel-bom from mosip-mock-services. Library JAR — no Boot repackage. -->

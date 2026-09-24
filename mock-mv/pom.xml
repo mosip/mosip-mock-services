@@ -17,7 +17,12 @@
 	<packaging>jar</packaging>
 
 	<name>mock-mv</name>
-	<description>Proxy manual verification project</description>
+	<description>
+		MOSIP Manual Verification (MV) mock: consumes verification requests from ActiveMQ, applies
+		configurable APPROVED/REJECTED decisions via MockMvDecisionService and ExpectationCache
+		(RID), and publishes responses to the out-queue. Spring Boot fat JAR; context-path /v1/mockmv,
+		default port 8081. Local: run-local.sh|.bat. Non-production only.
+	</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<!-- Inherits Boot 4.1.1 / no kernel-bom from mosip-mock-services. -->

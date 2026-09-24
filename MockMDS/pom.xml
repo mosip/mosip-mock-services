@@ -17,7 +17,13 @@
 	<packaging>jar</packaging>
 
 	<name>mock-mds</name>
-	<description>A mock project for biometric provider</description>
+	<description>
+		MOSIP MDS/SBI device mock (TestMockSBI → SBIMockService): Face, Finger Slap/Single, and Iris
+		Double/Single helpers with device keys and biometric profile data under Biometric Devices/.
+		Standalone executable JAR (not a Boot repackage); HTTPS ports 4501–4600; admin APIs for
+		status/score/delay/profile. Local: run-local_reg / run-local_auth (.sh|.bat). Certification /
+		lab use only — not a production MDS.
+	</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<!-- Inherits Boot 4.1.1 / no kernel-bom from mosip-mock-services. Standalone — no Boot repackage. -->

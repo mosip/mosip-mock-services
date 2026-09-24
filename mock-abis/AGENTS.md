@@ -1,25 +1,14 @@
 # mock-abis
 
 ```
-Boot ABIS mock · ActiveMQ/JMS · :8081 /v1/mock-abis-service
-├─ entry: ProxyAbisApplication
-├─ flow: Listener → Insert/Identify → outbound queue
-├─ ExpectationCache · id = SHA256(base64_decode(bdb))
-├─ H2 default · PostgreSQL optional
-└─ profile local: no auth token (application-local.properties)
+Boot · AMQ · H2 · :8081 /v1/mock-abis-service · profile=local
+├─ ProxyAbisApplication → Listener → Insert|Identify → out-queue
+├─ ExpectationCache · id=SHA256(b64decode(bdb))
+└─ run-local.sh|.bat → init|start|smoke|stop|test|all|docker
+   └─ activemq/: docker-compose up   # before start
 ```
 
 ```
-run
-├─ ./run-local.sh init | start | smoke | stop | test | all | docker
-├─ run-local.bat … (Windows cmd)
-├─ activemq/: docker-compose up  (before start)
-└─ profile local · :8081 · /v1/mock-abis-service
-```
-
-```
-deps: kernel-core · kernel-biometrics-api · spring-boot-jackson2 · spring-cloud-starter-bootstrap · springdoc 3.1.1
-parent: mosip-mock-services 1.4.1-SNAPSHOT · NO kernel-bom
-build: mvn clean install "-Dgpg.skip=true"
-test:  mvn test "-Dgpg.skip=true" [-Dtest=Class#method]
+deps: kernel-core · biometrics-api · jackson2 · cloud · springdoc3.1.1
+build: mvn … "-Dgpg.skip=true"
 ```

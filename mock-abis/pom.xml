@@ -17,7 +17,12 @@
 	<packaging>jar</packaging>
 
 	<name>MockAbis</name>
-	<description>Proxy abis project that supports the MOSIP abis specification</description>
+	<description>
+		MOSIP ABIS mock (proxy) implementing the registration-processor ABIS insert / identify /
+		delete contract over ActiveMQ/JMS with H2 persistence and an ExpectationCache keyed by
+		SHA-256 of decoded biometric data. Spring Boot fat JAR; context-path /v1/mock-abis-service,
+		default port 8081. Local: run-local.sh|.bat. Non-production only.
+	</description>
 	<url>https://github.com/mosip/mosip-mock-services</url>
 
 	<!-- Inherits Boot 4.1.1 / no kernel-bom from mosip-mock-services. -->
