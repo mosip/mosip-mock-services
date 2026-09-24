@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  title: MockMDS Admin API
+  description: |
+    Local admin controls for the MockMDS SBI mock (ports 4501–4600).
+    Certification / lab use only — not a production MDS.
+    SBI device verbs (MOSIPDISC, MOSIPDINFO, CAPTURE, RCAPTURE, STREAM) are not documented here.
+  version: 1.4.1-SNAPSHOT
+  license:
+    name: MPL-2.0
+    url: https://www.mozilla.org/en-US/MPL/2.0/
+# Served YAML rewrites this to http://{server.serveripaddress}:{boundPort}/
+servers:
+  - url: /
+    description: Bound MockMDS instance (rewritten to actual port at serve time)
+tags:
+  - name: admin
+    description: Runtime controls for device status, quality, delay, and profile
+paths:
+  /admin/status:
+    post:
+      tags: [admin]
+      summary: Set device status
+      operationId: setStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusRequest'
+            example:
+              type: Biometric Device
+              deviceStatus: Ready
+      responses:
+        '200':
+          description: Admin API result (errorCode 0 = success)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminResult'
+  /admin/score:
+    post:
+      tags: [admin]
+      summary: Set quality score
+      operationId: setScore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreRequest'
+            example:
+              type: Biometric Device
+              qualityScore: '44.44'
+              fromIso: false
+      responses:
+        '200':
+          description: Admin API result (errorCode 0 = success)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminResult'
+  /admin/delay:
+    post:
+      tags: [admin]
+      summary: Set method delay (ms)
+      operationId: setDelay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelayRequest'
+            example:
+              type: Biometric Device
+              delay: '10000'
+              method: [RCAPTURE]
+      responses:
+        '200':
+          description: Admin API result (errorCode 0 = success)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminResult'
+  /admin/profile:
+    post:
+      tags: [admin]
+      summary: Set biometric profile id
+      operationId: setProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+            example:
+              type: Biometric Device
+              profileId: Default
+      responses:
+        '200':
+          description: Admin API result (errorCode 0 = success)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminResult'
+components:
+  schemas:
+    StatusRequest:
+      type: object
+      required: [type, deviceStatus]
+      properties:
+        type:
+          type: string
+          enum: [Biometric Device, Finger, Face, Iris]
+        deviceStatus:
+          type: string
+          enum: [Ready, Busy, Not Ready, Not Registered]
+    ScoreRequest:
+      type: object
+      required: [type, qualityScore]
+      properties:
+        type:
+          type: string
+          enum: [Biometric Device, Finger, Face, Iris]
+        qualityScore:
+          type: string
+          description: Quality score 0–100
+        fromIso:
+          type: boolean
+          default: false
+    DelayRequest:
+      type: object
+      required: [type, delay]
+      properties:
+        type:
+          type: string
+          enum: [Biometric Device, Finger, Face, Iris]
+        delay:
+          type: string
+          description: Delay in milliseconds (>= 0)
+        method:
+          type: array
+          items:
+            type: string
+            enum: [MOSIPDISC, MOSIPDINFO, CAPTURE, STREAM, RCAPTURE]
+          description: Methods to delay; omit to apply to all allowed methods
+    ProfileRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Biometric Device, Finger, Face, Iris]
+        profileId:
+          type: string
+          description: e.g. Default, Profile1, Profile2 (falls back to Default if empty)
+    AdminResult:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: '0 = Success'
+        errorInfo:
+          type: string

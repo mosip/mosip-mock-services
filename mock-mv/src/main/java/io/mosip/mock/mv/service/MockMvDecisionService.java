@@ -57,8 +57,9 @@ public interface MockMvDecisionService {
 	 * Deletes the expectation associated with the specified RId.
 	 * 
 	 * @param rid the unique request identifier of the expectation to delete.
+	 * @return {@code true} if deleted, {@code false} if not found.
 	 */
-	public void deleteExpectation(String rid);
+	public boolean deleteExpectation(String rid);
 
 	/**
 	 * Deletes all expectations.

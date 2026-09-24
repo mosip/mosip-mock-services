@@ -3,6 +3,16 @@
 *.log
 target
 */target/
+.local/
+**/.local/
+.settings/
+**/.settings/
+.classpath
+**/.classpath
+.project
+**/.project
 /partner.properties
 /*.p12
 /.metadata/
+.sonarlint/
+.vscode/

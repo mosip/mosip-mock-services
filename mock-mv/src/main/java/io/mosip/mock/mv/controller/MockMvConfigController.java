@@ -24,6 +24,7 @@ import io.mosip.mock.mv.exception.MVException;
 import io.mosip.mock.mv.queue.Listener;
 import io.mosip.mock.mv.service.MockMvDecisionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -175,7 +176,8 @@ public class MockMvConfigController {
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
-	public ResponseEntity<String> getExpectation(@PathVariable String rid) {
+	public ResponseEntity<String> getExpectation(
+			@Parameter(description = "Request id (RID)", required = true) @PathVariable("rid") String rid) {
 		logger.info("Getting expectation: {}", rid);
 		try {
 			Expectation expectation = mockMvDecisionService.getExpectation(rid);
@@ -192,12 +194,12 @@ public class MockMvConfigController {
 	}
 
 	/**
-	 * Endpoint to retrieve a specific MockMv expectation based on the request ID
+	 * Endpoint to delete a specific MockMv expectation based on the request ID
 	 * (RID).
 	 *
-	 * @param rid the request ID of the expectation to retrieve
-	 * @return ResponseEntity containing the specific MockMv expectation
-	 * @throws MVException if an exception occurs while retrieving the expectation
+	 * @param rid the request ID of the expectation to delete
+	 * @return ResponseEntity indicating success or not-found
+	 * @throws MVException if an exception occurs while deleting the expectation
 	 */
 	@DeleteMapping(value = "/expectationMockMv/{rid}")
 	@Operation(summary = "Delete expectation", description = "Delete expectation", tags = { "Proxy MockMv config API" })
@@ -207,10 +209,13 @@ public class MockMvConfigController {
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
-	public ResponseEntity<String> deleteExpectation(@PathVariable String rid) {
+	public ResponseEntity<String> deleteExpectation(
+			@Parameter(description = "Request id (RID)", required = true) @PathVariable("rid") String rid) {
 		logger.info("Delete expectation: {}", rid);
 		try {
-			mockMvDecisionService.deleteExpectation(rid);
+			if (!mockMvDecisionService.deleteExpectation(rid)) {
+				return new ResponseEntity<>("Expectation not found: " + rid, HttpStatus.NOT_FOUND);
+			}
 			return new ResponseEntity<>("Successfully deleted expectation " + rid, HttpStatus.OK);
 		} catch (Exception exp) {
 			logger.error("Exception while deleting expectation: ", exp);

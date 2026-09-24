@@ -4,6 +4,8 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,11 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerConfig.class);
 
+	/**
+	 * Scheme name shown by Swagger UI as Authorize (same as notification-service).
+	 */
+	public static final String AUTHORIZATION_SCHEME = "Authorization";
+
 	private OpenApiProperties openApiProperties;
 
 	/**
@@ -40,14 +47,16 @@ public class SwaggerConfig {
 
 	/**
 	 * Creates an {@link OpenAPI} bean configured with title, version, description,
-	 * and license information.
+	 * license, and the Authorization header apiKey for Swagger UI Authorize.
 	 *
 	 * @return Configured {@link OpenAPI} instance representing the OpenAPI
 	 *         specification
 	 */
 	@Bean
 	public OpenAPI openApi() {
-		OpenAPI api = new OpenAPI().components(new Components())
+		OpenAPI api = new OpenAPI()
+				.components(new Components().addSecuritySchemes(AUTHORIZATION_SCHEME, authorizationApiKey()))
+				.addSecurityItem(new SecurityRequirement().addList(AUTHORIZATION_SCHEME))
 				.info(new Info().title(openApiProperties.getInfo().getTitle())
 						.version(openApiProperties.getInfo().getVersion())
 						.description(openApiProperties.getInfo().getDescription())
@@ -58,6 +67,16 @@ public class SwaggerConfig {
 				server -> api.addServersItem(new Server().description(server.getDescription()).url(server.getUrl())));
 		logger.info("swagger open api bean is ready");
 		return api;
+	}
+
+	/**
+	 * Header apiKey named {@code Authorization} so Swagger UI shows Authorize.
+	 *
+	 * @return the security scheme
+	 */
+	private static SecurityScheme authorizationApiKey() {
+		return new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER)
+				.name(AUTHORIZATION_SCHEME);
 	}
 
 	/**

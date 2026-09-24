@@ -265,13 +265,27 @@ class MockMvConfigControllerTest {
      */
     @Test
     void deleteExpectationMethod_SuccessfulDeletion_ReturnsSuccessMessage() {
-        doNothing().when(mockMvDecisionService).deleteExpectation("123");
+        when(mockMvDecisionService.deleteExpectation("123")).thenReturn(true);
 
         ResponseEntity<String> response = controller.deleteExpectation("123");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Successfully deleted expectation 123", response.getBody());
         verify(mockMvDecisionService).deleteExpectation("123");
+    }
+
+    /**
+     * Tests the deleteExpectation method when the expectation id is not found.
+     * Verifies that the method returns HTTP 404.
+     */
+    @Test
+    void deleteExpectationMethod_WhenIdNotFound_ReturnsHttpNotFound() {
+        when(mockMvDecisionService.deleteExpectation("123")).thenReturn(false);
+
+        ResponseEntity<String> response = controller.deleteExpectation("123");
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Expectation not found: 123", response.getBody());
     }
 
     /**
@@ -282,7 +296,7 @@ class MockMvConfigControllerTest {
      */
     @Test
     void deleteExpectationMethod_ServiceThrowsException_ThrowsMVException() {
-        doThrow(new RuntimeException("Test Exception")).when(mockMvDecisionService).deleteExpectation("123");
+        when(mockMvDecisionService.deleteExpectation("123")).thenThrow(new RuntimeException("Test Exception"));
 
         MVException exception = assertThrows(MVException.class, () -> controller.deleteExpectation("123"));
 

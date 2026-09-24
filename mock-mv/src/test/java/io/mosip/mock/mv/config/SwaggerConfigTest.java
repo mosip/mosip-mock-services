@@ -2,6 +2,7 @@ package io.mosip.mock.mv.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springdoc.core.models.GroupedOpenApi;
@@ -9,6 +10,7 @@ import org.springdoc.core.models.GroupedOpenApi;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -59,7 +61,8 @@ class SwaggerConfigTest {
     }
 
     /**
-     * Test to verify that the OpenAPI bean is created correctly and populated with expected metadata.
+     * Test to verify that the OpenAPI bean is created correctly and populated with expected metadata,
+     * including the Authorization header apiKey for Swagger UI Authorize.
      */
     @Test
     void openApiBeanCreation_ValidatesOpenAPIInstance_success() {
@@ -77,6 +80,17 @@ class SwaggerConfigTest {
         assertEquals(2, openAPI.getServers().size());
         assertEquals("Localhost", openAPI.getServers().getFirst().getDescription());
         assertEquals("http://localhost:8080", openAPI.getServers().getFirst().getUrl());
+
+        assertNotNull(openAPI.getComponents());
+        SecurityScheme scheme = openAPI.getComponents().getSecuritySchemes()
+                .get(SwaggerConfig.AUTHORIZATION_SCHEME);
+        assertNotNull(scheme);
+        assertEquals(SecurityScheme.Type.APIKEY, scheme.getType());
+        assertEquals(SecurityScheme.In.HEADER, scheme.getIn());
+        assertEquals(SwaggerConfig.AUTHORIZATION_SCHEME, scheme.getName());
+        assertFalse(openAPI.getSecurity().isEmpty());
+        assertEquals(SwaggerConfig.AUTHORIZATION_SCHEME,
+                openAPI.getSecurity().get(0).keySet().iterator().next());
     }
 
     /**

@@ -88,10 +88,11 @@ public class MockMvDecisionServiceImpl implements MockMvDecisionService {
 	 * Deletes the expectation associated with the specified RId from the cache.
 	 * 
 	 * @param id the RId of the expectation to delete.
+	 * @return {@code true} if deleted, {@code false} if not found.
 	 */
 	@Override
-	public void deleteExpectation(String id) {
-		expectationCache.delete(id);
+	public boolean deleteExpectation(String id) {
+		return expectationCache.delete(id);
 	}
 
 	/**

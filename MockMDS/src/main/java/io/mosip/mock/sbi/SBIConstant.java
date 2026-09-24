@@ -190,6 +190,13 @@ public class SBIConstant {
 	public static final String MOSIP_ADMIN_API_DELAY = "POST /admin/delay HTTP";
 	public static final String MOSIP_ADMIN_API_PROFILE = "POST /admin/profile HTTP";
 
+	/** Static admin OpenAPI / Swagger UI (served from target/swagger-ui/) */
+	public static final String SWAGGER_UI_PATH = "/swagger-ui";
+	public static final String SWAGGER_UI_INDEX = "/swagger-ui/index.html";
+	public static final String SWAGGER_UI_OPENAPI = "/swagger-ui/openapi.yaml";
+	public static final String SWAGGER_UI_HTML = "/swagger-ui.html";
+	public static final String OPENAPI_DOCS_PATH = "/v3/api-docs";
+
 	/** Command Line Arguments Names */
 	public static final String MOSIP_PURPOSE = "mosip.mock.sbi.device.purpose";
 	public static final String MOSIP_BIOMETRIC_TYPE = "mosip.mock.sbi.biometric.type";

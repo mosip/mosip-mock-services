@@ -64,14 +64,27 @@ public class SBIWorker implements Runnable {
 			logger.info("Request data :: {}", strJsonRequest);
 			String[] arrMethodName = strJsonRequest.split("HTTP/1.1");
 			String strMethodName = null;
+			String requestPath = "/";
 			if (arrMethodName != null && arrMethodName.length > 0) {
-				arrMethodName = arrMethodName[0].trim().split("/");
-				if (arrMethodName != null && arrMethodName.length > 0) {
-					strMethodName = arrMethodName[0].trim();
+				String requestLine = arrMethodName[0].trim();
+				String[] tokens = requestLine.split("\\s+");
+				if (tokens.length > 0) {
+					strMethodName = tokens[0].trim();
+				}
+				if (tokens.length > 1) {
+					requestPath = tokens[1].trim();
 				}
 			}
-			logger.info("Method Name :: {}", strMethodName);
+			logger.info("Method Name :: {} Path :: {}", strMethodName, requestPath);
 			String corsHeaderMethods = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.CORS_HEADER_METHODS);
+
+			if ("GET".equalsIgnoreCase(strMethodName) && SBIStaticResources.isStaticPath(requestPath)) {
+				byte[] staticResponse = SBIStaticResources.handleGet(requestPath, getServerPort());
+				logger.info("Static response length :: {}", staticResponse.length);
+				bos.write(staticResponse);
+				bos.flush();
+				return;
+			}
 
 			String responseJson = null;
 			if (strMethodName != null && corsHeaderMethods.contains(strMethodName)) {

@@ -243,7 +243,8 @@ public class ListenerTest {
         int delayResponse = 0;
         Integer textType = 3;
         String mvAddress = "test-queue";
-        Listener spyListener = spy(listener);
+        // Fresh spy: setUp already wraps listener in a spy (Mockito forbids spy-on-spy)
+        Listener spyListener = spy(new Listener());
         doReturn(true).when(spyListener).send(anyString(), anyString());
         doReturn(true).when(spyListener).send(any(byte[].class), anyString());
 
