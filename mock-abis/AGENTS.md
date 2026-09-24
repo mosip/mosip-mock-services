@@ -9,6 +9,7 @@ Boot · AMQ · H2 · :8081 /v1/mock-abis-service · profile=local
 ```
 
 ```
-deps: kernel-core · biometrics-api · jackson2 · cloud · springdoc3.1.1
+deps: kernel-core · biometrics-api · auth-adapter (Maven, not loader.path) · jackson2 · cloud · springdoc3.1.1
 build: mvn … "-Dgpg.skip=true"
+docker: no wget auth-adapter · JarLauncher (no ZIP layout)
 ```

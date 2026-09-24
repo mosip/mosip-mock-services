@@ -35,8 +35,11 @@ ARG container_user_uid=1002
 ARG container_user_gid=1001
 
 # install packages and create user
+# kernel-auth-adapter is packaged via Maven (Boot 4.1.1 aligned) — do NOT wget a
+# separate JAR into loader.path (Boot 3 adapters cause NoSuchMethodError on
+# ApplicationEnvironmentPreparedEvent.getBootstrapContext()).
 RUN apk -q update \
-&& apk add -q wget sudo\
+&& apk add -q sudo \
 && addgroup -g ${container_user_gid} ${container_user_group} \
 && adduser -s /bin/sh -u ${container_user_uid} -G ${container_user_group} -h /home/${container_user} --disabled-password ${container_user}
 
@@ -44,15 +47,6 @@ RUN apk -q update \
 WORKDIR /home/${container_user}
 
 ENV work_dir=/home/${container_user}
-
-ARG loader_path=${work_dir}/additional_jars/
-
-RUN mkdir -p ${loader_path}
-
-ENV loader_path_env=${loader_path}
-
-# environment variable to pass iam_adapter url, at docker runtime
-ENV iam_adapter_url_env=${iam_adapter_url}
 
 COPY ./target/mock-abis-*.jar  mockabis-service.jar
 
@@ -69,8 +63,7 @@ RUN chown -R ${container_user}:${container_user} /home/${container_user}
 EXPOSE 8081
 
 # JVM GC / --add-opens: inject via Helm JDK_JAVA_OPTIONS (values.yaml). Keep CMD short.
-CMD wget -q "${iam_adapter_url_env}" -O "${loader_path_env}"/kernel-auth-adapter.jar; \
-java -Dloader.path="${loader_path_env}" \
+CMD java \
     -Dspring.cloud.config.label="${spring_config_label_env}" \
     -Dspring.profiles.active="${active_profile_env}" \
     -Dspring.cloud.config.uri="${spring_config_url_env}" \

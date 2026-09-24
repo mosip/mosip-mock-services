@@ -29,7 +29,7 @@ Before setting up the project, ensure you have the following prerequisites:
     -   **Local Run**: Navigate to the `activemq` directory and run `docker-compose up`.
     -   **Access**: `http://localhost:8161/`
 -   **Dependencies**:
-    -  `kernel-auth-adapter.jar`: Required in the `lib` folder for JAR execution.
+    -  `kernel-auth-adapter` is pulled in via Maven (`mock-abis/pom.xml`, Boot 4.1.1 aligned). Do **not** download a separate adapter JAR into `loader.path` — a Boot 3 adapter causes `NoSuchMethodError` on `ApplicationEnvironmentPreparedEvent.getBootstrapContext()`.
 
 ## 🗄️ Database Setup
 For local development, `mock-abis` uses an **H2 in-memory database**.
@@ -123,16 +123,14 @@ This section is for developers to run `mock-abis` locally. You can run it agains
     -   Create `registration-processor-abis.json` in `src/main/resources`.
     -   Copy the contents of `registration-processor-abis-sample.json`.
     -   Update with correct queue details (refer to [Configurations](#-configurations)).
-2.  **Prepare Libs**:
-    -   Download the latest `kernel-auth-adapter` from Maven Repository and save it into a `lib` folder.
-3.  **Build the Code**:
+2.  **Build the Code**:
     ```bash
     mvn clean install -Dgpg.skip=true
     ```
-4.  **Run the JAR**:
+    `kernel-auth-adapter` is included from Maven — no separate `lib/` download.
+3.  **Run the JAR**:
     ```bash
-    java -Dloader.path=lib/kernel-auth-adapter-1.4.0-SNAPSHOT.jar \
-    -Dlocal.development=true -Dabis.bio.encryption=true \
+    java -Dlocal.development=true -Dabis.bio.encryption=true \
     -Dspring.profiles.active=local -Dmosip_host=https://<server hostname> \
     --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED \
     --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
@@ -143,8 +141,14 @@ This section is for developers to run `mock-abis` locally. You can run it agains
     --add-opens java.base/java.io.Reader=ALL-UNNAMED \
     --add-opens java.base/java.util.Optional=ALL-UNNAMED \
     --add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED \
-    -jar target/mock-abis-1.4.0-SNAPSHOT.jar
+    -jar target/mock-abis-1.4.1-SNAPSHOT.jar
     ```
+
+Or use the local runner (preferred):
+```bash
+./run-local.sh init && ./run-local.sh start
+```
+Windows: `run-local.bat init` then `run-local.bat start`.
 
 ### 3. Flags
 | Flag | Description |
