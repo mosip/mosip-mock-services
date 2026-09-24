@@ -4,7 +4,7 @@
 #
 #   ./run-local.sh init | start | smoke | stop | test | all | docker
 # Optional: SPRING_CLOUD_CONFIG_URI SPRING_CLOUD_CONFIG_LABEL PORT JDK_JAVA_OPTIONS
-#           loader_path_env SPRING_PROFILES_ACTIVE IMAGE
+#           SPRING_PROFILES_ACTIVE IMAGE
 set -euo pipefail
 
 MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,7 +18,6 @@ MODULE="mock-abis"
 PROFILE="${SPRING_PROFILES_ACTIVE:-local}"
 CONFIG_URI="${SPRING_CLOUD_CONFIG_URI:-}"
 CONFIG_LABEL="${SPRING_CLOUD_CONFIG_LABEL:-}"
-LOADER_PATH="${loader_path_env:-.}"
 IMAGE="${IMAGE:-mock-abis}"
 CONTEXT="/v1/mock-abis-service"
 BASE="http://127.0.0.1:${PORT}${CONTEXT}"
@@ -40,7 +39,7 @@ Local mock-abis (${PROFILE} profile, :${PORT} ${CONTEXT})
   Windows cmd:
     run-local.bat init | start | smoke | stop | test | all | docker
 
-Optional: SPRING_CLOUD_CONFIG_URI SPRING_CLOUD_CONFIG_LABEL PORT JDK_JAVA_OPTIONS IMAGE loader_path_env
+Optional: SPRING_CLOUD_CONFIG_URI SPRING_CLOUD_CONFIG_LABEL PORT JDK_JAVA_OPTIONS IMAGE
 
   all = init + test + start + smoke
 EOF
@@ -102,7 +101,7 @@ find_boot_jar() {
       *.original|*-lib.jar|*sources*|*javadoc*) continue ;;
     esac
     if [[ "$(wc -c < "$jar")" -lt 1048576 ]]; then
-      echo "error: ${jar} is not the Boot ZIP (no Main-Class). Run: $0 init" >&2
+      echo "error: ${jar} is not a Boot fat JAR (too small). Run: $0 init" >&2
       exit 1
     fi
     echo "$jar"
@@ -153,7 +152,6 @@ cmd_start() {
   echo "    profile=${PROFILE}"
   echo "    port=${PORT}"
   echo "    context=${CONTEXT}"
-  echo "    loader.path=${LOADER_PATH}"
   if [[ -n "${CONFIG_URI}" ]]; then
     echo "    config.uri=${CONFIG_URI}"
   fi
@@ -163,7 +161,6 @@ cmd_start() {
   print_endpoints
 
   local java_args=(
-    "-Dloader.path=${LOADER_PATH}"
     "-Dspring.profiles.active=${PROFILE}"
     "-Dlocal.development=true"
     "-Dabis.bio.encryption=false"

@@ -132,9 +132,8 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<layout>ZIP</layout>
-				</configuration>
+				<!-- Default JAR layout (JarLauncher). ZIP/PropertiesLauncher + -Dloader.path
+				     is not used: kernel-auth-adapter is a Maven dependency, not an external JAR. -->
 				<executions>
 					<execution>
 						<goals>

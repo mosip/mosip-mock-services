@@ -45,6 +45,9 @@ service:
 image:
   registry: docker.io
   repository: mosipqa/mock-abis
+  ## Chart default only. Deploy pipelines MUST override with the image built from
+  ## the target branch/commit (e.g. issue-1633 / CI digest). Leaving `develop`
+  ## deploys an unrelated image and can hide Boot 4.1.1 fixes.
   tag: develop
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'

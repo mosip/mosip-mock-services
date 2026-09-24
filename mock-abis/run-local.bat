@@ -5,7 +5,7 @@ REM Linux / macOS / Git Bash: use run-local.sh
 REM
 REM   run-local.bat init | start | smoke | stop | test | all | docker
 REM Optional: SPRING_CLOUD_CONFIG_URI SPRING_CLOUD_CONFIG_LABEL PORT JDK_JAVA_OPTIONS
-REM          loader_path_env SPRING_PROFILES_ACTIVE IMAGE
+REM          SPRING_PROFILES_ACTIVE IMAGE
 
 set "MODULE_DIR=%~dp0"
 if "%MODULE_DIR:~-1%"=="\" set "MODULE_DIR=%MODULE_DIR:~0,-1%"
@@ -21,7 +21,6 @@ set "MODULE=mock-abis"
 if not defined PORT set "PORT=8081"
 if not defined SPRING_PROFILES_ACTIVE set "SPRING_PROFILES_ACTIVE=local"
 if not defined IMAGE set "IMAGE=mock-abis"
-if not defined loader_path_env set "loader_path_env=."
 set "CONTEXT=/v1/mock-abis-service"
 set "BASE=http://127.0.0.1:%PORT%%CONTEXT%"
 
@@ -53,7 +52,7 @@ echo   run-local.bat all      init + test + start + smoke
 echo   run-local.bat docker   package, docker build, run
 echo.
 echo Port: %PORT% ^(override with set PORT=...^)
-echo Optional: SPRING_CLOUD_CONFIG_URI SPRING_CLOUD_CONFIG_LABEL JDK_JAVA_OPTIONS IMAGE loader_path_env
+echo Optional: SPRING_CLOUD_CONFIG_URI SPRING_CLOUD_CONFIG_LABEL JDK_JAVA_OPTIONS IMAGE
 echo.
 call :print_endpoints
 exit /b 1
@@ -111,7 +110,7 @@ if not defined BOOT_JAR (
   exit /b 1
 )
 for %%S in ("!BOOT_JAR!") do if %%~zS LSS 1048576 (
-  echo error: !BOOT_JAR! is not the Boot ZIP ^(no Main-Class^). Run: %~nx0 init
+  echo error: !BOOT_JAR! is not a Boot fat JAR ^(too small^). Run: %~nx0 init
   exit /b 1
 )
 exit /b 0
@@ -190,7 +189,6 @@ echo ==^> starting mock-abis from %BOOT_JAR%
 echo     profile=%SPRING_PROFILES_ACTIVE%
 echo     port=%PORT%
 echo     context=%CONTEXT%
-echo     loader.path=%loader_path_env%
 
 if defined SPRING_CLOUD_CONFIG_URI echo     config.uri=%SPRING_CLOUD_CONFIG_URI%
 if defined SPRING_CLOUD_CONFIG_LABEL echo     config.label=%SPRING_CLOUD_CONFIG_LABEL%
@@ -199,7 +197,6 @@ call :print_endpoints
 set "LAUNCH_PS1=%LOCAL_DIR%\launch-mock-abis.ps1"
 > "%LAUNCH_PS1%" echo $ErrorActionPreference = 'Stop'
 >> "%LAUNCH_PS1%" echo $argList = New-Object System.Collections.Generic.List[string]
->> "%LAUNCH_PS1%" echo $argList.Add^('-Dloader.path=%loader_path_env%'^)
 >> "%LAUNCH_PS1%" echo $argList.Add^('-Dspring.profiles.active=%SPRING_PROFILES_ACTIVE%'^)
 >> "%LAUNCH_PS1%" echo $argList.Add^('-Dlocal.development=true'^)
 >> "%LAUNCH_PS1%" echo $argList.Add^('-Dabis.bio.encryption=false'^)
