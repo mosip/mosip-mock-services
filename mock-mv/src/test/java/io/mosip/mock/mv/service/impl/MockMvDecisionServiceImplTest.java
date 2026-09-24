@@ -1,6 +1,7 @@
 package io.mosip.mock.mv.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +86,9 @@ class MockMvDecisionServiceImplTest {
     @Test
     void deleteExpectation_ValidId_DeletesFromCache() {
         String testId = "rid1";
-        service.deleteExpectation(testId);
+        when(expectationCache.delete(testId)).thenReturn(true);
+
+        assertTrue(service.deleteExpectation(testId));
         verify(expectationCache).delete(testId);
     }
 

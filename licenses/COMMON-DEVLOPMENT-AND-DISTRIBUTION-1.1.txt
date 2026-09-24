@@ -1,6 +1,6 @@
-BSD 2-Clause "Simplified" License
+Common Development and Distribution License 1.1
 
-Copyright © 1997-2024 PostgreSQL Global Development Group
+Copyright © 1997-2010 Oracle Corporation (formerly Sun Microsystems, Inc.)
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

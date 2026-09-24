@@ -66,23 +66,10 @@ Recommended for active development.
     ```
 2.  **Run**:
     ```bash
-    java -XX:-UseG1GC -XX:-UseParallelGC -XX:-UseShenandoahGC -XX:+ExplicitGCInvokesConcurrent \
-    -XX:+UseZGC -XX:+ZGenerational -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication \
-    -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -XX:MaxGCPauseMillis=200 \
-    -Dfile.encoding=UTF-8 \
-    -Dspring.cloud.config.label="master" \
-    -Dspring.profiles.active="default"  \
+    java -Dspring.cloud.config.label="master" \
+    -Dspring.profiles.active="default" \
     -Dspring.cloud.config.uri="http://localhost:51000/config" \
-    --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED \
-    --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
-    --add-opens java.base/java.lang.stream=ALL-UNNAMED \
-    --add-opens java.base/java.time=ALL-UNNAMED \
-    --add-opens java.base/java.time.LocalDate=ALL-UNNAMED \
-    --add-opens java.base/java.time.LocalDateTime=ALL-UNNAMED \
-    --add-opens java.base/java.io.Reader=ALL-UNNAMED \
-    --add-opens java.base/java.util.Optional=ALL-UNNAMED \
-    --add-opens java.base/java.time.LocalDateTime.date=ALL-UNNAMED \
-    -jar target/mock-mv-1.4.0-SNAPSHOT.jar
+    -jar target/mock-mv-1.4.1-SNAPSHOT.jar
     ```
     *(Note: Adjust the JAR version and config URI as needed).*
 

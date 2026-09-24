@@ -1,195 +1,237 @@
 ================================================================================
-COPYRIGHT NOTICES
+COPYRIGHT NOTICES — mosip-mock-services
 ================================================================================
 
-This software incorporates components from the projects listed below. The
-original copyright notices have been preserved in accordance with the terms
-of their respective licenses:
+mosip-mock-services is MPL 2.0 (see ../LICENSE). Spring Boot 4.1.1 / Java 21.
+Versions match the reactor pom.xml (mosip-mock-services 1.4.1-SNAPSHOT) and
+Spring Boot 4.1.1 / Spring Cloud 2025.1.3 (resolved 2026-09-24; 326 unique
+GAVs). License texts in this directory.
+Dual-licensed components: MOSIP elects the option marked below (never EPL,
+GPL, AGPL, LGPLv3, or Creative Commons software).
 
 --------------------------------------------------------------------------------
-APACHE LICENSE 2.0 COMPONENTS
+Compatible open-source license matrix (MPL 2.0)
 --------------------------------------------------------------------------------
 
-Spring Framework & Spring Boot
-  Copyright © 2002-2024 Pivotal Software, Inc.
-  Copyright © 2002-2024 VMware, Inc. or its affiliates.
-  Licensed under the Apache License, Version 2.0
+License                          Compatible with MPL 2.0?   Use with MOSIP?
+-------------------------------  -------------------------  ---------------
+BSD (2-Clause, 3-Clause)         Yes                        Yes
+MIT                              Yes                        Yes
+Apache-2.0                       Yes                        Yes
+MPL-2.0                          Yes                        Yes
+EPL                              No                         No
+LGPLv3                           Yes                        No
+GPLv2                            No                         No
+GPLv3                            Yes                        No
+AGPLv3                           Yes                        No
+Creative Commons (general)       No                         No
+ISC                              Yes                        Yes
+Python-2.0                       Yes                        Yes
+AFL-2.0                          No                         No
+AFL-2.1                          Yes                        Yes
+ODC-By-1.0                       No                         No
+CDDL-1.0                         Yes                        Yes
+Unicode-DFS-2016                 Yes                        Yes
+BlueOak-1.0.0                    Yes                        Yes
+OFL-1.1                          Yes                        Yes
+CC-BY-4.0                        To be reviewed             To be reviewed
+Zlib                             Yes                        Yes
+0BSD                             Yes                        Yes
 
-Spring Cloud
-  Copyright © 2013-2024 Pivotal Software, Inc.
-  Licensed under the Apache License, Version 2.0
+MOSIP Comments:
 
-SpringDoc OpenAPI
-  Copyright © 2019-2024 springdoc.org
-  Licensed under the Apache License, Version 2.0
+BSD (2-Clause, 3-Clause) / MIT / MPL-2.0
+  Code can be combined freely.
 
-Apache Maven Plugins
-  Copyright © 2001-2024 The Apache Software Foundation
-  Licensed under the Apache License, Version 2.0
+Apache-2.0
+  Both licenses are permissive and compatible. Ensure attribution
+  requirements are met.
 
-Apache HttpComponents (HttpClient, HttpMime)
-  Copyright © 2005-2024 The Apache Software Foundation
-  Licensed under the Apache License, Version 2.0
+EPL
+  Generally incompatible with MPL due to differing requirements. Use = No.
 
-Apache ActiveMQ Client
-  Copyright © 2005-2024 The Apache Software Foundation
-  Licensed under the Apache License, Version 2.0
+LGPLv3
+  Compatible with MPL, but Use = No: LGPLv3 works can be included, yet
+  LGPLv3 terms may apply to the combined work.
 
-Apache Commons (Commons Lang3, Commons Codec)
-  Copyright © 2001-2024 The Apache Software Foundation
-  Licensed under the Apache License, Version 2.0
+GPLv2
+  Incompatible: lacks explicit compatibility with MPL 2.0. Use = No.
 
-Jackson Libraries (jackson-databind, jackson-annotations, jackson-core)
-  Copyright © 2007-2024 Tatu Saloranta
-  Licensed under the Apache License, Version 2.0
+GPLv3
+  MPL 2.0 can be included with GPLv3 in larger works, but the resulting
+  combined work must be GPLv3. Use = No.
 
-JSON Simple
-  Copyright © 2006 Yidong Fang
-  Licensed under the Apache License, Version 2.0
+AGPLv3
+  Similar compatibility as GPLv3. Combined work must adhere to AGPLv3.
+  Use = No.
 
-Micrometer (micrometer-core, micrometer-registry-prometheus)
-  Copyright © 2017-2024 Pivotal Software, Inc.
-  Licensed under the Apache License, Version 2.0
+Creative Commons (general)
+  Not designed for software. Use = No.
 
-Google Gson
-  Copyright © 2008-2024 Google Inc.
-  Licensed under the Apache License, Version 2.0
+ISC
+  Permissive. ISC code remains under ISC; overall project can be MPL 2.0.
+  Include the ISC license text in documentation or a LICENSE file.
+  Provide appropriate attribution to authors of the ISC-licensed code.
 
-Hibernate Validator
-  Copyright © 2007-2024 Red Hat, Inc.
-  Licensed under the Apache License, Version 2.0
+Python-2.0
+  Include Python-2.0 licensed code and distribute under MPL 2.0 while
+  complying with both licenses.
 
-Jose4j
-  Copyright © 2012-2019 Brian Campbell
-  Licensed under the Apache License, Version 2.0
+AFL-2.0
+  Clauses conflict with MPL 2.0; incompatible for redistribution under a
+  unified license. Use = No.
 
-OkHttp
-  Copyright © 2013-2024 Square, Inc.
-  Licensed under the Apache License, Version 2.0
+AFL-2.1
+  Include the AFL 2.1 license notice and a copy of the license (NOTICE or
+  source files). Ensure proper attribution to original authors.
+  AFL 2.1 code remains AFL 2.1; MPL 2.0 code remains MPL 2.0. Document
+  both in NOTICE / LICENSE.
 
-JSR105 API
-  Copyright © 2005 Sun Microsystems, Inc.
-  Licensed under the Apache License, Version 2.0
+ODC-By-1.0
+  Designed for databases; conditions incompatible with MPL 2.0. Use = No.
 
-Sonatype Central Publishing Maven Plugin
-  Copyright © 2022-2024 Sonatype, Inc.
-  Licensed under the Apache License, Version 2.0
+CDDL-1.0 (CDDL-1.1 treated as successor)
+  Weak copyleft coexistence: MPL and CDDL each require files to retain
+  their original license when distributed. Identify which parts are MPL
+  vs CDDL; include both license texts; project-authored code stays MPL 2.0.
 
---------------------------------------------------------------------------------
-MIT LICENSE COMPONENTS
---------------------------------------------------------------------------------
+Unicode-DFS-2016 (Unicode-3.0 treated as successor)
+  Keep Unicode-DFS-2016 files clearly identified; do not modify headers or
+  remove licensing information. Include the full Unicode-DFS-2016 license.
+  Ensure Unicode notice and disclaimers remain visible. Document which
+  files are under Unicode-DFS-2016 and which are under MPL 2.0. The project
+  as a whole is a combination of both licenses.
 
-Project Lombok
-  Copyright © 2009-2021 The Project Lombok Authors
-  Licensed under the MIT License
+BlueOak-1.0.0
+  Permissive; keep license text or a link with distributed software.
 
-Mockito
-  Copyright © 2007-2024 Mockito contributors
-  Licensed under the MIT License
+OFL-1.1
+  Fonts; when distributing fonts (modified or unmodified), include the
+  full OFL-1.1 license text.
 
-SLF4J (jcl-over-slf4j, jul-to-slf4j)
-  Copyright © 2004-2024 QOS.ch
-  Licensed under the MIT License
+CC-BY-4.0
+  Creative Commons Attribution 4.0 International — designed for creative
+  works (text, images, music). To be reviewed for software use.
 
-Bouncy Castle (bcprov-jdk18on)
-  Copyright © 2000-2023 The Legion of the Bouncy Castle Inc.
-  Licensed under the MIT License
+Zlib
+  Distributed copies or substantial portions must include the original
+  zlib license text.
 
---------------------------------------------------------------------------------
-ECLIPSE PUBLIC LICENSE 2.0 COMPONENTS
---------------------------------------------------------------------------------
-
-JUnit Jupiter
-  Copyright © 2015-2024 the original author or authors
-  Licensed under the Eclipse Public License 2.0
-
-JaCoCo Maven Plugin
-  Copyright © 2009-2024 Mountainminds GmbH & Co. KG and Contributors
-  Licensed under the Eclipse Public License 2.0
-
-Jakarta JMS API
-  Copyright © 2012-2024 Eclipse Foundation, Inc.
-  Licensed under the Eclipse Public License 2.0
-
-Jakarta Servlet API
-  Copyright © 2012-2024 Eclipse Foundation, Inc.
-  Licensed under the Eclipse Public License 2.0
-
-H2 Database Engine
-  Copyright © 2004-2024 H2 Group
-  Dual licensed under the Mozilla Public License 2.0 or the Eclipse Public License 2.0
-
---------------------------------------------------------------------------------
-BSD LICENSE COMPONENTS
---------------------------------------------------------------------------------
-
-PostgreSQL JDBC Driver
-  Copyright © 1997-2024 PostgreSQL Global Development Group
-  Licensed under the BSD 2-Clause License
-
-JAI ImageIO Core
-  Copyright © 2005 Sun Microsystems, Inc.
-  Copyright © 2010-2015 University of Manchester and Contributors
-  Licensed under the BSD 3-Clause License
-
-JAI ImageIO JPEG2000
-  Copyright © 1999-2000 JJ2000 Partners
-  Copyright © 2005 Sun Microsystems, Inc.
-  Licensed under the BSD 3-Clause License with Nuclear Restriction
-
---------------------------------------------------------------------------------
-GNU LGPL 3.0 COMPONENTS
---------------------------------------------------------------------------------
-
-Git Commit ID Maven Plugin
-  Copyright © 2010-2024 Konrad Malawski and Contributors
-  Licensed under the GNU Lesser General Public License v3.0
-
-Sonar Maven Plugin
-  Copyright © 2007 Free Software Foundation, Inc.
-  Copyright © 2010-2024 SonarSource SA
-  Licensed under the GNU Lesser General Public License v3.0
-
---------------------------------------------------------------------------------
-MOZILLA PUBLIC LICENSE 2.0 COMPONENTS
---------------------------------------------------------------------------------
-
-MOSIP Mock Services
-  Copyright © 2021-2024 MOSIP
-  Licensed under the Mozilla Public License 2.0
-
-MOSIP Kernel (kernel-core, kernel-biometrics-api, kernel-bio-converter)
-  Copyright © 2021-2024 MOSIP
-  Licensed under the Mozilla Public License 2.0
-
-MOSIP Biometrics Util
-  Copyright © 2021-2024 MOSIP
-  Licensed under the Mozilla Public License 2.0
-
---------------------------------------------------------------------------------
-CDDL OR GPL WITH CLASSPATH EXCEPTION
---------------------------------------------------------------------------------
-
-JAXB API
-  Copyright © 2003-2017 Oracle Corporation and/or its affiliates
-  Dual licensed under the Common Development and Distribution License (CDDL)
-  Version 1.1 or the GNU General Public License (GPL) Version 2 with the
-  Classpath Exception
+0BSD
+  Permissive; broad use, modification, and distribution without
+  significant restrictions.
 
 ================================================================================
+ELECTED / ALLOWED (Use with MOSIP = Yes)
+================================================================================
 
-FULL LICENSE TEXTS
+Apache License 2.0 (Apache-2.0.txt)
+  Spring Boot 4.1.1 / Spring Framework 7.0.9 / Spring Security 7.1.1 /
+    Spring Cloud 2025.1.3 (spring-cloud-context 5.0.3)
+  Springdoc OpenAPI 3.1.1, Swagger Core v3 2.2.55 / Swagger UI WebJar 5.32.14
+  Jackson 2.21.5 via spring-boot-jackson2; Jackson 3.1.5 (tools.jackson)
+  ActiveMQ Client 6.2.4, OkHttp 4.12.0, Jose4j 0.9.6
+  Gson 2.14.0, json-simple 1.1.1
+  Commons Lang3 3.20.0, Commons Codec 1.21.0, Commons IO 2.22.0
+  HttpClient 4.5.14 / HttpClient5 5.6.4 / HttpMime 4.5.14
+  Hibernate Validator 9.1.3.Final, Hibernate ORM 7.4.5.Final, HikariCP 7.0.2
+  Micrometer 1.17.1 / Micrometer Tracing 1.7.1 / Brave 6.3.1
+  Netty 4.2.17.Final, Reactor 3.8.7, Tomcat Embed 11.0.24
+  Guava 33.7.1-jre, SnakeYAML 2.6, Log4j-to-SLF4J 2.25.5, Byte Buddy 1.18.11
+  Maven plugins: compiler 3.16.0, surefire 3.6.0, jar/war 3.5.1,
+    source 3.4.0, javadoc 3.12.0, gpg 3.2.8, deploy 3.1.4,
+    assembly 3.7.1, dependency 3.8.1, resources 3.3.1, antrun 3.1.0
+  JaCoCo 0.8.15, git-commit-id-plugin 4.9.10,
+    central-publishing-maven-plugin 0.11.0, sonar-maven-plugin 5.8.0.7211
 
-For complete license texts, please refer to:
-- Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0
-- MIT License: https://opensource.org/licenses/MIT
-- Eclipse Public License 2.0: https://www.eclipse.org/legal/epl-2.0/
-- BSD Licenses: https://opensource.org/licenses/BSD-2-Clause and BSD-3-Clause
-- GNU LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.html
-- Mozilla Public License 2.0: https://www.mozilla.org/en-US/MPL/2.0/
-- CDDL 1.1: https://spdx.org/licenses/CDDL-1.1.html
+MIT License (MIT.txt)
+  Lombok 1.18.46, SLF4J 2.0.18, Mockito 5.23.0 (test)
+  Bouncy Castle bcprov 1.85.2 / bcpkix 1.85 / bcutil 1.85
+  Auth0 java-jwt 3.19.4 / jwks-rsa 0.24.1 (transitive via kernel-core)
+  Keep MIT text and author attribution
 
-Individual project homepages and license files are available at the URLs
-specified in the THIRD-PARTY-NOTICES.txt file.
+BSD-3-Clause (BSD-3-Clause.txt)
+  Protocol Buffers (protobuf-java) 4.35.1 (via biometrics-util)
+  JNBIS 2.1.2 (via biometrics-util)
 
+BSD-3-Clause with No Nuclear Disclaimer (BSD-3-Clause-No-Nuclear-License.txt)
+  JAI ImageIO Core 1.4.0 / JPEG2000 1.4.0
+
+BSD-2-Clause / EDL 1.0 (BSD-2-Clause.txt)
+  PostgreSQL JDBC 42.7.13 (BSD-2-Clause)
+  JAXB API 2.3.1 / JAXB Runtime 2.3.9 (EDL 1.0; javax — not Jakarta 4.x)
+  jakarta.persistence-api 3.2.0 (EPL-2.0 OR EDL-1.0; MOSIP elects EDL 1.0)
+
+Mozilla Public License 2.0 (project LICENSE / MPL-2.0.txt / MOZILLA-2.0.txt)
+  MOSIP mock-abis, mock-mv, mock-sdk, MockMDS
+  kernel-core / kernel-biometrics-api / biometrics-util /
+    kernel-bio-converter 1.4.1-SNAPSHOT
+  H2 Database 2.4.240 (EPL-1.0 OR MPL-2.0; MOSIP elects MPL-2.0)
+
+CDDL-1.1 (COMMON-DEVLOPMENT-AND-DISTRIBUTION-1.1.txt) — successor to CDDL-1.0
+  JavaBeans Activation Framework 1.1.1 (CDDL-1.1 OR GPL-2.0-with-CPE;
+    MOSIP elects CDDL-1.1)
+  JSR 105 XML Digital Signature API 1.0.1 (MockMDS)
+  Files retain CDDL; project code remains MPL-2.0
+
+Unicode License v3 (Unicode-3.0; successor to Unicode-DFS-2016)
+  ICU4J 78.3 (transitive via kernel-core)
+  Full text: https://www.unicode.org/license.txt
+
+================================================================================
+MOSIP MATRIX: Use = No (still on classpath — exception or replace)
+================================================================================
+
+EPL is incompatible with MPL 2.0 on the MOSIP matrix.
+LGPLv3 is compatible with MPL but MOSIP Use = No.
+LGPL-2.1 is not listed on the matrix; treated like LGPLv3 (Use = No).
+GPLv2 is incompatible. GPLv3 / AGPLv3: Use = No.
+
+EPL-2.0 only (test / Boot tooling)
+  org.junit.jupiter / junit-vintage 6.0.3 (test)
+  org.aspectj:aspectjweaver 1.9.25.1 (Boot AOP transitive)
+
+EPL-1.0 only (test / transitive)
+  junit:junit 4.13.2 (test; vintage)
+
+EPL-2.0 OR LGPL-2.1 (both MOSIP Use = No)
+  ch.qos.logback:logback-classic / logback-core 1.5.38 — Boot default logger
+
+EPL-1.0 OR LGPL-2.1-or-later (both MOSIP Use = No)
+  com.mchange:mchange-commons-java 0.6.1 (transitive via kernel-core)
+
+LGPL-2.1 only (MOSIP Use = No)
+  com.openhtmltopdf:openhtmltopdf-* 1.0.10 (transitive via kernel-core)
+
+LGPL-3.0.txt is retained for reference only; not used as a product
+dependency license election.
+
+================================================================================
+BUILD PLUGINS (not shipped in runtime JARs; for CI / release only)
+================================================================================
+
+  org.apache.maven.plugins:maven-compiler-plugin 3.16.0
+  org.apache.maven.plugins:maven-surefire-plugin 3.6.0
+  org.apache.maven.plugins:maven-jar-plugin / maven-war-plugin 3.5.1
+  org.apache.maven.plugins:maven-javadoc-plugin 3.12.0
+  org.apache.maven.plugins:maven-source-plugin 3.4.0
+  org.apache.maven.plugins:maven-gpg-plugin 3.2.8
+  org.apache.maven.plugins:maven-deploy-plugin 3.1.4
+  org.apache.maven.plugins:maven-assembly-plugin 3.7.1
+  org.apache.maven.plugins:maven-dependency-plugin 3.8.1
+  org.apache.maven.plugins:maven-resources-plugin 3.3.1
+  org.apache.maven.plugins:maven-antrun-plugin 3.1.0
+  org.jacoco:jacoco-maven-plugin 0.8.15
+  org.sonarsource.scanner.maven:sonar-maven-plugin 5.8.0.7211
+  org.sonatype.central:central-publishing-maven-plugin 0.11.0
+  pl.project13.maven:git-commit-id-plugin 4.9.10
+    (kattu CI greps these coordinates; do not rename to io.github.git-commit-id)
+
+Complete texts: Apache-2.0, BSD-2-Clause, BSD-3-Clause,
+BSD-3-Clause-No-Nuclear, CDDL 1.1, EPL-1.0, EPL-2.0, LGPL-3.0, MIT,
+MPL-2.0 / MOZILLA-2.0 in this directory. Project MPL-2.0 is LICENSE at
+the repo root.
+
+================================================================================
+END OF NOTICES
 ================================================================================

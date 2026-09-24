@@ -1,6 +1,7 @@
 package io.mosip.proxy.abis.configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springdoc.core.models.GroupedOpenApi;
@@ -8,6 +9,8 @@ import org.springdoc.core.models.GroupedOpenApi;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,6 +75,7 @@ class SwaggerConfigTest {
      * - API information is properly configured
      * - Server information is properly set
      * - Components are initialized
+     * - Authorization header apiKey is registered for Swagger UI Authorize
      */
     @Test
     void testOpenApi_DefaultConfiguration_ReturnsPopulatedOpenAPIObject() {
@@ -80,6 +84,16 @@ class SwaggerConfigTest {
         assertNotNull(openAPI.getInfo());
         assertNotNull(openAPI.getServers());
         assertNotNull(openAPI.getComponents());
+
+        SecurityScheme scheme = openAPI.getComponents().getSecuritySchemes()
+                .get(SwaggerConfig.AUTHORIZATION_SCHEME);
+        assertNotNull(scheme);
+        assertEquals(SecurityScheme.Type.APIKEY, scheme.getType());
+        assertEquals(SecurityScheme.In.HEADER, scheme.getIn());
+        assertEquals(SwaggerConfig.AUTHORIZATION_SCHEME, scheme.getName());
+        assertFalse(openAPI.getSecurity().isEmpty());
+        assertEquals(SwaggerConfig.AUTHORIZATION_SCHEME,
+                openAPI.getSecurity().get(0).keySet().iterator().next());
     }
 
     /**
