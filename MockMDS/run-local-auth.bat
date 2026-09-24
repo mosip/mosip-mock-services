@@ -83,6 +83,8 @@ echo   range      %MIN_PORT%-%MAX_PORT% ^(first free; see application.properties
 if not "!DISP_PORT!"=="?" if defined DISP_PORT (
   echo   base       http://127.0.0.1:!DISP_PORT!/
   echo   admin      POST http://127.0.0.1:!DISP_PORT!/admin/status^|score^|delay^|profile
+  echo   swagger    http://127.0.0.1:!DISP_PORT!/swagger-ui/index.html
+  echo   openapi    http://127.0.0.1:!DISP_PORT!/v3/api-docs
 )
 echo   log        %LOG_FILE%
 echo.

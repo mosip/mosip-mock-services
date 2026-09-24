@@ -230,6 +230,18 @@ Base URL: `http://127.0.0.1:{port}/` (port printed by `start` / stored in `.loca
 | `/admin/delay` | POST | `{"type":"Biometric Device","delay":"10000","method":["RCAPTURE"]}` |
 | `/admin/profile` | POST | `{"type":"Biometric Device","profileId":"Profile1"}` |
 
+### Swagger UI (admin only)
+
+Static OpenAPI + Swagger UI (no springdoc). Served by MockMDS after `init` copies `swagger-ui/` → `target/swagger-ui/`.
+
+| URL | |
+|-----|---|
+| Swagger UI | `http://127.0.0.1:{port}/swagger-ui/index.html` |
+| OpenAPI | `http://127.0.0.1:{port}/v3/api-docs` |
+
+Use the **bound** `{port}` from `start` / `.local/pids/*.port` (first free in 4501–4600). Do not hardcode `4501` if another process already holds it — open Swagger on the printed port; `/v3/api-docs` rewrites `servers.url` to that host:port so Try it out hits the same instance.
+
+UI assets load Swagger UI 5.32.14 from jsDelivr (needs network for the browser).
 `deviceStatus`: `Ready` · `Busy` · `Not Ready` · `Not Registered`  
 `profileId`: `Default` · `Profile1` · `Profile2` · …  
 `method`: `RCAPTURE` · `CAPTURE` · `MOSIPDINFO` · `MOSIPDISC` · `STREAM`

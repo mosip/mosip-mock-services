@@ -67,6 +67,8 @@ print_endpoints() {
   if [[ "$port" != "?" && -n "$port" ]]; then
     echo "  base       http://127.0.0.1:${port}/"
     echo "  admin      POST http://127.0.0.1:${port}/admin/status|score|delay|profile"
+    echo "  swagger    http://127.0.0.1:${port}/swagger-ui/index.html"
+    echo "  openapi    http://127.0.0.1:${port}/v3/api-docs"
   fi
   echo "  log        ${LOG_FILE}"
   echo
