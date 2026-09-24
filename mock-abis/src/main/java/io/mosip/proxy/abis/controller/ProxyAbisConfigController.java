@@ -6,6 +6,7 @@ import io.mosip.proxy.abis.dto.Expectation;
 import io.mosip.proxy.abis.exception.AbisException;
 import io.mosip.proxy.abis.service.ProxyAbisConfigService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -117,7 +118,8 @@ public class ProxyAbisConfigController {
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
-	public ResponseEntity<String> deleteExpectation(@PathVariable String id) {
+	public ResponseEntity<String> deleteExpectation(
+			@Parameter(description = "Expectation id (biometric hash)", required = true) @PathVariable("id") String id) {
 		logger.debug("Delete expectation: {}", id);
 
 		try {
@@ -259,7 +261,8 @@ public class ProxyAbisConfigController {
 			@ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(hidden = true))),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(hidden = true))) })
 	@SuppressWarnings({ "java:S2139" })
-	public ResponseEntity<List<String>> getCacheByHash(@PathVariable String hash) {
+	public ResponseEntity<List<String>> getCacheByHash(
+			@Parameter(description = "Biometric hash", required = true) @PathVariable("hash") String hash) {
 		logger.debug("Get cached biometrics by hash: {}", hash);
 		try {
 			return new ResponseEntity<>(proxyAbisConfigService.getCachedBiometric(hash), HttpStatus.OK);
