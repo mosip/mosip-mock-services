@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - SERVICE_LOCATION: "./"
+          - SERVICE_LOCATION: "."
             SERVICE_NAME: "mock-abis"
             BUILD_ARTIFACT: "mockcomponents"
             SQUASH_LAYERS: "12"
@@ -63,7 +63,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - SERVICE_LOCATION: "./"
+          - SERVICE_LOCATION: "."
             SERVICE_NAME: "mock-mv"
             BUILD_ARTIFACT: "mockcomponents"
             SQUASH_LAYERS: "12"
