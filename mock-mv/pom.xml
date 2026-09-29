@@ -28,6 +28,8 @@
 	<!-- Inherits Boot 4.1.1 / no kernel-bom from mosip-mock-services. -->
 	<properties>
 		<sonar.exclusions>**/constant/**,**/dto/**</sonar.exclusions>
+		<!-- Service image, not a Central library. See mock-abis. -->
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
 	<dependencies>
@@ -149,24 +151,6 @@
 						</goals>
 						<configuration>
 							<classifier>lib</classifier>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-				<executions>
-					<execution>
-						<id>default-deploy</id>
-						<phase>none</phase>
-						<goals>
-							<goal>deploy</goal>
-						</goals>
-						<configuration>
-							<skip>true</skip>
 						</configuration>
 					</execution>
 				</executions>

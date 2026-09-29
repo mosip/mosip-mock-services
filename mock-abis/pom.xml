@@ -28,6 +28,9 @@
 	<!-- Inherits Boot 4.1.1 / no kernel-bom from mosip-mock-services. -->
 	<properties>
 		<sonar.exclusions>**/dto/**,**/entity/**,**/dao/**,**/exception/**,**/configuration/**</sonar.exclusions>
+		<!-- Service image, not a Central library. Property (not deploy-plugin phase=none)
+		     so central-publishing skips this module and still publishes the reactor. -->
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
 	<dependencies>
@@ -142,24 +145,6 @@
 						</goals>
 						<configuration>
 							<attach>false</attach>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-				<executions>
-					<execution>
-						<id>default-deploy</id>
-						<phase>none</phase>
-						<goals>
-							<goal>deploy</goal>
-						</goals>
-						<configuration>
-							<skip>true</skip>
 						</configuration>
 					</execution>
 				</executions>
