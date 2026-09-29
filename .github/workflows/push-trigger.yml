@@ -23,11 +23,11 @@ on:
       - issue*
 
 jobs:
-  build-maven-mock-abis:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+  build-maven-mock-components:
+    uses: mosip/kattu/.github/workflows/maven-build.yml@develop
     with:
-      SERVICE_LOCATION: mock-abis
-      BUILD_ARTIFACT: mock-abis
+      SERVICE_LOCATION: ./
+      BUILD_ARTIFACT: mockcomponents
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
@@ -36,17 +36,17 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-mock-abis:
-    needs: build-maven-mock-abis
+    needs: build-maven-mock-components
     strategy:
       matrix:
         include:
           - SERVICE_LOCATION: "mock-abis"
             SERVICE_NAME: "mock-abis"
-            BUILD_ARTIFACT: "mock-abis"
+            BUILD_ARTIFACT: "mockcomponents"
             SQUASH_LAYERS: "12"
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/docker-build.yml@develop
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -58,30 +58,18 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-maven-mock-mv:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
-    with:
-      SERVICE_LOCATION: mock-mv
-      BUILD_ARTIFACT: mock-mv
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
   build-dockers-mock-mv:
-    needs: build-maven-mock-mv
+    needs: build-maven-mock-components
     strategy:
       matrix:
         include:
           - SERVICE_LOCATION: "mock-mv"
             SERVICE_NAME: "mock-mv"
-            BUILD_ARTIFACT: "mock-mv"
+            BUILD_ARTIFACT: "mockcomponents"
             SQUASH_LAYERS: "12"
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/docker-build.yml@develop
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -93,64 +81,12 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  publish_to_nexus_mockmv:
+  publish_to_nexus_mockcomponents:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-mock-mv
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+    needs: build-maven-mock-components
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@develop
     with:
-      SERVICE_LOCATION: ./mock-mv
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_URL: ${{ secrets.OSSRH_CENTRAL_URL }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  build-maven-mock-sdk:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./mock-sdk
-      BUILD_ARTIFACT: mock-sdk
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER1 }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET1 }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  publish_to_nexus_sdk:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-mock-sdk
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./mock-sdk
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_URL: ${{ secrets.OSSRH_CENTRAL_URL }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  build-maven-MockMDS:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./MockMDS
-      BUILD_ARTIFACT: mockmds
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  publish_to_nexus_MockMDS:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-MockMDS
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./MockMDS
+      SERVICE_LOCATION: ./
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
