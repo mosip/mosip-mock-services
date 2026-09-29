@@ -23,8 +23,10 @@ on:
       - issue*
 
 jobs:
+  # Services: kattu requires service-git.properties. Build each module on its own
+  # so the reactor walk does not apply that filename to library modules.
   build-maven-mock-abis:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-build.yml@develop
     with:
       SERVICE_LOCATION: mock-abis
       BUILD_ARTIFACT: mock-abis
@@ -33,7 +35,51 @@ jobs:
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  build-maven-mock-mv:
+    uses: mosip/kattu/.github/workflows/maven-build.yml@develop
+    with:
+      SERVICE_LOCATION: mock-mv
+      BUILD_ARTIFACT: mock-mv
+    secrets:
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Libraries (mock-sdk, MockMDS) publish git.properties, not service-git.properties.
+  build-maven-libraries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Commit-id check (libraries use git.properties)
+        run: |
+          namespace="http://maven.apache.org/POM/4.0.0"
+          xpath_query="//s:project/s:build/s:plugins/s:plugin[s:groupId='pl.project13.maven'][s:artifactId='git-commit-id-plugin']/s:configuration[s:generateGitPropertiesFile='true'][s:generateGitPropertiesFilename='\${project.build.outputDirectory}/git.properties']"
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet
+          error_count=0
+          for module in mock-sdk MockMDS; do
+            output=$(xmlstarlet sel -N s="${namespace}" -t -v "${xpath_query}" -nl "$module/pom.xml" 2>/dev/null || true)
+            if [[ -z "$output" ]]; then
+              echo "Error: git.properties commit-id config not found in $module/pom.xml"
+              error_count=$((error_count + 1))
+            fi
+          done
+          if [[ $error_count -gt 0 ]]; then
+            exit 1
+          fi
+      - name: Build libraries
+        run: mvn -U -B package -pl mock-sdk,MockMDS -am -Dmaven.wagon.http.retryHandler.count=2
 
   build-dockers-mock-abis:
     needs: build-maven-mock-abis
@@ -46,7 +92,7 @@ jobs:
             SQUASH_LAYERS: "12"
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/docker-build.yml@develop
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -56,18 +102,6 @@ jobs:
       DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  build-maven-mock-mv:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
-    with:
-      SERVICE_LOCATION: mock-mv
-      BUILD_ARTIFACT: mock-mv
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-mock-mv:
@@ -81,7 +115,7 @@ jobs:
             SQUASH_LAYERS: "12"
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/docker-build.yml@develop
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -93,70 +127,19 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  publish_to_nexus_mockmv:
+  publish_to_nexus_mockcomponents:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-mock-mv
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+    needs: [build-maven-mock-abis, build-maven-mock-mv, build-maven-libraries]
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@develop
     with:
-      SERVICE_LOCATION: ./mock-mv
+      SERVICE_LOCATION: ./
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
       OSSRH_URL: ${{ secrets.OSSRH_CENTRAL_URL }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  build-maven-mock-sdk:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./mock-sdk
-      BUILD_ARTIFACT: mock-sdk
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER1 }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET1 }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  publish_to_nexus_sdk:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-mock-sdk
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./mock-sdk
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_URL: ${{ secrets.OSSRH_CENTRAL_URL }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  build-maven-MockMDS:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./MockMDS
-      BUILD_ARTIFACT: mockmds
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  publish_to_nexus_MockMDS:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-MockMDS
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./MockMDS
-    secrets:
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_URL: ${{ secrets.OSSRH_CENTRAL_URL }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   # ---------------------------------------------------------------------------
