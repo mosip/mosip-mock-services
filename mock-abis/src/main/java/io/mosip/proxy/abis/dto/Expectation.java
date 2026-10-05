@@ -54,10 +54,10 @@ public class Expectation {
 	private String delayInExecution;
 	private Gallery gallery;
 	/**
-	 * When true, the expectation is removed after the first matching request.
-	 * A later packet with the same biometric hash is not paused.
+	 * When true, this expectation is removed after the first matching request.
+	 * Omitted or false keeps the expectation for later packets.
 	 */
-	private boolean singlePacket;
+	private boolean removeAfterMatch = false;
 
 	public Expectation(String id, String version, LocalDateTime requesttime, String actionToInterfere,
 			String forcedResponse, Gallery gallery) {
