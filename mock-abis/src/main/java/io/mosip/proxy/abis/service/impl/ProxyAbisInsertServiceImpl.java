@@ -144,8 +144,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 						delayResponse = Integer.parseInt(exp.getDelayInExecution());
 					}
-					if (exp.isSinglePacket()) {
-						consumeSinglePacketExpectations(lst.stream().map(BiometricData::getBioData).toList());
+					if (exp.isRemoveAfterMatch()) {
+						removeExpectationsAfterMatch(lst.stream().map(BiometricData::getBioData).toList());
 					}
 					if (exp.getForcedResponse().equals("Error")) {
 						throw new RequestException(exp.getErrorCode(), delayResponse);
@@ -560,8 +560,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
-							if (exp.isSinglePacket()) {
-								consumeSinglePacketExpectations(bioValues);
+							if (exp.isRemoveAfterMatch()) {
+								removeExpectationsAfterMatch(bioValues);
 							}
 							return new IdentifyDelayResponse(processExpectation(ir, exp, referenceIds), delayResponse);
 						}
@@ -584,8 +584,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
-							if (exp.isSinglePacket()) {
-								consumeSinglePacketExpectations(bioValues);
+							if (exp.isRemoveAfterMatch()) {
+								removeExpectationsAfterMatch(bioValues);
 							}
 							return new IdentifyDelayResponse(processExpectation(ir, exp, null), delayResponse);
 						}
@@ -605,13 +605,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 
 	/**
-	 * Removes single-packet expectations for this request's biometric hashes so the
-	 * same biometrics on a later packet are not paused.
+	 * Deletes expectations marked removeAfterMatch for this request's biometric hashes.
 	 */
-	private void consumeSinglePacketExpectations(List<String> bioValues) {
+	private void removeExpectationsAfterMatch(List<String> bioValues) {
 		for (String bioValue : bioValues) {
 			Expectation stored = expectationCache.get(bioValue);
-			if (stored != null && stored.isSinglePacket()) {
+			if (stored != null && stored.isRemoveAfterMatch()) {
 				expectationCache.delete(bioValue);
 			}
 		}

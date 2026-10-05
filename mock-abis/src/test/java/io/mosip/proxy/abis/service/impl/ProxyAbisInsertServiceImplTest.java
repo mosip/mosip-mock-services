@@ -261,14 +261,14 @@ class ProxyAbisInsertServiceImplTest {
     }
 
     /**
-     * A single-packet expectation pauses the first match, then the existing cache
+     * A removeAfterMatch expectation pauses the first match, then the existing cache
      * delete removes it so the next packet with the same biometric hash continues.
      */
     @Test
-    void findDuplication_singlePacket_secondPacketIsNotDelayed() {
+    void findDuplication_removeAfterMatch_secondPacketIsNotDelayed() {
         ExpectationCacheImpl realCache = new ExpectationCacheImpl();
-        realCache.insert(singlePacketExpectation("hash-finger"));
-        realCache.insert(singlePacketExpectation("hash-iris"));
+        realCache.insert(removeAfterMatchExpectation("hash-finger"));
+        realCache.insert(removeAfterMatchExpectation("hash-iris"));
         when(expectationCache.get(anyString())).thenAnswer(invocation -> realCache.get(invocation.getArgument(0)));
         when(expectationCache.delete(anyString())).thenAnswer(invocation -> realCache.delete(invocation.getArgument(0)));
         when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString()))
@@ -284,10 +284,10 @@ class ProxyAbisInsertServiceImplTest {
         assertEquals(0, second.getDelayResponse());
     }
 
-    private Expectation singlePacketExpectation(String id) {
+    private Expectation removeAfterMatchExpectation(String id) {
         Expectation expectation = new Expectation();
         expectation.setId(id);
-        expectation.setSinglePacket(true);
+        expectation.setRemoveAfterMatch(true);
         expectation.setActionToInterfere("Identify");
         expectation.setDelayInExecution("30");
         expectation.setForcedResponse("Success");
