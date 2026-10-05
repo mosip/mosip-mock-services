@@ -144,6 +144,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 						delayResponse = Integer.parseInt(exp.getDelayInExecution());
 					}
+					if (exp.isSinglePacket()) {
+						consumeSinglePacketExpectations(lst.stream().map(BiometricData::getBioData).toList());
+					}
 					if (exp.getForcedResponse().equals("Error")) {
 						throw new RequestException(exp.getErrorCode(), delayResponse);
 					}
@@ -557,6 +560,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
+							if (exp.isSinglePacket()) {
+								consumeSinglePacketExpectations(bioValues);
+							}
 							return new IdentifyDelayResponse(processExpectation(ir, exp, referenceIds), delayResponse);
 						}
 					}
@@ -578,6 +584,9 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
+							if (exp.isSinglePacket()) {
+								consumeSinglePacketExpectations(bioValues);
+							}
 							return new IdentifyDelayResponse(processExpectation(ir, exp, null), delayResponse);
 						}
 					}
@@ -592,6 +601,19 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 		} catch (AbisException ex) {
 			logger.error("Error while findDuplication", ex);
 			throw ex;
+		}
+	}
+
+	/**
+	 * Removes single-packet expectations for this request's biometric hashes so the
+	 * same biometrics on a later packet are not paused.
+	 */
+	private void consumeSinglePacketExpectations(List<String> bioValues) {
+		for (String bioValue : bioValues) {
+			Expectation stored = expectationCache.get(bioValue);
+			if (stored != null && stored.isSinglePacket()) {
+				expectationCache.delete(bioValue);
+			}
 		}
 	}
 

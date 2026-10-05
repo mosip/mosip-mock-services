@@ -53,6 +53,11 @@ public class Expectation {
 	private String errorCode;
 	private String delayInExecution;
 	private Gallery gallery;
+	/**
+	 * When true, the expectation is removed after the first matching request.
+	 * A later packet with the same biometric hash is not paused.
+	 */
+	private boolean singlePacket;
 
 	public Expectation(String id, String version, LocalDateTime requesttime, String actionToInterfere,
 			String forcedResponse, Gallery gallery) {
