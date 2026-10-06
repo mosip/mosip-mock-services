@@ -144,8 +144,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 					if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 						delayResponse = Integer.parseInt(exp.getDelayInExecution());
 					}
-					if (exp.isRemoveAfterMatch()) {
-						removeExpectationsAfterMatch(lst.stream().map(BiometricData::getBioData).toList());
+					if (exp.isDeleteAfterUse()) {
+						deleteExpectationsAfterUse(lst.stream().map(BiometricData::getBioData).toList());
 					}
 					if (exp.getForcedResponse().equals("Error")) {
 						throw new RequestException(exp.getErrorCode(), delayResponse);
@@ -560,8 +560,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
-							if (exp.isRemoveAfterMatch()) {
-								removeExpectationsAfterMatch(bioValues);
+							if (exp.isDeleteAfterUse()) {
+								deleteExpectationsAfterUse(bioValues);
 							}
 							return new IdentifyDelayResponse(processExpectation(ir, exp, referenceIds), delayResponse);
 						}
@@ -584,8 +584,8 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 							if (exp.getDelayInExecution() != null && !exp.getDelayInExecution().isEmpty()) {
 								delayResponse = Integer.parseInt(exp.getDelayInExecution());
 							}
-							if (exp.isRemoveAfterMatch()) {
-								removeExpectationsAfterMatch(bioValues);
+							if (exp.isDeleteAfterUse()) {
+								deleteExpectationsAfterUse(bioValues);
 							}
 							return new IdentifyDelayResponse(processExpectation(ir, exp, null), delayResponse);
 						}
@@ -605,12 +605,12 @@ public class ProxyAbisInsertServiceImpl implements ProxyAbisInsertService {
 	}
 
 	/**
-	 * Deletes expectations marked removeAfterMatch for this request's biometric hashes.
+	 * Deletes expectations marked deleteAfterUse for this request's biometric hashes.
 	 */
-	private void removeExpectationsAfterMatch(List<String> bioValues) {
+	private void deleteExpectationsAfterUse(List<String> bioValues) {
 		for (String bioValue : bioValues) {
 			Expectation stored = expectationCache.get(bioValue);
-			if (stored != null && stored.isRemoveAfterMatch()) {
+			if (stored != null && stored.isDeleteAfterUse()) {
 				expectationCache.delete(bioValue);
 			}
 		}
