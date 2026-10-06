@@ -1667,7 +1667,7 @@ public class SBIServiceResponse {
 								if (bioData != null && bioData.length() > 0) {
 									BioMetricsDto bioDto = getBiometricData(transactionId, requestObject, deviceHelper,
 											previousHash, bioType,
-											(bioSubTypeInfo.getChkLeftIndex() == SBICheckState.CHECKED
+											(bioSubTypeInfo.getChkLeftMiddle() == SBICheckState.CHECKED
 													? SBIConstant.BIO_NAME_LEFT_MIDDLE
 													: SBIConstant.BIO_NAME_UNKNOWN),
 											bioData, captureInfo.getCaptureScoreLM(), requestScore, "", "0",
@@ -1776,7 +1776,7 @@ public class SBIServiceResponse {
 								if (bioData != null && bioData.length() > 0) {
 									BioMetricsDto bioDto = getBiometricData(transactionId, requestObject, deviceHelper,
 											previousHash, bioType,
-											(bioSubTypeInfo.getChkRightIndex() == SBICheckState.CHECKED
+											(bioSubTypeInfo.getChkRightMiddle() == SBICheckState.CHECKED
 													? SBIConstant.BIO_NAME_RIGHT_MIDDLE
 													: SBIConstant.BIO_NAME_UNKNOWN),
 											bioData, captureInfo.getCaptureScoreRM(), requestScore, "", "0",

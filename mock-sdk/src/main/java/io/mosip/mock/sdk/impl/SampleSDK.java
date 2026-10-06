@@ -135,7 +135,7 @@ public class SampleSDK implements IBioApi {
 	 * @param targetParams        Additional parameters for the target format.
 	 * @param modalitiesToConvert The list of biometric types to convert.
 	 * @return The converted biometric record.
-	 * @deprecated Use {@link IBioApiV2#convertFormatV2} instead.
+	 * @deprecated Use {@link io.mosip.kernel.biometrics.spi.IBioApiV2#convertFormatV2} instead.
 	 */
 	@Deprecated(since = "1.2.1", forRemoval = true)
 	@Override

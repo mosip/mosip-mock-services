@@ -6,3 +6,8 @@ target
 /partner.properties
 /*.p12
 /.metadata/
+.local/
+**/.local/
+.classpath
+.project
+.settings/
