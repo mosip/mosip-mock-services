@@ -54,10 +54,10 @@ public class Expectation {
 	private String delayInExecution;
 	private Gallery gallery;
 	/**
-	 * When true, this expectation is removed after the first matching request.
+	 * When true, this expectation is deleted after the first request uses it.
 	 * Omitted or false keeps the expectation for later packets.
 	 */
-	private boolean removeAfterMatch = false;
+	private boolean deleteAfterUse = false;
 
 	public Expectation(String id, String version, LocalDateTime requesttime, String actionToInterfere,
 			String forcedResponse, Gallery gallery) {
