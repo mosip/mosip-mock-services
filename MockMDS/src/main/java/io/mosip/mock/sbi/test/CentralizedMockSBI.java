@@ -31,12 +31,37 @@ public class CentralizedMockSBI {
 	 * @return port number on which SBI is started.
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "java:S112", "java:S3824" })
+	@SuppressWarnings({ "java:S112" })
 	public static int startSBI(String context, String purpose, String biometricType, String keystorePath)
 			throws Exception {
+		return startSBIV1(context, purpose, biometricType, keystorePath, getBiometricImageType());
+	}
+
+	/**
+	 * Same as {@link #startSBI(String, String, String, String)} but with an
+	 * explicit biometric image type.
+	 *
+	 * @param context            server base URL / Unique identifier for the
+	 *                           environment
+	 * @param purpose            Registration / Auth
+	 * @param biometricType      Biometric Device or Finger or Face or Iris
+	 * @param keystorePath       Folder path where the keystore file, refer
+	 *                           application.properties for default keystore
+	 *                           filename.
+	 * @param biometricImageType JP2000 or WSQ (WSQ only for Auth); blank uses
+	 *                           {@code mosip.mock.sbi.biometric.image.type}
+	 * @return port number on which SBI is started.
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "java:S112", "java:S3824" })
+	public static int startSBIV1(String context, String purpose, String biometricType, String keystorePath,
+			String biometricImageType) throws Exception {
+		String imageType = (biometricImageType == null || biometricImageType.isBlank()) ? getBiometricImageType()
+				: biometricImageType.trim();
+		validateBiometricImageType(purpose, imageType);
+
 		if (!localStore.containsKey(context)) {
-			SBIMockService mockService = new SBIMockService(purpose, biometricType, keystorePath,
-					getBiometricImageType());
+			SBIMockService mockService = new SBIMockService(purpose, biometricType, keystorePath, imageType);
 			new Thread(mockService).start();
 			localStore.put(context, mockService);
 		}
@@ -64,6 +89,17 @@ public class CentralizedMockSBI {
 			return SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000;
 		}
 		return imageType.trim();
+	}
+
+	private static void validateBiometricImageType(String purpose, String imageType) {
+		boolean isWsq = SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_WSQ.equalsIgnoreCase(imageType);
+		if (!isWsq && !SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000.equalsIgnoreCase(imageType)) {
+			throw new IllegalArgumentException("Unsupported biometric image type: " + imageType
+					+ " (expected JP2000 or WSQ)");
+		}
+		if (isWsq && SBIConstant.MOSIP_PURPOSE_REGISTRATION.equalsIgnoreCase(purpose)) {
+			throw new IllegalArgumentException("WSQ biometric image type is supported only for Auth purpose");
+		}
 	}
 
 	/**
