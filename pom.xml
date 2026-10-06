@@ -84,6 +84,10 @@
 		<hibernate.validator.annotation.processor.version>8.0.2.Final</hibernate.validator.annotation.processor.version>
 		<bouncycastle.version>1.85</bouncycastle.version>
 		<bouncycastle.prov.version>1.85.2</bouncycastle.prov.version>
+		<!-- Jackson 2 XML for mock-sdk convertFormat (biosdk-service Boot 4 is Jackson 3) -->
+		<jackson-dataformat-xml.version>2.22.3</jackson-dataformat-xml.version>
+		<woodstox.version>7.1.1</woodstox.version>
+		<stax2.api.version>4.2.2</stax2.api.version>
 
 		<!-- ── MOSIP (external — no kernel-bom) ─────────────────────────────── -->
 		<kernel.core.version>1.4.1-SNAPSHOT</kernel.core.version>
@@ -130,6 +134,21 @@
 				<artifactId>kernel-bio-converter</artifactId>
 				<version>${kernel.bioconverter.version}</version>
 				<classifier>lib</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-xml</artifactId>
+				<version>${jackson-dataformat-xml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.woodstox</groupId>
+				<artifactId>woodstox-core</artifactId>
+				<version>${woodstox.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.woodstox</groupId>
+				<artifactId>stax2-api</artifactId>
+				<version>${stax2.api.version}</version>
 			</dependency>
 
 			<dependency>
