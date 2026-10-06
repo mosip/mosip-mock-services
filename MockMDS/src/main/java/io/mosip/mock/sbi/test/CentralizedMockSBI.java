@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import io.mosip.mock.sbi.SBIConstant;
 import io.mosip.mock.sbi.service.SBIMockService;
+import io.mosip.mock.sbi.util.ApplicationPropertyHelper;
 
 public class CentralizedMockSBI {
 	private static final Logger logger = LoggerFactory.getLogger(CentralizedMockSBI.class);
@@ -35,7 +36,7 @@ public class CentralizedMockSBI {
 			throws Exception {
 		if (!localStore.containsKey(context)) {
 			SBIMockService mockService = new SBIMockService(purpose, biometricType, keystorePath,
-					SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000);
+					getBiometricImageType());
 			new Thread(mockService).start();
 			localStore.put(context, mockService);
 		}
@@ -51,6 +52,18 @@ public class CentralizedMockSBI {
 				localStore.get(context).getServerPort());
 
 		return localStore.get(context).getServerPort();
+	}
+
+	/**
+	 * Reads {@code mosip.mock.sbi.biometric.image.type} (JP2000 / WSQ) from
+	 * application.properties; defaults to JP2000 when unset.
+	 */
+	private static String getBiometricImageType() {
+		String imageType = ApplicationPropertyHelper.getPropertyKeyValue(SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE);
+		if (imageType == null || imageType.isBlank()) {
+			return SBIConstant.MOSIP_BIOMETRIC_IMAGE_TYPE_JP2000;
+		}
+		return imageType.trim();
 	}
 
 	/**
