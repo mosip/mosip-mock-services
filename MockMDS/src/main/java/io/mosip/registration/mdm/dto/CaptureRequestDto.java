@@ -54,7 +54,8 @@ public class CaptureRequestDto {
 	 * The URI of the domain or application where the capture is taking place
 	 * (private field).
 	 */
-	@JsonIgnore
+	@JsonProperty(value = "domainUri")
+	@JsonDeserialize(using = StringDeserializer.class)
 	private String domainUri;
 
 	/**
