@@ -54,10 +54,10 @@ cd mock-abis/activemq && docker-compose up
 Create `mock-abis/src/main/resources/registration-processor-abis.json` from the sample file, then run:
 ```bash
 cd mock-abis
-java -Dloader.path=lib/kernel-auth-adapter-1.4.0-SNAPSHOT.jar \
+java -Dloader.path=lib/kernel-auth-adapter-1.5.0-SNAPSHOT.jar \
   -Dlocal.development=true -Dabis.bio.encryption=false \
   -Dspring.profiles.active=local \
-  -jar target/mock-abis-1.4.0-SNAPSHOT.jar
+  -jar target/mock-abis-1.5.0-SNAPSHOT.jar
 ```
 
 Swagger: `http://localhost:8081/v1/mock-abis-service/swagger-ui/index.html`
@@ -68,7 +68,7 @@ Swagger: `http://localhost:8081/v1/mock-abis-service/swagger-ui/index.html`
 cd mock-mv
 java -Dspring.profiles.active=default \
   -Dspring.cloud.config.uri=http://localhost:51000/config \
-  -jar target/mock-mv-1.4.0-SNAPSHOT.jar
+  -jar target/mock-mv-1.5.0-SNAPSHOT.jar
 ```
 
 Swagger: `http://localhost:8081/v1/mockmv/swagger-ui.html`
@@ -79,13 +79,13 @@ After building, run from `MockMDS/target/`:
 
 ```bash
 # Authentication devices (WSQ image format)
-java -cp mock-mds-1.4.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
+java -cp mock-mds-1.5.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
   "mosip.mock.sbi.device.purpose=Auth" \
   "mosip.mock.sbi.biometric.type=Biometric Device" \
   "mosip.mock.sbi.biometric.image.type=WSQ"
 
 # Registration devices (JP2000 image format)
-java -cp mock-mds-1.4.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
+java -cp mock-mds-1.5.0-SNAPSHOT.jar;lib\* io.mosip.mock.sbi.test.TestMockSBI \
   "mosip.mock.sbi.device.purpose=Registration" \
   "mosip.mock.sbi.biometric.type=Biometric Device"
 ```
