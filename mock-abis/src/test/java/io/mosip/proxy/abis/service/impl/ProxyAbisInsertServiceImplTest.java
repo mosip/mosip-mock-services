@@ -261,6 +261,40 @@ class ProxyAbisInsertServiceImplTest {
     }
 
     /**
+     * A deleteAfterUse expectation pauses the first match, then the existing cache
+     * delete removes it so the next packet with the same biometric hash continues.
+     */
+    @Test
+    void findDuplication_deleteAfterUse_secondPacketIsNotDelayed() {
+        ExpectationCacheImpl realCache = new ExpectationCacheImpl();
+        realCache.insert(deleteAfterUseExpectation("hash-finger"));
+        realCache.insert(deleteAfterUseExpectation("hash-iris"));
+        when(expectationCache.get(anyString())).thenAnswer(invocation -> realCache.get(invocation.getArgument(0)));
+        when(expectationCache.delete(anyString())).thenAnswer(invocation -> realCache.delete(invocation.getArgument(0)));
+        when(proxyAbisBioDataRepository.fetchBioDataByRefId(anyString()))
+                .thenReturn(List.of("hash-finger", "hash-iris"));
+        when(proxyAbisConfigService.isForceDuplicate()).thenReturn(false);
+        when(proxyAbisConfigService.getDuplicate()).thenReturn(false);
+
+        IdentifyDelayResponse first = proxyAbisInsertService.findDuplication(identityRequest);
+        assertEquals(30, first.getDelayResponse());
+
+        identityRequest.setReferenceId("second-reference-id");
+        IdentifyDelayResponse second = proxyAbisInsertService.findDuplication(identityRequest);
+        assertEquals(0, second.getDelayResponse());
+    }
+
+    private Expectation deleteAfterUseExpectation(String id) {
+        Expectation expectation = new Expectation();
+        expectation.setId(id);
+        expectation.setDeleteAfterUse(true);
+        expectation.setActionToInterfere("Identify");
+        expectation.setDelayInExecution("30");
+        expectation.setForcedResponse("Success");
+        return expectation;
+    }
+
+    /**
      * Tests the duplication check when no duplicates are found.
      * Verifies that the method returns an empty candidate list.
      */

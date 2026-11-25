@@ -53,6 +53,11 @@ public class Expectation {
 	private String errorCode;
 	private String delayInExecution;
 	private Gallery gallery;
+	/**
+	 * When true, this expectation is deleted after the first request uses it.
+	 * Omitted or false keeps the expectation for later packets.
+	 */
+	private boolean deleteAfterUse = false;
 
 	public Expectation(String id, String version, LocalDateTime requesttime, String actionToInterfere,
 			String forcedResponse, Gallery gallery) {

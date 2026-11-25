@@ -114,9 +114,10 @@ class ProxyAbisConfigServiceImplTest {
     @Test
     void deleteExpectation_deletesExpectationFromCache_successfully() {
         String expId = "exp1";
-        proxyAbisConfigService.deleteExpectation(expId);
+        when(expectationCache.delete(expId)).thenReturn(true);
 
-        verify(expectationCache, times(1)).delete(expId); // Verify the delete method is called once
+        assertTrue(proxyAbisConfigService.deleteExpectation(expId));
+        verify(expectationCache, times(1)).delete(expId);
     }
 
     /**
